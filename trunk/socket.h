@@ -19,37 +19,38 @@ sa_data
 #include <string>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <netinet/in.h> // for uint16_t
+#include <netdb.h>
+
+
 
 using namespace std;
 
 
 class Socket {
       public:
-            int m_socket;
+            int socket_mi;
 
       public:
 
-            //the socket family
-            //the socket type
-            //the socet protocol
-            Socket( const int family_i, const int type_i, const int protocol_i);
-
-            ~Socket();//maybe close?
+            Socket( );
+           ~Socket( );
 
 
-            // create();//the contructor has the job to create the scoket
+
+            void create( const int family_i, const int type_i, const int protocol_i);//the contructor has the job to create the scoket
 
             // adress_t :wrapper for sockaddr. the length is computed inside
-            connect( address_t adress);// for TCP connection. return an error
+            void connect( const string& hostName, uint16_t port);// for TCP connection. return an error
                                        // if socket is UDP
 
-            //bool send(const string& message_s, unsigned int flags_ui);//send for TCP, sendTO for UDP
+            void send(const string& message_s);//send for TCP, sendTO for UDP
 
             //this could return a string. or a string might be passed by reference
             //study wich is faster
             //bool recv( unsigned int flags_ui);//recv for TCP, recvFROM for UDP
 
-            //bool close();//closes the socket
+            void close( );//closes the socket
             //bool setOptions();//set socket options
             //bool getOptions();//get socket options
             // Operations

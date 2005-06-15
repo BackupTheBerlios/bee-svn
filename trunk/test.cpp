@@ -5,7 +5,7 @@ int main()
 {
       try
       {
-            Socket m_sock( AF_INET, SOCK_STREAM, 0);
+            Socket m_sock;
       }
       catch( char* exception)
       {
