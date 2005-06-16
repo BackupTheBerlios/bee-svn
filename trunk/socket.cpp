@@ -1,31 +1,39 @@
 #include "socket.h"
-#include <errno.h>
 
 Socket::Socket()
 {
-      // In case I call this.send without first calling create.
-      socket_mi =-1;
+      RING;
+      socket_i =-1;
+      timeout  = 1;
 }
-Socket::~Socket(){}
+
+Socket::~Socket()
+{
+      RING;
+}
 
 
 void
 Socket::create( const int family_i, const int type_i, const int protocol_i)
 {
+      RING;
       int retval =socket( family_i, type_i, protocol_i);
       if( retval == -1)
       {
-            //man 3 strerror #include <string.h>
-            throw strerror( errno);
+            stringstream exception;
+            exception <<__FILE__<<":"<<__LINE__<<":"<<__PRETTY_FUNCTION__<<":"<<strerror( errno);
+            throw ( char*)exception.str().c_str();
       }
-      socket_mi =retval;
+      socket_i =retval;
 }
+
 
 
 void
 Socket::connect( const string& hostName_cs, uint16_t port_ui)
 {
-      if( socket_mi ==-1)
+      RING;
+      if( socket_i ==-1)
       {
             throw "Socket not created.";
       }
@@ -38,15 +46,18 @@ Socket::connect( const string& hostName_cs, uint16_t port_ui)
       host =gethostbyname( hostName_cs.c_str());
       if( host ==( struct hostent*)NULL)
       {
-           //exception ="Cannot resolve \"%s\" (%s)", hostName_cs, strerror( h_errno);
-           //throw exception;
+            stringstream exception;
+            exception <<__FILE__<<":"<<__LINE__<<":"<<__PRETTY_FUNCTION__<<":"<<strerror( errno);
+            throw (char*)exception.str().c_str();
       }
 
-      ( void) memcpy( ( char*)&whereTo, ( char*)host->h_addr, host->h_length);
-      int retval =::connect( socket_mi, ( sockaddr*)&whereTo, sizeof(whereTo));
+      ( void) memcpy( ( char*)&whereTo.sin_addr, ( char*)host->h_addr, host->h_length);
+      int retval =::connect( socket_i, ( sockaddr*)&whereTo, sizeof(whereTo));
       if( retval != 0)
       {
-            throw strerror( errno);
+            stringstream exception;
+            exception <<__FILE__<<":"<<__LINE__<<":"<<__PRETTY_FUNCTION__<<":"<<strerror( errno);
+            throw ( char*)exception.str().c_str();
       }
 }
 
@@ -55,7 +66,8 @@ Socket::connect( const string& hostName_cs, uint16_t port_ui)
 void
 Socket::send( const string& message)
 {
-      if( socket_mi ==-1)
+      RING;
+      if( socket_i ==-1)
       {
             throw "Socket not created.";
       }
@@ -65,7 +77,7 @@ Socket::send( const string& message)
             throw "Can't send empty string";
       }
 
-      int retval =::send( socket_mi, message.c_str(), message.size(), MSG_NOSIGNAL);
+      int retval =::send( socket_i, message.c_str(), message.size(), MSG_NOSIGNAL);
       if( retval == -1)
       {
             throw strerror( errno);
@@ -75,26 +87,68 @@ Socket::send( const string& message)
 
 
 
-//              |^^Why void?
 void
 Socket::close( void)
 {
-      int retval =shutdown( socket_mi, 2);
+      RING;
+      int retval =shutdown( socket_i, 2);
       if( retval == -1)
       {
-            throw strerror( errno);
+            stringstream exception;
+            exception <<__FILE__<<":"<<__LINE__<<":"<<__PRETTY_FUNCTION__<<":"<<strerror( errno);
+            throw ( char*)exception.str().c_str();
       }
 }
+
+
+
+void
+Socket::recv( string& response)
+{
+      RING;
+      char recvBuffer_cp[ 1024+1];
+      timeval sleepTime;
+      fd_set readable, er;
+
+      for(;;)
+      {
+            bzero( recvBuffer_cp, 1024+1);
+            FD_ZERO( &readable);
+            FD_ZERO( &er);
+            FD_SET ( socket_i, &readable);
+            FD_SET ( socket_i, &er);
+
+            sleepTime.tv_sec  = 1; // n number of seconds to sleep.
+            sleepTime.tv_usec = 0; // n number of micro seconds to sleep.
+
+            int retVal =select( socket_i +1, &readable, NULL, &er, &sleepTime);
+
+            if( retVal == -1)
+            {
+                  throw strerror( h_errno);
+            }
+
+            if( retVal != 0)
+            {
+                  retVal =read( socket_i, recvBuffer_cp, 1024);
+                  response +=recvBuffer_cp;
+                  return;
+            }
+            else
+            {
+                  stringstream exception;
+                  exception <<__FILE__<<":"<<__LINE__<<":"<<__PRETTY_FUNCTION__<<":"<<"select() timed out";
+                  throw ( char*)exception.str().c_str();
+            }
+
+      }
+}
+
+
 
 /*
 Socket::setOptions();
 
 Socket::getOptions();
-
-Socket::recv( string& response)
-{
-      
-}
-
 */
 

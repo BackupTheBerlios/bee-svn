@@ -1,36 +1,26 @@
 #ifndef SOCKET_H
 #define SOCKET_H
 
-/*
-struct sockaddr {
-   sa_family_t    sa_family;
-   char           sa_data[14];
-}
-Fields
-
-sa_family
-    The address family.
-
-sa_data
-    The address value.
-*/
-
-//    all the members has to throw exceptions
 #include <string>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <netinet/in.h> // for uint16_t
 #include <netdb.h>
+#include <errno.h>
+#include <fcntl.h>
 
+#include <iostream>
+#include <sstream>
+#include <string>
 
+#include "debug.h"
 
 using namespace std;
 
-
 class Socket {
       public:
-            int socket_mi;
-
+            int socket_i;
+            int timeout;
       public:
 
             Socket( );
@@ -48,7 +38,7 @@ class Socket {
 
             //this could return a string. or a string might be passed by reference
             //study wich is faster
-            //bool recv( unsigned int flags_ui);//recv for TCP, recvFROM for UDP
+            void recv( string& response);//recv for TCP, recvFROM for UDP
 
             void close( );//closes the socket
             //bool setOptions();//set socket options
