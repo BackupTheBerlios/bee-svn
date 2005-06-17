@@ -1,20 +1,29 @@
 CF = -llua -llualib -lconfuse -lpthread -L/usr/lib
 CXXFLAGS += -g -fmessage-length=120
-OBJS = socket.o test_socket.o
-all: test_socket test_info
-test_socket: socket.o test_socket.o
-	g++ $(CFLAGS) socket.o test_socket.o $(CF) -o test_socket
+OBJS = debug.o socket.o config.o luaConfig.o wrapper.o luaWrapper.o util.o balu.o
+all: balu
+balu: $(OBJS)
+	 g++ $(CFLAGS) $(OBJS) $(CF) /usr/lib/libpcre.a  -o balu
 
-test_info: info.o test_info.o
-	g++ $(CFLAGS) info.o test_info.o $(CF) -o test_info
-
-info.o: info.cpp info.h
+debug.o: debug.cpp debug.h
 
 socket.o: socket.cpp socket.h
 
-test_socket.o: test_socket.cpp
 
-test_info.o: test_info.cpp
+config.o: config.cpp config.h
+
+luaConfig.o: luaConfig.cpp luaConfig.h
+
+
+wrapper.o: wrapper.cpp wrapper.h debug.h
+
+luaWrapper.o: luaWrapper.cpp luaWrapper.h
+
+util.o : util.cpp util.h
+
+balu.o: balu.cpp
 
 clean:
-	rm -rf *~ *.o core* test_socket test_info
+	rm -rf *~ *.o core* balu tags
+tags:
+	ctags --recurse=yes --c-kinds=+cdefgmnpstuvx  --file-scope=no *

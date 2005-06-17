@@ -109,7 +109,7 @@ Socket::recv( string& response)
       char recvBuffer_cp[ 1024+1];
       timeval sleepTime;
       fd_set readable, er;
-
+      response ="";
       for(;;)
       {
             bzero( recvBuffer_cp, 1024+1);
@@ -136,9 +136,10 @@ Socket::recv( string& response)
             }
             else
             {
-                  stringstream exception;
-                  exception <<__FILE__<<":"<<__LINE__<<":"<<__PRETTY_FUNCTION__<<":"<<"select() timed out";
-                  throw ( char*)exception.str().c_str();
+//                  stringstream exception;
+//                  exception <<__FILE__<<":"<<__LINE__<<":"<<__PRETTY_FUNCTION__<<":"<<"select() timed out";
+                  cout <<"RECV select() timed out" <<endl;
+                  return;
             }
 
       }
