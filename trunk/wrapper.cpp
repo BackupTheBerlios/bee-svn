@@ -192,7 +192,9 @@ Wrapper::lmatch(int lineNo, string expect_regex)
             string line =tokens[ lineNo];
 
             if( Expect.Search( line.c_str()) )
-            {
+            {     
+                  if( line[ line.size() -1] == '\r')
+                        line[ line.size() -1] = '\n';
                   info_m.info("lmatch", line.c_str());
                   if( tokens[ lineNo].size())
                         return tokens[ lineNo];
