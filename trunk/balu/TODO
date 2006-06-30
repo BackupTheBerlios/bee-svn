@@ -1,0 +1,6 @@
+Build a base Class for TCP and UDP.
+so those will be derived from the base.
+
+Wrapper class is weird and confusing.
+maybe a new class for text operation will branch from wrapper.
+
