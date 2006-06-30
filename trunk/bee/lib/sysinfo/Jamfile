@@ -1,0 +1,9 @@
+TOP ?= $(DOTDOT) ;
+
+#SubDir TOP ;
+include $(TOP)/Jamrules ;
+
+T_SYSINFO_SRC =  SysInfo.cpp t_sysinfo.cpp ;
+
+Main t_sysinfo : $(T_SYSINFO_SRC) ;
+# vim:ft=jam

@@ -1,0 +1,27 @@
+TOP ?= $(DOTDOT) ;
+
+#SubDir TOP ;
+include $(TOP)/Jamrules ;
+
+T_POP3_SRC =  t_pop3.cpp Protocol.cpp
+            $(TOP)$(SLASH)socket$(SLASH)Socket.cpp  ;
+
+
+if ( $(JAM_TOOLSET) = VISUALC )
+{
+    LINKLIBS += wsock32.lib ;
+    C++FLAGS += /D "SHARED" ;
+    TEST_SRC += $(TOP)$(SLASH)win32$(SLASH)scandir.c ;
+    #CCFLAGS = MTd ; # removed /FD place MLd in Jamrules
+    LINKFLAGS += /OUT:"test.dll" /INCREMENTAL /DLL /DEF:"test.def" /IMPLIB:"test.lib"  ;
+}
+
+if ( $(JAM_TOOLSET) = MINGW )
+{
+    C++FLAGS += -DSHARED ;
+    LINKLIBS += -lwsock32 -shared ;
+    TEST_SRC += $(TOP)$(SLASH)win32$(SLASH)scandir.c ;
+}
+
+Main t_pop3 : $(T_POP3_SRC) ;
+# vim:ft=jam

@@ -1,0 +1,217 @@
+set nocompatible    " DONT be backward compatible.
+set guioptions -=M  " DONT source "$VIMRUNTIME/menu.vim"
+aunmenu *
+set vb t_vb=
+
+"location to create swap files
+if has("win32")
+    set dir=f:\tmp\swp
+else
+    set dir=$HOME/.vim/swp
+endif
+set shellpipe=2>&1\|\ cat\ >    "dont display text when using shellpipes
+autocmd FileType make set noexpandtab shiftwidth=8  "use real tabs for Makefiles
+filetype on         " enable filetype detection
+filetype plugin on  " TODO
+if !has("gui_running")
+    colorscheme torte
+else
+    colorscheme delek
+endif
+set switchbuf=usetab
+let did_install_default_menus = 1
+let did_install_syntax_menu = 1
+let skip_syntax_sel_menu = 1
+
+set autowriteall    " autowrite buffers when abandoned.
+set nostartofline   " Remember the last position in Buffer
+set autoindent      " Copy indent from current line when starting a new line t
+set smartindent     " autoinsert indent in cmode
+set foldenable      " when off, all folds are open
+set foldmethod=marker
+"set foldmarker=**/,//*
+set makeprg=jam     " Program to use for the ":make" command.
+set backspace=indent,eol,start  "backspace over everything, when in insert mode
+"set virtualedit=all " let the cursor stray beyond the defined text
+set laststatus=0    " when the last window will have statusline
+"set ignorecase      "caseSensytive OFF
+set incsearch       " highlight search string as you type
+set hlsearch        " highlight search matches
+set showmatch       " briefly jump to the matching bracket
+set nojoinspaces    " dont insert two spaces after .?! when joining lines TODO howto join
+set nowrap          " turn OFF wrapline
+set number          " show lineNumbers
+set ruler           " show cursor position in status bar
+set shiftround      " Round indent to multiple of 'shiftwidth'
+set comments=sl:/*,mb:*,elx:*/  "TODO
+set cursorline
+set expandtab       " use spaces instead of tabs
+set shiftwidth=4    " Number of spaces to use for each step of (auto)indent
+set softtabstop=4   " spaces to insert when <Tab> is pressed
+set tabstop=4       " number of spaces that a <Tab> in the file counts for
+set visualbell      " replace the beep sounds, with visual bell
+set wildmenu        " command-line completion operates in an enhanced mode
+let mapleader = "\\"
+set mouse=nv
+syntax on           "turn ON syntax highlight
+highlight ErrorMsg guibg=Red guifg=black gui=none
+"set wildignore=CVS,*.o,*.a,*.class,*.mo,*.la,*.so,*.obj,*.swp,*.jpg,*.png,*.xpm,*.gif
+
+
+
+" Bindings
+"-------------------------------------
+" Make shift-insert work like in Xterm
+map  <S-Insert> <MiddleMouse>
+map! <S-Insert> <MiddleMouse>
+
+map  <F2> :w<CR>
+map! <F2> <esc>:w<CR>a
+
+map  <F6> :1r /home/groleo/_doc/header.txt<CR>:0,%s/__DATE__/\=strftime("%c")/<CR>
+map! <F6> <esc>:1r /home/groleo/_doc/header.txt<CR>:0,%s/__DATE__/\=strftime("%c")/<CR>i
+
+map  <F5>  :silent w !xclip<CR><CR>
+vmap <F5>  "*y
+
+map  <F7> :call Make()<CR>
+map! <F7> <esc>:call Make()<CR>i
+
+
+
+" Functions
+"-------------------------------------
+function! Make()
+        :copen 5
+        :silent! make
+endfunction
+
+" nice tab completion
+function! InsertTabWrapper()
+      let col = col('.') - 1
+      if !col || getline('.')[col - 1] !~ '\k'
+             return "\<tab>"
+      else
+             return "\<c-n>"
+      endif
+endfunction
+inoremap <tab> <c-r>=InsertTabWrapper()<cr>
+
+set encoding=utf-8
+set fillchars=stl:⎼,stlnc:\ 
+set statusline=%1*
+
+
+
+" Syntax highlight tweaks
+"-------------------------------------
+
+" Highlight the 80th column so that you know
+if has('autocmd')
+   " Do not highlight the character if it is a:
+   "      <>[]{}()"':
+   " since that messes up the syntax highlighting for the file
+   let rightMargin = 'au FileType * syn clear rightMargin | ' .
+               \ 'syn match rightMargin /\%80' .
+               \ 'v[^<>(){}\[\]:/\"'."'".']/ containedin=ALL'
+   execute rightMargin
+   hi rightMargin ctermbg=Red guibg=Red
+   " Convienent command to clear it, if it messes up syntax
+   " highlighting, which it usually does on when the 80th column
+   " is a single or double quote
+   command! RightMarginClear syn clear rightMargin
+endif
+
+" Match redundant whitspaces
+highlight RedundantSpaces guibg=green ctermbg=green
+match RedundantSpaces /\s\+$\| \+\ze\t/
+
+
+" Plugins Configuration
+"-------------------------------------
+
+function! MyTabLine()
+       let s = ''
+       for i in range(tabpagenr('$'))
+               " select the highlighting
+               if i + 1 == tabpagenr()
+                       let s .= '%#TabLineSel#'
+               else
+                       let s .= '%#TabLine#'
+               endif
+
+               " set the tab page number (for mouse clicks)
+               let s .= '%' . (i + 1) . 'T'
+
+               " the label is made by MyTabLabel()
+               let s .= ' %{MyTabLabel(' . (i + 1) . ')} |'
+       endfor
+
+       " after the last tab fill with TabLineFill and reset tab page nr
+       let s .= '%#TabLineFill#%T'
+
+       " right-align the label to close the current tab page
+       if tabpagenr('$') > 1
+               let s .= '%=%#TabLine#%999X X'
+       endif
+
+       "echomsg 's:' . s
+       return s
+endfunction
+
+function! MyTabLabel(n)
+       let buflist = tabpagebuflist(a:n)
+       let winnr = tabpagewinnr(a:n)
+       let numtabs = tabpagenr('$')
+       " account for space padding between tabs, and the "close" button
+       let maxlen = ( &columns - ( numtabs * 2 ) - 4 ) / numtabs
+       let tablabel = bufname(buflist[winnr - 1])
+       while strlen( tablabel ) < 4
+               let tablabel = tablabel . " "
+       endwhile
+       let tablabel = fnamemodify( tablabel, ':t' )
+       let tablabel = strpart( tablabel, 0,  maxlen )
+       return tablabel
+endfunction
+
+set tabline=%!MyTabLine()
+
+set showtabline=1       " 2=always
+autocmd GUIEnter * hi! TabLineFill term=underline cterm=underline gui=underline
+autocmd GUIEnter * hi! TabLineSel  term=bold,reverse,underline
+               \ ctermfg=11 ctermbg=12 guifg=#ffff00 guibg=#0000ff gui=underline
+inoremap <unique> <script> <M-1> <ESC>:tabn1<CR>a
+inoremap <unique> <script> <M-2> <ESC>:tabn2<CR>a
+inoremap <unique> <script> <M-3> <ESC>:tabn3<CR>a
+inoremap <unique> <script> <M-4> <ESC>:tabn4<CR>a
+inoremap <unique> <script> <M-5> <ESC>:tabn5<CR>a
+inoremap <unique> <script> <M-6> <ESC>:tabn6<CR>a
+inoremap <unique> <script> <M-7> <ESC>:tabn7<CR>a
+inoremap <unique> <script> <M-8> <ESC>:tabn8<CR>a
+inoremap <unique> <script> <M-9> <ESC>:tabn9<CR>a
+
+noremap <unique> <script> <M-1> :tabn1<CR>
+noremap <unique> <script> <M-2> :tabn2<CR>
+noremap <unique> <script> <M-3> :tabn3<CR>
+noremap <unique> <script> <M-4> :tabn4<CR>
+noremap <unique> <script> <M-5> :tabn5<CR>
+noremap <unique> <script> <M-6> :tabn6<CR>
+noremap <unique> <script> <M-7> :tabn7<CR>
+noremap <unique> <script> <M-8> :tabn8<CR>
+noremap <unique> <script> <M-9> :tabn9<CR>
+
+"save code, run perl, show output in preview window
+let g:pv_opened = 0
+function! Perl_eval_vsplit()
+    if( g:pv_opened == 1 ) 
+        execute ':pclose!'
+        let g:pv_opened = 0
+        return
+    endif
+    let g:pv_opened = 1
+    let dst = tempname()
+    execute ':silent ! perl ' . bufname('%') . ' > ' . dst . ' 2>&1 '
+    execute ':pedit! ' . dst
+endfunction
+
+map  <silent> <F8> :call Perl_eval_vsplit() <cr>

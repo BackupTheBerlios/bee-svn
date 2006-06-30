@@ -1,0 +1,15 @@
+TOP ?= $(DOTDOT) ;
+
+#SubDir TOP ;
+include $(TOP)/Jamrules ;
+
+T_PROD_SRC =  t_prod.cpp ;
+T_CONS_SRC =  t_cons.cpp ;
+T_TQUEUE_SRC =  t_tqueue.cpp ;
+T_PROD_CONS_SRC =  t_prod_cons.cpp ;
+
+Main t_prod : $(T_PROD_SRC) ;
+Main t_cons : $(T_CONS_SRC) ;
+Main t_tqueue : $(T_TQUEUE_SRC) ;
+Main t_prod_cons : $(T_PROD_CONS_SRC) ;
+# vim:ft=jam
