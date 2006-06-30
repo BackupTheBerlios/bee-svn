@@ -120,6 +120,7 @@ class Socket
         void close  ( ) ;                   //!< Close the connection
         void close  ( const int how ) ;           //!< Close the connection
         void shutdown( const int how ) ;
+        void sync( bool ) ;
         inline bool is_open( )      { return is_open_ ; } ;
         inline bool is_connected()  { return is_conn_ ; } ;
         inline string response( )   { return resp_ ; } ;

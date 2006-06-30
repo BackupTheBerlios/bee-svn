@@ -1,27 +1,12 @@
-TOP ?= $(DOTDOT) ;
+TOP ?= $(DOTDOT)/$(DOTDOT) ;
 
-#SubDir TOP ;
-include $(TOP)/Jamrules ;
+SubDir TOP lib http ;
 
-T_HTTP_SRC =  t_http.cpp Protocol.cpp
-            $(TOP)$(SLASH)socket$(SLASH)Socket.cpp  ;
-
-
-if ( $(JAM_TOOLSET) = VISUALC )
-{
-    LINKLIBS += wsock32.lib ;
-    C++FLAGS += /D "SHARED" ;
-    TEST_SRC += $(TOP)$(SLASH)win32$(SLASH)scandir.c ;
-    #CCFLAGS = MTd ; # removed /FD place MLd in Jamrules
-    LINKFLAGS += /OUT:"test.dll" /INCREMENTAL /DLL /DEF:"test.def" /IMPLIB:"test.lib"  ;
-}
-
-if ( $(JAM_TOOLSET) = MINGW )
-{
-    C++FLAGS += -DSHARED ;
-    LINKLIBS += -lwsock32 -shared ;
-    TEST_SRC += $(TOP)$(SLASH)win32$(SLASH)scandir.c ;
-}
+T_HTTP_SRC =  t_http.cpp ;
 
 Main t_http : $(T_HTTP_SRC) ;
+LinkLibraries t_http : libhttp libsocket ;
+Library libhttp : Protocol.cpp ;
+SubInclude TOP lib socket ;
+
 # vim:ft=jam

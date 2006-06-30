@@ -1,27 +1,9 @@
+TOP ?= $(DOTDOT)/$(DOTDOT) ;
+
+SubDir $(TOP) lib socket ;
+
+Main t_socket : t_socket.cpp ;
+LinkLibraries t_socket : libsocket ;
+Library libsocket : Socket.cpp ;
+
 # vim:ft=jam
-
-TOP ?= $(DOTDOT) ;
-
-include $(TOP)/Jamrules ;
-
-T_SOCKET_SRC =  t_socket.cpp Socket.cpp ;
-
-# Compiling on windows + VisualC_Compiler
-if ( $(JAM_TOOLSET) = VISUALC )
-{
-    LINKLIBS += wsock32.lib ;
-    C++FLAGS += /D "SHARED" ;
-    TEST_SRC += $(TOP)$(SLASH)win32$(SLASH)scandir.c ;
-    #CCFLAGS = MTd ; # removed /FD place MLd in Jamrules
-    LINKFLAGS += /OUT:"test.dll" /INCREMENTAL /DLL /DEF:"test.def" /IMPLIB:"test.lib"  ;
-}
-
-# Compiling on windows + MinGW_Compiler
-if ( $(JAM_TOOLSET) = MINGW )
-{
-    C++FLAGS += -DSHARED ;
-    LINKLIBS += -lwsock32 -shared ;
-    TEST_SRC += $(TOP)$(SLASH)win32$(SLASH)scandir.c ;
-}
-
-Main t_socket : $(T_SOCKET_SRC) ;
