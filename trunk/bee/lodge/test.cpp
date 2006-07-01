@@ -3,7 +3,7 @@
 #include <math.h>
 struct dist_t {
     int   msg;
-    float probl ;
+    float pct ;     // percent
     float step ;
 } ;
 /* Message distribution over mailbox */
@@ -39,28 +39,28 @@ struct dist_t md[] ={
 /*
  * Functia ia ca parametru o tabela ca md,
  * si apeleaza o functie callback ?*/
-int distribute( struct dist_t md[], int size ) 
+int compute_steps( struct dist_t md[], int size ) 
 {
     int k ;
 
     // calculez pasii.
     for( k=0; k < size; ++k)
     {
-        md[k].step = 100.0/md[k].probl ;
-        printf("probl=%f--step=%f\n", md[k].probl, md[k].step ) ;
+        md[k].step = 100.0/md[k].pct ;
+        printf("pct=%f--step=%f\n", md[k].pct, md[k].step ) ;
     }
     return 0 ;
 }
 
 int
-prepare_mail( int i, struct dist_t md[], int size )
+distribute( int i, struct dist_t md[], int size )
 {
     int k ;
     for( k=0; k < 29; k++ )
     {
         if( fmod(i,md[k].step) < 1.0 )
         {
-            // aici o sa umpluu mbox(user_i) cu md[k].msg mesaje
+            // umplu mbox(user_i) cu md[k].msg mesaje
             printf("Sending %i mails to user%i\n",md[k].msg, i ) ;
         }
     }
@@ -72,12 +72,28 @@ int main() {
     int k, mb=10000, i=0 ;
     float x = 0.0;
 
-    distribute(md, 29 ) ;
+    compute_steps( md, 29 ) ;
 
     // Rulez
+    
     for( i=0; i < mb; ++i)
     {
-        prepare_mail( i, md, 29 ) ;
+        distribute( i, md, 29 ) ;
     }
+    /*
+     * for(;;)
+     * {
+     *      mutex_lock();
+     *      if(k < 10.000) k++ ;
+     *      mutex_unlock();
+     *      rc = send_mail() ;
+     *      if(rc)
+     *      mutex_lock() ;
+     *      --k ;
+     *      mutex_unlock() ;
+     *  
+     *      else
+     *          pthread_exit() ;
+     *      */
     return 0;
 }
