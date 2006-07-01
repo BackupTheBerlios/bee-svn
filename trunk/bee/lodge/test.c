@@ -36,26 +36,48 @@ struct dist_t md[] ={
     {27 , 0.03 , 0},
     {28 , 0.02 , 0},
 };
-int main() {
-    int i = 0,k ;
-    float x =0.0;
+/*
+ * Functia ia ca parametru o tabela ca md,
+ * si apeleaza o functie callback ?*/
+int distribute( struct dist_t md[], int size ) 
+{
+    int k ;
 
     // calculez pasii.
-    for( k=0;k<29;++k)
+    for( k=0; k < size; ++k)
     {
         md[k].step = 100.0/md[k].probl ;
         printf("probl=%f--step=%f\n", md[k].probl, md[k].step ) ;
     }
-    for(i=0; i<10000; ++i)
+    return 0 ;
+}
+
+int
+prepare_mail( int i, struct dist_t md[], int size )
+{
+    int k ;
+    for( k=0; k < 29; k++ )
     {
-        for(k=0;k<29;k++)
+        if( fmod(i,md[k].step) < 1.0 )
         {
-            if( fmod(i,md[k].step) < 1.0 )
-            {
-                // aici o sa umpluu mbox(user_i) cu md[k].msg mesaje
-                printf("Sending %i mails to user%i\n",md[k].msg, i ) ;
-            }
+            // aici o sa umpluu mbox(user_i) cu md[k].msg mesaje
+            printf("Sending %i mails to user%i\n",md[k].msg, i ) ;
         }
+    }
+    return 0 ;
+}
+
+
+int main() {
+    int k, mb=10000, i=0 ;
+    float x = 0.0;
+
+    distribute(md, 29 ) ;
+
+    // Rulez
+    for( i=0; i < mb; ++i)
+    {
+        prepare_mail( i, md, 29 ) ;
     }
     return 0;
 }
