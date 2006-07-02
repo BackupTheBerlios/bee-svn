@@ -1,54 +1,26 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <pthread.h>
-#include <vector>
-using namespace std ;
-
-
-
-class MailStore {
-    public:
-        MailStore() ;
-        ~MailStore() {};
-        // structura folosita de fillMbox
-        struct targ {
-            int mbi ;               // mailbox index
-            pthread_mutex_t* mtx ;  // mutex pt index
-            MailStore* p ;
-            int end ;
-        } arg ;
-
-    private:
-        struct dist_t {
-            int   msg;
-            float pct ;     // percent
-            float step ;
-        } ;
-
-        /* Message distribution over mailbox */
-        #define md_size 29
-        std::vector<struct dist_t> md ;
-        static void*  fillMbox( void* arg ) ;
-} ;
-
+#include "MailStore.h"
 
 MailStore::MailStore()
 {
     int k ;
+    char fn[] = "md.txt" ;
 
     arg.p = this ;
-    FILE* f = fopen( "md.txt", "r" ) ;
+    FILE* f = fopen( fn, "r" ) ;
+    if( !f ) { printf("cant open %s\n",fn ) ; exit(1) ; }
     while(!feof(f))
     {
         struct dist_t tmp;
-        fscanf( f, "%i %f %i", &tmp.msg, &tmp.pct, &tmp.step);
+        fscanf( f, "%i %f", &tmp.msg, &tmp.pct );
         md.push_back(tmp);
     }
     fclose(f);
 
     // calculez pasii pentru md
-    for( k=0; k < md_size; ++k)
+    for( k=0; k < md.size(); ++k)
     {
         md[k].step = 100.0/md[k].pct ;
         printf("pct=%f--step=%f\n", md[k].pct, md[k].step ) ;
@@ -64,18 +36,24 @@ MailStore::fillMbox( void* t )
     int i = 0,rc=0 ;
     for(;;) {
         pthread_mutex_lock( arg->mtx );
-        if( arg->mbi > arg->end ) pthread_exit(0) ;
+        if( arg->mbi >= arg->end )
+        {
+            pthread_mutex_unlock( arg->mtx );
+            break ;
+        }
         arg->mbi++ ;
         i = arg->mbi ;
-        printf("Current mboxIdx%i\n",i);
+//        printf("Current mboxIdx%i\n",i);
         pthread_mutex_unlock( arg->mtx );
         //rc = sendFile() ;
         int k ;
-        for( k=0; k < md_size ; k++ )
+        for( k=0; k < arg->p->md.size() ; k++ )
         {
             if( fmod( i,arg->p->md[k].step) < 1.0 )
             {
-                rc = printf("Sending %i mails to user%i\n",arg->p->md[k].msg, i ) ;
+                rc = printf("%i mails for user%i\tStep=%f\n",
+                    arg->p->md[k].msg, i,arg->p->md[k].step ) ;
+//                break ;
                 if( !rc ){
                     // If it failed, let other thread try send the mail
                     pthread_mutex_lock( arg->mtx );
@@ -85,30 +63,38 @@ MailStore::fillMbox( void* t )
             }
         }// sendFile
     }
+//    printf("all done: exit\n");
+    pthread_exit(0);
     return 0 ;
 }
 
-
-int main() {
+int
+MailStore::init( const char* host, const int port, const int maxMbox, const int threads)
+{
     pthread_mutex_t mtx = PTHREAD_MUTEX_INITIALIZER; 
 
-    int mboxIdx = 0,i ;
-    int maxMbox = 10000;
-    pthread_t ta[10] ;
-    MailStore* clients[10] ;
+    int         mboxIdx=0, i ;
+    pthread_t   ta[threads] ;
+    struct      dist_t tmp ;
 
-    for( i = 0 ; i < 10 ; ++i )
+    arg.mbi = mboxIdx ;
+    arg.mtx = &mtx ;
+    arg.end = maxMbox ;
+
+    for( i = 0 ; i < threads ; ++i )
     {
-        clients[i] = new MailStore ;
-        clients[i]->arg.mbi = mboxIdx ;
-        clients[i]->arg.mtx = &mtx ;
-        clients[i]->arg.end = maxMbox ;
-        pthread_create( &ta[i], NULL, clients[i]->fillMbox, (void*)&clients[i]->arg) ;
+        pthread_create( &ta[i], NULL, fillMbox, (void*)&arg) ;
     }
-    for( i = 0 ; i < 10 ; ++i ) 
+    for( i = 0 ; i < threads ; ++i ) 
         pthread_join( ta[i], NULL ) ;
-    for( i = 0; i < 10 ; ++i )
-        delete clients[i] ;
+
+
     pthread_mutex_destroy(&mtx);  
+    return 0;
+}
+
+int main() {
+    MailStore ms ;
+    ms.init("localhost", 25, 100,1 ) ;
     return 0;
 }
