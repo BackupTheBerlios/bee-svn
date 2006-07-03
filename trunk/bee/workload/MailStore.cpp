@@ -45,7 +45,7 @@ MailStore::fillMbox( void* t )
         i = arg->mbi ;
 //        printf("Current mboxIdx%i\n",i);
         pthread_mutex_unlock( arg->mtx );
-        //rc = sendFile() ;
+        // sendFile() ;
         int k ;
         for( k=0; k < arg->p->md.size() ; k++ )
         {
@@ -63,7 +63,7 @@ MailStore::fillMbox( void* t )
             }
         }// sendFile
     }
-//    printf("all done: exit\n");
+    printf("all done: exit\n");
     pthread_exit(0);
     return 0 ;
 }
