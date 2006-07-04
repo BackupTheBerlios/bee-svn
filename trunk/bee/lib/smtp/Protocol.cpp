@@ -177,7 +177,27 @@ Smtp::Protocol::beginData( )
     //_report->write( pthread_self(), __FUNCTION__, //_timer.elapsed() ) ;
 }//* Smtp::Protocol::data
 
+void
+Smtp::Protocol::randomData( int msg_sz )
+{
+    int rb ;
+    int sz = ( msg_sz < 8192 ) ? msg_sz : 8192 ;
+    char buf[sz+1] ;
 
+
+    beginData();
+    //generate the message here
+    int fd = ::open("/dev/urandom", O_RDONLY ) ;
+    do
+    {
+        rb = ::read( fd, buf, sz ) ;
+        buf[rb] = '\0' ;
+        write(buf, rb) ;
+        write("\n" ) ;
+    }while( msg_sz-=rb ) ;
+    endData() ;
+    ::close(fd) ;
+}
 
 /**
  * @param in_fd : Must be an opened file descriptor. **/

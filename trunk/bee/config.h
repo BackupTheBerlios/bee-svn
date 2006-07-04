@@ -1,3 +1,7 @@
+#if !defined _BEE_CONFIG_
+#define _BEE_CONFIG_
+
+
 /*This will hold the config values, as //define statements.*/
 
 
@@ -119,7 +123,7 @@ Any number of lines may be included in the results."
 #define SYSTEM_HW_VENDOR "Dell"
 
 // Operating System (including version)" 
-#define SYSTEM_OS "HURL 6.1 (kernel 2.2.15pre8)"
+#define SYSTEM_OS_0 "HURL 6.1 (kernel 2.2.15pre8)"
 
 // The file system used by the mailserver
 #define SYSTEM_FILESYSTEM "ext2"
@@ -176,7 +180,7 @@ Any number of lines may be included in the results."
 #define SYSTEM_DISK "1 x 10GB SCSI"
 
 // Type of network interface used by the mail server
-#define SYSTEM_NETWORK[0] "Loopback interface"
+#define SYSTEM_NETWORK_0 "Loopback interface"
 
 // Any other hardware you think is performance-related.  That is,
 // you need this hardware to reproduce the test
@@ -197,58 +201,58 @@ Any number of lines may be included in the results."
 #define SYSTEM_HW_VENDOR_1 "Dell"
 #define SYSTEM_FUNCTION_1 "POP Server"
 #define SYSTEM_NUM_SYSTEMS_1 "1"
-#define SYSTEM_OS[1] "HURL 6.1 (kernel 2.2.15pre8)"
-#define SYSTEM_FILESYSTEM[1] "ext2"
-#define SYSTEM_SW_LABEL[1] "POP Software"
-//#define SYSTEM_JVM[1] "Blackdown"
-//#define SYSTEM_JIT[1] "xxx"
-#define SYSTEM_SW_NAME[1] "qpopper"
-#define SYSTEM_SW_AVAIL[1] "Jan-2001"
-#define SYSTEM_CPU[1] "Celeron"
-#define SYSTEM_CPUMHZ[1] "366"
-#define SYSTEM_CPU_ENABLED[1] "1"
-#define SYSTEM_HW_AVAIL[1] "Jan-2001"
-#define SYSTEM_L1CACHE[1] "16KbI + 16KbD"
-#define SYSTEM_L2CACHE[1] "128Kb Unified On-Chip"
-#define SYSTEM_L3CACHE[1] "N/A"
-#define SYSTEM_MEMORY[1] 128
-#define SYSTEM_DISK[1] "1 x 10GB"
-#define SYSTEM_NETWORK[1] "Loopback interface"
-#define SYSTEM_HW_OTHER[1] "N/A"
-#define SYSTEM_NOTES[1][0] "These are notes for a specific piece of hardware/software."
-#define SYSTEM_NOTES[1][1] "Again, mulitlpe lines are allowed if desired."
+#define SYSTEM_OS_1 "HURL 6.1 (kernel 2.2.15pre8)"
+#define SYSTEM_FILESYSTEM_1 "ext2"
+#define SYSTEM_SW_LABEL_1 "POP Software"
+//#define SYSTEM_JVM_1 "Blackdown"
+//#define SYSTEM_JIT_1 "xxx"
+#define SYSTEM_SW_NAME_1 "qpopper"
+#define SYSTEM_SW_AVAIL_1 "Jan-2001"
+#define SYSTEM_CPU_1 "Celeron"
+#define SYSTEM_CPUMHZ_1 "366"
+#define SYSTEM_CPU_ENABLED_1 "1"
+#define SYSTEM_HW_AVAIL_1 "Jan-2001"
+#define SYSTEM_L1CACHE_1 "16KbI + 16KbD"
+#define SYSTEM_L2CACHE_1 "128Kb Unified On-Chip"
+#define SYSTEM_L3CACHE_1 "N/A"
+#define SYSTEM_MEMORY_1 128
+#define SYSTEM_DISK_1 "1 x 10GB"
+#define SYSTEM_NETWORK_1 "Loopback interface"
+#define SYSTEM_HW_OTHER_1 "N/A"
+#define SYSTEM_NOTES_1_0 "These are notes for a specific piece of hardware/software."
+#define SYSTEM_NOTES_1_1 "Again, mulitlpe lines are allowed if desired."
 
 //
 // Here is an example of the Load Generator
 //
-#define SYSTEM_HW_MODEL[2] "Inspiron 3500"
-#define SYSTEM_HW_VENDOR[2] "Dell"
-#define SYSTEM_FUNCTION[2] "Load Generator"
-#define SYSTEM_NUM_SYSTEMS[2] "1"
-#define SYSTEM_OS[2] "HURL 6.1 (kernel 2.2.15pre8)"
-#define SYSTEM_FILESYSTEM[2] "ext2"
+#define SYSTEM_HW_MODEL_2_ "Inspiron 3500"
+#define SYSTEM_HW_VENDOR_2_ "Dell"
+#define SYSTEM_FUNCTION_2_ "Load Generator"
+#define SYSTEM_NUM_SYSTEMS_2_ "1"
+#define SYSTEM_OS_2_ "HURL 6.1 (kernel 2.2.15pre8)"
+#define SYSTEM_FILESYSTEM_2_ "ext2"
 
 // The sw_label for any of the systems running java as its primary software
 // need to set SW_LABEL to "JVM".
-#define SYSTEM_SW_LABEL[2] "JVM"
-#define SYSTEM_JVM[2] "Blackdown"
-#define SYSTEM_JIT[2] "xxx"
+#define SYSTEM_SW_LABEL_2_ "JVM"
+#define SYSTEM_JVM_2_ "Blackdown"
+#define SYSTEM_JIT_2_ "xxx"
 
-#define SYSTEM_SW_NAME[2] "JAVA"
-#define SYSTEM_SW_AVAIL[2] "Jan-2001"
-#define SYSTEM_CPU[2] "Celeron"
-#define SYSTEM_CPUMHZ[2] "366"
-#define SYSTEM_CPU_ENABLED[2] "1"
-#define SYSTEM_HW_AVAIL[2] "Jan-2001"
-#define SYSTEM_L1CACHE[2] "16KbI + 16KbD"
-#define SYSTEM_L2CACHE[2] "128Kb Unified On-Chip"
-#define SYSTEM_L3CACHE[2] "N/A"
-#define SYSTEM_MEMORY[2] 128
-#define SYSTEM_DISK[2] "1 x 10GB"
-#define SYSTEM_NETWORK[2] "Loopback interface"
-#define SYSTEM_HW_OTHER[2] "N/A"
-#define SYSTEM_NOTES[2][0] "These are notes for a specific piece of hardware/software."
-#define SYSTEM_NOTES[2][1] "Again, mulitlpe lines are allowed if desired."
+#define SYSTEM_SW_NAME_2_ "JAVA"
+#define SYSTEM_SW_AVAIL_2_ "Jan-2001"
+#define SYSTEM_CPU_2_ "Celeron"
+#define SYSTEM_CPUMHZ_2_ "366"
+#define SYSTEM_CPU_ENABLED_2_ "1"
+#define SYSTEM_HW_AVAIL_2_ "Jan-2001"
+#define SYSTEM_L1CACHE_2_ "16KbI + 16KbD"
+#define SYSTEM_L2CACHE_2_ "128Kb Unified On-Chip"
+#define SYSTEM_L3CACHE_2_ "N/A"
+#define SYSTEM_MEMORY_2_ 128
+#define SYSTEM_DISK_2_ "1 x 10GB"
+#define SYSTEM_NETWORK_2_ "Loopback interface"
+#define SYSTEM_HW_OTHER_2_ "N/A"
+#define SYSTEM_NOTES_2__0_ "These are notes for a specific piece of hardware/software."
+#define SYSTEM_NOTES_2__1_ "Again, mulitlpe lines are allowed if desired."
 
 //-----------------------------------------------------------------------------
 //
@@ -307,4 +311,4 @@ Any number of lines may be included in the results."
 //#define RAMPDOWN_SECONDS 600
 //#define LOAD_FACTORS "100%"
 
-
+#endif // _BEE_CONFIG_

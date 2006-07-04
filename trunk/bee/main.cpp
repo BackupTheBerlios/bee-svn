@@ -2,6 +2,7 @@
 #include <ctype.h>
 #include <stdio.h>
 #include "config.h"
+#include "distribute/mailstore/MailStore.h"
 
 int
 usage(const char* app)
@@ -23,7 +24,7 @@ main (int argc, char **argv)
     bool mstore_state = false ;
 
     opterr = 0;
-
+    if( argc < 2 ) { usage(argv[0] ); exit(1) ; }
     while ((c = getopt (argc, argv, "ihc:")) != -1)
         switch (c)
         {
@@ -44,7 +45,7 @@ main (int argc, char **argv)
                             optopt);
                 return 1;
             default:
-                break;
+                break ;
         }
     for (index = optind; index < argc; index++)
         printf ("Non-option argument %s\n", argv[index]);
@@ -54,7 +55,7 @@ main (int argc, char **argv)
     // Initialize 10,000 mailBoxes on localhost:25 using 4 threads
     if( iflag )
     {
-        MailStore ms ;
+        MailStore ms("./distribute/mailstore/md.dat") ;
         ms.init( SMTP_SERVER ,SMTP_PORT, USER_END-USER_START + 1 ,10 ) ;
         mstore_state = true ;
     }
@@ -63,9 +64,9 @@ main (int argc, char **argv)
     // warm-up,
     // measurement for 80%, 100% and 120% load 
     // and cool-down phases:
-    benchmark.run( 80,  mstore_state ) ;
-    benchmark.run( 100, mstore_state ) ;
-    benchmark.run( 120, mstore_state ) ;
+//    benchmark.run( 80,  mstore_state ) ;
+//    benchmark.run( 100, mstore_state ) ;
+//    benchmark.run( 120, mstore_state ) ;
 
     return 0;
 }

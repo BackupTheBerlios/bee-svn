@@ -30,6 +30,7 @@ namespace Smtp {
             void rcptTo ( const char* userFormat,   const unsigned int userIdx,
                     const char* domainFormat, const unsigned int domainIdx ) ;
             void beginData() ;
+            void randomData( int msg_sz ) ;
             void endData() ;
         private:
             //Timer   _timer ;

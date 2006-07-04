@@ -8,7 +8,7 @@ using namespace std;
 
 class MailStore {
     public:
-        MailStore() ;
+        MailStore(const char* fname) ;
         ~MailStore(){} ;
         struct dist_t {
             int   msg;
@@ -21,12 +21,13 @@ class MailStore {
             int end ;
             pthread_mutex_t* mtx ;
             MailStore* p ;
+            int delay ;
         } arg ;
         static void* fillMbox( void* ) ;
         int init( const char* host, const int port, const int maxMbox, const int threads) ;
     private:
+        void sendMails(const int userIdx, const int quantity ) ;
         vector<struct dist_t> md ;
-        const char fname[] = "md.dat" ;
     /* Message distribution over mailbox */
 } ;
 

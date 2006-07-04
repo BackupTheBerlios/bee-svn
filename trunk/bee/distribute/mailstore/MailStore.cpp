@@ -5,8 +5,9 @@
 #include <stdlib.h>
 #include <math.h>
 #include "MailStore.h"
+#include "lib/smtp/Protocol.h"
 
-MailStore::MailStore()
+MailStore::MailStore(const char* fname)
 {
     int k ;
 
@@ -29,10 +30,35 @@ MailStore::MailStore()
     }
 }
 
+void
+MailStore::sendMails(const int userIdx, const int quantity )
+{
+    char buf[512] ={0} ;
+    sprintf( buf, "user%i", userIdx ) ; 
+    Smtp::Protocol smtp ;
+    for( int i=0; i< quantity; ++i)
+    {
+        try {
+        smtp.open("localhost",25 ); // TODO , get host:port from config.h
+        smtp.greet("ehlo cucu");
+        smtp.mailFrom("<>");
+        smtp.rcptTo( buf ) ;
+        // smtp.randomData( int msg_sz ) ; // msg_sz is in byes
+        smtp.randomData(25600); // in Prepopulate stage, a message has 25KB
+        smtp.quit() ;
+        smtp.close() ;
+        }catch( Socket::Exception& e )
+        {
+            printf("ERROR: %s\n", e.what() ) ;
+        }
+    }
+}
+
+
 /**
  * param[in] delay The number of miliseconds to wait after each mail is sent.*/
     void*
-MailStore::fillMbox( void* t, const int delay )
+MailStore::fillMbox( void* t )
 {
     struct targ* arg = (struct targ*) t ;
     int i = 0,z,rc=0 ;
@@ -59,6 +85,7 @@ MailStore::fillMbox( void* t, const int delay )
                 }
                 z=arg->mbf++ ;
                 pthread_mutex_unlock( arg->mtx ) ;
+                arg->p->sendMails( z, arg->p->md[k].msg ) ;
                 rc = printf("Give %i mails to user%i\n", arg->p->md[k].msg, z ) ;
 
             }
