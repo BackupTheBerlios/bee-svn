@@ -1,0 +1,9 @@
+TOP ?= $(DOTDOT) ;
+
+SubDir TOP distribute workload ;
+
+T_MSTORE_SRC   =  t_mstore.cpp MailStore.cpp ;
+
+Main t_mstore : $(T_MSTORE_SRC) ;
+
+# vim:ft=jam

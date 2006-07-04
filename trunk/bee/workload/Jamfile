@@ -1,9 +1,0 @@
-TOP ?= $(DOTDOT) ;
-
-SubDir TOP workload ;
-
-T_MSTORE_SRC   =  t_mstore.cpp ;
-
-Main t_mstore : $(T_MSTORE_SRC) ;
-
-# vim:ft=jam
