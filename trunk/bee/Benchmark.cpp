@@ -40,8 +40,8 @@ Benchmark::run(float load, bool& is_filled )
     }
 
     // LoadGen should Create the threads.
-    loadGen_.initStmp( ) ;
-    loadGen_.initPop3( ) ;
+    smtpGen_.init( ) ;
+    pop3Gen_.init( ) ;
     sysInfo_.init( ) ;
     timer_.start() ;
 
@@ -49,13 +49,13 @@ Benchmark::run(float load, bool& is_filled )
     // ca sa ruleze separat the mainThread
     while( timer_.elapsed() < TEST_DURATION )
     {
-        loadGen_.runSmtp();   // asta ar tb sa culeaga timpii de pe sock, si sa le trimita la un server care le scrie
-        loadGen_.runPop3();   // serverul poate sa fie local, sau remote, in cazul in care 
+        smtpGen_.run();   // asta ar tb sa culeaga timpii de pe sock, si sa le trimita la un server care le scrie
+        pop3Gen_.run();   // serverul poate sa fie local, sau remote, in cazul in care 
         sysInfo_.run( ) ;
     }
     timer_.stop() ;
-    loadGen_.stopStmp( ) ;    // asta ar tb sa dump-uiasca rezultatele
-    loadGen_.stopPop3( ) ;    // asta ar tb sa dump-uiasca rezultatele
+    smtpGen_.stop( ) ;    // asta ar tb sa dump-uiasca rezultatele
+    pop3Gen_.stop( ) ;    // asta ar tb sa dump-uiasca rezultatele
     sysInfo_.stop( ) ;
     is_filled = false ;
 }

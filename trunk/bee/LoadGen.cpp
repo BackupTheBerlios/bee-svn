@@ -1,10 +1,13 @@
 #include "LoadGen.h"
 
-LoadGen::LoadGen()
+
+
+// -----------------Smtp Load Generator-----------------------------
+LoadGen::Smtp::Smtp()
 {
 }
 
-LoadGen::~LoadGen()
+LoadGen::Smtp::~Smtp()
 {
 }
 
@@ -12,7 +15,7 @@ LoadGen::~LoadGen()
 // Calculeaza inter-arrival rate-urile
 // le pune intr-un timer-queue.
 // Timer-ul cand expira inter-arrival-ul, deskide o sessiune catre server
-static void* LoadGen::worker( void* p )
+static void* LoadGen::Smtp::worker( void* p )
 {
     arrival = rateGen.exponential() ;
 }
@@ -21,18 +24,18 @@ static void* LoadGen::worker( void* p )
  * Creez threadurile.
  */
 void
-LoadGen::initSmtp()
+LoadGen::Smtp::init()
 {
-    for( i=0; i < numThreads; ++i )
+    for( i=0; i < noThreads; ++i )
     {
         pthread_create( &smtpTh[i], 0, routine, arg ) ;
     }
 }
 
 void
-LoadGen::runSmtp()
+LoadGen::Smtp::run()
 {
-    for( i=0; i < numThreads; ++i);
+    for( i=0; i < noThreads; ++i);
     {
         pthread_join( smtpTh[i], 0 );
     }
@@ -40,34 +43,36 @@ LoadGen::runSmtp()
 
 
 void
-LoadGen::stopSmtp()
+LoadGen::Smtp::stop()
 {
     running = false ;
     // Dump the results ?
 }
 
 
+
+// -----------------Pop3 Load Generator-----------------------------
 void
-LoadGen::initPop3()
+LoadGen::Pop3::init()
 {
-    for( i=0; i < numThreads; ++i )
+    for( i=0; i < noThreads; ++i )
     {
         pthread_create( &pop3Th[i], 0, routine, arg ) ;
     }
 }
 
 void
-LoadGen::stopPop3()
+LoadGen::Pop3::run()
 {
-    running = false ;
-    // Dump the results ?
-}
-
-void
-LoadGen::runPop3()
-{
-    for( i=0; i < numThreads; ++i);
+    for( i=0; i < noThreads; ++i);
     {
         pthread_join( pop3Th[i], 0 );
     }
+}
+
+void
+LoadGen::Pop3::stop()
+{
+    running = false ;
+    // Dump the results ?
 }
