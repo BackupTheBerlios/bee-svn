@@ -64,7 +64,7 @@ main (int argc, char **argv)
     // warm-up,
     // measurement for 80%, 100% and 120% load 
     // and cool-down phases:
-//    benchmark.run( 80,  mstore_state ) ;
+    benchmark.run( 80,  mstore_state ) ;
 //    benchmark.run( 100, mstore_state ) ;
 //    benchmark.run( 120, mstore_state ) ;
 

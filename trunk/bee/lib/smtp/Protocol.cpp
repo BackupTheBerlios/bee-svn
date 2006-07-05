@@ -14,7 +14,7 @@
 Smtp::Protocol::Protocol( )
 {
     //debug( "C" ) ;
-    //_report = new Report::Client("localhost" ) ;
+    report_ = new Report::Client("localhost" ) ;
 }//*
 
 
@@ -24,7 +24,7 @@ Smtp::Protocol::Protocol( )
 Smtp::Protocol::~Protocol()
 {
     //debug( "D" ) ;
-    //delete _report ;
+    //delete report_ ;
 }//*
 
 
@@ -49,6 +49,7 @@ Smtp::Protocol::read( )
         printf( "SMTP ERROR:>%s", Socket::resp_.c_str() ) ;
         return false ;
     }
+    report_.timer( timer_ ) ;
     return true ;
 }//* Smtp::Protocol::read
 
@@ -59,9 +60,12 @@ Smtp::Protocol::read( )
     void
 Smtp::Protocol::open( const char* h, const unsigned int p )
 {
+    timer_.start() ;
     Socket::open( Socket::Family::Inet, Socket::Type::Stream, 0 ) ;
     Socket::connect( h, p ) ;                                         //! @todo: see if SMTP can connect
     read( ) ;// banner
+    timer_.stop() ;
+    report_.open( ) ;
 }//* Smtp::Protocol::open
 
 
@@ -74,11 +78,11 @@ Smtp::Protocol::greet( const string& greeT )
 {
     //debug( "greet=[%s]", greeT.c_str() ) ;
 
-    //_timer.start() ;
+    timer_.start() ;
     write( greeT + "\r\n" ) ;//unsafe
     read( ) ;
-    //_timer.stop() ;
-    //_report->write( pthread_self(), __FUNCTION__, //_timer.elapsed() ) ;
+    timer_.stop() ;
+    report.greet( ) ;
 }//* Smtp::Protocol::greet
 
 
@@ -96,11 +100,11 @@ Smtp::Protocol::mailFrom( const char* userFormaT, const unsigned int useR,
     sprintf( fmt, "MAIL FROM: %s@%s\r\n", userFormaT, domainFormaT ) ;
     sprintf( buf, fmt, useR, domaiN ) ;
 
-    //_timer.start() ;
+    timer_.start() ;
     write( buf) ;
     read( ) ;
-    //_timer.stop() ;
-    //_report->write( pthread_self(), __FUNCTION__, //_timer.elapsed() ) ;
+    timer_.stop() ;
+    report_.mailFrom( ) ;
 }//* Smtp::Protocol::mailFrom
 
 
@@ -114,11 +118,11 @@ Smtp::Protocol::mailFrom( const char* userName )
 
     sprintf( fmt, "MAIL FROM: %s\r\n", userName ) ;
 
-    //_timer.start() ;
+    timer_.start() ;
     write( fmt ) ;
     read( ) ;
-    //_timer.stop() ;
-    //_report->write( pthread_self(), __FUNCTION__, //_timer.elapsed() ) ;
+    timer_.stop() ;
+    report_.mailFrom( ) ;
 }//* Smtp::Protocol::mailFrom
 
 
@@ -137,11 +141,11 @@ Smtp::Protocol::rcptTo( const char* userFormaT, const unsigned int useR,
     sprintf( fmt, "RCPT TO: %s@%s\r\n", userFormaT, domainFormaT ) ;
     sprintf( buf, fmt, useR, domaiN ) ;
 
-    //_timer.start() ;
+    timer_.start() ;
     write( buf ) ;
     read( ) ;
-    //_timer.stop() ;
-    //_report->write( pthread_self(), __FUNCTION__, //_timer.elapsed() ) ;
+    timer_.stop() ;
+    report_.rcptTo( ) ;
 }//* Smtp::Protocol::rcptTo
 
 
@@ -156,11 +160,11 @@ Smtp::Protocol::rcptTo( const char* userName )
 
     sprintf( fmt, "RCPT TO: %s\r\n", userName ) ;
 
-    //_timer.start() ;
+    timer_.start() ;
     write( fmt ) ;
     read( ) ;
-    //_timer.stop() ;
-    //_report->write( pthread_self(), __FUNCTION__, //_timer.elapsed() ) ;
+    timer_.stop() ;
+    report_.rcptTo( ) ;
 }//* Smtp::Protocol::rcptTo
 
 
@@ -170,12 +174,14 @@ Smtp::Protocol::rcptTo( const char* userName )
     void
 Smtp::Protocol::beginData( )
 {
-    //_timer.start() ;
+    timer_.start() ;
     write( "DATA\r\n" ) ;
     read( ) ;
-    //_timer.stop() ;
-    //_report->write( pthread_self(), __FUNCTION__, //_timer.elapsed() ) ;
+    timer_.stop() ;
+    report_.beginData( ) ;
 }//* Smtp::Protocol::data
+
+
 
 void
 Smtp::Protocol::randomData( int msg_sz )
@@ -219,11 +225,11 @@ Smtp::Protocol::sendFile( int in_fd )
     void
 Smtp::Protocol::endData()
 {
-    //_timer.start() ;
+    timer_.start() ;
     write("\r\n.\r\n" ) ;
     read( ) ;
-    //_timer.stop() ;
-    //_report->write( pthread_self(), __FUNCTION__, //_timer.elapsed() ) ;
+    timer_.stop() ;
+    report_.endData( ) ;
 }//*
 
 
@@ -235,11 +241,11 @@ Smtp::Protocol::endData()
     void
 Smtp::Protocol::quit( )
 {
-    //_timer.start() ;
+    timer_.start() ;
     write( "QUIT\r\n" ) ;
     read( ) ;
-    //_timer.stop() ;
-    //_report->write( pthread_self(), __FUNCTION__, //_timer.elapsed() ) ;
+    timer_.stop() ;
+    report_.quit( ) ;
     close( ) ;
 }//* Smtp::Protocol::quit
 
@@ -251,8 +257,11 @@ Smtp::Protocol::quit( )
     void
 Smtp::Protocol::rset( void )
 {
+    timer_.start() ;
     write( "RSET\r\n") ;
     read( ) ;
+    timer_.stop() ;
+    report_.rset() ;
 }//* Smtp::Protocol::rset
 
 
@@ -263,8 +272,11 @@ Smtp::Protocol::rset( void )
     void
 Smtp::Protocol::vrfy( const std::string& useR )
 {
+    timer_.start() ;
     write( "VRFY " + useR) ;
     read( ) ;
+    timer_.stop() ;
+    report_.rset() ;
 }//* Smtp::Protocol::vrfy
 
 
@@ -275,8 +287,11 @@ Smtp::Protocol::vrfy( const std::string& useR )
     void
 Smtp::Protocol::expn( const std::string& aliaS )
 {
+    timer_.start() ;
     write( "EXPN " + aliaS ) ;
     read( ) ;
+    timer_.stop() ;
+    report_.rset() ;
 }//* Smtp::Protocol::expn
 
 
@@ -287,8 +302,11 @@ Smtp::Protocol::expn( const std::string& aliaS )
     void
 Smtp::Protocol::noop( void )
 {
+    timer_.start() ;
     write( "NOOP\r\n") ;
     read( ) ;
+    timer_.stop() ;
+    report_.rset() ;
 }//* Smtp::Protocol::noop
 
 
@@ -299,6 +317,9 @@ Smtp::Protocol::noop( void )
     void
 Smtp::Protocol::turn( void )
 {
+    timer_.start() ;
     write( "TURN\r\n") ;
     read( ) ;
+    timer_.stop() ;
+    report_.rset() ;
 }//* Smtp::Protocol::turn

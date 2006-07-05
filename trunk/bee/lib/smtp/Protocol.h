@@ -33,8 +33,8 @@ namespace Smtp {
             void randomData( int msg_sz ) ;
             void endData() ;
         private:
-            //Timer   _timer ;
-            //Report::Client*  _report ;
+            Timer   timer_ ;
+            Report  report_ ;
     } ;
 }
 #endif  //PROTOCOL_H
