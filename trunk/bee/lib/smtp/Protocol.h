@@ -2,8 +2,8 @@
 #define PROTOCOL_H
 
 #include "socket/Socket.h"
-//#include "common/Timer.h"
-//#include "common/Report.h"
+#include "Timer.h"
+#include "Report.h"
 
 namespace Smtp {
     class Protocol: public Socket

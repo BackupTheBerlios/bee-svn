@@ -10,5 +10,12 @@ class LoadGen {
         void stopPop3() ;
         void runSmtp() ;
         void runPop3() ;
+    private:
+        // array-ul de threaduri poate fi inlocuit cu un thread-pool
+        int numThreads ;
+        pthread_t smtpTh[50];
+        pthread_t pop3Th[50];
+        RateGen rateGen_(mean);
+
 } ;
 #endif // _LOAD_GEN_H_

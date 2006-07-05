@@ -2,6 +2,10 @@
  * Accordingly, a SPECmail2001 benchmark run consists of a series of warm-up,
  * measurement and cool-down phases:
  *
+ * a SPECmail2001 benchmark run consists of a series of warm-up,
+ * measurement for 80%, 100% and 120% load  
+ * and cool-down phases:
+ *
  * Only the TRANSACTION LOAD is varied between these three points. The
  * pre-populated mail store needs to match the 100% load level (larger is OK),
  * and does not vary for the 80% or the 120% test case. 
@@ -24,19 +28,23 @@ Benchmark::~Benchmark()
  * param[in] load at which the run will be made.
  * This stage should spawn the necessary threads, and do
  * the needed preparations.
+ * TODO : o modalitate sa calculez QoS si sa pun sysinfos la punct
  */
  void
-Benchmark::run(float load, bool& is_init )
+Benchmark::run(float load, bool& is_filled )
 {
-    if( !is_init )
+    if( !is_filled )
     {
         ms_.init( SMTP_SERVER ,SMTP_PORT, USER_END-USER_START + 1 ,10 ) ;
-        is_init = true ;
+        is_filled = true ;
     }
+
+    // LoadGen should Create the threads.
     loadGen_.initStmp( ) ;
     loadGen_.initPop3( ) ;
     sysInfo_.init( ) ;
-    timer_.start() ;        // after all is done, start the timer
+    timer_.start() ;
+
     // astea ar tb sa spawneze/fork threadurile necesare
     // ca sa ruleze separat the mainThread
     while( timer_.elapsed() < TEST_DURATION )
@@ -49,8 +57,7 @@ Benchmark::run(float load, bool& is_init )
     loadGen_.stopStmp( ) ;    // asta ar tb sa dump-uiasca rezultatele
     loadGen_.stopPop3( ) ;    // asta ar tb sa dump-uiasca rezultatele
     sysInfo_.stop( ) ;
-    is_init = false ;
-    // TODO : o modalitate sa calculez QoS si sa pun sysinfos la punct
+    is_filled = false ;
 }
 
 
