@@ -1,0 +1,9 @@
+TOP ?= $(DOTDOT)/$(DOTDOT) ;
+
+SubDir TOP lib scheduler ;
+
+T_SCHED_SRC =  t_sched.cpp ;
+Main t_sched : $(T_SCHED_SRC) ;
+LinkLibraries t_sched : libscheduler ;
+Library libscheduler : Scheduler.cpp ;
+# vim:ft=jam

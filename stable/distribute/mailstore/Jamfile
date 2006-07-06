@@ -1,0 +1,15 @@
+TOP ?= $(DOTDOT)/$(DOTDOT) ;
+
+SubDir TOP distribute mailstore ;
+
+LINKLIBS += -lpthread ;
+C++FLAGS += -I$(TOP) ;
+
+T_MSTORE_SRC   =  t_mstore.cpp ;
+Main t_mstore : $(T_MSTORE_SRC) ;
+LinkLibraries t_mstore : libmstore libsmtp libsocket ;
+Library libmstore : MailStore.cpp ;
+SubInclude TOP lib socket ;
+SubInclude TOP lib smtp ;
+
+# vim:ft=jam

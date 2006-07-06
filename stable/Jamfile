@@ -1,0 +1,12 @@
+TOP ?= . ;
+
+T_BEE_SRC   =  main.cpp ;
+#SubDir TOP distribute mailstore ;
+
+Main main : $(T_BEE_SRC) ;
+LinkLibraries main : libmstore libsmtp libsocket ;
+SubInclude TOP distribute mailstore ;
+SubInclude TOP lib socket ;
+SubInclude TOP lib smtp ;
+
+# vim:ft=jam
