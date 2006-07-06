@@ -1,0 +1,130 @@
+HDRS =  $(TOP)/lib ;
+LOCATE_OBJS  = objs ;    # where to place object files
+
+
+ECHO $(OS) ;
+
+if ( $(OS) = LINUX )
+{
+    ECHO "Linux BUILD" ;
+    C++      = ccache g++ ;                              # C++ compiler, e.g. g++, icc, como, CC, etc.
+    CC       = ccache gcc ;
+    LINK     = $(C++) ;
+    OPTIM    = -O0 ;                                    #compiler optimization flags, e.g. -O2, -O3, etc.
+    LINKLIBS = -lpthread -rdynamic -lrt -ldl ;          #FreeBSD doesnt use -ldl -lrt
+    C++FLAGS = -g -fmessage-length=75 -DUNIX -DLINUX -fPIC -D_GLIBCXX_DEBUG ;     # C++ compiler flags, e.g. -DSOMETHING
+    CCFLAGS  = $(C++FLAGS) ;                            # CC compiler flags, e.g. -DSOMETHING
+    SO_LINKFLAGS = -shared ;
+    SHRSUF = so ;
+    OBJSUF = o ;
+}
+
+if ( $(JAM_TOOLSET) = VISUALC )
+{
+    HDRS += $(TOP)$(SLASH)win32 ;
+    C++ = cl /TP ;
+    CC  = cl /TC ;
+    LINK = link ;
+    OPTIM = /Od ;       #disable optimizations
+    LINKLIBS = /LIBPATH ;
+    LINKFLAGS = /DEBUG /NOLOGO /MACHINE:X86 ;
+    SHRSUF = dll ;
+    OBJSUF = obj ;
+    C++FLAGS = /D "WIN32" /D "WINDOWS" /ZI /Gm /EHsc /RTC1 /MTd /W3 /c /Wp64 /nologo ; #MLd
+    CCFLAGS  = $(C++FLAGS) ;
+}
+
+if ( $(JAM_TOOLSET) = MINGW )
+{
+    HDRS += $(TOP)$(SLASH)win32 ;
+    C++ = mingw32-g++ ;                              # C++ compiler, e.g. g++, icc, como, CC, etc.
+    CC  = mingw32-gcc ;
+    LINK = mingw32-g++ ;
+    OPTIM = -O2 ;                                   #compiler optimization flags, e.g. -O2, -O3, etc.
+    #LINKLIBS = ;
+    SO_LINKFLAGS = -shared ;
+    SHRSUF = dll ;
+    OBJSUF = o ;
+    C++FLAGS = -g -fmessage-length=120 -DWIN32 -DWINDOWS ;     # C++ compiler flags, e.g. -DSOMETHING
+    CCFLAGS = $(C++FLAGS) ;                         # CC compiler flags, e.g. -DSOMETHING
+}
+
+#rule Main
+#{
+#    local MY_OBJS ;
+#    for var in $(>)
+#    {
+#        t = $(var:S=.$(OBJSUF)) ;
+#        t = $(t:D=$(LOCATE_OBJS)) ;
+#        Object $(t) : $(var) ;
+#        MY_OBJS += $(t) ;
+#    }
+#    ECHO $(MY_OBJS) ;
+#    MainFromObjects $(<) : $(MY_OBJS) ;
+#}
+
+rule Test
+{
+    Valgrind $(<) ;
+}
+
+actions Tar_Gz
+{
+    find . -name "\.svn" > Exclude
+    tar cvfX $(<) Exclude .
+    gzip -9 $(<)
+    mv $(<).gz dlapp-`date +"%Y%m%d"`.tar.gz
+}
+
+actions Todo
+{
+    find . -name '*.cpp' -exec grep -i -H -n TODO {} \;
+    find . -name '*.h'   -exec grep -i -H -n TODO {} \;
+}
+
+actions Leak
+{
+    grep -H -n "new" *.cpp
+    echo "--------------"
+    grep -H -n "delete" *.cpp
+}
+
+actions Valgrind
+{
+#--gen-suppressions=all 
+#--db-attach=yes 
+#--log-file=$(<) 
+    valgrind -v  --log-file=dbg --show-reachable=yes --suppressions=suppress --track-fds=yes --leak-check=full --leak-resolution=high ./dlapp 1
+}
+
+actions Rc_exe
+{
+    rc /d "DEBUG" /l 0x409 /fo$(<) $(>)
+}
+
+
+rule Package
+{
+	NotFile package ;
+	Depends package : $(<) ;
+
+	DEPENDS $(<) : $(>) ;
+	Tar_Gz  $(<) : $(>) ;
+}
+
+rule Rc
+{
+    Rc_exe $(<) : $(>) ;
+}
+
+
+#   BORLANDC    Borland C++                  BC++ install path 
+#   VISUALC     Microsoft Visual C++         VC++ install path 
+#   VISUALC16   Microsoft Visual C++ 16 bit  VC++ 16 bit install 
+#   INTELC      Intel C/C++                  IC++ install path 
+#   WATCOM      Watcom C/C++                 Watcom install path 
+#   MINGW       MinGW (gcc)                  MinGW install path 
+#   LCC         Win32-LCC                    LCC-Win32 install path 
+
+
+# vim:ft=jam
