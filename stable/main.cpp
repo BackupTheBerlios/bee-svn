@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include "distribute/mailstore/MailStore.h"
 
-
+///
 Benchmark bench ;
 int usage( const char* prog ) ;
 
