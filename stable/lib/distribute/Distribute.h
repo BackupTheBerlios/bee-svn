@@ -9,7 +9,6 @@ struct MsgDist {
 
 using namespace std ;
 
-
 namespace Distribute {
     class Smtp {
         public:
