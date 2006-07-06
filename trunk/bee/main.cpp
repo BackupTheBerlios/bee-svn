@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include "distribute/mailstore/MailStore.h"
 
+
+Benchmark bench ;
 int usage( const char* prog ) ;
 
 
@@ -60,13 +62,22 @@ main (int argc, char **argv)
         ms.init( host, port, users, 10 ) ;    // HARDCODED:Numarul de threaduri folosit la populare
         is_filled = true ;
     }
-
-    benchmark.run( 80,  is_filled ) ;
-    benchmark.run( 100, is_filled ) ;
-    benchmark.run( 120, is_filled ) ;
+    bench.cron.callback(tick) ;
+    bench.run( 80,  is_filled ) ;
+    bench.run( 100, is_filled ) ;
+    bench.run( 120, is_filled ) ;
 
     return 0;
 }
+
+
+// cron trb sa fie o variabila globală( that sux )
+void tick(union sigval sigval)
+{
+    bench.cron.timer.tick() ; //! increase the value of elapsed( ++elapsed)
+    bench.cron.runJob();
+}
+
 
 
 int

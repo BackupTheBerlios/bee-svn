@@ -37,6 +37,8 @@ namespace Scheduler
     class Cron
     {
         public:
+            //Timer timer ; // pls redenumeste ca sa nu se confunde cu timer_
+
             Cron(sem_t sem ) ;
             ~Cron() ;
 
@@ -46,15 +48,19 @@ namespace Scheduler
             int runJob() ;          //!< sem_wait( semaphore )
             int refresh( unsigned long timE ) ;
             void addTime( unsigned long timE ) { cronTab_.push_back(timE) ; } ;
-            static void notify_fun( union sigval sigval ) ;
+            void callback( void (*notf)(union sigval sig) )
+            {   notify_fun = notf ; }
 
         private:
             sem_t   semap_ ;    //!< semaphore
-            timer_t timer_ ;
             TimeOut timeOut_ ;  //!< The minimum time till the next job.
             vector<unsigned long>   cronTab_ ;  //!< List of timeouts.
+            timer_t timer_ ;
+
         private:
             void print_time( ) ;
+            void (*notify_fun)( union sigval sigval ) ;
+
     };
 } // namespace
 

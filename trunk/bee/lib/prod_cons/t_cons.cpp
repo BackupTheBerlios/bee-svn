@@ -24,8 +24,8 @@ class SmtpTest {
  * Each type of producer MUST override this method.
  **/
 template<class T, class Arg>
-T*
-Consumer<T,Arg>::consume( Arg* a )
+void
+Consumer<T,Arg>::consume( T* a )
 {
     printf("called produce\n" ) ;
         T*      t ;    //! Temporary job
@@ -47,7 +47,7 @@ main( int argc, char* argv[] )
     SmtpTest smtpTest ; //! smtpTest is used as a argument, which Might be used
                         //! inside produce().
     Consumer<Job, SmtpTest> p(&smtpTest) ;
-    p.execute( &p ) ;
+    //p.execute( &p ) ;
     return 0 ;
 }
     //sscanf( argv[1], "%d", &no ) ;

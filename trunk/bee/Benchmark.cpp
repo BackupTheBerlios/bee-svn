@@ -1,37 +1,11 @@
-/* 
- * Accordingly, a SPECmail2001 benchmark run consists of a series of warm-up,
- * measurement and cool-down phases:
- *
- * a SPECmail2001 benchmark run consists of a series of warm-up,
- * measurement for 80%, 100% and 120% load  
- * and cool-down phases:
- *
- * Only the TRANSACTION LOAD is varied between these three points. The
- * pre-populated mail store needs to match the 100% load level (larger is OK),
- * and does not vary for the 80% or the 120% test case. 
- */
 #include "Benchmark.h"
-
-Benchmark::Benchmark()
-{
-    // initialize stuff
-}
-
-Benchmark::~Benchmark()
-{
-}
 
 
 /**
- * SpecMail mentions abt 3 loads, 80%, 100%, and 120%,
- * so a valid call would be run(80) .
- * param[in] load at which the run will be made.
- * This stage should spawn the necessary threads, and do
- * the needed preparations.
- * TODO : o modalitate sa calculez QoS si sa pun sysinfos la punct
- */
- void
-Benchmark::run(float load, bool& is_filled )
+ * param[in] load at which the run will be made
+ * param[in] is_filled If the MailStore was pre-populated. */
+void
+Benchmark::run( double load, bool& is_filled )
 {
     if( !is_filled )
     {
@@ -39,21 +13,24 @@ Benchmark::run(float load, bool& is_filled )
         is_filled = true ;
     }
 
-    // LoadGen should Create the threads.
     smtpGen_.init( ) ;
     pop3Gen_.init( ) ;
     sysInfo_.init( ) ;
-    timer_.start() ;
 
-    // astea ar tb sa spawneze/fork threadurile necesare
-    // ca sa ruleze separat the mainThread
-    while( timer_.elapsed() < TEST_DURATION )
+    cron.refresh( 1 ) ;       //! set the time[sec] at which timeList is inspected
+
+    // these will wait, untill cron will call them to run some jobs
+    smtpGen_.run() ;
+    pop3Gen_.run() ;
+    sysInfo_.run() ;
+
+    cron.start() ;      // Cron does all the work. At given times, it calles a spawned smtpGen to do a smtpSession
+
+    while( cron.timer.elapsed() <= TEST_DURATION )
     {
-        smtpGen_.run();   // asta ar tb sa culeaga timpii de pe sock, si sa le trimita la un server care le scrie
-        pop3Gen_.run();   // serverul poate sa fie local, sau remote, in cazul in care 
-        sysInfo_.run( ) ;
+        ;
     }
-    timer_.stop() ;
+    cron.stop() ;
     smtpGen_.stop( ) ;    // asta ar tb sa dump-uiasca rezultatele
     pop3Gen_.stop( ) ;    // asta ar tb sa dump-uiasca rezultatele
     sysInfo_.stop( ) ;
@@ -61,9 +38,9 @@ Benchmark::run(float load, bool& is_filled )
 }
 
 
-/*
- * smtp.greet( );
- * Clasa Smtp i se seteaza un obiect de tip results( se poate gasi alt nume :)  care
- * contine numarul de calluri catre functii, si timpii lor.
- * ăsta e modul in care face httpperf, adica ţine Rezultatele in memorie,
- * ca la sfârşit sa facă un dump al rezultatelor
+//  TODO
+// Găseşte locul unde tb sa fac asta :
+//      cron.addTime( rateGen.exponential() ) ; // adaug un timp nou de cate ori expira altul( un job a fost rulat)
+// asta ar tb sa culeaga timpii de pe sock, si sa le trimita la un server care le scrie
+// serverul poate sa fie local, sau remote, in cazul in care 
+// astea ar tb sa spawneze/fork threadurile necesare ca sa ruleze separat the mainThread

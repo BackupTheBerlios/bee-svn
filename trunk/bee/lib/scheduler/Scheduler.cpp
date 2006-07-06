@@ -11,6 +11,7 @@
     typedef int sigval_t ;
 #endif
 
+
 /**
 * Creaza o tabela de timeouts, pentru fiecare user.
 * Tabela poate fi creata, asa incat distributia timpilor
@@ -130,9 +131,11 @@ Scheduler::Cron::start( )
     int k ;
     struct sigevent   sigev ;
     struct itimerspec itimer = { { timeOut_.current(), 0 }, { timeOut_.current(), 0 } } ;
+
     memset( &sigev, 0, sizeof(struct sigevent) ) ;
+
     sigev.sigev_notify            = SIGEV_THREAD ;
-    sigev.sigev_notify_function   = Scheduler::Cron::notify_fun ;
+    sigev.sigev_notify_function   = notify_fun ;
     sigev.sigev_notify_attributes = NULL ;
     sigev.sigev_value.sival_int   = k ;
 
@@ -147,6 +150,7 @@ Scheduler::Cron::start( )
         fprintf( stderr, "[%d]: %s\n", __LINE__, strerror(errno) ) ;
         exit(errno) ;
     }
+    //timer.start() ;
     return 0 ;
 }
 
@@ -154,6 +158,7 @@ Scheduler::Cron::start( )
 Scheduler::Cron::stop( ) //TODO: timeR could be private
 {
     //debug(  "B");
+    //timer.stop() ;
     if( timer_delete( timer_) )
         printf( "error: %s\n", strerror(errno) );
 }

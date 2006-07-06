@@ -44,7 +44,7 @@ class Consumer
         {
             cons_sem_ = cond ;
         }
-        T*   consume( Arg* ) ;
+        void   consume( T* ) ;
         static void*    execute( void* arg ) ;  //!< Threaded function
 
     private:
@@ -85,7 +85,7 @@ Consumer<T,Arg>::execute( void* a )
         t->jobQueue_->pop( ) ;
 
         sem_post( t->prod_sem_ ) ; //! P.signal( ) ;
-        tmpJob = t->consume( t->prod_arg_ ) ;
+        t->consume( tmpJob ) ;
     }
 }//* Consumer::run
 

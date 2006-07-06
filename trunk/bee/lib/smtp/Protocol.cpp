@@ -1,5 +1,13 @@
 #include "smtp/Protocol.h"
 
+
+/*
+ * smtp.greet( );
+ * Clasa Smtp i se seteaza un obiect de tip results( se poate gasi alt nume :)  care
+ * contine numarul de calluri catre functii, si timpii lor.
+ * ăsta e modul in care face httpperf, adica ţine Rezultatele in memorie,
+ * ca la sfârşit sa facă un dump al rezultatelor
+
 #if defined USE_DEBUG
     #include "common/Debug.h"
 #endif
