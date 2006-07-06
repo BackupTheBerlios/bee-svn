@@ -1,0 +1,9 @@
+TOP ?= $(DOTDOT)/$(DOTDOT) ;
+
+SubDir $(TOP) lib report ;
+
+#Main t_report : t_report.cpp ;
+#LinkLibraries t_report : libreport ;
+Library libreport : Report.cpp ;
+
+# vim:ft=jam

@@ -1,0 +1,9 @@
+TOP ?= $(DOTDOT)/$(DOTDOT) ;
+
+SubDir $(TOP) lib socket ;
+
+Main t_socket : t_socket.cpp ;
+LinkLibraries t_socket : libsocket ;
+Library libsocket : Socket.cpp ;
+
+# vim:ft=jam

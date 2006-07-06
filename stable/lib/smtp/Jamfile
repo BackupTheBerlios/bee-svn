@@ -1,0 +1,15 @@
+TOP ?= $(DOTDOT)/$(DOTDOT) ;
+LIB_SOCK = $(TOP)/lib/socket ;
+
+SubDir ($TOP) lib smtp ;
+
+T_SMTP_SRC =  t_smtp.cpp  ;
+
+Main t_smtp : $(T_SMTP_SRC) ;
+LinkLibraries t_smtp : libsmtp libsocket libreport ;
+Library libsmtp : Protocol.cpp ;
+SubInclude TOP lib socket ;
+SubInclude TOP lib report ;
+
+
+# vim:ft=jam

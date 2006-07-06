@@ -1,0 +1,9 @@
+TOP ?= $(DOTDOT)/$(DOTDOT) ;
+
+SubDir $(TOP) lib distribute ;
+
+Main t_distribute : t_distribute.cpp ;
+LinkLibraries t_distribute : libdistribute ;
+Library libdistribute : Distribute.cpp ;
+
+# vim:ft=jam
