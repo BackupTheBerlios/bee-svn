@@ -19,7 +19,6 @@ int main( int argc, char* argv[])
     pthread_t p ;
     int running = 1 ;
     pthread_create( &p, 0, thread_fun, (void*)&running ) ;
-    pthread_detach(p);
     cron.callback(tick) ;
 
     for( int i=1; i<atoi(argv[1]) ; ++i )
@@ -28,6 +27,7 @@ int main( int argc, char* argv[])
     cron.refresh( 1*atoi(argv[2]) ) ;       //! refresh time
     cron.start() ;                          //! we can start the cron now
 
+    pthread_detach(p);
     while( elapsed <= atoi( argv[3])  )
     {
         ;
