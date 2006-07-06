@@ -9,11 +9,8 @@ using namespace std ;
 
 class SmtpConfig {
     public:
-    int userIdx ;
-    SmtpConfig( )
-    {
-        userIdx = 10 ;
-    };
+        int userIdx ;
+        SmtpConfig( ) { userIdx = 10 ; };
 };
 
 
@@ -75,7 +72,6 @@ int main()
     int k ;
     for( k=0; k<20; ++k)
     {
-        //cons[k].setConf( &smtpConfig ) ;
         cons[k].jobQueue( &jq ) ;
         cons[k].prod_sem( &prod_sem ) ;
         cons[k].cons_sem( &cons_sem ) ;
@@ -93,7 +89,7 @@ int main()
     prod.cons_sem( &cons_sem ) ;
 
 
-    pthread_create( &p, 0, prod.execute, &prod ) ; // producer thread
+    pthread_create( &p, 0, prod.execute, &prod ) ;              // producer thread
     for( k=0; k<20; ++k)
         pthread_create( &c[k], 0, cons[k].execute, &cons[k] ) ; // consumer thread
 
