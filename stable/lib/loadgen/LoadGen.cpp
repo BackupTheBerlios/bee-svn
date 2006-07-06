@@ -1,7 +1,7 @@
 #include "LoadGen.h"
-#include "Producer.hpp"
-#include "Consumer.hpp"
-#include "tqueue.h"
+#include "prod_cons/Producer.hpp"
+#include "prod_cons/Consumer.hpp"
+#include "prod_cons/tqueue.h"
 
 
 // -----------------Smtp Load Generator-----------------------------
@@ -17,20 +17,25 @@ LoadGen::Smtp::~Smtp()
 // Calculeaza inter-arrival rate-urile
 // le pune intr-un timer-queue.
 // Timer-ul cand expira inter-arrival-ul, deskide o sessiune catre server
-static void* LoadGen::Smtp::worker( void* p )
+#if 0
+void*
+LoadGen::Smtp::worker( void* p )
 {
     arrival = rateGen.exponential() ;
 }
+#endif
 
 /**
  * Creez threadurile.
  */
+void* routine(void*){}
+
 void
 LoadGen::Smtp::init()
 {
-    for( i=0; i < noThreads; ++i )
+    for( int i=0; i < noThreads; ++i )
     {
-        pthread_create( &smtpTh[i], 0, routine, arg ) ;
+        pthread_create( &threads[i], 0, routine, 0) ;
     }
 }
 
@@ -40,9 +45,10 @@ LoadGen::Smtp::init()
 void
 LoadGen::Smtp::run()
 {
+    int i;
     for( i=0; i < noThreads; ++i);
     {
-        pthread_join( smtpTh[i], 0 );
+        pthread_join(threads[i], 0 );
     }
 }
 
@@ -50,7 +56,7 @@ LoadGen::Smtp::run()
 void
 LoadGen::Smtp::stop()
 {
-    running = false ;
+    //running = false ;
     // Dump the results ?
 }
 
@@ -60,25 +66,27 @@ LoadGen::Smtp::stop()
 void
 LoadGen::Pop3::init()
 {
+    int i ;
     for( i=0; i < noThreads; ++i )
     {
-        pthread_create( &pop3Th[i], 0, routine, arg ) ;
+        pthread_create( &threads[i], 0, routine, 0 ) ;
     }
 }
 
 void
 LoadGen::Pop3::run()
 {
+    int i ;
     for( i=0; i < noThreads; ++i);
     {
-        pthread_join( pop3Th[i], 0 );
+        pthread_join( threads[i], 0 );
     }
 }
 
 void
 LoadGen::Pop3::stop()
 {
-    running = false ;
+    //running = false ;
     // Dump the results ?
 }
 // ---------------- TESTING ---------------------------------

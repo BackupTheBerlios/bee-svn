@@ -1,9 +1,9 @@
 TOP ?= $(DOTDOT)/$(DOTDOT) ;
 
-SubDir $(TOP) lib socket ;
+SubDir $(TOP) lib loadgen ;
 
-Main t_socket : t_socket.cpp ;
-LinkLibraries t_socket : libsocket ;
-Library libsocket : Socket.cpp ;
+Main t_loadgen : t_loadgen.cpp ;
+LinkLibraries t_loadgen : libloadgen ;
+Library libloadgen : LoadGen.cpp ;
 
 # vim:ft=jam

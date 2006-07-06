@@ -1,6 +1,7 @@
 #if !defined _LOAD_GEN_H_
 #define _LOAD_GEN_H_
 
+#include <pthread.h>
 namespace LoadGen {
     class Smtp {
         public:
@@ -13,7 +14,7 @@ namespace LoadGen {
             // array-ul de threaduri poate fi inlocuit cu un thread-pool
             int noThreads ;
             pthread_t threads[50];
-            RateGen rateGen_(mean);
+            //RateGen rateGen_(mean); //TODO
     } ;
 
     class Pop3 {
@@ -27,7 +28,7 @@ namespace LoadGen {
             // array-ul de threaduri poate fi inlocuit cu un thread-pool
             int noThreads ;
             pthread_t threads[50];
-            RateGen rateGen_(mean);
+            //RateGen rateGen_(mean);//TODO
     } ;
 };
 #endif // _LOAD_GEN_H_
