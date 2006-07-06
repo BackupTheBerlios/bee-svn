@@ -105,12 +105,13 @@ Producer<T,Arg>::produce( Arg* a )
 
 
 template<class T, class Arg>
-T*
-Consumer<T,Arg>::consume( Arg* a )
+void
+Consumer<T,Arg>::consume( T* a )
 {
         cout <<"--CONSUME:" <<a <<endl
              <<"--PID: " <<pthread_self() <<endl;
         //----SMTP SESSION-------Could be a new function
+#if 0
         smtp.open(host, port);
         smtp.greet() ;
         smtp.mailFrom( "user"+a->userIdx ) ;
@@ -118,16 +119,22 @@ Consumer<T,Arg>::consume( Arg* a )
         smtp.dataRandom(25*1024) ;
         smtp.quit() ;
         smtp.close() ;
+#endif
         //----SMTP SESSION-------
         cout <<jobQueue_->size() <<endl ;
         return 0 ;
 }//* Consumer::consume
 
+class SmtpConfig {
+    public:
+        int userIdx ;
+        SmtpConfig( ) { userIdx = 10 ; };
+};
 
-
+#if 0
 int main()
 {
-    SmtpTest smtpTest ;
+    SmtpConfig smtpConfig ;
     JobQueue<int*>   jq ;
 
     sem_t prod_sem ;
@@ -168,4 +175,4 @@ int main()
         pthread_join( c[k], 0) ;
     return 0 ;
 }
-
+#endif
