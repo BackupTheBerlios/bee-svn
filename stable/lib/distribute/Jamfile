@@ -6,4 +6,14 @@ Main t_distribute : t_distribute.cpp ;
 LinkLibraries t_distribute : libdistribute ;
 Library libdistribute : Distribute.cpp ;
 
+LINKLIBS += -lpthread ;
+C++FLAGS += -I$(TOP) ;
+
+Main t_mstore : t_mstore.cpp ;
+LinkLibraries t_mstore : libmstore libsmtp libsocket libreport ;
+Library libmstore : MailStore.cpp ;
+SubInclude TOP lib socket ;
+SubInclude TOP lib smtp ;
+SubInclude TOP lib report ;
+
 # vim:ft=jam
