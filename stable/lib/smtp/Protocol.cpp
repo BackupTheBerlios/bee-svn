@@ -140,7 +140,7 @@ Smtp::Protocol::mailFrom( const char* userName )
 // Doesn't analyze the response code.
     void
 Smtp::Protocol::rcptTo( const char* userFormaT, const unsigned int useR,
-        const char* domainFormaT, const unsigned int domaiN )
+                        const char* domainFormaT, const unsigned int domaiN )
 {
     //FIXME: bof for below
     char buf[ 1024 ] ;
@@ -173,7 +173,19 @@ Smtp::Protocol::rcptTo( const char* userName )
     read( ) ;
     timer_.stop() ;
     report_->rcptTo( ) ;
-}//* Smtp::Protocol::rcptTo
+}//* Smtp::Protocol::rcptTo----------------------------------
+
+
+void
+Smtp::Protocol::rcptTo( int rcptsz, int rcptList[] )
+{
+    char fmt[1024] = {0};
+    for(int i=0; i<rcptsz; ++i)
+    {
+        sprintf(fmt,"user%i", rcptList[i]) ;
+        rcptTo( fmt ) ;
+    }
+}//* Smtp::Protocol::rcptTo-----------------------------------
 
 
 

@@ -27,6 +27,7 @@ namespace Smtp {
                     const char* domainFormat, const unsigned int domainIdx ) ;
 
             void rcptTo ( const char* userName ) ;
+            void rcptTo ( int rcptsz, int rcptList[] ) ;
             void rcptTo ( const char* userFormat,   const unsigned int userIdx,
                     const char* domainFormat, const unsigned int domainIdx ) ;
             void beginData() ;

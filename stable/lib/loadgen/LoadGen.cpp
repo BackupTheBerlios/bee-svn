@@ -1,6 +1,13 @@
 #include "LoadGen.h"
 #include "smtp/Protocol.h"
 
+
+static Scheduler::Cron cron ;
+static int running = 1 ;
+static int elapsed = 0 ;
+
+
+//----
 template<class T, class Arg>
 T*
 Producer<T,Arg>::produce( Arg* a )
@@ -13,10 +20,11 @@ Producer<T,Arg>::produce( Arg* a )
     t->msg_sz = smtpDistr->msgSize() ;
     printf("++PRODUCE: PID=%i userIdx=%i Qsize=%i\n",pthread_self(), t->msg_sz, jobQueue_->size() ) ;
     return t ;
-}//* Producer::produce
+}//* Producer::produce--------------------------------------------
 
 
 
+//---------------Consumer-----------------------------------------
 template<class T, class Arg>
 void
 Consumer<T,Arg>::consume( T* a )
@@ -30,39 +38,33 @@ Consumer<T,Arg>::consume( T* a )
         smtp.greet("ehlo cucu");
         smtp.mailFrom("user");
         smtp.rcptTo("user%i", a->usrIdx, "domain%i", a->usrIdx ) ;
+        smtp.rcptTo( a->rcpts,a->rcptList ) ;
+        smtp.randomData(a->msg_sz) ;
         smtp.quit();
     }catch(Socket::Exception& e )
     {
         printf("ERROR:%s\n", e.what() ) ;
         smtp.close() ;
     }
-    //return 0 ;
-}//* Consumer::consume
+}//* Consumer::consume---------------------------------------------
 
 
 
-
-static Scheduler::Cron cron ;
-static int running = 1 ;
-static int elapsed = 0 ;
-
-// -----------------Smtp Load Generator-----------------------------
+//-----------------Smtp Load Generator-----------------------------
 LoadGen::Smtp::Smtp( )
-{   
+{
     smtpDistr = new Distribute::Smtp("../distribute/rcpt.dat","../distribute/msgsz.dat") ;
     producer.config(smtpDistr) ;
     cron.semaphore( sched_sem ) ;
-}
+}//* LoadGen::Smtp::Smtp-------------------------------------------
+
 
 LoadGen::Smtp::~Smtp()
 {
     delete smtpDistr ;
 }
 
-// Worker:
-// Calculeaza inter-arrival rate-urile
-// le pune intr-un timer-queue.
-// Timer-ul cand expira inter-arrival-ul, deskide o sessiune catre server
+
 
 void
 LoadGen::Smtp::init( int nbcL, int nbtR, int refresH, int tduratioN )
@@ -91,7 +93,8 @@ LoadGen::Smtp::init( int nbcL, int nbtR, int refresH, int tduratioN )
     producer.jobQueue( &jq ) ;
     producer.prod_sem( &prod_sem ) ;
     producer.cons_sem( &cons_sem ) ;
-}
+}//* LoadGen::Smtp::init--------------------------------------------
+
 
 
 /*
@@ -112,51 +115,56 @@ LoadGen::Smtp::run()
 
     //----------CRON--------
     pthread_t   st ;
-    int running = 1 ;
+    //int running = 1 ;
     pthread_create( &st, 0, thread_fun, (void*)&running ) ;
     cron.callback(tick) ;
 
     printf(" number of clients %i\n", nbcl ) ;
     for( int i=1; i< nbcl ; ++i )
-        cron.addTime( i*refresh ) ;   //! addTime parameter is in elapsed.
+        cron.addTime( i*refresh ) ;     //! addTime parameter is in elapsed.
 
-    cron.refresh( 1*refresh ) ;       //! refresh time
-    cron.start() ;                          //! we can start the cron now
+    cron.refresh( 1*refresh ) ;         //! refresh time
+    cron.start() ;                      //! we can start the cron now
 
     pthread_detach(st);
-    while( elapsed <= tduration) 
+    while( elapsed <= tduration)
     {
         ;
     }
     running = 0 ;
-    //-----------------CRON------------------
-}
+}//* LoadGen::Smtp::run---------------------------------------------
 
 
+/**
+ * Comment. */
 void
 LoadGen::Smtp::stop()
 {
     //running = false ;
     // Dump the results ?
-}
+}//* LoadGen::Smtp::stop---------------------------------------------
 
 
 
-void LoadGen::Smtp::tick(union sigval sigval)
+void
+LoadGen::Smtp::tick(union sigval sigval)
 {
     //cron.timer.tick( ) ;
     ++elapsed ;
     cron.runJob();
-}
+}//* LoadGen::Smtp::tick--------------------------------------------
 
-void* thread_fun(void* a)
+
+
+void*
+thread_fun(void* a)
 {
-    int* running = (int*) a ; 
+    int* running = (int*) a ;
     while(*running)
     {
         printf("==Thread function\n");
         sleep(1);
     }
     return 0 ;
-}
+}//* thread_fun-----------------------------------------------------
 
