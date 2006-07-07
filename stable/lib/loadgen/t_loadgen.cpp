@@ -62,12 +62,19 @@ template<class T, class Arg>
 void
 Consumer<T,Arg>::consume( T* a )
 {
+    Smtp::Protocol smtp ;
         cout <<"--CONSUME:\n"
              <<"--userIdx:" << a->usrIdx <<endl
-             <<"--rcpts:"   << a->rcpts <<endl 
+             <<"--rcpts:"   << a->rcpts <<endl
              <<"--PID: "    <<pthread_self() <<endl;
-        sleep(1);
         cout <<jobQueue_->size() <<endl ;
+        smtp.open("localhost", 25);
+        smtp.greet("ehlo cucu") ;
+        smtp.mailFrom( a->usrIdx ) ;
+        smtp.rcptTo( a->rcptList, a->rcpts ) ;
+        smtp.dataRandom( a->msg_sz ) ;
+        smtp.quit( ) ;
+        smtp.close() ;
         //return 0 ;
 }//* Consumer::produce
 
@@ -151,7 +158,7 @@ smtp_load_gen( int nbcl, int nbtr, int refresh, int tduration )
         cron.addTime( i*refresh ) ;   //! addTime parameter is in elapsed.
 
     cron.refresh( 1*refresh ) ;       //! refresh time
-    cron.start() ;                          //! we can start the cron now
+    cron.start() ;                    //! we can start the cron now
 
     pthread_detach(st);
     while( elapsed <= tduration) 
@@ -171,6 +178,7 @@ void tick(union sigval sigval)
     //cron.timer.tick( ) ;
     ++elapsed ;
     cron.runJob();
+    cron.addTime( distribute.exponential(mean) ) ;
 }
 
 void* thread_fun(void* a)
