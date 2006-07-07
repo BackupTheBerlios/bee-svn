@@ -73,9 +73,10 @@ main (int argc, char **argv)
     // Pre-populez `users` mailBoxuri pe host:port folosind 10 threaduri
     if( iflag )
     {
-        MailStore ms("./distribute/mailstore/md.dat") ;
+        MailStore ms("./data/md.dat") ;
         ms.init( host, port, users, 10 ) ;    // HARDCODED:Numarul de threaduri folosit la populare
         is_filled = true ;
+        exit(0);
     }
     LoadGen::Smtp smtpGen ;
     smtpGen.init( nbClt, nbThr, res, tSpan ) ;

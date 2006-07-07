@@ -53,7 +53,7 @@ Consumer<T,Arg>::consume( T* a )
 //-----------------Smtp Load Generator-----------------------------
 LoadGen::Smtp::Smtp( )
 {
-    smtpDistr = new Distribute::Smtp("../distribute/rcpt.dat","../distribute/msgsz.dat") ;
+    smtpDistr = new Distribute::Smtp("./data/rcpt.dat","./data/msgsz.dat") ;
     producer.config(smtpDistr) ;
     cron.semaphore( sched_sem ) ;
 }//* LoadGen::Smtp::Smtp-------------------------------------------
