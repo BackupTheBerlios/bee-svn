@@ -39,9 +39,10 @@ namespace Scheduler
         public:
             //Timer timer ; // pls redenumeste ca sa nu se confunde cu timer_
 
+            Cron( ) {};
             Cron(sem_t sem ) ;
             ~Cron() ;
-
+            void semaphore( sem_t sem ){ semap_ = sem ; } ;
             int start() ;           //!< create and initialize timer_.
             int stop() ;            //!< delete timer_.
             int restart() ;         //!< restart the timer.( stop+start )

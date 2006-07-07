@@ -16,6 +16,8 @@ Report::Smtp::Smtp(const char* host)
 {
     // still to be implemented
     printf("host=%s\n", host ) ;
+    f = fopen("statistics.txt", "a");
+    if(!f) { fprintf(stderr, "cannot open statistics.txt. Exit\n");exit(2); }
 }
 
 

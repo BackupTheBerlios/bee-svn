@@ -14,12 +14,14 @@ class Producer
 {
     public:
         Producer( Arg* pa ) : count(10) { prod_arg_ = pa ; };
+        Producer( ) : count(10) { };
         ~Producer() {};
         void jobQueue( JobQueue <T*>* jq )
         {
             jobQueue_ = jq ;
         }
 
+        void config( Arg* pa) { prod_arg_ = pa ; } ;
         JobQueue<T*>*& jobQueue( )
         {
             return jobQueue_ ;
@@ -54,7 +56,7 @@ class Producer
     void*
 Producer<T,Arg>::execute( void* a )
 {
-    cout <<"PROD START" <<endl ;
+    cout <<"++PRODUCE: START" <<endl ;
     extern int  run ;
     T*          tmpJob ;
     Producer* t = (Producer*)a ;
@@ -64,8 +66,8 @@ Producer<T,Arg>::execute( void* a )
         tmpJob = t->produce( t->prod_arg_ ) ;
         while( t->jobQueue_->size() > 5 )
         {
-            cout <<"PROD SEM: " <<t->prod_sem_ <<endl ;
-            cout <<"PROD WAIT--:" <<t->jobQueue_->size() <<endl ;
+            cout <<"++PROD SMPH: " <<t->prod_sem_ <<endl ;
+            cout <<"++PROD Qsize:" <<t->jobQueue_->size() <<endl ;
             sem_wait( t->prod_sem_ ); 
         }
 
