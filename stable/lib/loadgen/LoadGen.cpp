@@ -62,6 +62,9 @@ LoadGen::Smtp::stop()
 
 
 
+
+
+#if 0
 // -----------------Pop3 Load Generator-----------------------------
 void
 LoadGen::Pop3::init()
@@ -130,7 +133,7 @@ class SmtpConfig {
         int userIdx ;
         SmtpConfig( ) { userIdx = 10 ; };
 };
-
+#endif
 #if 0
 int main()
 {

@@ -5,12 +5,22 @@
 #include "prod_cons/Consumer.hpp"
 #include "prod_cons/tqueue.h"
 #include "distribute/Distribute.h"
+#include "scheduler/Scheduler.h"
 
 
 using namespace std ;
 
 
-Distribute::Smtp smtpDistr("distribute/rcpt_dat","/distribute/msgsz.dat") ;
+Distribute::Smtp smtpDistr("../distribute/rcpt.dat","../distribute/msgsz.dat") ;
+unsigned int elapsed =0 ;
+
+sem_t sched_sem ;
+Scheduler::Cron cron( sched_sem ) ;
+
+void tick(union sigval sigval) ;
+void* thread_fun(void*) ;
+
+
 
 class SmtpConfig {
     public:
@@ -24,8 +34,10 @@ struct Job {
     int usrIdx ;
     int domIdx ;
     int rcpts ;
+    int msg_sz ;
     int rcptList[32] ; // round up to 32
 } ;
+
 
 
 
@@ -38,7 +50,7 @@ Producer<T,Arg>::produce( Arg* a )
     printf("++PRODUCE\n" ) ;
         T*      t ;
         t = new T ;
-        t->rcpts  = smtpDistr.rcptTo( &t->rcptList) ;
+        t->rcpts  = smtpDistr.rcptTo( t->rcptList, 100) ;
         t->usrIdx = smtpDistr.mailFrom(100) ;   // call an exponential distribution here
         t->msg_sz = smtpDistr.msgSize() ;
         return t ;
@@ -51,9 +63,9 @@ void
 Consumer<T,Arg>::consume( T* a )
 {
         cout <<"--CONSUME:\n"
-             <<"--userIdx:"   << a->userIdx <<endl
+             <<"--userIdx:" << a->usrIdx <<endl
              <<"--rcpts:"   << a->rcpts <<endl 
-             <<"--PID: " <<pthread_self() <<endl;
+             <<"--PID: "    <<pthread_self() <<endl;
         sleep(1);
         cout <<jobQueue_->size() <<endl ;
         //return 0 ;
@@ -61,45 +73,114 @@ Consumer<T,Arg>::consume( T* a )
 
 
 
-int main()
+
+void
+smtp_load_gen( int nbcl, int nbtr, int refresh, int tduration ) ;
+
+int main(int argc, char* argv[])
 {
-    SmtpConfig smtpConfig ;
-    JobQueue<Job*>   jq ;
 
-    sem_t prod_sem ;
-    pthread_t   p ;
-    Producer<Job, SmtpConfig>   prod(&smtpConfig) ;
+    if( argc <=3 ) { printf( "%s clients refresh_time[sec] test_duration[sec]\n", argv[0] ) ;
+        return 1 ;
+    }
+    smtp_load_gen( atoi(argv[1]), 20, atoi(argv[2]), atoi(argv[3])) ;
+    return 0 ;
+}
 
-    sem_t cons_sem ;
-    pthread_t   c[20] ;
-    Consumer<Job, SmtpConfig>    cons[20] ;
-    
-    int k ;
-    for( k=0; k<20; ++k)
+
+
+
+void
+smtp_load_gen( int nbcl, int nbtr, int refresh, int tduration )
+{
+
+    SmtpConfig      smtpConfig ;
+    JobQueue<Job*>  jq ;
+
+    sem_t           prod_sem ;
+    pthread_t       p ;
+    Producer<Job, SmtpConfig>   producer(&smtpConfig) ;
+
+    sem_t           cons_sem ;
+    pthread_t       c[nbtr] ;
+    Consumer<Job, SmtpConfig>    consumer[nbtr] ;
+
+    /* Init semaphores */
+    sem_init( &prod_sem, 0, 0 ) ;
+    sem_init( &cons_sem, 0, 0 ) ;
+    sem_init( &sched_sem, 0, 0 ) ;
+    fprintf( stderr,"DBG:PROD SEM: %p\n" ,&prod_sem ) ;
+
+
+    //-----------------CONSUMER-------------------------
+    // config CONSUMERS to have the intercomunication ways set
+    for( int k=0; k< nbtr; ++k)
     {
-        cons[k].jobQueue( &jq ) ;
-        cons[k].prod_sem( &prod_sem ) ;
-        cons[k].cons_sem( &cons_sem ) ;
+        consumer[k].jobQueue( &jq ) ;
+        consumer[k].prod_sem( &prod_sem ) ;
+        //consumer[k].cons_sem( &cons_sem ) ;
+        consumer[k].cons_sem( &sched_sem ) ;
     }
 
 
-    sem_init( &prod_sem, 0, 0 ) ;
-    sem_init( &cons_sem, 0, 0 ) ;
-    cout <<"PROD SEM: " <<&prod_sem <<endl ;
 
-    prod.jobQueue( &jq ) ;
+    // config PRODUCER to have the intercomunication ways set
+    producer.jobQueue( &jq ) ;
+    producer.prod_sem( &prod_sem ) ;
+    producer.cons_sem( &cons_sem ) ;
 
-    // Init step 2 : Set condition variables.
-    prod.prod_sem( &prod_sem ) ;
-    prod.cons_sem( &cons_sem ) ;
+    // CREATE and DETACH producing thread
+    pthread_create( &p, 0, producer.execute, &producer ) ;              // producer thread
+    pthread_detach( p ) ;
+
+    // CREATE and DETACH consuming threads
+    for( int k=0; k<nbtr; ++k)
+        pthread_create( &c[k], 0, consumer[k].execute, &consumer[k] ) ; // consumer thread
+    for( int k=0; k<nbtr; ++k)
+        pthread_detach( c[k] ) ;
 
 
-    pthread_create( &p, 0, prod.execute, &prod ) ;              // producer thread
-    for( k=0; k<20; ++k)
-        pthread_create( &c[k], 0, cons[k].execute, &cons[k] ) ; // consumer thread
 
-    pthread_join( p, 0 ) ;
-    for( k=0; k<20; ++k)
-        pthread_join( c[k], 0) ;
+    //----------CRON--------
+    pthread_t   st ;
+    int running = 1 ;
+    pthread_create( &st, 0, thread_fun, (void*)&running ) ;
+    cron.callback(tick) ;
+
+    for( int i=1; i< nbcl ; ++i )
+        cron.addTime( i*refresh ) ;   //! addTime parameter is in elapsed.
+
+    cron.refresh( 1*refresh ) ;       //! refresh time
+    cron.start() ;                          //! we can start the cron now
+
+    pthread_detach(st);
+    while( elapsed <= tduration) 
+    {
+        ;
+    }
+    running = 0 ;
+    //-----------------CRON------------------
+
+
+}
+
+
+
+void tick(union sigval sigval)
+{
+    //cron.timer.tick( ) ;
+    ++elapsed ;
+    cron.runJob();
+}
+
+void* thread_fun(void* a)
+{
+    int* running = (int*) a ; 
+    while(*running)
+    {
+        printf("Running a thread function\n");
+        sleep(1);
+    }
     return 0 ;
 }
+

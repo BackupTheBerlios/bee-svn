@@ -3,7 +3,16 @@ TOP ?= $(DOTDOT)/$(DOTDOT) ;
 SubDir $(TOP) lib loadgen ;
 
 Main t_loadgen : t_loadgen.cpp ;
-LinkLibraries t_loadgen : libloadgen ;
+LinkLibraries t_loadgen : libloadgen libdistribute libscheduler ;
 Library libloadgen : LoadGen.cpp ;
+SubInclude TOP lib distribute ;
+SubInclude TOP lib scheduler ;
+
+
+Main t_loadgen : t_loadgen1.cpp ;
+LinkLibraries t_loadgen : libloadgen libdistribute libscheduler ;
+Library libloadgen : LoadGen.cpp ;
+SubInclude TOP lib distribute ;
+SubInclude TOP lib scheduler ;
 
 # vim:ft=jam
