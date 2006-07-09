@@ -1,0 +1,9 @@
+TOP ?= $(DOTDOT)/$(DOTDOT) ;
+
+SubDir TOP lib sysinfo ;
+
+Main t_sysinfo : t_sysinfo.cpp ;
+LinkLibraries t_sysinfo : libsysinfo ;
+Library libsysinfo : SysInfo.cpp ;
+
+# vim:ft=jam
