@@ -11,7 +11,7 @@
 using namespace std ;
 
 
-Distribute::Smtp smtpDistr("../distribute/rcpt.dat","../distribute/msgsz.dat") ;
+Distribute::Smtp smtpDistr("./data/rcpt.csv","./data/msgsz.csv") ;
 unsigned int elapsed =0 ;
 
 sem_t sched_sem ;

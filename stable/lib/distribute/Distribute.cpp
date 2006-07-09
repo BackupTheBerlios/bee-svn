@@ -15,7 +15,7 @@ Distribute::Smtp::Smtp( const char rcpt_dat[], const char msgsz_dat[] )
     float pct=0,s=0 ;
     while(!feof(f))
     {
-        fscanf(f, "%i %f", &size, &pct ) ; // for now, i wont use size
+        fscanf(f, "%i,%f", &size, &pct ) ; // for now, i wont use size
         rcpt_d_.push_back( pct/100 ) ;
     }
     fclose(f);
@@ -31,7 +31,7 @@ Distribute::Smtp::Smtp( const char rcpt_dat[], const char msgsz_dat[] )
     MsgDist md;
     while(!feof(f))
     {
-        fscanf(f, "%i %f", &size, &pct ) ;
+        fscanf(f, "%i,%f", &size, &pct ) ;
         md.size = size ;
         md.pct  = pct/100.0 ;
         msg_d_.push_back(md) ;

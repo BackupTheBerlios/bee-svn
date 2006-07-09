@@ -10,6 +10,7 @@ namespace Report {
             Smtp(const char* host) ;
             ~Smtp() ;
             void timer( Timer* timer ) { timer_ = timer ; } ;
+            void session( const int s ) { session_ = s ; } ;
             void open() ;
             void greet() ;
             void mailFrom() ;
@@ -20,6 +21,7 @@ namespace Report {
             void rset() ;
         private:
             Timer* timer_ ;
+            int    session_ ;
             FILE* f ;
     } ;
 } ;
