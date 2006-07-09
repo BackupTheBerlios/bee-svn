@@ -1,4 +1,7 @@
 #include "smtp/Protocol.h"
+#if !defined WIN32
+    #include <sys/sendfile.h>
+#endif
 
 
 /*
@@ -11,11 +14,7 @@
 #if defined USE_DEBUG
     #include "common/Debug.h"
 #endif
-
-#if !defined WIN32
-    #include <sys/sendfile.h>
-#endif
-
+*/
 
 /**
  * Default contructor. **/
@@ -236,8 +235,25 @@ Smtp::Protocol::sendFile( int in_fd )
 
     rval = fstat ( in_fd, &stat_buf);
     if( -1 == rval ) throw Exception( strerror(errno) ) ;
-    //TODO:rval = sendfile( sock_, in_fd, &begin, stat_buf.st_size);
+    rval = sendfile( sock_, in_fd, &begin, stat_buf.st_size);
     if( -1 == rval ) throw Exception( strerror(errno) ) ;
+}
+
+    void
+Smtp::Protocol::sendFile( const char name[])
+{
+    int    rval     = 0,in_fd ;
+    off_t  begin    = 0 ;
+    struct stat stat_buf;
+
+    in_fd = ::open(name, O_RDONLY ) ;
+    if( !in_fd ) throw Exception( strerror(errno) ) ;  
+    rval = fstat ( in_fd, &stat_buf);
+    if( -1 == rval ) throw Exception( strerror(errno) ) ;
+    rval = sendfile( sock_, in_fd, &begin, stat_buf.st_size);
+    if( -1 == rval ) {::close(in_fd) ; throw Exception( strerror(errno) ) ; }
+    ::close(in_fd) ;
+
 }
 
 

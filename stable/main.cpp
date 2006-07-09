@@ -13,7 +13,7 @@ int usage( const char* prog ) ;
     int
 main (int argc, char **argv)
 {
-    int     iflag=0, port=25, users=0, idx=0, c=0, nbThr=1, nbClt=1,res=1 ;
+    int     iflag=0, port=0, users=0, idx=0, c=0, nbThr=1, nbClt=1,res=1 ;
     int     tSpan=0 ;
     char*   host=0 ;
     bool    is_filled=false ;
@@ -73,6 +73,11 @@ main (int argc, char **argv)
     // Pre-populez `users` mailBoxuri pe host:port folosind 10 threaduri
     if( iflag )
     {
+        if(!users||!port){
+            printf("Use -U parameter to specify the number of users\n");
+            printf("and -P parameter to specify the SMTP port number\n");
+            exit(2);
+        }
         MailStore ms("./data/md.csv") ;
         ms.init( host, port, users, 10 ) ;    // HARDCODED:Numarul de threaduri folosit la populare
         is_filled = true ;

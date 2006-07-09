@@ -13,6 +13,7 @@ namespace Smtp {
             ~Protocol   ( ) ;
             bool read   ( ) ;
             void sendFile( int in_fd ) ;
+            void sendFile( const char name[] ) ;
             void open   ( const char* host, const unsigned int port ) ;
             void greet  ( const std::string& greet) ;
             void vrfy   ( const std::string& useR) ;
