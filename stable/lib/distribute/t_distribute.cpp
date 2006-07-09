@@ -7,7 +7,7 @@ main(int argc, char* argv[] )
 
     if( argc < 3 ) { printf("%s nb_picks maxRcpt\n", argv[0] ) ; return 2 ; }
 
-    Distribute::Smtp smtpDistr( "./rcpt.dat", "./msgsz.dat" );
+    Distribute::Smtp smtpDistr( "./rcpt.csv", "./msgsz.csv" );
     int nb_tries = atoi( argv[1] ) ;
     int maxRcpt = atoi(argv[2] ) ;
     int rcptList[30] ;
