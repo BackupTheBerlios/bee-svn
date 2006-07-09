@@ -32,8 +32,9 @@ class SysInfo {
        int netRx( const char* iface, long int* bytes, long int* pkts ) ;
        int netTx( const char* iface, long int* bytes, long int* pkts ) ;
        // param[in] device
-       int sectors_read( const char* device ) ;
-       int sectors_write( const char* device ) ;
+
+       int readInfo( const char* device, int* reads, int* sectors, int* mergedReads );
+       int writeInfo( const char* device, int* writes, int* sectors );
        int reads( const char* device ) ;
        int writes( const char* device ) ;
 } ;

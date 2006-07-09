@@ -159,14 +159,16 @@ SysInfo::loadAvg(float* one_m, float* five_m, float* ften_m ) {
 
 
 int
-netRx( const char* iface, long int* bytes, long int* pkts )
+SysInfo::netRx( const char* iface, long int* bytes, long int* pkts )
 {
     int     fh ;
     char    fname[] ="/proc/net/dev" ;
+    int     bufsz = 8192 ;
+    char    buf[bufsz];
     char*   loc =0;
     
     fh = open( fname, O_RDONLY ) ;
-    int br = read( fh, buf, x ) ;    // TODO HERE
+    int br = read( fh, buf, bufsz ) ;    // TODO HERE
     if( !br || sizeof(buf) == br )
     {
         printf("trouble reading %s\n", fname ) ;
@@ -188,14 +190,16 @@ netRx( const char* iface, long int* bytes, long int* pkts )
 }
 
 int
-netTx( const char* iface, long int* bytes, long int* pkts )
+SysInfo::netTx( const char* iface, long int* bytes, long int* pkts )
 {
     int     fh ;
     char    fname[] ="/proc/net/dev" ;
+    int     bufsz = 8192 ;
+    char    buf[bufsz];
     char*   loc =0;
     
     fh = open( fname, O_RDONLY ) ;
-    int br = read( fh, buf, x ) ;    // TODO Replace x with a bufSize
+    int br = read( fh, buf, bufsz ) ;    // TODO Replace x with a bufSize
     if( !br || sizeof(buf) == br )
     {
         printf("trouble reading %s\n", fname ) ;
@@ -222,14 +226,15 @@ netTx( const char* iface, long int* bytes, long int* pkts )
 
 
 int
-readInfo( const char* device, int* reads, int* sectors, int* mergedReads )
+SysInfo::readInfo( const char* device, int* reads, int* sectors, int* mergedReads )
 {
     int fh,br=0 ;
-    int sectors ;
+    int     bufsz = 8192 ;
+    char    buf[bufsz];
     char fname[] = "/proc/diskstats" ;
    
     fh = open( fname, O_RDONLY ) ;
-    br = read( fh, x ) ;
+    br = read( fh, buf, bufsz ) ;
     if( !br || sizeof(buf) == br )
     {
         printf("trouble reading %s\n", fname) ;
@@ -237,13 +242,13 @@ readInfo( const char* device, int* reads, int* sectors, int* mergedReads )
     }
 
    /* Start parsing */
-    loc = strstr( buf, device ) ;
+    char* loc = strstr( buf, device ) ;
     if( !loc )
     {
         printf("Can't find device %s\n", device ) ;
         return 0 ;
     }
-    br = sscanf( loc, "%*s: %*i %*i %i" , &sectors ) ;
+    br = sscanf( loc, "%*i %*i %i" , &sectors ) ;
     if( !br )
     {
         printf( "Can't get info from %s", fname ) ;
@@ -253,6 +258,6 @@ readInfo( const char* device, int* reads, int* sectors, int* mergedReads )
 }
 
 int
-writeInfo( const char* device, int* writes, int* sectors )
+SysInfo::writeInfo( const char* device, int* writes, int* sectors )
 {
 }
