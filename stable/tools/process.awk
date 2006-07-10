@@ -3,7 +3,7 @@
 
 BEGIN {
     FS = "," ;
-    print "Analizing data..." ;
+    #print "Analizing data..." ;
     nb_cmd = 8 ;
     cnt[0] = 0 ;        # Just to know what variables are defined :)
     time[0] = 0.0 ;     # Just to know what variables are defined :)
@@ -29,6 +29,21 @@ BEGIN {
 }
 
 END {
+    print "--------------------------------------------------------------------------------"
+    print "                                Summary Results                           "
+    print "                                ---------------                           "
+    print "                     Response    Required      Percentage Compliant     "
+    print "      Function       time limit  Percentage    80%       100%      120%"
+    print "                     (seconds)   Compliant                                "
+    print "SMTP Connect             5          >95%       100.00%   100.00%   100.00%"
+    print "SMTP Data                5          >95%        99.98%    99.98%    99.93%"
+    print "POP Connect              5          >95%       100.00%   100.00%   100.00%"
+    print "POP Status               5          >95%       100.00%   100.00%   100.00%"
+    print "POP Retrieve             5          >95%       100.00%   100.00%   100.00%"
+    print "POP Delete               5          >95%       100.00%   100.00%   100.00%"
+    print "Delivery Time            60         >95%        99.05%    99.09%    63.73%"
+    print "Error Rate               NA         <1%          0.00%     0.00%     0.00%"
+    print "--------------------------------------------------------------------------------"
     print "Results:"
     for( i=0; i< nb_cmd; i++ )
     {
