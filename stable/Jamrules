@@ -7,8 +7,8 @@ ECHO $(OS) ;
 if ( $(OS) = LINUX )
 {
     ECHO "Linux BUILD" ;
-    C++      = ccache g++ ;                              # C++ compiler, e.g. g++, icc, como, CC, etc.
-    CC       = ccache gcc ;
+    C++      = g++ ;                              # C++ compiler, e.g. g++, icc, como, CC, etc.
+    CC       = gcc ;
     LINK     = $(C++) ;
     OPTIM    = -O0 ;                                    #compiler optimization flags, e.g. -O2, -O3, etc.
     LINKLIBS = -lpthread -rdynamic -lrt -ldl ;          #FreeBSD doesnt use -ldl -lrt
