@@ -5,8 +5,8 @@
 <meta name="fdse-index-as" content="http://www.spec.org/mail2001/docs/whitepaper.html"><title>SpecMail2001 ArchWP</title>
 
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-<link rel="stylesheet" href="whitepaper_files/printstyle.css" type="text/css" media="print">
-<link rel="stylesheet" href="whitepaper_files/ns4style.css" type="text/css" media="screen">
+<link rel="stylesheet" href="printstyle.css" type="text/css" media="print">
+<link rel="stylesheet" href="ns4style.css" type="text/css" media="screen">
 <style type="text/css" media="screen">@import url("/includes/sitestyle.css");</style>
 <link rel="home" href="http://www.spec.org/" title="Home">
 <link rel="help" href="http://www.spec.org/spec/faq/" title="FAQ">
@@ -22,7 +22,7 @@
 
 <table>
   <tbody><tr>
-    <td valign="top"><a href="http://www.spec.org/mail2001/"><img src="whitepaper_files/mainlogosmall.gif" alt="SPEC logo" border="0"></a></td>
+    <td valign="top"><a href="http://www.spec.org/mail2001/"><img src="./img/mainlogosmall.gif" alt="SPEC logo" border="0"></a></td>
     <td valign="top">
       <h1 align="center"> SPECmail2001 Mail Server Benchmark<br>
         Architecture White Paper </h1>
@@ -294,54 +294,41 @@ are:</strong>
   <li> The benchmark does not require that there be 1,000's of small, remotely
     connected email clients. Instead, it allows simulation of the email clients
     on a small number of server-sized, locally connected client systems, in order
-    to make the benchmark execution practical. </li>
-</ol>
-<ol>
+    to make the benchmark execution practical. </li><br>
   <li> The benchmark does not include administrational activities like on-line
     backup and account provisioning. These are hard to standardize, and - more
     importantly - they do not necessarily happen during the peak hour of daily
-    operation. </li>
-  <li style="list-style-type: none; list-style-image: none; list-style-position: outside;"> &nbsp; </li>
+    operation. </li><br>
   <li> Besides provisioning, the benchmark does not include modification to account
     data or deletion of accounts. These activities, although commonplace in the
     day-to-day operation of a mail server, are seen as testing the directory
     service rather than the mail server itself. SPECmail2001 emphasizes mail
     server benchmarking, and includes a directory server in the system-under-test
-    only to the minimum extent necessary to handle normal mail flow. </li>
-  <li style="list-style-type: none; list-style-image: none; list-style-position: outside;"> &nbsp; </li>
+    only to the minimum extent necessary to handle normal mail flow. </li><br>
   <li> The benchmark does not cover relay operation (forwarding of incoming SMTP
-    traffic to other, remote MTAs). It does include simulation of messages from
-    local users to remote MTAs, as well as incoming mail from remote MTAs. Relay
-    operation was excluded since it is often handled by separate MTA systems. </li>
-</ol>
-<ol>
+    traffic to other, remote MTAs). <u>It does include simulation of messages from
+    local users to remote MTAs, as well as incoming mail from remote MTAs</u>. Relay
+    operation was excluded since it is often handled by separate MTA systems. </li><br>
   <li> There is no requirement for high availability or disaster recovery measures;
-    this was beyond the scope of the benchmark. </li>
-</ol>
-<ol>
+    this was beyond the scope of the benchmark. </li><br>
   <li> The mail server is not required to perform any extended features, like
     virus scanning, spam filtering, handling of mailing lists, security measures,
-    multiple folders per mailbox. This was beyond the scope of the benchmark. </li>
-</ol>
-<ol>
-  <li> SMTP sessions can normally send one or several messages per session. The
-    benchmark restricts itself to one message. This reduced the development effort
+    multiple folders per mailbox. This was beyond the scope of the benchmark. </li><br>
+  <li> SMTP sessions can normally send one or several messages per session. <u>The
+    benchmark restricts itself to one message.</u> This reduced the development effort
     on the benchmark tool, and was also consistent with early mail server traffic
-    data evaluation. </li>
-  <li style="list-style-type: none; list-style-image: none; list-style-position: outside;"> &nbsp; </li>
-  <li> The benchmark does not include handling of MIME messages (messages with
-    attachments). MIME messages do not get special treatment by the mail server
+    data evaluation. </li><br>
+  <li> <u>The benchmark does not include handling of MIME messages (messages with
+    attachments)</u>. MIME messages do not get special treatment by the mail server
     under the SMTP or POP protocols; they do get special treatment by the server
     under the IMAP protocol, which is outside the scope of this version of the
     benchmark. (Note, mail clients may pay special attention to MIME messages
-    under all protocols, but that does not affect the benchmark). </li>
-</ol>
-<ol>
+    under all protocols, but that does not affect the benchmark). </li><br>
   <li> The rules for preparing the benchmark do not require any aging of the
     mail store, beyond establishing the initial workload. In reality, mail stores
     may deteriorate over time, e.g. through file system or database fragmentation.
     The rationale is that a fresh mail store is at least a good comparison base,
-    and that any realistic aging would inflate the benchmark execution effort. </li>
+    and that any realistic aging would inflate the benchmark execution effort. </li><br>
 </ol>
 <table border="0" cellspacing="0">
   <tbody><tr>
@@ -728,7 +715,7 @@ are:</strong>
     </tr>
   </tbody></table>
 </center>
-<h4> <img alt="" src="whitepaper_files/MsgSzDist1.gif" height="623" width="911"> </h4>
+<h4> <img alt="" src="./img/MsgSzDist1.gif" height="623" width="911"> </h4>
 <h4> <a id="4.2.1.2." name="4.2.1.2."></a><strong><font color="#000000">4.2.1.2.
       Recipient Count (MSG_RECP_DISTRIBUTION)</font></strong> </h4>
 <p> Each message gets sent to one or more recipients. The vast majority of messages
@@ -824,7 +811,7 @@ are:</strong>
     </tr>
   </tbody></table>
 </center>
-<p> <img alt="" src="whitepaper_files/rcptchart1.gif" height="623" width="911"> </p>
+<p> <img alt="" src="./img/rcptchart1.gif" height="623" width="911"> </p>
 <h3> <a id="4.2.2." name="4.2.2."></a>4.2.2. Transactions and Parameters per
   POP/SMTP session </h3>
 <h4> <a id="4.2.2.1." name="4.2.2.1."></a>4.2.2.1. SMTP Session </h4>
@@ -1422,7 +1409,7 @@ are:</strong>
     </caption>
   </table>
 </center>
-<p> <img alt="" src="whitepaper_files/MsgCount21.gif" height="623" width="911"> </p>
+<p> <img alt="" src="./img/MsgCount21.gif" height="623" width="911"> </p>
 <p> <u>This distribution reflects an average message count of 3.43 messages per
   mailbox - which is in line with expectations (PopMsgsRcvd).</u> </p>
 <p> The average message count per mailbox is a base figure for estimating the
@@ -2056,8 +2043,8 @@ have to actually, physically delete messages while it is performing the benchmar
   arrivals is the exponential distribution. A study of log data from a mail server
   showed that a Weibull distribution fitted the distribution better. For the
   reader's convenience, here are two graphs showing the shape of these distributions. </p>
-<p> <img alt="" src="whitepaper_files/ExpDist1.gif" height="623" width="911"> </p>
-<p> <img alt="" src="whitepaper_files/Weibull1.gif" height="623" width="911"><br>
+<p> <img alt="" src="./img/ExpDist1.gif" height="623" width="911"> </p>
+<p> <img alt="" src="./img/Weibull1.gif" height="623" width="911"><br>
   A distinguishing aspect of the Weibull distribution is that it shows a lower
     probability for very short interarrival times. Since this distinction depends
     a lot on how much the timestamps in the logs can be trusted, at the very
@@ -2113,7 +2100,7 @@ not a tight-knit community; they have more external than internal email contacts
   <br>
 </p>
 <center>
-  <p> <img alt="" src="whitepaper_files/Remote1.gif" height="531" width="459"> </p>
+  <p> <img alt="" src="./img/Remote1.gif" height="531" width="459"> </p>
 </center>
 <p> <br>
   <br>
@@ -2130,7 +2117,7 @@ not a tight-knit community; they have more external than internal email contacts
 &nbsp;<br>
 </p>
 <center>
-  <p> <img alt="" src="whitepaper_files/Remote2.gif" height="531" width="459"> </p>
+  <p> <img alt="" src="./img/Remote2.gif" height="531" width="459"> </p>
 </center>
 <p> <br>
   <br>
@@ -2473,7 +2460,7 @@ not a tight-knit community; they have more external than internal email contacts
 </blockquote>
 <p> Accordingly, a SPECmail2001 benchmark run consists of a series of warm-up,
   measurement and cool-down phases: </p>
-<p> <img alt="" src="whitepaper_files/Phases1.gif" height="623" width="911"> </p>
+<p> <img alt="" src="./img/Phases1.gif" height="623" width="911"> </p>
 <p> Only the transaction load is varied between these three points. The pre-populated
   mail store needs to match the 100% load level (larger is OK), and does not
   vary for the 80% or the 120% test case.&nbsp; </p>
