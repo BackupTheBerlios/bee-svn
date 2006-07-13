@@ -6,6 +6,7 @@
 #include <sys/time.h>
 
 #include <errno.h>
+#include <pthread.h>
 
 #if !defined LINUX
     typedef int sigval_t ;
@@ -31,12 +32,22 @@
  * inialize the? timer */
 
 
+/** Cron : Default constructor. **/
+Scheduler::Cron::Cron()
+{
+    //debug(  "C" ) ;
+    if( cronTab_.empty() ) cronTab_.push_back(RAND_MAX) ; // so that addTime could work 
+    pthread_mutex_init(&mtx_,0) ;
+}//* Cron
+
 
 /** Cron : Default constructor. **/
 Scheduler::Cron::Cron(sem_t sem)
 {
     //debug(  "C" ) ;
     semap_ = sem ;
+    if( cronTab_.empty() ) cronTab_.push_back(RAND_MAX) ; // so that addTime could work 
+    pthread_mutex_init(&mtx_,0) ;
 }//* Cron
 
 
@@ -45,8 +56,47 @@ Scheduler::Cron::Cron(sem_t sem)
 Scheduler::Cron::~Cron()
 {
     //debug(  "D" ) ;
+    pthread_mutex_destroy( &mtx_ );
 }//* ~Cron
 
+void
+Scheduler::Cron::addTime( unsigned long timE )
+{
+    // Insert the element while keeping the list sorted
+    list< unsigned long>::iterator it ;
+    pthread_mutex_lock(&mtx_);  //-- Lock
+    for( it = cronTab_.begin() 
+            ; it!= cronTab_.end()
+            ; ++it )
+        if( timE < *it ) {
+            cronTab_.insert( it, timE ) ; 
+            pthread_mutex_unlock(&mtx_);//-- Unlock before return
+            return;
+        }
+    pthread_mutex_unlock(&mtx_);//-- Unlock before function exit
+}
+
+void
+Scheduler::Cron::delTime(unsigned long timE )
+{
+    list<unsigned long>::iterator it ;
+    pthread_mutex_lock(&mtx_) ;  //-- Lock before we add
+
+    printf("delTime %i\n", timE );
+    for( it = cronTab_.begin()
+        ; it != cronTab_.end() && *it <= timE 
+        ; )
+    {
+            it = cronTab_.erase( it ) ;
+        if( (*it) == timE ) {
+            if( it == cronTab_.end() ) return ;
+            continue;
+        }
+        if( it == cronTab_.end() ) return ;
+        it++ ;
+    }
+    pthread_mutex_unlock(&mtx_) ;//-- Unlock
+} ;
 
 
 /** runJob : Decrement a semap, so a client thread is awaken. **/
@@ -56,8 +106,9 @@ Scheduler::Cron::runJob()
     //debug(  "B" );
 
     bool reset ;
-    vector< unsigned long >::iterator it ;
+    list< unsigned long >::iterator it ;
 
+    printf("+++ENTER JOB++++\n");
     print_time( ) ;
     for( it  = cronTab_.begin( ); it != cronTab_.end(); ++it )
     {
@@ -67,16 +118,17 @@ Scheduler::Cron::runJob()
             reset = true ;          //wtf is this?
             sem_post( &semap_ ) ;   // awake a client( make this a functor ??)
             printf(  "runJob %u\n", *it ) ;
-            fprintf( stderr, "runJob %u\n", *it ) ;
         }
     }
+    delTime( timeOut_.current() ) ;
+    show() ;
+
     // If all tasks are called simultaneously, reset curTimeout value:
     if( reset )
         timeOut_.current( timeOut_.min() );
     else
         timeOut_.current( timeOut_.current() + timeOut_.min() ) ;
-    printf("-------\n\n");
-    fprintf(stderr, "-------\n\n");
+    printf("---EXIT JOB----\n\n");
     return 0;
 }//* Cron::awakeClient
 
@@ -231,16 +283,14 @@ Scheduler::TimeOut::~TimeOut()
 
 /** Refresh the timeList. **/
     void
-Scheduler::TimeOut::refresh( int newTimE , vector< unsigned long > timeLisT)
+Scheduler::TimeOut::refresh( int newTimE , list< unsigned long > timeLisT)
 {
     //debug(  "B") ;
-
     if( timeLisT.empty() ) return ;
 
     max_ = newTimE > max_  ?  newTimE : max_ ;
-    //debug(  "max_=%i", max_ ) ;
 
-    vector < unsigned long >::iterator it = timeLisT.begin( ) ;
+    list < unsigned long >::iterator it = timeLisT.begin( ) ;
     min_ = timeLisT.front() ;
     for( ; it != timeLisT.end( ) ; ++it )
     {
@@ -260,7 +310,7 @@ Scheduler::TimeOut::gcm(unsigned long x, unsigned long y)
 {
     //debug(  "B") ;
 
-    if( (x <= 0UL) || (y <= 0UL) ) return 1UL ;
+    if( (x <= 0UL) || (y <= 0UL) || (x==RAND_MAX) || (y==RAND_MAX)) return 1UL ;
 
     while( x != y )
     {

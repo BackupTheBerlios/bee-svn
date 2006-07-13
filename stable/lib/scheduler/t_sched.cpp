@@ -20,16 +20,15 @@ int main( int argc, char* argv[])
     }
     pthread_t p ;
     int running = 1 ;
-    pthread_create( &p, 0, thread_fun, (void*)&running ) ;
+
+    for( int i=atoi(argv[1]); i>0 ; --i )
+        cron.addTime( i*atoi(argv[2]) ) ;   //! addTime parameter is in elapsed.
+    cron.show() ;
     cron.callback(tick) ;
 
-    for( int i=1; i<atoi(argv[1]) ; ++i )
-        cron.addTime( i*atoi(argv[2]) ) ;   //! addTime parameter is in elapsed.
-
-    cron.refresh( 1*atoi(argv[2]) ) ;       //! refresh time
+    cron.refresh( 1 ) ;                     //! refresh time
     cron.start() ;                          //! we can start the cron now
 
-    pthread_detach(p);
     while( elapsed <= atoi( argv[3])  )
     {
         ;
@@ -42,17 +41,10 @@ int main( int argc, char* argv[])
 void tick(union sigval sigval)
 {
     //cron.timer.tick( ) ;
-    ++elapsed ;
+    printf("Tick\n") ;
+    cron.delTime(elapsed);
     cron.runJob();
+    cron.show() ;
+    ++elapsed ;
 }
 
-void* thread_fun(void* a)
-{
-    int* running = (int*) a ; 
-    while(*running)
-    {
-        printf("Running a thread function\n");
-        sleep(1);
-    }
-    return 0 ;
-}
