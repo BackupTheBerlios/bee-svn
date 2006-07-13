@@ -1,13 +1,12 @@
 #if !defined _SCHEDULER_H_
 #define _SCHEDULER_H_
 
-#include <vector>
+#include "tqueue"
 #include <signal.h>
 #include <semaphore.h>
 
 #include <sys/signal.h>
 
-using std::vector ;
 
 /* FreeBSD does not define sigval_t */
 typedef union sigval sigval_t;

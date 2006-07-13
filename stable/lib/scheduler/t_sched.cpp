@@ -13,7 +13,9 @@ void* thread_fun(void*) ;
 
 int main( int argc, char* argv[])
 {
-    if( argc <=3 ) { printf( "%s clients refresh_time[sec] test_duration[sec]\n", argv[0] ) ;
+    if( argc <=3 )
+    {
+        printf( "%s clients refresh_time[sec] test_duration[sec]\n", argv[0] ) ;
         return 1 ;
     }
     pthread_t p ;
