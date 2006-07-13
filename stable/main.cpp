@@ -56,6 +56,8 @@ main (int argc, char **argv)
         {"threads"      , 1, 0, 4},
         {"clients"      , 1, 0, 5},
         {"span"         , 1, 0, 6},
+        {"warmup"         , 1, 0, 6},
+        {"rampdown"         , 1, 0, 6},
         {"users"        , 1, 0, 7},
         {"resolution"   , 1, 0, 8},
         {"smtpserver"   , 1, 0, 3},
@@ -68,9 +70,9 @@ main (int argc, char **argv)
         {"remotedomain" , 1, 0, 2},
         {"userprefix"   , 1, 0, 2},
         {"userpasswd"   , 1, 0, 2},
-        {"userstart"   , 1, 0, 2},
-        {"userend"   , 1, 0, 2},
-        {"initrest"   , 1, 0, 2},
+        {"userstart"    , 1, 0, 2},
+        {"userend"      , 1, 0, 2},
+        {"initrest"     , 1, 0, 2},
 
         {0, 0, 0, 0}
     };
