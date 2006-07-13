@@ -73,12 +73,10 @@ Scheduler::Cron::delTime(unsigned long timE )
         ; it != cronTab_.end() && *it <= timE 
         ; )
     {
-            it = cronTab_.erase( it ) ;
         if( (*it) == timE ) {
-            if( it == cronTab_.end() ) return ;
+            it = cronTab_.erase( it ) ;
             continue;
         }
-        if( it == cronTab_.end() ) return ;
         it++ ;
     }
     pthread_mutex_unlock(&mtx_) ;       //-- Unlock
@@ -92,29 +90,35 @@ Scheduler::Cron::runJob()
 {
     //debug(  "B" );
 
-    bool reset ;
+    bool rst ;      // reset
     list< unsigned long >::iterator it ;
 
     printf("+++ENTER JOB++++\n");
     print_time( ) ;
-    for( it  = cronTab_.begin( ); it != cronTab_.end(); ++it )
+
+    
+    for( it = cronTab_.begin()
+       ; it != cronTab_.end() ; )
     {
-        reset = false ;
+        rst = false ;
         if( !( timeOut_.current() % *it ) )
         {
-            reset = true ;          //wtf is this?
-            sem_post( &semap_ ) ;   // awake a client( make this a functor ??)
-            printf(  "runJob %u\n", *it ) ;
+            sem_post( &semap_ ) ;
+            printf( "runJob %u\n", *it ) ;
+            it  = cronTab_.erase(it);
+            rst = true ;
+            continue;
         }
+        ++it ;
     }
-    delTime( timeOut_.current() ) ;
     show() ;
 
-    // If all tasks are called simultaneously, reset curTimeout value:
-    if( reset )
+    // @todo If all tasks are called simultaneously, reset curTimeout value:
+    if( rst )
         timeOut_.current( timeOut_.min() );
     else
         timeOut_.current( timeOut_.current() + timeOut_.min() ) ;
+
     printf("---EXIT JOB----\n\n");
     return 0;
 }//* Cron::runJob
