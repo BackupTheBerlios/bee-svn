@@ -16,21 +16,19 @@ int main( int argc, char* argv[])
         printf( "%s clients refresh_time[sec] test_duration[sec]\n", argv[0] ) ;
         return 1 ;
     }
-    pthread_t p ;
-    int running = 1 ;
 
     for( int i=atoi(argv[1]); i>0 ; --i )
         cron.addTime( i*atoi(argv[2]) ) ;   //! addTime parameter is in elapsed.
+
     cron.callback(tick) ;
 
     cron.refresh( 1 ) ;                     //! refresh time
     cron.start() ;                          //! we can start the cron now
 
-    while( cron.elapsed() <= atoi( argv[3])  ) // should use cron.elapsed() <= atoi()
+    while( cron.elapsed() <= atoi( argv[3]) )
     {
         ;
     }
-    //running = 0 ;
     return 0;
 }
 
