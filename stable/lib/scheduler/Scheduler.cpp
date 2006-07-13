@@ -205,7 +205,7 @@ Scheduler::Cron::show( )
     list<unsigned long>::iterator it ;
 
     it = cronTab_.begin() ;
-    for( ; *it != RAND_MAX; ++it )
+    for( ; it!=cronTab_.end() && *it != RAND_MAX; ++it )
         cout << *it <<" " ;
     cout <<endl ;
 }//* Cron::show
