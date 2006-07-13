@@ -10,35 +10,80 @@
 //Benchmark bench ;
 int usage( const char* prog ) ;
 
+
+int
+usage(const char* app)
+{
+    printf("Usage %s [OPTIONS]\n", app );
+    printf("\t-initonly\t\tInit storage\n" ) ;
+    printf("\t-port port\t\tserver's Port\n" ) ;
+    printf("\t-threads threads\tNumber of threads used for[gotta think of]\n" );
+    printf("\t-clients clients\tNumber of clients\n" ) ;
+    printf("\t-resolution sec\t\tResolution time\n" ) ;
+    printf("\t-span sec\t\ttest Span in seconds\n" ) ;
+    printf("\t-users users\t\tNumber of users on server\n" );
+    printf("\t-smtpserver\t\tThe host name of the SMTP server\n");
+    printf("\t-smtpport\t\tThe host port number of the SMTP server\n");
+    printf("\t-pop3server\t\tThe host name of the POP3 server\n");
+    printf("\t-pop3port\t\tThe host port number of the POP3 server\n");
+    printf("\t-sinkserver\t\tThe host name of the SINK server\n");
+    printf("\t-sinkport\t\tThe host port number of the SINK server\n");
+    printf("\t-localdomain\t\tThe domain name that represents local mail on the mail server\n");
+    printf("\t-remotedomain\t\tThe domain name that represents remote mail on the mail server\n");
+    printf("\t-userprefix\t\tThe username has the form USERPREFIX_userid\n") ;
+    printf("\t-userpasswd\t\tThe username password\n") ;
+    printf("\t-userstart\t\tThe starting number of userid\n") ;
+    printf("\t-userend\t\tThe ending number of userid\n") ;
+
+    printf("\t-h\t\tThis message\n" ) ;
+    return 0 ;
+}
     int
 main (int argc, char **argv)
 {
+    if( argc < 2 ) { usage(argv[0]); exit(1) ; }
+
     int     iflag=0, port=0, users=0, idx=0, c=0, nbThr=1, nbClt=1,res=1 ;
     int     tSpan=0 ;
     char*   host=0 ;
     bool    is_filled=false ;
+    int     option_index = 0;
 
-struct option long_options[] =
-{
-    {"port", 1, 0, 0},
-    {"threads", 0, 0, 0},
-    {"initonly", no_argument,       &iflag, 1},
-    {"clients", 0, 0, 0},
-    {"resolution", 1, 0, 0},
-    {"span", 1, 0, 0},
-    {0, 0, 0, 0}
-};
+    struct option long_options[] =
+    {
+        {"initonly"     , 0, &iflag, 1},
+        {"threads"      , 1, 0, 4},
+        {"clients"      , 1, 0, 5},
+        {"span"         , 1, 0, 6},
+        {"users"        , 1, 0, 7},
+        {"resolution"   , 1, 0, 8},
+        {"smtpserver"   , 1, 0, 3},
+        {"smtpport"     , 1, 0, 2},
+        {"pop3server"   , 1, 0, 2},
+        {"pop3port"     , 1, 0, 2},
+        {"sinkserver"   , 1, 0, 2},
+        {"sinkport"     , 1, 0, 2},
+        {"localdomain"  , 1, 0, 2},
+        {"remotedomain" , 1, 0, 2},
+        {"userprefix"   , 1, 0, 2},
+        {"userpasswd"   , 1, 0, 2},
+        {"userstart"   , 1, 0, 2},
+        {"userend"   , 1, 0, 2},
+        {"initrest"   , 1, 0, 2},
+
+        {0, 0, 0, 0}
+    };
 
     opterr = 0;
-    if( argc < 2 ) { usage(argv[0]); exit(1) ; }
-    int option_index = 0;
 
     while( -1 != (c = getopt_long_only( argc, argv, "ihH:P:T:C:R:S:U:", long_options, &option_index)) )
     {
         switch (c)
         {
-            case 0:
-                /* If this option set a flag, do nothing else now. */
+            case 'h':
+                usage(argv[0]) ;
+                exit(0) ;
+            case 0:     // If this option set a flag, do nothing else now.
                 if (long_options[option_index].flag != 0)
                     break;
                 printf ("option %s", long_options[option_index].name);
@@ -46,32 +91,26 @@ struct option long_options[] =
                     printf (" with arg %s", optarg);
                 printf ("\n");
                 break;
-            case 'i':
-                iflag = 1;
-                break;
-            case 'h':
-                usage(argv[0]) ;
-                exit(0) ;
-            case 'H':
-                host  = optarg;
-                break;
-            case 'P':
+            case 2:
                 port  = atoi(optarg) ;
                 break;
-            case 'U':
-                users = atoi(optarg) ;
+            case 3:
+                host  = optarg;
                 break;
-            case 'T':
+            case 4:
                 nbThr = atoi(optarg) ;
                 break;
-            case 'C':
+            case 5:
                 nbClt = atoi(optarg) ;
                 break;
-            case 'R':
-                res = atoi(optarg) ;
-                break;
-            case 'S':
+            case 6:
                 tSpan = atoi(optarg) ;
+                break;
+            case 7:
+                users = atoi(optarg) ;
+                break;
+            case 8:
+                res = atoi(optarg) ;
                 break;
             case ':':   // -H -P -U -T -C without operand
                 fprintf( stderr, "Option %c requires a parameter.\n", optarg ) ;
@@ -94,8 +133,9 @@ struct option long_options[] =
     if( iflag )
     {
         if(!users||!port){
-            printf("Use -U parameter to specify the number of users\n");
-            printf("and -P parameter to specify the SMTP port number\n");
+            printf("Use -users parameter to specify the number of users\n");
+            printf("and -port parameter to specify the SMTP port number\n");
+            printf("and -host parameter to specify the SMTP host\n");
             exit(2);
         }
         MailStore ms("./data/md.csv") ;
@@ -124,21 +164,4 @@ void tick(union sigval sigval)
 }
 */
 
-
-int
-usage(const char* app)
-{
-    printf("Usage %s [OPTIONS]\n", app );
-    printf("\t-initonly\t\tInit storage\n" ) ;
-    printf("\t-host host\t\tserver's Host\n" ) ;
-    printf("\t-port port\t\tserver's Port\n" ) ;
-    printf("\t-threads threads\tNumber of threads used for[gotta think of]\n" );
-    printf("\t-clients clients\tNumber of clients\n" ) ;
-    printf("\t-resolution sec\t\tResolution time\n" ) ;
-    printf("\t-span sec\t\ttest Span in seconds\n" ) ;
-    printf("\t-users users\tNumber of users on server\n" );
-
-    printf("\t-h\t\tThis message\n" ) ;
-    return 0 ;
-}
 
