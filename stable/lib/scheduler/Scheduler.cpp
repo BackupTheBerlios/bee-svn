@@ -13,25 +13,6 @@
 #endif
 
 
-/**
-* Creaza o tabela de timeouts, pentru fiecare user.
-* Tabela poate fi creata, asa incat distributia timpilor
-* de de pornire a clientilor sa fie exponentiala.
-* Asta ar necesita o reactualizare a tabelei de "timeouts",
-* odata la 1 secunda, presupunand ca granularitatea este 1sec.
-*
-* Stiu ca granularitatea timpului e de 1 secunda.
-* deci distributia[ aplic f(k,lambda) ] tb calculata in acest timp,
-* sa stiu cati clienti pornesc. */
-/**
- * Scheduler::Cron::Start
- * goes through the job queue, and looks
- * at the .timeout memeber.
- * if current_time= .timeout then run
- * the current job callClient() ;
- * inialize the? timer */
-
-
 /** Cron : Default constructor. **/
 Scheduler::Cron::Cron()
 {
@@ -39,6 +20,7 @@ Scheduler::Cron::Cron()
     if( cronTab_.empty() ) cronTab_.push_back(RAND_MAX) ; // so that addTime could work 
     pthread_mutex_init(&mtx_,0) ;
 }//* Cron
+
 
 
 /** Cron : Default constructor. **/
@@ -59,6 +41,8 @@ Scheduler::Cron::~Cron()
     pthread_mutex_destroy( &mtx_ );
 }//* ~Cron
 
+
+
 void
 Scheduler::Cron::addTime( unsigned long timE )
 {
@@ -74,7 +58,7 @@ Scheduler::Cron::addTime( unsigned long timE )
             return;
         }
     pthread_mutex_unlock(&mtx_);        //-- Unlock before function exit
-}
+}//* Cron::addTime
 
 
 
@@ -97,11 +81,12 @@ Scheduler::Cron::delTime(unsigned long timE )
         if( it == cronTab_.end() ) return ;
         it++ ;
     }
-    pthread_mutex_unlock(&mtx_) ;//-- Unlock
-} ;
+    pthread_mutex_unlock(&mtx_) ;       //-- Unlock
+}//* Cron::delTime
 
 
-/** runJob : Decrement a semap, so a client thread is awaken. **/
+
+/** runJob : Decrement a semaphore, so a client thread is awaken. **/
     int
 Scheduler::Cron::runJob()
 {
@@ -132,8 +117,7 @@ Scheduler::Cron::runJob()
         timeOut_.current( timeOut_.current() + timeOut_.min() ) ;
     printf("---EXIT JOB----\n\n");
     return 0;
-}//* Cron::awakeClient
-
+}//* Cron::runJob
 
 
 /** print_time : Debug purpose function. **/
@@ -159,7 +143,7 @@ Scheduler::Cron::show( )
     for( ; it != cronTab_.end(); ++it )
         cout << *it <<" " ;
     cout <<endl ;
-}
+}//* Cron::show
 
 
 
@@ -185,7 +169,7 @@ Scheduler::Cron::restart( )
 }//* restart
 
 
-//-----------------------------------------------------------------------
+//-------------------POSIX TIMERS----------------------------------------
 /** Posix Timers. **/
 
 #if defined LINUX
@@ -228,11 +212,11 @@ Scheduler::Cron::stop( ) //TODO: timeR could be private
     if( timer_delete( timer_) )
         printf( "error: %s\n", strerror(errno) );
 }
-#endif //----LINUX
-//*
+#endif//-------------------POSIX TIMERS----------------------------------------
 
 
 
+//-------------------FreeBSD TIMERS----------------------------------------
 /** FreeBSD Timers. **/
 #if defined FREEBSD
 // itimers
@@ -273,9 +257,7 @@ Scheduler::Cron::stop()
     it.it_interval = it.it_value;
     return (setitimer(ITIMER_VIRTUAL, &it, NULL));
 }
-#endif //----FreeBSD
-//* FreeBSD
-//-----------------------------------------------------------------------
+#endif//-------------------FreeBSD TIMERS--------------------------------------
 
 
 
@@ -332,5 +314,27 @@ Scheduler::TimeOut::gcm(unsigned long x, unsigned long y)
         else       y -= x;
     }
     return x;
-}
-//* TimeOut::gcm
+}//* TimeOut::gcm
+
+
+
+
+//-----------------------DOC/TODO----------------------------------------------
+/**
+* Creaza o tabela de timeouts, pentru fiecare user.
+* Tabela poate fi creata, asa incat distributia timpilor
+* de de pornire a clientilor sa fie exponentiala.
+* Asta ar necesita o reactualizare a tabelei de "timeouts",
+* odata la 1 secunda, presupunand ca granularitatea este 1sec.
+*
+* Stiu ca granularitatea timpului e de 1 secunda.
+* deci distributia[ aplic f(k,lambda) ] tb calculata in acest timp,
+* sa stiu cati clienti pornesc. */
+/**
+ * Scheduler::Cron::Start
+ * goes through the job queue, and looks
+ * at the .timeout memeber.
+ * if current_time= .timeout then run
+ * the current job callClient() ;
+ * inialize the? timer */
+

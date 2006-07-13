@@ -21,14 +21,14 @@ namespace Scheduler
         public:
             TimeOut() ;
             ~TimeOut() ;
-            void min( int miN ) { min_ = miN ; } ;
-            void max( int maX ) { max_ = maX ; } ;
-            void current( int currenT ) { cur_ = currenT ; } ;
+            void    min( int miN ) { min_ = miN ; } ;
+            void    max( int maX ) { max_ = maX ; } ;
+            void    current( int currenT ) { cur_ = currenT ; } ;
 
-            int  min()      { return min_ ; } ;
-            int  max()      { return max_ ; } ;
-            int  current()  { return cur_ ; } ;
-            void refresh( int newTimE, list< unsigned long > timeLisT ) ;
+            int     min()      { return min_ ; } ;
+            int     max()      { return max_ ; } ;
+            int     current()  { return cur_ ; } ;
+            void    refresh( int newTimE, list< unsigned long > timeLisT ) ;
 
         private:
             int min_, max_, cur_ ;
@@ -55,11 +55,15 @@ namespace Scheduler
             void    callback( void (*notf)(union sigval sig) )
             {   notify_fun = notf ; } ;
 
+            unsigned long elapsed()
+            {   return timeOut_.current() ; } ;
+                
 
-            // This should _insert_ timE, and keep cronTab in a sorted state
+
+                    // This should _insert_ timE, and keep cronTab in a sorted state
             void    addTime( unsigned long timE ) ;
 
-            // Keep cronTab sorted, so delTime takes less time.
+                    // Keep cronTab sorted, so delTime takes less time.
             void    delTime( unsigned long timE ) ;
 
 
@@ -77,7 +81,4 @@ namespace Scheduler
 
     };
 }; // namespace
-
-
-
 #endif

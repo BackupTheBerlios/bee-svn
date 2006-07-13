@@ -5,11 +5,9 @@
 #include <ctime>
 #include <pthread.h>
 
-unsigned int elapsed =0 ;
-sem_t semaphore ;
+sem_t           semaphore ;
 Scheduler::Cron cron( semaphore ) ;
 void tick(union sigval sigval) ;
-void* thread_fun(void*) ;
 
 int main( int argc, char* argv[])
 {
@@ -28,21 +26,19 @@ int main( int argc, char* argv[])
     cron.refresh( 1 ) ;                     //! refresh time
     cron.start() ;                          //! we can start the cron now
 
-    while( elapsed <= atoi( argv[3])  )
+    while( cron.elapsed() <= atoi( argv[3])  ) // should use cron.elapsed() <= atoi()
     {
         ;
     }
-    running = 0 ;
+    //running = 0 ;
     return 0;
 }
 
-
+// This is runned regularly, at 1 sec.
+// so it will increment cron.elapsed() too
 void tick(union sigval sigval)
 {
-    //cron.timer.tick( ) ;
-    printf("Tick\n") ;
-    cron.delTime(elapsed);
     cron.runJob();
-    ++elapsed ;
+    printf("Tick\n") ;
 }
 
