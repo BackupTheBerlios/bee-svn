@@ -18,7 +18,7 @@ main (int argc, char **argv)
     char*   host=0 ;
     bool    is_filled=false ;
 
-static struct option long_options[] =
+struct option long_options[] =
 {
     {"port", 1, 0, 0},
     {"threads", 0, 0, 0},
