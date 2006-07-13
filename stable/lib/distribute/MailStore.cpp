@@ -40,7 +40,6 @@ MailStore::sendMails(const int userIdx, const int quantity )
     for( int i=0; i< quantity; ++i)
     {
         try {
-            printf("Sending %i mails to %s\n", quantity, user) ;
             smtp.open("localhost",25 ); // TODO , get host:port from config.h
             smtp.greet("ehlo cucu");
             smtp.mailFrom("<>");
@@ -49,6 +48,7 @@ MailStore::sendMails(const int userIdx, const int quantity )
             smtp.sendFile( "./data/populate.eml") ;
             smtp.endData();
             smtp.quit() ;
+            printf("Sent %i mails out of %i, to %s\n", i, quantity, user) ;
         }catch( Socket::Exception& e )
         {
             printf("ERROR: %s\n", e.what() ) ;
