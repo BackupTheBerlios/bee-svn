@@ -3,27 +3,12 @@
 #include <cstdlib>
 #include <unistd.h>
 #include <getopt.h>
-//#include "distribute/MailStore.h"
-//#include "loadgen/LoadGen.h"
+#include "distribute/MailStore.h"
+#include "loadgen/LoadGen.h"
 
 
 //Benchmark bench ;
 int usage( const char* prog ) ;
-static struct option long_options[] =
-{
-    /* These options set a flag. */
-//    {"verbose", 0, &verbose_flag, 1},
-//    {"host", 0, &verbose_flag, 0},
-    /* These options don't set a flag.
-     *  We distinguish them by their indices. */
-    {"port", 1, 0, 0},
-    {"threads", 0, 0, 0},
-    {"initonly", 1, 0, 0},
-    {"clients", 0, 0, 0},
-    {"resolution", 1, 0, 0},
-    {"span", 1, 0, 0},
-    {0, 0, 0, 0}
-};
 
     int
 main (int argc, char **argv)
@@ -33,10 +18,22 @@ main (int argc, char **argv)
     char*   host=0 ;
     bool    is_filled=false ;
 
+static struct option long_options[] =
+{
+    {"port", 1, 0, 0},
+    {"threads", 0, 0, 0},
+    {"initonly", no_argument,       &iflag, 1},
+    {"clients", 0, 0, 0},
+    {"resolution", 1, 0, 0},
+    {"span", 1, 0, 0},
+    {0, 0, 0, 0}
+};
+
     opterr = 0;
     if( argc < 2 ) { usage(argv[0]); exit(1) ; }
+    int option_index = 0;
 
-    while( -1 != (c = getopt( argc, argv, "ihH:P:T:C:R:S:U:")) )
+    while( -1 != (c = getopt_long_only( argc, argv, "ihH:P:T:C:R:S:U:", long_options, &option_index)) )
     {
         switch (c)
         {
@@ -93,7 +90,6 @@ main (int argc, char **argv)
     }
 
     for( idx=optind; idx < argc; idx++) printf ("Non-argument %s\n", argv[idx]);
-#if 0
     // Pre-populez `users` mailBoxuri pe host:port folosind 10 threaduri
     if( iflag )
     {
@@ -110,7 +106,6 @@ main (int argc, char **argv)
     LoadGen::Smtp smtpGen ;
     smtpGen.init( nbClt, nbThr, res, tSpan ) ;
     smtpGen.run( ) ;
-#endif
 /*
     bench.cron.callback(tick) ;
     bench.run( 80,  is_filled ) ;
@@ -134,14 +129,14 @@ int
 usage(const char* app)
 {
     printf("Usage %s [OPTIONS]\n", app );
-    printf("\t--initonly\t\tInit storage\n" ) ;
-    printf("\t--host host\t\tserver's Host\n" ) ;
-    printf("\t--port port\t\tserver's Port\n" ) ;
-    printf("\t--threads threads\tNumber of threads used for[gotta think of]\n" );
-    printf("\t--clients clients\tNumber of clients\n" ) ;
-    printf("\t--resolution sec\t\tResolution time\n" ) ;
-    printf("\t--span sec\t\ttest Span in seconds\n" ) ;
-    printf("\t--users users\tNumber of users on server\n" );
+    printf("\t-initonly\t\tInit storage\n" ) ;
+    printf("\t-host host\t\tserver's Host\n" ) ;
+    printf("\t-port port\t\tserver's Port\n" ) ;
+    printf("\t-threads threads\tNumber of threads used for[gotta think of]\n" );
+    printf("\t-clients clients\tNumber of clients\n" ) ;
+    printf("\t-resolution sec\t\tResolution time\n" ) ;
+    printf("\t-span sec\t\ttest Span in seconds\n" ) ;
+    printf("\t-users users\tNumber of users on server\n" );
 
     printf("\t-h\t\tThis message\n" ) ;
     return 0 ;
