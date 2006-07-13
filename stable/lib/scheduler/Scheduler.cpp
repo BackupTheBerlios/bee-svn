@@ -64,7 +64,7 @@ Scheduler::Cron::addTime( unsigned long timE )
 {
     // Insert the element while keeping the list sorted
     list< unsigned long>::iterator it ;
-    pthread_mutex_lock(&mtx_);  //-- Lock
+    pthread_mutex_lock(&mtx_);          //-- Lock
     for( it = cronTab_.begin() 
             ; it!= cronTab_.end()
             ; ++it )
@@ -73,14 +73,16 @@ Scheduler::Cron::addTime( unsigned long timE )
             pthread_mutex_unlock(&mtx_);//-- Unlock before return
             return;
         }
-    pthread_mutex_unlock(&mtx_);//-- Unlock before function exit
+    pthread_mutex_unlock(&mtx_);        //-- Unlock before function exit
 }
+
+
 
 void
 Scheduler::Cron::delTime(unsigned long timE )
 {
     list<unsigned long>::iterator it ;
-    pthread_mutex_lock(&mtx_) ;  //-- Lock before we add
+    pthread_mutex_lock(&mtx_) ;         //-- Lock before we add
 
     printf("delTime %i\n", timE );
     for( it = cronTab_.begin()
@@ -144,8 +146,20 @@ Scheduler::Cron::print_time( )
     time( &rawtime );
     timeinfo = localtime ( &rawtime );
     printf( "Elapsed:%i -- Date: %s", (clock() /CLOCKS_PER_SEC)+1, asctime (timeinfo));
-    fprintf( stderr, "Elapsed:%i -- Date: %s", (clock() /CLOCKS_PER_SEC)+1, asctime (timeinfo));
+    //fprintf( stderr, "Elapsed:%i -- Date: %s", (clock() /CLOCKS_PER_SEC)+1, asctime (timeinfo));
 }//* Cron::print_time
+
+
+void
+Scheduler::Cron::show( )
+{
+    list<unsigned long>::iterator it ;
+
+    it = cronTab_.begin() ;
+    for( ; it != cronTab_.end(); ++it )
+        cout << *it <<" " ;
+    cout <<endl ;
+}
 
 
 

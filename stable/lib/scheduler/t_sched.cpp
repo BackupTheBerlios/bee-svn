@@ -23,7 +23,6 @@ int main( int argc, char* argv[])
 
     for( int i=atoi(argv[1]); i>0 ; --i )
         cron.addTime( i*atoi(argv[2]) ) ;   //! addTime parameter is in elapsed.
-    cron.show() ;
     cron.callback(tick) ;
 
     cron.refresh( 1 ) ;                     //! refresh time
@@ -44,7 +43,6 @@ void tick(union sigval sigval)
     printf("Tick\n") ;
     cron.delTime(elapsed);
     cron.runJob();
-    cron.show() ;
     ++elapsed ;
 }
 

@@ -62,15 +62,6 @@ namespace Scheduler
             // Keep cronTab sorted, so delTime takes less time.
             void    delTime( unsigned long timE ) ;
 
-            void    show( )
-            {
-                list<unsigned long>::iterator it ;
-
-                it = cronTab_.begin() ;
-                for( ; it != cronTab_.end(); ++it )
-                    cout << *it <<" " ;
-                cout <<endl ;
-            } ;
 
         private:
             pthread_mutex_t     mtx_ ;
@@ -80,11 +71,12 @@ namespace Scheduler
             list<unsigned long> cronTab_ ;  //!< List of timeouts.
 
         private:
-            void print_time( ) ;
+            void    print_time( ) ;
+            void    show( ) ;
             void (*notify_fun)( union sigval sigval ) ;
 
     };
-} // namespace
+}; // namespace
 
 
 
