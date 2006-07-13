@@ -31,7 +31,7 @@ namespace Scheduler
             void    refresh( int newTimE, list< unsigned long > timeLisT ) ;
 
         private:
-            int min_, max_, cur_ ;
+            int     min_, max_, cur_ ;
             unsigned long gcm( unsigned long x, unsigned long y ) ;
     } ;
 
@@ -44,21 +44,18 @@ namespace Scheduler
             Cron( ) ;
             Cron(sem_t sem ) ;
             ~Cron() ;
-            void    semaphore( sem_t sem ){ semap_ = sem ; } ;
             int     start() ;           //!< create and initialize timer_.
             int     stop() ;            //!< delete timer_.
             int     restart() ;         //!< restart the timer.( stop+start )
             int     runJob() ;          //!< sem_wait( semaphore )
             int     refresh( unsigned long timE ) ;
-
+            void    semaphore( sem_t sem ){ semap_ = sem ; } ;
 
             void    callback( void (*notf)(union sigval sig) )
-            {   notify_fun = notf ; } ;
+                    {   notify_fun = notf ; } ;
 
             unsigned long elapsed()
-            {   return timeOut_.current() ; } ;
-                
-
+                    {   return timeOut_.current() ; } ;
 
                     // This should _insert_ timE, and keep cronTab in a sorted state
             void    addTime( unsigned long timE ) ;
@@ -68,17 +65,16 @@ namespace Scheduler
 
 
         private:
-            pthread_mutex_t     mtx_ ;
+            void    print_time( ) ;
+            void    show( ) ;
+            void    (*notify_fun)( union sigval sigval ) ;
+
+        private:
             sem_t               semap_ ;    //!< semaphore
             TimeOut             timeOut_ ;  //!< The minimum time till the next job.
             timer_t             timer_ ;
+            pthread_mutex_t     mtx_ ;
             list<unsigned long> cronTab_ ;  //!< List of timeouts.
-
-        private:
-            void    print_time( ) ;
-            void    show( ) ;
-            void (*notify_fun)( union sigval sigval ) ;
-
     };
 }; // namespace
 #endif

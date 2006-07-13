@@ -2,7 +2,7 @@
 #if defined USE_DEBUG
     #include "common/Debug.h"
 #endif
-#include <limits.h>  // LONG_MIN LONG_MAX
+#include <limits.h>  // LONG_MIN LONG_MAX RAND_MAX
 #include <sys/time.h>
 
 #include <errno.h>
