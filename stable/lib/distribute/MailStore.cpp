@@ -48,7 +48,7 @@ MailStore::sendMails(const int userIdx, const int quantity )
             smtp.sendFile( "./data/populate.eml") ;
             smtp.endData();
             smtp.quit() ;
-            printf("Sent %i mails out of %i, to %s\n", i, quantity, user) ;
+            printf("Sent %i mails out of %i, to %s\n", i+1, quantity, user) ;
         }catch( Socket::Exception& e )
         {
             printf("ERROR: %s\n", e.what() ) ;

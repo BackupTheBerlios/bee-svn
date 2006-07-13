@@ -53,26 +53,26 @@ main (int argc, char **argv)
     struct option long_options[] =
     {
         {"initonly"     , 0, &iflag, 1},
-        {"threads"      , 1, 0, 4},
-        {"clients"      , 1, 0, 5},
-        {"span"         , 1, 0, 6},
-        {"warmup"         , 1, 0, 6},
-        {"rampdown"         , 1, 0, 6},
-        {"users"        , 1, 0, 7},
-        {"resolution"   , 1, 0, 8},
-        {"smtpserver"   , 1, 0, 3},
-        {"smtpport"     , 1, 0, 2},
-        {"pop3server"   , 1, 0, 2},
-        {"pop3port"     , 1, 0, 2},
-        {"sinkserver"   , 1, 0, 2},
-        {"sinkport"     , 1, 0, 2},
-        {"localdomain"  , 1, 0, 2},
-        {"remotedomain" , 1, 0, 2},
-        {"userprefix"   , 1, 0, 2},
-        {"userpasswd"   , 1, 0, 2},
-        {"userstart"    , 1, 0, 2},
-        {"userend"      , 1, 0, 2},
-        {"initrest"     , 1, 0, 2},
+        {"smtpserver"   , 1, 0, 2},
+        {"smtpport"     , 1, 0, 3},
+        {"pop3server"   , 1, 0, 4},
+        {"pop3port"     , 1, 0, 5},
+        {"sinkserver"   , 1, 0, 6},
+        {"sinkport"     , 1, 0, 7},
+        {"localdomain"  , 1, 0, 8},
+        {"remotedomain" , 1, 0, 9},
+        {"userprefix"   , 1, 0,10},
+        {"userpasswd"   , 1, 0,11},
+        {"userstart"    , 1, 0,12},
+        {"userend"      , 1, 0,13},
+        {"initrest"     , 1, 0,14},
+        {"threads"      , 1, 0,15},
+        {"clients"      , 1, 0,16},
+        {"span"         , 1, 0,17},
+        {"warmup"       , 1, 0,18},
+        {"rampdown"     , 1, 0,19},
+        {"users"        , 1, 0,20},
+        {"resolution"   , 1, 0,21},
 
         {0, 0, 0, 0}
     };
@@ -95,24 +95,24 @@ main (int argc, char **argv)
                 printf ("\n");
                 break;
             case 2:
-                port  = atoi(optarg) ;
-                break;
-            case 3:
                 host  = optarg;
                 break;
-            case 4:
+            case 3:
+                port  = atoi(optarg) ;
+                break;
+            case 15:
                 nbThr = atoi(optarg) ;
                 break;
-            case 5:
+            case 16:
                 nbClt = atoi(optarg) ;
                 break;
-            case 6:
+            case 17:
                 tSpan = atoi(optarg) ;
                 break;
-            case 7:
+            case 20:
                 users = atoi(optarg) ;
                 break;
-            case 8:
+            case 21:
                 res = atoi(optarg) ;
                 break;
             case ':':   // -H -P -U -T -C without operand
