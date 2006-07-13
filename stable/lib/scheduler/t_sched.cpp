@@ -25,7 +25,7 @@ int main( int argc, char* argv[])
     {
         int c = rand() ;
         int t = (int)(c*(1.0*atoi(argv[3]))/RAND_MAX) + 1 ;
-        cron.addTime( i*t ) ;   //! addTime parameter is in elapsed.
+        cron.addTime( t ) ;   //! addTime parameter is in elapsed.
     }
 
     cron.callback(tick) ;
