@@ -658,7 +658,7 @@ are:</strong>
   </tr>
 </tbody></table>
 <br>
-<p> &nbsp; <a id="4.2.1.1." name="4.2.1.1."></a><strong><font color="#000000">4.2.1.1. Message Size (MSG_SIZE_DISTRIBUTION)</font></strong> </p>
+<p> &nbsp; <a id="4.2.1.1." name="4.2.1.1."></a><h4><font color="#000000">4.2.1.1. Message Size (MSG_SIZE_DISTRIBUTION)</font></h4> </p>
 <p> <u>The benchmark tool generates test messages on the fly.</u> The size of each message
   is determined according to a distribution resulting from user data evaluation,
   which counted messages from buckets of certain sizes. The characteristic of
@@ -715,9 +715,9 @@ are:</strong>
     </tr>
   </tbody></table>
 </center>
-<h4> <img alt="" src="./img/MsgSzDist1.gif" height="623" width="911"> </h4>
-<h4> <a id="4.2.1.2." name="4.2.1.2."></a><strong><font color="#000000">4.2.1.2.
-      Recipient Count (MSG_RECP_DISTRIBUTION)</font></strong> </h4>
+<img alt="" src="./img/MsgSzDist1.gif" height="623" width="911"> 
+<h4> <a id="4.2.1.2." name="4.2.1.2."></a><h4><font color="#000000">4.2.1.2.
+      Recipient Count (MSG_RECP_DISTRIBUTION)</font></h4> </h4>
 <p> Each message gets sent to one or more recipients. The vast majority of messages
   gets sent to one recipient, while others get sent to up to 20 recipients. The
   distribution is controlled by the configuration parameter MSG_RECP_DISTRIBUTION.
@@ -843,8 +843,8 @@ are:</strong>
   <li> The connection speed is handled at full speed, without artificial delays.. </li>
   <li> Every SMTP session will transmit exactly one message. </li>
 </ol>
-<p> The parameters which determine how many SMTP sessions of these types are
-  being started each second are <strong>UserCount</strong>, <strong><font size="-1">MSG_SENT_PER_DAY</font></strong>, <strong><font size="-1">PEAK_LOAD_PERCENT</font></strong> and <strong><font size="-1">MSG_DESTINATION_LOCAL_PERCENT</font>:</strong> </p>
+<p> <u>The parameters which determine how many SMTP sessions of these types are
+  being started each second are <strong>UserCount</strong>, <strong><font size="-1">MSG_SENT_PER_DAY</font></strong>, <strong><font size="-1">PEAK_LOAD_PERCENT</font></strong> and <strong><font size="-1">MSG_DESTINATION_LOCAL_PERCENT</font>:</strong></u></p>
 <ol>
   <li> SMTP sessions simulating local users' messages are started according
     to the formula </li>
@@ -2069,19 +2069,19 @@ have to actually, physically delete messages while it is performing the benchmar
 </ol>
 <p> As a practical matter, and certainly a contributing factor in the discussion,
   the Weibull distribution is very difficult to implement correctly in a distributed
-  load generator environment. The exponential distribution has the convenient
+  load generator environment. <u>The exponential distribution has the convenient
   feature that the overlaid effect of several exponentially-distributed event
   streams is once again exponentially distributed. The load can therefore be
-  split up between N load generator systems, and each can do its work independently.
-  The same is not true for the Weibull distribution. Correct implementation would
-  need to pay special attention to the very small interarrival times. Distributed
+  split up between N load generator systems, and each can do its work independently</u>.
+  The same is not true for the Weibull distribution. <u>Correct implementation would
+  need to pay special attention to the very small interarrival times</u>. Distributed
   load generators could achieve that only through near-perfect clock synchronization.
   This would have added another level of complexity to the execution of this
   benchmark: time synchronization, potentially across different platforms. </p>
-<p> The workgroup therefore decided to accept the theory "exponential distribution
+<p> The workgroup therefore decided to accept the theory <u>"exponential distribution
   in = Weibull distribution out" (meaning, if a mail server gets triggered
   with events according to an exponential distribution, it may very well log
-  events with a Weibull distribution), and to base the benchmark on the exponential
+  events with a Weibull distribution)</u>, and to base the benchmark on the exponential
   distribution. </p>
 <p> <em><font size="-1">See also Q&amp;A section: <a href="#Q31">Why does the
         benchmark emphasize on generating requests at a certain arrival rate
