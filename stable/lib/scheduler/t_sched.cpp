@@ -44,7 +44,7 @@ int main( int argc, char* argv[])
 // so it will increment cron.elapsed() too
 void tick(union sigval sigval)
 {
-    cron.runJob();
     printf("Tick\n") ;
+    cron.runJob();
 }
 
