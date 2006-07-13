@@ -15,6 +15,7 @@ int
 usage(const char* app)
 {
     printf("Usage %s [OPTIONS]\n", app );
+    printf("\t-h\t\t\tHelp message\n" ) ;
     printf("\t-initonly\t\tInit storage\n" ) ;
     printf("\t-port port\t\tserver's Port\n" ) ;
     printf("\t-threads threads\tNumber of threads used for[gotta think of]\n" );
@@ -34,8 +35,8 @@ usage(const char* app)
     printf("\t-userpasswd\t\tThe username password\n") ;
     printf("\t-userstart\t\tThe starting number of userid\n") ;
     printf("\t-userend\t\tThe ending number of userid\n") ;
+    printf("\t-initrest\t\tHow many minutes to wait after completing mailbox initialization\n") ;
 
-    printf("\t-h\t\tThis message\n" ) ;
     return 0 ;
 }
     int
