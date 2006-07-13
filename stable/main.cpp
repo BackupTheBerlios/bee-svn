@@ -1,14 +1,29 @@
-#include <unistd.h>
 #include <ctype.h>
 #include <cstdio>
 #include <cstdlib>
-#include "distribute/MailStore.h"
-#include "loadgen/LoadGen.h"
+#include <unistd.h>
+#include <getopt.h>
+//#include "distribute/MailStore.h"
+//#include "loadgen/LoadGen.h"
 
 
 //Benchmark bench ;
 int usage( const char* prog ) ;
-
+static struct option long_options[] =
+{
+    /* These options set a flag. */
+//    {"verbose", 0, &verbose_flag, 1},
+//    {"host", 0, &verbose_flag, 0},
+    /* These options don't set a flag.
+     *  We distinguish them by their indices. */
+    {"port", 1, 0, 0},
+    {"threads", 0, 0, 0},
+    {"initonly", 1, 0, 0},
+    {"clients", 0, 0, 0},
+    {"resolution", 1, 0, 0},
+    {"span", 1, 0, 0},
+    {0, 0, 0, 0}
+};
 
     int
 main (int argc, char **argv)
@@ -21,10 +36,19 @@ main (int argc, char **argv)
     opterr = 0;
     if( argc < 2 ) { usage(argv[0]); exit(1) ; }
 
-    while( -1 != (c = getopt( argc, argv, "ihc:H:P:T:C:R:S:U:")) )
+    while( -1 != (c = getopt( argc, argv, "ihH:P:T:C:R:S:U:")) )
     {
         switch (c)
         {
+            case 0:
+                /* If this option set a flag, do nothing else now. */
+                if (long_options[option_index].flag != 0)
+                    break;
+                printf ("option %s", long_options[option_index].name);
+                if (optarg)
+                    printf (" with arg %s", optarg);
+                printf ("\n");
+                break;
             case 'i':
                 iflag = 1;
                 break;
@@ -69,7 +93,7 @@ main (int argc, char **argv)
     }
 
     for( idx=optind; idx < argc; idx++) printf ("Non-argument %s\n", argv[idx]);
-
+#if 0
     // Pre-populez `users` mailBoxuri pe host:port folosind 10 threaduri
     if( iflag )
     {
@@ -79,14 +103,14 @@ main (int argc, char **argv)
             exit(2);
         }
         MailStore ms("./data/md.csv") ;
-        ms.init( host, port, users, 10 ) ;    // HARDCODED:Numarul de threaduri folosit la populare
+        ms.init( host, port, users, nbThr ) ;
         is_filled = true ;
         exit(0);
     }
     LoadGen::Smtp smtpGen ;
     smtpGen.init( nbClt, nbThr, res, tSpan ) ;
     smtpGen.run( ) ;
-
+#endif
 /*
     bench.cron.callback(tick) ;
     bench.run( 80,  is_filled ) ;
@@ -110,14 +134,14 @@ int
 usage(const char* app)
 {
     printf("Usage %s [OPTIONS]\n", app );
-    printf("\t-i\t\tInit storage\n" ) ;
-    printf("\t-H host\t\tserver's Host\n" ) ;
-    printf("\t-P port\t\tserver's Port\n" ) ;
-    printf("\t-T threads\tNumber of threads used for[gotta think of]\n" );
-    printf("\t-C clients\tNumber of clients\n" ) ;
-    printf("\t-R sec\t\tResolution time\n" ) ;
-    printf("\t-S sec\t\ttest Span in seconds\n" ) ;
-    printf("\t-U users\tNumber of users on server\n" );
+    printf("\t--initonly\t\tInit storage\n" ) ;
+    printf("\t--host host\t\tserver's Host\n" ) ;
+    printf("\t--port port\t\tserver's Port\n" ) ;
+    printf("\t--threads threads\tNumber of threads used for[gotta think of]\n" );
+    printf("\t--clients clients\tNumber of clients\n" ) ;
+    printf("\t--resolution sec\t\tResolution time\n" ) ;
+    printf("\t--span sec\t\ttest Span in seconds\n" ) ;
+    printf("\t--users users\tNumber of users on server\n" );
 
     printf("\t-h\t\tThis message\n" ) ;
     return 0 ;
