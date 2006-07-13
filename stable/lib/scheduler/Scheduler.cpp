@@ -13,6 +13,67 @@
 #endif
 
 
+/** TimeOut Default constructor. **/
+Scheduler::TimeOut::TimeOut() : min_(0), max_(0), cur_(1)
+{
+    //debug(  "C" );
+}//*TimeOut
+
+
+
+/** TimeOut Default destructor. **/
+Scheduler::TimeOut::~TimeOut()
+{
+    //debug(  "D" ) ;
+}//* ~TimeOut
+
+
+
+/** Refresh the timeList. **/
+    void
+Scheduler::TimeOut::refresh( int newTimE , list< unsigned long > timeLisT)
+{
+    //debug(  "B") ;
+    if( timeLisT.empty() ) return ;
+
+    max_ = newTimE > max_  ?  newTimE : max_ ;
+
+    list < unsigned long >::iterator it = timeLisT.begin( ) ;
+    min_ = timeLisT.front() ;
+    for( ; it != timeLisT.end( ) ; ++it )
+    {
+        unsigned long gcmTime = gcm( min_, *it ) ;
+        min_ = min_ > gcmTime ?  gcmTime : min_ ;
+        //debug(  "it=%i; gcmTime=%lu, min_=%i", *it, gcmTime, min_ ) ;
+    }
+    cur_ = min_ ;
+    //debug(  "cur_=%i", cur_ ) ;
+}//* TimeOut::refresh
+
+
+
+/** Greatest Common Divisor. **/
+    unsigned long
+Scheduler::TimeOut::gcm(unsigned long x, unsigned long y)
+{
+    //debug(  "B") ;
+
+    if( (x <= 0UL) || (y <= 0UL) || (x==RAND_MAX) || (y==RAND_MAX)) return 1UL ;
+
+    while( x != y )
+    {
+        if( x > y) x -= y;
+        else       y -= x;
+    }
+    return x;
+}//* TimeOut::gcm
+
+
+
+
+
+
+
 /** Cron : Default constructor. **/
 Scheduler::Cron::Cron()
 {
@@ -144,7 +205,7 @@ Scheduler::Cron::show( )
     list<unsigned long>::iterator it ;
 
     it = cronTab_.begin() ;
-    for( ; it != cronTab_.end(); ++it )
+    for( ; *it != RAND_MAX; ++it )
         cout << *it <<" " ;
     cout <<endl ;
 }//* Cron::show
@@ -262,63 +323,6 @@ Scheduler::Cron::stop()
     return (setitimer(ITIMER_VIRTUAL, &it, NULL));
 }
 #endif//-------------------FreeBSD TIMERS--------------------------------------
-
-
-
-/** TimeOut Default constructor. **/
-Scheduler::TimeOut::TimeOut() : min_(0), max_(0), cur_(1)
-{
-    //debug(  "C" );
-}//*TimeOut
-
-
-
-/** TimeOut Default destructor. **/
-Scheduler::TimeOut::~TimeOut()
-{
-    //debug(  "D" ) ;
-}//* ~TimeOut
-
-
-
-/** Refresh the timeList. **/
-    void
-Scheduler::TimeOut::refresh( int newTimE , list< unsigned long > timeLisT)
-{
-    //debug(  "B") ;
-    if( timeLisT.empty() ) return ;
-
-    max_ = newTimE > max_  ?  newTimE : max_ ;
-
-    list < unsigned long >::iterator it = timeLisT.begin( ) ;
-    min_ = timeLisT.front() ;
-    for( ; it != timeLisT.end( ) ; ++it )
-    {
-        unsigned long gcmTime = gcm( min_, *it ) ;
-        min_ = min_ > gcmTime ?  gcmTime : min_ ;
-        //debug(  "it=%i; gcmTime=%lu, min_=%i", *it, gcmTime, min_ ) ;
-    }
-    cur_ = min_ ;
-    //debug(  "cur_=%i", cur_ ) ;
-}//* TimeOut::refresh
-
-
-
-/** Greatest Common Divisor. **/
-    unsigned long
-Scheduler::TimeOut::gcm(unsigned long x, unsigned long y)
-{
-    //debug(  "B") ;
-
-    if( (x <= 0UL) || (y <= 0UL) || (x==RAND_MAX) || (y==RAND_MAX)) return 1UL ;
-
-    while( x != y )
-    {
-        if( x > y) x -= y;
-        else       y -= x;
-    }
-    return x;
-}//* TimeOut::gcm
 
 
 
