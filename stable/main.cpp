@@ -59,14 +59,14 @@ typedef struct config_s {
        users        = 100 ;
        resolution   = 1 ;
        is_filled    = 0 ;
-       msg_per_day  = 2 ;   // add to usage()
+       pop_chk      = 4 ;   // mailbox checks per day
        msg_distr    = 2 ;   // average recipients per message
        msg_rcvd     = 4 ;   // average recipients per message
-       pop_chk      = 4 ;   // mailbox checks per day
+       msg_per_day  = 2 ;   // add to usage()
        msg_size_avg = 25 ;  // average message size in KB
+       msg_local    = 90 ;  // % of mail to/from remote addresses
        rate_distr   = 90 ;  // % of users using modems (56Kbit)
        pk_load_pct  = 15 ;  // % of daily activities during busiest hour
-       msg_local    = 90 ;  // % of mail to/from remote addresses
     } ;
 } config_t ;
 
