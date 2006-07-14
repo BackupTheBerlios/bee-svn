@@ -33,6 +33,9 @@ typedef struct config_s {
     int     users ;
     int     resolution ;
     int     is_filled ;
+    int     msg_per_day ;
+    int     pop_chk ;
+    int     msg_size_avg ;
     config_s() {    // default values
        init_only    = 0;
        smtp_server  = "localhost" ;
@@ -56,6 +59,14 @@ typedef struct config_s {
        users        = 100 ;
        resolution   = 1 ;
        is_filled    = 0 ;
+       msg_per_day  = 2 ;   // add to usage()
+       msg_distr    = 2 ;   // average recipients per message
+       msg_rcvd     = 4 ;   // average recipients per message
+       pop_chk      = 4 ;   // mailbox checks per day
+       msg_size_avg = 25 ;  // average message size in KB
+       rate_distr   = 90 ;  // % of users using modems (56Kbit)
+       pk_load_pct  = 15 ;  // % of daily activities during busiest hour
+       msg_local    = 90 ;  // % of mail to/from remote addresses
     } ;
 } config_t ;
 
