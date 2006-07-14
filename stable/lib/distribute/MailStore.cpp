@@ -31,7 +31,7 @@ MailStore::MailStore(const char* fname)
 }
 
 void
-MailStore::sendMails(const int userIdx, const int quantity )
+MailStore::sendMails( const char* host, const int port, const int userIdx, const int quantity )
 {
     char user[512] ={0} ;
     sprintf( user, "user%i", userIdx ) ; 
@@ -40,7 +40,7 @@ MailStore::sendMails(const int userIdx, const int quantity )
     for( int i=0; i< quantity; ++i)
     {
         try {
-            smtp.open("localhost",25 ); // TODO , get host:port from config.h
+            smtp.open( host, port ); // TODO , get host:port from config.h
             smtp.greet("ehlo cucu");
             smtp.mailFrom("<>");
             smtp.rcptTo( user ) ;
@@ -88,7 +88,7 @@ MailStore::fillMbox( void* t )
                 z=arg->mbf++ ;
                 pthread_mutex_unlock( arg->mtx ) ;
                 rc = printf("User%i will have %i\n mails", z, arg->p->md[k].msg ) ;
-                arg->p->sendMails( z, arg->p->md[k].msg ) ;
+                arg->p->sendMails( arg->host, arg->port, z, arg->p->md[k].msg ) ;
 
             }
         }
@@ -111,6 +111,8 @@ MailStore::init( const char* host, const int port, const int maxMbox, const int 
     arg.mbf = 0 ;
     arg.mtx = &mtx ;
     arg.end = maxMbox ;
+    arg.host= (char*)host ;
+    arg.port= port ;
 
     for( i = 0 ; i < threads ; ++i )
     {

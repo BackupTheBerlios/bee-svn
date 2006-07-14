@@ -21,12 +21,14 @@ class MailStore {
             int end ;
             pthread_mutex_t* mtx ;
             MailStore* p ;
+            char* host ;
+            int   port ;
             int delay ;
         } arg ;
         static void* fillMbox( void* ) ;
         int init( const char* host, const int port, const int maxMbox, const int threads) ;
     private:
-        void sendMails(const int userIdx, const int quantity ) ;
+        void sendMails( const char* host, const int port, const int userIdx, const int quantity ) ;
         vector<struct dist_t> md ;
     /* Message distribution over mailbox */
 } ;
