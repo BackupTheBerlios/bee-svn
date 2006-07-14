@@ -21,9 +21,9 @@ class MailStore {
             int end ;
             pthread_mutex_t* mtx ;
             MailStore* p ;
-            char* host ;
-            int   port ;
-            int delay ;
+            char*   host ;
+            int     port ;
+            int     delay ;
         } arg ;
         static void* fillMbox( void* ) ;
         int init( const char* host, const int port, const int maxMbox, const int threads) ;

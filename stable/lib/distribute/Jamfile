@@ -6,6 +6,12 @@ Main t_distribute : t_distribute.cpp ;
 LinkLibraries t_distribute : libdistribute ;
 Library libdistribute : Distribute.cpp ;
 
+
+Main t_rategen : t_rategen.cpp ;
+LinkLibraries t_rategen : librategen ;
+Library librategen : RateGen.cpp ;
+
+
 LINKLIBS += -lpthread ;
 C++FLAGS += -I$(TOP) ;
 
