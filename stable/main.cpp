@@ -9,7 +9,7 @@
 
 //Benchmark bench ;
 int usage( const char* prog ) ;
-
+//test
 
 int
 usage(const char* app)
