@@ -21,5 +21,20 @@ namespace LoadGen {
             Distribute::Smtp* smtpDistr;
             //Scheduler::Cron cron_ ;
     } ;
+    class Pop3 {
+        public:
+            Smtp() ;
+            ~Smtp() ;
+            void init( config_t* cfg ) ;
+            void semaphore(sem_t* sem ) { sem_ = sem  ; } ;
+            void stop() ;
+            void run() ;
+            static void* worker(void*) ;
+        private:
+            config_t*   cfg_ ;
+            sem_t*      sem_ ;
+            Distribute::Pop3* smtpDistr;
+            //Scheduler::Cron cron_ ;
+    } ;
 };
 #endif // _LOAD_GEN_H_
