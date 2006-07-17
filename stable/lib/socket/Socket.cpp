@@ -129,6 +129,17 @@ Socket::connect( const char* h, const int p)
 
 
 /**
+ * dest is resolved outside of the Socket class,
+ * doing so might gain some speed. */
+void
+Socket::connect( sockaddr_in* dest )
+{
+    int rval = ::connect( sock_, (sockaddr*)dest, sizeof(sockaddr_in) ) ;
+    if( rval < 0 ) throw Socket::Exception( strerror(errno) ) ;
+    is_conn_ = true ;
+}
+
+/**
  * Send a string on socket.
  * @param[in] msg  Message to send on socket.
  * @param[in] size Message size **/

@@ -15,6 +15,7 @@ namespace Smtp {
             void sendFile( int in_fd ) ;
             void sendFile( const char name[] ) ;
             void open   ( const char* host, const unsigned int port ) ;
+            void open   ( sockaddr_in* dest) ;
             void greet  ( const std::string& greet) ;
             void vrfy   ( const std::string& useR) ;
             void expn   ( const std::string& aliaS) ;

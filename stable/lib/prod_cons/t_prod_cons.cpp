@@ -33,9 +33,9 @@ Producer<T,Arg>::produce( Arg* a )
     printf("++PRODUCE\n" ) ;
         T*      t ;
         t = new T ;
-        t->rcpts  = smtpDistr.rcptTo( &t->rcptList) ;
-        t->usrIdx = smtpDistr.mailFrom() ;   // call an exponential distribution here
-        t->msg_sz = smtpDistr.msgSize() ;
+        t->rcpts  = 1;//smtpDistr.rcptTo( &t->rcptList) ;
+        t->usrIdx = 1;//smtpDistr.mailFrom() ;   // call an exponential distribution here
+        //t->msg_sz = 1;//smtpDistr.msgSize() ;
         return t ;
 }//* Producer::produce
 
@@ -61,7 +61,6 @@ int main()
     SmtpConfig smtpConfig ;
     JobQueue<Job*>   jq ;
 
-    sem_t prod_sem ;
     pthread_t   p ;
     Producer<Job, SmtpConfig>   prod(&smtpConfig) ;
 
@@ -69,25 +68,14 @@ int main()
     pthread_t   c[20] ;
     Consumer<Job, SmtpConfig>    cons[20] ;
     
-    int k ;
-    for( k=0; k<20; ++k)
-    {
-        cons[k].jobQueue( &jq ) ;
-        cons[k].prod_sem( &prod_sem ) ;
-        cons[k].cons_sem( &cons_sem ) ;
-    }
-
-
-    sem_init( &prod_sem, 0, 0 ) ;
     sem_init( &cons_sem, 0, 0 ) ;
     cout <<"PROD SEM: " <<&prod_sem <<endl ;
 
-    prod.jobQueue( &jq ) ;
-
-    // Init step 2 : Set condition variables.
-    prod.prod_sem( &prod_sem ) ;
-    prod.cons_sem( &cons_sem ) ;
-
+    prod.set_ipc( &jq, &cons.semaphore() ) ;
+    for( int k=0; k<20; ++k)
+    {
+        cons[k].set_ipc( &jq, prod.semaphore() ) ;
+    }
 
     pthread_create( &p, 0, prod.execute, &prod ) ;              // producer thread
     for( k=0; k<20; ++k)

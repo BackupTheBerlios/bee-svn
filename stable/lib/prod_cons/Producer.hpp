@@ -9,40 +9,43 @@
 using namespace std ;
 
 
-template<class T, class Arg>
+template<class JobType, class Configurator>
 class Producer
 {
     public:
-        Producer( Arg* pa ) : count(10) { prod_arg_ = pa ; };
-        Producer( ) : count(10) { };
-        ~Producer() {};
-        void jobQueue( JobQueue <T*>* jq )
+        Producer( Configurator* pa ) : count(10)
+        {   prod_arg_ = pa ;
+            sem_init( &sem_, 0,0 ) ; 
+        };
+        
+        Producer( ) : count(10)
         {
+            sem_init( &sem_, 0,0 ) ; 
+        };
+
+        ~Producer() {};
+
+        void set_ipc( JobQueue<JobType*>* jq, sem_t* consumer_sem )
+        {
+            cout << "PROD::jq="<< jq <<endl ;
             jobQueue_ = jq ;
+            cons_sem_ = consumer_sem ;
+        }
+        
+        sem_t* semaphore( )
+        {
+            return &sem_ ;
         }
 
-        void config( Arg* pa) { prod_arg_ = pa ; } ;
-        JobQueue<T*>*& jobQueue( )
-        {
-            return jobQueue_ ;
-        }
-        void prod_sem( sem_t* cond )
-        {
-            prod_sem_= cond ;
-        }
-        void cons_sem( sem_t* cond )
-        {
-            cons_sem_ = cond ;
-        }
+        JobType*   produce( Configurator* ) ;
         static void*    execute( void* arg ) ;  //!< Threaded function
-        T*   produce( Arg* ) ;
 
     private:
         int     count ;     //!< count the items that triggers the producer.
-        JobQueue<T* >*  jobQueue_ ;
-        sem_t*  prod_sem_ ;
+        sem_t   sem_ ;
         sem_t*  cons_sem_ ;
-        Arg* prod_arg_ ;
+        Configurator* prod_arg_ ;
+        JobQueue<JobType* >*  jobQueue_ ;
 } ;
 
 
@@ -52,13 +55,13 @@ class Producer
  * \param[in] a Is casted to Producer*, to get the "this" pointer.
  * \todo  Implement: Condition P.wait() Condition C.signal()
  **/
- template<class T, class Arg>
+ template<class JobType, class Configurator>
     void*
-Producer<T,Arg>::execute( void* a )
+Producer<JobType,Configurator>::execute( void* a )
 {
     cout <<"++PRODUCE: START" <<endl ;
     extern int  run ;
-    T*          tmpJob ;
+    JobType*          tmpJob ;
     Producer* t = (Producer*)a ;
 
     while( 1 )
@@ -66,9 +69,9 @@ Producer<T,Arg>::execute( void* a )
         tmpJob = t->produce( t->prod_arg_ ) ;
         while( t->jobQueue_->size() > 5 )
         {
-            cout <<"++PROD SMPH: " <<t->prod_sem_ <<endl ;
+            cout <<"++PROD SMPH: " <<t->sem_ <<endl ;
             cout <<"++PROD Qsize:" <<t->jobQueue_->size() <<endl ;
-            sem_wait( t->prod_sem_ ); 
+            sem_wait( &t->sem_ ); 
         }
 
         t->jobQueue_->push( tmpJob ) ;

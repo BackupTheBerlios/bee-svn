@@ -1,8 +1,11 @@
 TOP ?= $(DOTDOT)/$(DOTDOT) ;
 
-SubDir TOP lib scheduler ;
+SubDir $(TOP) lib scheduler  ;
+
 
 Main t_sched : t_sched.cpp ;
-LinkLibraries t_sched : libscheduler ;
+LinkLibraries t_sched :  libscheduler  librategen ;
 Library libscheduler : Scheduler.cpp ;
+SubInclude TOP lib distribute  ;
+
 # vim:ft=jam

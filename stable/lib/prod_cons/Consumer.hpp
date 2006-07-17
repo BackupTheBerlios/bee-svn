@@ -8,30 +8,31 @@ using namespace std ;
 
 
 
-template<class T, class Arg>
+template<class JobType, class Configurator>
 class Consumer
 {
     public:
         Consumer( )
         {
         };
-        Consumer( Arg* pa )
+        Consumer( Configurator* pa )
         {
             prod_arg_ = pa ;
         };
         ~Consumer()
         {};
 
-        void setConf( Arg* pa )
+        void setConf( Configurator* pa )
         {
             prod_arg_ = pa ;
         };
 
-        void jobQueue( JobQueue <T*>* jq )
+        void jobQueue( JobQueue<JobType*>* jq )
         {
+            cout <<"CONS::jq=" <<jq <<endl ;
             jobQueue_ = jq ;
         }
-        JobQueue<T*>*&
+        JobQueue<JobType*>*&
         jobQueue( )
         {
             return jobQueue_ ;
@@ -44,15 +45,15 @@ class Consumer
         {
             cons_sem_ = cond ;
         }
-        void   consume( T* ) ;
+        void   consume( JobType* ) ;
         static void*    execute( void* arg ) ;  //!< Threaded function
 
     private:
         int     count ;     //!< count the items that triggers the producer.
-        JobQueue<T*>*  jobQueue_ ;
+        JobQueue<JobType*>*  jobQueue_ ;
         sem_t*  cons_sem_ ;
         sem_t*  prod_sem_ ;
-        Arg* prod_arg_ ;
+        Configurator* prod_arg_ ;
 } ;
 
 
@@ -62,20 +63,21 @@ class Consumer
  * \param[in] a Is casted to Consumer*, to get the "this" pointer.
  * \todo  Implement: Condition P.wait() Condition C.signal()
  **/
- template<class T, class Arg>
+ template<class JobType, class Configurator>
     void*
-Consumer<T,Arg>::execute( void* a )
+Consumer<JobType,Configurator>::execute( void* a )
 {
     cout <<"CONS START" <<endl ;
     extern int  run ;
-    T*          tmpJob ;
+    JobType*          tmpJob ;
     Consumer* t = (Consumer*)a ;
 
     while( 1 )
     {
+        cout <<"PROD SEM1: " <<t->prod_sem_ <<endl ;
         while( t->jobQueue_->size() <= 0 )
         {
-            cout <<"PROD SEM: " <<t->prod_sem_ <<endl ;
+            cout <<"PROD SEM1: " <<t->prod_sem_ <<endl ;
             sem_post( t->prod_sem_ ) ; //! P.signal( ) ;
             cout <<"CONS WAIT:---" <<t->jobQueue_->size() <<endl ;
             sem_wait( t->cons_sem_ );
@@ -85,7 +87,7 @@ Consumer<T,Arg>::execute( void* a )
         t->jobQueue_->pop( ) ;
 
         sem_post( t->prod_sem_ ) ; //! P.signal( ) ;
-        t->consume( tmpJob ) ;
+        //t->consume( tmpJob ) ;
     }
 }//* Consumer::run
 

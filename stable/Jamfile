@@ -4,11 +4,10 @@ T_BEE_SRC   =  main.cpp ;
 SubDir TOP ;
 
 Main main : $(T_BEE_SRC) ;
-LinkLibraries main : libmstore libloadgen libdistribute libscheduler libsmtp libsocket libreport ;
+LinkLibraries main : libmstore libloadgen libdistribute libscheduler librategen libsmtp libsocket libreport ;
 SubInclude TOP lib distribute  ;
 SubInclude TOP lib socket ;
 SubInclude TOP lib smtp ;
-SubInclude TOP lib distribute ;
 SubInclude TOP lib loadgen ;
 SubInclude TOP lib scheduler ;
 SubInclude TOP lib report ;

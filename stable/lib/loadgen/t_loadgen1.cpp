@@ -12,7 +12,8 @@ int main(int argc, char* argv[])
         return 1 ;
     }
     LoadGen::Smtp smtpGen ;
-    smtpGen.init( atoi(argv[1]), 20, atoi(argv[2]), atoi(argv[3])) ;
+    config_t cfg ;
+    smtpGen.init( &cfg ) ;
     smtpGen.run( ) ;
     return 0 ;
 }

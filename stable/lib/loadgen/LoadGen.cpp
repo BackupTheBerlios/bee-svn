@@ -2,61 +2,15 @@
 #include "smtp/Protocol.h"
 
 
-static Scheduler::Cron cron ;
+static Scheduler::Scheduler cron ;
 static int running = 1 ;
 static int elapsed = 0 ;
-
-
-//----
-template<class T, class Arg>
-T*
-Producer<T,Arg>::produce( Arg* a )
-{
-    Distribute::Smtp* smtpDistr = (Distribute::Smtp*) a ;
-    T*      t ;
-    t = new T ;
-    t->rcpts  = smtpDistr->rcptTo( t->rcptList, 100) ;
-    t->usrIdx = smtpDistr->mailFrom(100) ;   // call an exponential distribution here
-    t->msg_sz = smtpDistr->msgSize() ;
-    printf("++PRODUCE: PID=%i userIdx=%i Qsize=%i\n",pthread_self(), t->msg_sz, jobQueue_->size() ) ;
-    return t ;
-}//* Producer::produce--------------------------------------------
-
-
-
-//---------------Consumer-----------------------------------------
-template<class T, class Arg>
-void
-Consumer<T,Arg>::consume( T* a )
-{
-    printf("--CONSUME: PID=%i userIdx=%i rcpts=%i Qsize=%i\n",
-        pthread_self(), a->usrIdx, a->rcpts, jobQueue_->size() ) ;
-    sleep(1);
-    Smtp::Protocol smtp ;
-    try {
-        smtp.open("localhost", 25 ) ;
-        smtp.greet("ehlo cucu");
-        smtp.mailFrom("user");
-        smtp.rcptTo("user%i", a->usrIdx, "domain%i", a->usrIdx ) ;
-        smtp.rcptTo( a->rcpts,a->rcptList ) ;
-        smtp.randomData(a->msg_sz) ;
-        smtp.quit();
-    }catch(Socket::Exception& e )
-    {
-        printf("ERROR:%s\n", e.what() ) ;
-        smtp.close() ;
-    }
-}//* Consumer::consume---------------------------------------------
-
-
 
 //-----------------Smtp Load Generator-----------------------------
 LoadGen::Smtp::Smtp( )
 {
     smtpDistr = new Distribute::Smtp("./data/rcpt.csv","./data/msgsz.csv") ;
-    producer.config(smtpDistr) ;
-    cron.semaphore( sched_sem ) ;
-}//* LoadGen::Smtp::Smtp-------------------------------------------
+}
 
 
 LoadGen::Smtp::~Smtp()
@@ -65,34 +19,48 @@ LoadGen::Smtp::~Smtp()
 }
 
 
+// static threaded function
+void*
+LoadGen::Smtp::worker( void* a )
+{
+    config_t* p = (config_t*) a ;
+    ::Smtp::Protocol smtp ;
+
+    while( 1 ) 
+    {
+        sem_wait( ((LoadGen::Smtp*)p->ths)->sem_ ) ;
+        printf("pthread_self %u\n\n\n", pthread_self() ) ;
+        int rcpts  = 1;//smtpDistr->rcptTo( t->rcptList, 100) ;
+        int usrIdx = 1;//smtpDistr->mailFrom(100) ;   // call an exponential distribution here
+        int msg_sz = 1;//smtpDistr->msgSize() ;
+        try {
+
+            printf("host:%s port:%i\n", p->smtp_server, p->smtp_port );
+            smtp.open( p->dest ) ;
+            smtp.greet("ehlo cucu");
+            smtp.mailFrom("user");
+            smtp.rcptTo("user%i", usrIdx, "domain%i", usrIdx ) ;
+            smtp.rcptTo( "user1"/*rcpts, rcptList*/ ) ;
+            smtp.randomData(msg_sz) ;
+            smtp.quit();
+        }catch(Socket::Exception& e )
+        {
+            printf("ERROR:%s\n", e.what() ) ;
+            smtp.close() ;
+        }
+    }
+}
+
+
+
+
 
 void
-LoadGen::Smtp::init( int nbcL, int nbtR, int refresH, int tduratioN )
+LoadGen::Smtp::init( config* cfg )
 {
-    nbcl = nbcL ;
-    nbtr = nbtR ;
-    refresh = refresH ;
-    tduration = tduratioN ;
-
-    /* Init semaphores */
-    sem_init( &prod_sem, 0, 0 ) ;
-    sem_init( &cons_sem, 0, 0 ) ;
-    sem_init( &sched_sem, 0, 0 ) ;
-    fprintf( stderr,"DBG:PROD SEM: %p\n" ,&prod_sem ) ;
-    //-----------------CONSUMER-------------------------
-    // config CONSUMERS to have the intercomunication ways set
-    for( int k=0; k< nbtr; ++k)
-    {
-        consumer[k].jobQueue( &jq ) ;
-        consumer[k].prod_sem( &prod_sem ) ;
-        //consumer[k].cons_sem( &cons_sem ) ;
-        consumer[k].cons_sem( &sched_sem ) ;
-    }
-
-    // config PRODUCER to have the intercomunication ways set
-    producer.jobQueue( &jq ) ;
-    producer.prod_sem( &prod_sem ) ;
-    producer.cons_sem( &cons_sem ) ;
+    cfg_ = cfg ;
+    cfg_->ths = this ;
+    sem_ = cron.semaphore() ;
 }//* LoadGen::Smtp::init--------------------------------------------
 
 
@@ -102,34 +70,20 @@ LoadGen::Smtp::init( int nbcL, int nbtR, int refresH, int tduratioN )
 void
 LoadGen::Smtp::run()
 {
-    // CREATE and DETACH producing thread
-    pthread_create( &p, 0, producer.execute, &producer ) ;              // producer thread
-    pthread_detach( p ) ;
+    pthread_t c[30] ;
 
     // CREATE and DETACH consuming threads
-    for( int k=0; k<nbtr; ++k)
-        pthread_create( &c[k], 0, consumer[k].execute, &consumer[k] ) ; // consumer thread
-    for( int k=0; k<nbtr; ++k)
+    for( int k=0; k<20; ++k)
+        pthread_create( &c[k], 0, worker, (void*)cfg_ ) ; // consumer thread
+    for( int k=0; k<20; ++k)
         pthread_detach( c[k] ) ;
 
-
-    //----------CRON--------
-    pthread_t   st ;
-    //int running = 1 ;
-    pthread_create( &st, 0, thread_fun, (void*)&running ) ;
-    cron.callback(tick) ;
-
-    printf(" number of clients %i\n", nbcl ) ;
-    for( int i=1; i< nbcl ; ++i )
-        cron.addTime( i*refresh ) ;     //! addTime parameter is in elapsed.
-
-    cron.refresh( 1*refresh ) ;         //! refresh time
-    cron.start() ;                      //! we can start the cron now
-
-    pthread_detach(st);
-    while( elapsed <= tduration)
+    timeval tv ;
+    gettimeofday(&tv,0);
+    while( cron.elapsed() <= tv.tv_sec+cfg_->span )
     {
-        ;
+        cron.run();
+        //sleep(1);
     }
     running = 0 ;
 }//* LoadGen::Smtp::run---------------------------------------------
@@ -144,27 +98,4 @@ LoadGen::Smtp::stop()
     // Dump the results ?
 }//* LoadGen::Smtp::stop---------------------------------------------
 
-
-
-void
-LoadGen::Smtp::tick(union sigval sigval)
-{
-    //cron.timer.tick( ) ;
-    ++elapsed ;
-    cron.runJob();
-}//* LoadGen::Smtp::tick--------------------------------------------
-
-
-
-void*
-thread_fun(void* a)
-{
-    int* running = (int*) a ;
-    while(*running)
-    {
-        printf("==Thread function\n");
-        sleep(1);
-    }
-    return 0 ;
-}//* thread_fun-----------------------------------------------------
 

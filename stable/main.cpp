@@ -3,72 +3,12 @@
 #include <cstdlib>
 #include <unistd.h>
 #include <getopt.h>
+#include "structs.h"
 #include "distribute/MailStore.h"
 #include "loadgen/LoadGen.h"
-
+#include <netdb.h>
 
 int usage( const char* prog ) ;
-
-
-typedef struct config_s {
-    int     init_only ;
-    char*   smtp_server ;
-    int     smtp_port ;
-    char*   pop3_server ;
-    int     pop3_port ;
-    char*   sink_server ;
-    int     sink_port ;
-    char*   local_domain ;
-    char*   remote_domain ;
-    char*   user_prefix ;
-    char*   user_passwd ;
-    int     user_start ;
-    int     user_end ;
-    int     init_rest ;
-    int     threads ;
-    int     clients ;
-    int     span ;
-    int     warmup ;
-    int     rampdown ;
-    int     users ;
-    int     resolution ;
-    int     is_filled ;
-    int     msg_per_day ;
-    int     pop_chk ;
-    int     msg_size_avg ;
-    config_s() {    // default values
-       init_only    = 0;
-       smtp_server  = "localhost" ;
-       smtp_port    = 25 ;
-       pop3_server  = "localhost" ;
-       pop3_port    = 110 ;
-       sink_server  = "localhost" ;
-       sink_port    = 25 ;
-       local_domain = "localdomain" ;
-       remote_domain= "remotedomain" ;
-       user_prefix  = "user" ;
-       user_passwd  = "user" ;
-       user_start   = 1 ;
-       user_end     = 100 ;
-       init_rest    = 12 ;
-       threads      = 1 ;
-       clients      = 1 ;
-       span         = 1 ;
-       warmup       = 1 ;
-       rampdown     = 1 ;
-       users        = 100 ;
-       resolution   = 1 ;
-       is_filled    = 0 ;
-       pop_chk      = 4 ;   // mailbox checks per day
-       msg_distr    = 2 ;   // average recipients per message
-       msg_rcvd     = 4 ;   // average recipients per message
-       msg_per_day  = 2 ;   // add to usage()
-       msg_size_avg = 25 ;  // average message size in KB
-       msg_local    = 90 ;  // % of mail to/from remote addresses
-       rate_distr   = 90 ;  // % of users using modems (56Kbit)
-       pk_load_pct  = 15 ;  // % of daily activities during busiest hour
-    } ;
-} config_t ;
 
     int
 main (int argc, char **argv)
@@ -178,8 +118,20 @@ main (int argc, char **argv)
         cfg.is_filled = true ;
         exit(0);
     }
+    sockaddr_in     dest ;  // man 7 ip
+    struct hostent* host ;
+
+    dest.sin_port   = htons( cfg.smtp_port ) ;
+    dest.sin_family = AF_INET ;
+
+    host = gethostbyname( cfg.smtp_server ) ;//not thread safe?
+    if( !host ) return 2 ; 
+
+    memcpy( (char*)&dest.sin_addr, (char*)host->h_addr, host->h_length ) ;
+    cfg.dest = &dest ;
+
     LoadGen::Smtp smtpGen ;
-    smtpGen.init( cfg.clients, cfg.threads, cfg.resolution, tSpan ) ;
+    smtpGen.init( &cfg ) ;
     smtpGen.run( ) ;
 /*
     bench.cron.callback(tick) ;

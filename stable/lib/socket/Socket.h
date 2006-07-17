@@ -115,6 +115,7 @@ class Socket
         void write  ( const string& msg ) ;
         void read   ( char* s, unsigned int n) ;
         void connect( const char* hostName, const int port ) ;
+        void connect( sockaddr_in* dest ) ;
         void timeout( int const& tout ) ;   //!< Set timeout
         unsigned int  timeout() ;                    //!< Get timeout
         void close  ( ) ;                   //!< Close the connection

@@ -6,8 +6,8 @@
 #include <signal.h>
 #include <semaphore.h>
 #include <iostream>
+#include "distribute/RateGen.h"
 
-#include <sys/signal.h>
 
 using namespace std;
 class Scheduler
@@ -16,26 +16,24 @@ class Scheduler
         //Timer timer ; // pls redenumeste ca sa nu se confunde cu timer_
 
         Scheduler( ) ;
-        Scheduler(sem_t sem ) ;
         ~Scheduler() ;
-        int     start() ;           //!< create and initialize timer_.
-        int     stop() ;            //!< delete timer_.
-        int     restart() ;         //!< restart the timer.( stop+start )
-        int     runJob() ;          //!< sem_wait( semaphore )
-        int     refresh( unsigned long sec, unsigned long nano_sec ) ;
-        void    semaphore( sem_t sem ){ semap_ = sem ; } ;
 
+        int     run() ;          //!< sem_wait( semaphore )
+        void    semaphore( sem_t sem )
+                { sem_ = sem ; } ;
+
+
+        sem_t*  semaphore()
+                { return &sem_ ; } ;
+        
         void    callback( void (*notf)(union sigval sig) )
-        {   notify_fun = notf ; } ;
+                { notify_fun = notf ; } ;
 
-        unsigned long elapsed()
-        {   return timeOut_.current() ; } ;
+        double  elapsed()
+                {   return elapsed_ ; } ;
 
         // This should _insert_ timE, and keep cronTab in a sorted state
-        void    addTime( unsigned long timE ) ;
-
-        // Keep cronTab sorted, so delTime takes less time.
-        void    delTime( unsigned long timE ) ;
+        void    addTime( double timE ) ;
 
 
     private:
@@ -44,8 +42,9 @@ class Scheduler
         void    (*notify_fun)( union sigval sigval ) ;
 
     private:
-        sem_t   semap_ ;    //!< Notify the workers to start working.
-        double  elapsed_ ;
+        sem_t        sem_ ;    //!< Notify the workers to start working.
+        double       elapsed_ ;
         list<double> cronTab_ ;  //!< List of timeouts.
+        RateGen*     g_ ;
 };
 #endif

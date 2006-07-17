@@ -75,6 +75,19 @@ Smtp::Protocol::open( const char* h, const unsigned int p )
     report_->open( ) ;
 }//* Smtp::Protocol::open
 
+/**
+ * Open a connection. **/
+    void
+Smtp::Protocol::open( sockaddr_in* dest )
+{
+    timer_.start() ;
+    Socket::open( Socket::Family::Inet, Socket::Type::Stream, 0 ) ;
+    Socket::connect( dest ) ;                                         //! @todo: see if SMTP can connect
+    read( ) ;// banner
+    timer_.stop() ;
+    report_->open( ) ;
+}//* Smtp::Protocol::open
+
 
 
 /**
