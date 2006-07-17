@@ -8,123 +8,47 @@
 #include <errno.h>
 #include <pthread.h>
 
-#if !defined LINUX
-    typedef int sigval_t ;
-#endif
 
-
-/** TimeOut Default constructor. **/
-Scheduler::TimeOut::TimeOut() : min_(0), max_(0), cur_(1)
+/** Cron : Default constructor. **/
+Scheduler::Scheduler()
 {
-    //debug(  "C" );
-}//*TimeOut
-
-
-
-/** TimeOut Default destructor. **/
-Scheduler::TimeOut::~TimeOut()
-{
-    //debug(  "D" ) ;
-}//* ~TimeOut
-
-
-
-/** Refresh the timeList. **/
-    void
-Scheduler::TimeOut::refresh( int newTimE , list< unsigned long > timeLisT)
-{
-    //debug(  "B") ;
-    if( timeLisT.empty() ) return ;
-
-    max_ = newTimE > max_  ?  newTimE : max_ ;
-
-    list < unsigned long >::iterator it = timeLisT.begin( ) ;
-    min_ = timeLisT.front() ;
-    for( ; it != timeLisT.end( ) ; ++it )
-    {
-        unsigned long gcmTime = gcm( min_, *it ) ;
-        min_ = min_ > gcmTime ?  gcmTime : min_ ;
-        //debug(  "it=%i; gcmTime=%lu, min_=%i", *it, gcmTime, min_ ) ;
-    }
-    cur_ = min_ ;
-    //debug(  "cur_=%i", cur_ ) ;
-}//* TimeOut::refresh
-
-
-
-/** Greatest Common Divisor. **/
-    unsigned long
-Scheduler::TimeOut::gcm(unsigned long x, unsigned long y)
-{
-    //debug(  "B") ;
-
-    if( (x <= 0UL) || (y <= 0UL) || (x==RAND_MAX) || (y==RAND_MAX)) return 1UL ;
-
-    while( x != y )
-    {
-        if( x > y) x -= y;
-        else       y -= x;
-    }
-    return x;
-}//* TimeOut::gcm
-
-
-
-
+}
 
 
 
 /** Cron : Default constructor. **/
-Scheduler::Cron::Cron()
+Scheduler::Scheduler(sem_t sem)
 {
-    //debug(  "C" ) ;
-    if( cronTab_.empty() ) cronTab_.push_back(RAND_MAX) ; // so that addTime could work 
-    pthread_mutex_init(&mtx_,0) ;
-}//* Cron
-
-
-
-/** Cron : Default constructor. **/
-Scheduler::Cron::Cron(sem_t sem)
-{
-    //debug(  "C" ) ;
     semap_ = sem ;
-    if( cronTab_.empty() ) cronTab_.push_back(RAND_MAX) ; // so that addTime could work 
-    pthread_mutex_init(&mtx_,0) ;
-}//* Cron
+}
 
 
 
 /** Cron : Default destructor. **/
-Scheduler::Cron::~Cron()
+Scheduler::~Scheduler()
 {
-    //debug(  "D" ) ;
-    pthread_mutex_destroy( &mtx_ );
-}//* ~Cron
+}
 
 
 
 void
-Scheduler::Cron::addTime( unsigned long timE )
+Scheduler::addTime( double timE )
 {
     // Insert the element while keeping the list sorted
-    list< unsigned long>::iterator it ;
-    pthread_mutex_lock(&mtx_);          //-- Lock
-    for( it = cronTab_.begin() 
+    list< double >::iterator it ;
+    for( it = cronTab_.begin()
             ; it!= cronTab_.end()
             ; ++it )
         if( timE < *it ) {
-            cronTab_.insert( it, timE ) ; 
-            pthread_mutex_unlock(&mtx_);//-- Unlock before return
+            cronTab_.insert( it, timE+elapsed_ ) ;
             return;
         }
-    pthread_mutex_unlock(&mtx_);        //-- Unlock before function exit
-}//* Cron::addTime
+}
 
 
 
 void
-Scheduler::Cron::delTime(unsigned long timE )
+Scheduler::delTime(unsigned long timE )
 {
     list<unsigned long>::iterator it ;
     pthread_mutex_lock(&mtx_) ;         //-- Lock before we add
@@ -147,38 +71,32 @@ Scheduler::Cron::delTime(unsigned long timE )
 
 /** runJob : Decrement a semaphore, so a client thread is awaken. **/
     int
-Scheduler::Cron::runJob()
+Scheduler::run()
 {
-    //debug(  "B" );
-
-    bool rst ;      // reset
     list< unsigned long >::iterator it ;
 
     printf("+++ENTER JOB++++\n");
     print_time( ) ;
 
-    
     for( it = cronTab_.begin()
        ; it != cronTab_.end() ; )
     {
-        rst = false ;
-        if( !( timeOut_.current() % *it ) )
+
+        gettimeofday(&tv, 0 ) ;
+        elapsed_ = tv.tv_sec + tv.tv_usec*0.000001 ;
+
+        if( elapsed_ <= *it )
         {
             sem_post( &semap_ ) ;
             printf( "runJob %u\n", *it ) ;
             it  = cronTab_.erase(it);
-            rst = true ;
+            cronTab_.push_back( d.exponential() ) ; // push_back another value
             continue;
-        }
+        }else
+            return ;
         ++it ;
     }
     show() ;
-
-    // @todo If all tasks are called simultaneously, reset curTimeout value:
-    if( rst )
-        timeOut_.current( timeOut_.min() );
-    else
-        timeOut_.current( timeOut_.current() + timeOut_.min() ) ;
 
     printf("---EXIT JOB----\n\n");
     return 0;
@@ -187,7 +105,7 @@ Scheduler::Cron::runJob()
 
 /** print_time : Debug purpose function. **/
     void
-Scheduler::Cron::print_time( )
+Scheduler::print_time( )
 {
     time_t      rawtime;
     struct tm*  timeinfo;
@@ -200,7 +118,7 @@ Scheduler::Cron::print_time( )
 
 
 void
-Scheduler::Cron::show( )
+Scheduler::show( )
 {
     list<unsigned long>::iterator it ;
 
@@ -214,9 +132,9 @@ Scheduler::Cron::show( )
 
 /** refresh : sets the time at which crontab is inspected. **/
     int
-Scheduler::Cron::refresh( unsigned long timE )
+Scheduler::refresh( unsigned long sec, unsigned long nano_sec )
 {
-    timeOut_.refresh( timE, cronTab_ ) ;
+    timeOut_.refresh( sec, nano_sec, cronTab_ ) ;
     return 0 ;
 }//* Cron::refresh
 
@@ -224,7 +142,7 @@ Scheduler::Cron::refresh( unsigned long timE )
 
 /** restart : restart cron. **/
     int
-Scheduler::Cron::restart( )
+Scheduler::restart( )
 {
     //debug(  "B");
 
@@ -239,7 +157,7 @@ Scheduler::Cron::restart( )
 
 #if defined LINUX
     int
-Scheduler::Cron::start( )
+Scheduler::start( )
 {
     //debug(  "B");
 
@@ -270,7 +188,7 @@ Scheduler::Cron::start( )
 }
 
     int
-Scheduler::Cron::stop( ) //TODO: timeR could be private
+Scheduler::stop( ) //TODO: timeR could be private
 {
     //debug(  "B");
     //timer.stop() ;
@@ -299,7 +217,7 @@ install_vtalrm_handler()
 }
 
     int
-Scheduler::Cron::start()
+Scheduler::start()
 {
     struct itimerval it;
 
@@ -313,7 +231,7 @@ Scheduler::Cron::start()
 }
 
     int
-Scheduler::Cron::stop()
+Scheduler::stop()
 {
     struct itimerval it;
 
@@ -339,7 +257,7 @@ Scheduler::Cron::stop()
 * deci distributia[ aplic f(k,lambda) ] tb calculata in acest timp,
 * sa stiu cati clienti pornesc. */
 /**
- * Scheduler::Cron::Start
+ * Scheduler::Start
  * goes through the job queue, and looks
  * at the .timeout memeber.
  * if current_time= .timeout then run

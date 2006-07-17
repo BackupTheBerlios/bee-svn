@@ -30,7 +30,7 @@ int main( int argc, char* argv[])
 
     cron.callback(tick) ;
 
-    cron.refresh( 1 ) ;                     //! refresh time
+    cron.refresh( 0, 100 ) ;                     //! refresh time
     cron.start() ;                          //! we can start the cron now
 
     while( cron.elapsed() <= atoi( argv[3]) )
