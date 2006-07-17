@@ -24,5 +24,7 @@ namespace Report {
             int    session_ ;
             FILE* f ;
     } ;
+    class Pop3 {
+    } ;
 } ;
 #endif // _REPORT_H_
