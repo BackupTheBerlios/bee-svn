@@ -25,8 +25,6 @@ namespace Distribute {
             vector<float>   rcpt_d_ ; // rcpt distribution
             vector<MsgDist> msg_d_ ;  // msg size distribution
     } ;
-    class Pop3 {
-    } ;
 };
 
 #endif //_DISTRIBUTE_H_
