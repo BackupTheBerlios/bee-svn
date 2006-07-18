@@ -91,13 +91,12 @@ Distribute::Smtp::mailFrom(int maxRcpt)
 
 
 
-int
 Distribute::Pop3::Pop3( config_t* cfg )
 {
 	// pick random users for the retry_pool
 	// and sort the retry_pool array, so we can later
 	// perform a bin-search
-	for( int i=0; i< 7500 )
+	for( int i=0; i< 7500 ;++i)
 	{
 		int u = (int)(random()*(1.0*100000)/RAND_MAX) + 1 ;
 		// TODO a sortedInsert here
@@ -106,7 +105,6 @@ Distribute::Pop3::Pop3( config_t* cfg )
 }
 
 
-int
 Distribute::Pop3::~Pop3()
 {
 }
@@ -121,7 +119,7 @@ int
 Distribute::Pop3::retry_user( )
 {
 	int i = (int)(random()*(1.0*7500)/RAND_MAX) + 1 ;
-	return retry_pool_[ i ];
+	return retry_pool[ i ];
 }
 
 
@@ -131,7 +129,7 @@ int
 Distribute::Pop3::random_user()
 {
 	int i = (int)(random()*(1.0*100000)/RAND_MAX) + 1 ;
-	if( isRetry(i) ) random_pool() ;	// try again
+	if( isRetry(i) ) random_user() ;	// try again
 	return i ;
 }
 
@@ -144,11 +142,11 @@ int
 Distribute::Pop3::search( const int p, int left, int right )
 {
         int mid ;
-        if ( rigth < left ) return -1 ;
-	mid = (rigth-left)/2+left;
+        if ( right < left ) return -1 ;
+	mid = (right-left)/2+left;
 
 	if ( p > retry_pool[mid] )
-		search( p, mid+1, rigth ) ;
+		search( p, mid+1, right ) ;
 	else if ( p < retry_pool[mid] )
 		search( p, left, mid-1 ) ;
 	else
@@ -163,21 +161,6 @@ Distribute::Pop3::isRetry( const int p )
 {
 	return ( search( p, 0, 7500 ) > -1 ) ? true : false ;
 }
-
-
-class Pop3 {
-    public:
-        Pop3(config_t*) ;
-        ~Pop3() ;
-        int retry_user() ;
-        int random_user();
-    private:
-        int search( const int p, int left, int rigth ) ;
-        int isRetry( const int p ) ;
-        int retry_pool[7500] ;
-} ;
-
-
 
 /*
 	retry_pool   7.5%   - 12.50 (repeated)/sec - a check of this mailBox is done between 300 and 600 sec
