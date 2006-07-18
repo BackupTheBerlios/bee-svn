@@ -15,13 +15,13 @@ RateGen::RateGen( int seed, double freq )
 
 
 double
-RateGen::uniform( double upper, double lower ) 
+RateGen::uniform( double upper, double lower )
 {
     return lower + (upper - lower)*erand48( xsubi_ ) ;
 }
 
 double
-RateGen::exponential() 
+RateGen::exponential()
 {
     return -mean_*log( 1.0 - erand48(xsubi_) ) ;
 }

@@ -10,31 +10,32 @@ namespace LoadGen {
         public:
             Smtp() ;
             ~Smtp() ;
-            void init( config_t* cfg ) ;
-            void semaphore(sem_t* sem ) { sem_ = sem  ; } ;
-            void stop() ;
-            void run() ;
+            void   init( config_t* cfg ) ;
+            void   semaphore(sem_t* sem ) { sem_ = sem  ; } ;
+            void   stop() ;
+            void   run() ;
             static void* worker(void*) ;
         private:
             config_t*   cfg_ ;
             sem_t*      sem_ ;
             Distribute::Smtp* smtpDistr;
-            //Scheduler::Cron cron_ ;
+            Scheduler::Cron   cron ;
     } ;
+
     class Pop3 {
         public:
-            Smtp() ;
-            ~Smtp() ;
-            void init( config_t* cfg ) ;
-            void semaphore(sem_t* sem ) { sem_ = sem  ; } ;
-            void stop() ;
-            void run() ;
+            Pop3() ;
+            ~Pop3() ;
+            void   init( config_t* cfg ) ;
+            void   semaphore(sem_t* sem ) { sem_ = sem  ; } ;
+            void   stop() ;
+            void   run() ;
             static void* worker(void*) ;
         private:
             config_t*   cfg_ ;
             sem_t*      sem_ ;
-            Distribute::Pop3* smtpDistr;
-            //Scheduler::Cron cron_ ;
+            Distribute::Pop3* pop3Distr;
+            Scheduler::Cron   cron ;
     } ;
 };
 #endif // _LOAD_GEN_H_

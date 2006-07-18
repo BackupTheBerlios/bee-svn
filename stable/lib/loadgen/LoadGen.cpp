@@ -2,11 +2,6 @@
 #include "smtp/Protocol.h"
 
 
-static Scheduler::Scheduler cron ;
-static int running = 1 ;
-static int elapsed = 0 ;
-
-//-----------------Smtp Load Generator-----------------------------
 LoadGen::Smtp::Smtp( )
 {
     smtpDistr = new Distribute::Smtp("./data/rcpt.csv","./data/msgsz.csv") ;
@@ -60,8 +55,8 @@ LoadGen::Smtp::init( config* cfg )
 {
     cfg_ = cfg ;
     cfg_->ths = this ;
-    sem_ = cron.semaphore() ;
-}//* LoadGen::Smtp::init--------------------------------------------
+    sem_ = cron.semaphore() ; // Cron will init his semaphore by itself
+}
 
 
 
@@ -83,10 +78,10 @@ LoadGen::Smtp::run()
     while( cron.elapsed() <= tv.tv_sec+cfg_->span )
     {
         cron.run();
-        //sleep(1);
     }
     running = 0 ;
-}//* LoadGen::Smtp::run---------------------------------------------
+}
+
 
 
 /**
@@ -96,7 +91,7 @@ LoadGen::Smtp::stop()
 {
     //running = false ;
     // Dump the results ?
-}//* LoadGen::Smtp::stop---------------------------------------------
+}
 
 
 
@@ -126,13 +121,14 @@ LoadGen::Smtp::stop()
 //-----------------Pop3 Load Generator-----------------------------
 LoadGen::Pop3::Smtp( )
 {
-    smtpDistr = new Distribute::Pop3("./data/rcpt.csv","./data/msgsz.csv") ;
+    // will have to implement Distribute::pop3
+    pop3Distr = new Distribute::Pop3("./data/rcpt.csv","./data/msgsz.csv") ;
 }
 
 
 LoadGen::Pop3::~Smtp()
 {
-    delete smtpDistr ;
+    delete pop3Distr ;
 }
 
 
@@ -141,29 +137,32 @@ void*
 LoadGen::Pop3::worker( void* a )
 {
     config_t* p = (config_t*) a ;
-    ::Pop3::Protocol smtp ;
+    ::Pop3::Protocol pop3 ;
+    float p ;
 
-    while( 1 ) 
+    while( 1 )
     {
         sem_wait( ((LoadGen::Pop3*)p->ths)->sem_ ) ;
         printf("pthread_self %u\n\n\n", pthread_self() ) ;
-        int rcpts  = 1;//smtpDistr->rcptTo( t->rcptList, 100) ;
-        int usrIdx = 1;//smtpDistr->mailFrom(100) ;   // call an exponential distribution here
-        int msg_sz = 1;//smtpDistr->msgSize() ;
-        try {
 
+        p = erand48(xsubi_);// pick this randomly, and use a CMF
+        if( p<0.075 )
+            user = d.retry_pool() ;
+        else
+            user = d.random_pool() ;
+
+        try {
             printf("host:%s port:%i\n", p->smtp_server, p->smtp_port );
-            smtp.open( p->dest ) ;
-            smtp.greet("ehlo cucu");
-            smtp.mailFrom("user");
-            smtp.rcptTo("user%i", usrIdx, "domain%i", usrIdx ) ;
-            smtp.rcptTo( "user1"/*rcpts, rcptList*/ ) ;
-            smtp.randomData(msg_sz) ;
-            smtp.quit();
+            pop3.open( p->dest ) ;
+            pop3.login( user, user ) ;
+            pop3.stat() ;
+            pop3.retr() ;
+            pop3.dele() ;
+            pop3.quit() ;
         }catch(Socket::Exception& e )
         {
             printf("ERROR:%s\n", e.what() ) ;
-            smtp.close() ;
+            pop3.close() ;  // dont left the socket oppened
         }
     }
 }
@@ -178,7 +177,7 @@ LoadGen::Pop3::init( config* cfg )
     cfg_ = cfg ;
     cfg_->ths = this ;
     sem_ = cron.semaphore() ;
-}//* LoadGen::Pop3::init--------------------------------------------
+}
 
 
 
@@ -200,10 +199,9 @@ LoadGen::Pop3::run()
     while( cron.elapsed() <= tv.tv_sec+cfg_->span )
     {
         cron.run();
-        //sleep(1);
     }
     running = 0 ;
-}//* LoadGen::Pop3::run---------------------------------------------
+}
 
 
 /**
@@ -211,7 +209,7 @@ LoadGen::Pop3::run()
 void
 LoadGen::Pop3::stop()
 {
-    //running = false ;
+    // running = false ;
     // Dump the results ?
-}//* LoadGen::Pop3::stop---------------------------------------------
+}
 

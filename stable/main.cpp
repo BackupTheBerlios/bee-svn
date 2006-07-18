@@ -45,6 +45,7 @@ main (int argc, char **argv)
         {"rampdown"     , 1, 0,19},
         {"users"        , 1, 0,20},
         {"resolution"   , 1, 0,21},
+        {"repeatchk"    , 1, 0,22},
 
         {0, 0, 0, 0}
     };
@@ -72,6 +73,12 @@ main (int argc, char **argv)
             case 3:
                 cfg.smtp_port   = atoi(optarg) ;
                 break;
+            case 4:
+                cfg.pop3_server = optarg;
+                break;
+            case 5:
+                cfg.pop3_port   = atoi(optarg) ;
+                break;
             case 15:
                 cfg.threads     = atoi(optarg) ;
                 break;
@@ -87,6 +94,10 @@ main (int argc, char **argv)
             case 21:
                 cfg.resolution  = atoi(optarg) ;
                 break;
+            case 22:
+                cfg.repeat_chk= atoi(optarg) ;
+                break;
+
             case ':':   // -H -P -U -T -C without operand
                 fprintf( stderr, "Option %c requires a parameter.\n", optarg ) ;
                 usage(argv[0]) ;
@@ -103,7 +114,9 @@ main (int argc, char **argv)
         }
     }
 
-    for( idx=optind; idx < argc; idx++) printf ("Non-argument %s\n", argv[idx]);
+    for( idx=optind; idx < argc; idx++)
+        printf ("Non-argument %s\n", argv[idx]);
+
     // Pre-populez `users` mailBoxuri pe smtp_server:smtp_port folosind `nbThr` threaduri
     if( cfg.init_only )
     {
@@ -118,6 +131,8 @@ main (int argc, char **argv)
         cfg.is_filled = true ;
         exit(0);
     }
+
+    // resolv smtpserver, into dest pointer
     sockaddr_in     dest ;  // man 7 ip
     struct hostent* host ;
 
@@ -130,17 +145,27 @@ main (int argc, char **argv)
     memcpy( (char*)&dest.sin_addr, (char*)host->h_addr, host->h_length ) ;
     cfg.dest = &dest ;
 
-    LoadGen::Smtp smtpGen ;
-    smtpGen.init( &cfg ) ;
-    smtpGen.run( ) ;
 /*
     bench.cron.callback(tick) ;
     bench.run( 80,  is_filled ) ;
     bench.run( 100, is_filled ) ;
     bench.run( 120, is_filled ) ;
 */
+
+/*
+    LoadGen::Smtp smtpGen ;
+    smtpGen.init( &cfg ) ;
+    smtpGen.run( ) ;
+*/
+
+    LoadGen::Pop3 pop3Gen ;
+    pop3Gen.init( &cfg ) ;
+    pop3Gen.run( ) ;
+
     return 0;
 }
+
+
 
 int
 usage(const char* app)
@@ -165,6 +190,7 @@ usage(const char* app)
     printf("\t-userpasswd\t\tusername password\n") ;
     printf("\t-userstart\t\tstarting number of userid\n") ;
     printf("\t-userend\t\tending number of userid\n") ;
+    printf("\t-repeatchk\t\tInterval in seconds for repeated pop3 checks\n") ;
     printf("\t-initrest\t\tminutes to wait after completing mailbox initialization\n") ;
 
     return 0 ;

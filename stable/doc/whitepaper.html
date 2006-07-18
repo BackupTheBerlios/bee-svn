@@ -1523,7 +1523,7 @@ are:</strong>
   random process which could be nicely analyzed with a single application of
   the above rules. </p>
 <p> Suffice it to say that the implementation of the POP Retries splits the set
-  of test accounts into two parts: the retry pool and the random pool. Each pool
+  of test accounts into two parts: the <u>retry pool</u> and the <u>random pool</u>. Each pool
   follows the aforementioned scheme, but with different parameters. </p>
 <p> For the random pool, we have: </p>
 <blockquote> <tt>percentage of account in random pool:&nbsp; 92.5%</tt><br>
@@ -2197,17 +2197,17 @@ not a tight-knit community; they have more external than internal email contacts
 <p> Note, all remote communication of the mail server is assumed to be at full
   network speed, hence the Mail Sink does not simulate any bandwidth limitation.&nbsp; </p>
 <h2> <a id="5.3." name="5.3."></a><font color="#000000">5.3. POP Retries</font> </h2>
-<p> POP users typically have set up their email client so that it performs periodic
-  mailbox checks after a defined interval. From the point of the mail server,
+<p> POP users typically have set up their email client so that<u> it performs periodic
+  mailbox checks after a defined interval.</u> From the point of the mail server,
   this generates a load on mailboxes which have recently been checked and which
-  in all likeliness are empty. Overall, the vast majority of POP sessions is
+  in all likeliness are empty.</u> Overall, the vast majority of POP sessions is
   logged as "empty", i.e. no messages are being downloaded. </p>
-<p> The main aspects of this load are that the mailboxes are typically empty,
-  and that they have recently been checked. Both aspects may have effects on
-  the mail server's efficiency to handle requests on these mailboxes. The
+<p> <u>The main aspects of this load are that the mailboxes are typically empty,
+  and that they have recently been checked.</u> Both aspects may have effects on
+  the mail server's efficiency to handle requests on these mailboxes. <u>The
   benchmark simulates this special load by setting aside a portion of the test
-  accounts (referred to as the "retry pool") for use by frequent repeat
-  checks, while performing exclusively "initial" POP checks against
+  accounts (referred to as the "retry pool</u>") for use by frequent <u>repeat
+  checks</u>, while performing exclusively "initial" POP checks against
   the remainder (the "random pool"). While not in line with what is
   going on in reality, it does implement the main aspects (typically empty accounts,
   recently checked), and it simplified the implementation since it did not introduce
@@ -2229,8 +2229,8 @@ not a tight-knit community; they have more external than internal email contacts
   is safely observed AND so that the size of the pool is appropriate for all
   three load levels (80/100/120%). Changing the retry pool size would mean disturbing
   the steady state of the mail server, therefore it needs to be avoided. For
-  the conforming parameter setting, 7.5% of the mailboxes will be assigned to
-  the retry pool, leaving 92.5% for the mainline operation. </p>
+  the conforming parameter setting, <u>7.5% of the mailboxes will be assigned to
+  the retry pool,</u> leaving <u>92.5% for the mainline operation.</u> </p>
 <p> On the SMTP side, there is no special consideration for the retry pool: messages
   are sent randomly against all test accounts without consideration for random
   vs. retry pools. While checking of Delivery Time is going on on a mailbox,
