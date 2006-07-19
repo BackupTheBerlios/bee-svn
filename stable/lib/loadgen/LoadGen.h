@@ -19,7 +19,7 @@ namespace LoadGen {
             config_t*   cfg_ ;
             sem_t*      sem_ ;
             Distribute::Smtp* smtpDistr;
-            Scheduler   cron ; // TODO
+            Scheduler   cron ;
     } ;
 
     class Pop3 {
@@ -35,7 +35,7 @@ namespace LoadGen {
             config_t*   cfg_ ;
             sem_t*      sem_ ;
             Distribute::Pop3* pop3Distr;
-            Scheduler   cron ; // TODO
+            Scheduler   cron ;
             unsigned short   xsubi_[3] ;
     } ;
 };

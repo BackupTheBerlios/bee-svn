@@ -90,14 +90,14 @@ Distribute::Smtp::mailFrom(int maxRcpt)
 
 
 
-// TODO: test
+
 Distribute::Pop3::Pop3( config_t* cfg )
 {
 	// pick random users for the retry_pool
 	// and sort the retry_pool array, so we can later
 	// perform a bin-search
     int k =0,c ;
-	for( int i=1; i< 100001 ;i+=13)
+	for( int i=1; i< 100001 ;i+=13) // TODO HARDCODED 100000 nb_users
 	{
 		int u = i+    (int)((double)rand()*14.0/RAND_MAX);
 		retry_pool[k++] = u ;

@@ -36,7 +36,7 @@ typedef struct config {
     int     pk_load_pct ;   // % of daily activities during busiest hour
     int     repeat_chk ;
     void*   ths ;           // LoadGen::Smtp
-    void*   pths ;          // LoadGen::Pop3 //TODO init it pls
+    void*   pths ;          // LoadGen::Pop3
     sockaddr_in* dest ;
     sockaddr_in* pdest ;    // pop3server resolved
     config() {    // default values

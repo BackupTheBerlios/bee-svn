@@ -12,11 +12,10 @@ string itoa( int a )
     return string(str) ;
 }
 
-// TODO: implement reporter for POP3
 /** Default constructor. ___*/
 Pop3::Protocol::Protocol()
 {
-    report_ = new Report::Pop3() ; //TODO: what is localhost meant for ?
+    report_ = new Report::Pop3() ;
     report_->timer( &timer_ ) ;
 }//_Pop3::Pop3::Protocol
 
@@ -226,13 +225,13 @@ Pop3::Protocol::user( const std::string& userName )
 }
 
 
-
-//TODO: userPrefix is hardcoded
+/*
+ * LIMIT: command line length is 512 chars */
     void
-Pop3::Protocol::user( const int idx )
+Pop3::Protocol::user( const char* prefix, const int idx )
 {
     char buf[512] ={0};
-    sprintf( buf, "USER user%i\r\n", idx );
+    sprintf( buf, "USER %s%i\r\n", prefix, idx );
     timer_.start() ;
     write( buf ) ;
     read( ) ;
@@ -243,12 +242,13 @@ Pop3::Protocol::user( const int idx )
 
 
 
-//TODO: userPrefix is hardcoded
+/*
+ * LIMIT: command line length is 512 chars */
     void
-Pop3::Protocol::pass( const int idx )
+Pop3::Protocol::pass( const char* prefix, const int idx )
 {
     char buf[512] ={0};
-    sprintf( buf, "PASS user%i\r\n", idx );
+    sprintf( buf, "PASS %s%i\r\n", prefix, idx );
     timer_.start() ;
     write( buf ) ;
     read( ) ;

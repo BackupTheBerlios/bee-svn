@@ -27,8 +27,8 @@ namespace Pop3 {
             void top( long int, long int ) ;
             void uidl( long int ) ;
             void user( const std::string& ) ;
-            void user( const int idx );
-            void pass( const int idx );
+            void user( const char* prefix, const int idx );
+            void pass( const char* prefix, const int idx );
         private:
             Timer   timer_ ;
             Report::Pop3*  report_ ;

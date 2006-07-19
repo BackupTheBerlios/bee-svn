@@ -57,7 +57,7 @@ Smtp::Protocol::read( )
         printf( "SMTP ERROR:>%s", Socket::resp_.c_str() ) ;
         return false ;
     }
-    report_->timer( &timer_ ) ; // TODO: why is this used like this ? set the timer which is read by the reporter
+    report_->timer( &timer_ ) ;     //set the timer which is read by the reporter
     return true ;
 }//* Smtp::Protocol::read
 
@@ -70,7 +70,7 @@ Smtp::Protocol::open( const char* h, const unsigned int p )
 {
     timer_.start() ;
     Socket::open( Socket::Family::Inet, Socket::Type::Stream, 0 ) ;
-    Socket::connect( h, p ) ;                                         //! @todo: see if SMTP can connect
+    Socket::connect( h, p ) ;       //TODO: ++errors. see if SMTP can connect
     read( ) ;// banner
     timer_.stop() ;
     report_->open( ) ;
@@ -83,7 +83,7 @@ Smtp::Protocol::open( sockaddr_in* dest )
 {
     timer_.start() ;
     Socket::open( Socket::Family::Inet, Socket::Type::Stream, 0 ) ;
-    Socket::connect( dest ) ;                                         //! @todo: see if SMTP can connect
+    Socket::connect( dest ) ;       //TODO: see if SMTP can connect
     read( ) ;// banner
     timer_.stop() ;
     report_->open( ) ;

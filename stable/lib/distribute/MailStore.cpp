@@ -40,7 +40,7 @@ MailStore::sendMails( const char* host, const int port, const int userIdx, const
     for( int i=0; i< quantity; ++i)
     {
         try {
-            smtp.open( host, port ); // TODO , get host:port from config.h
+            smtp.open( host, port );
             smtp.greet("ehlo cucu");
             smtp.mailFrom("<>");
             smtp.rcptTo( user ) ;

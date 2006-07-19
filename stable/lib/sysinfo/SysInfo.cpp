@@ -168,7 +168,7 @@ SysInfo::netRx( const char* iface, long int* bytes, long int* pkts )
     char*   loc =0;
     
     fh = open( fname, O_RDONLY ) ;
-    int br = read( fh, buf, bufsz ) ;    // TODO HERE
+    int br = read( fh, buf, bufsz ) ;
     if( !br || sizeof(buf) == br )
     {
         printf("trouble reading %s\n", fname ) ;
@@ -199,7 +199,7 @@ SysInfo::netTx( const char* iface, long int* bytes, long int* pkts )
     char*   loc =0;
     
     fh = open( fname, O_RDONLY ) ;
-    int br = read( fh, buf, bufsz ) ;    // TODO Replace x with a bufSize
+    int br = read( fh, buf, bufsz ) ;
     if( !br || sizeof(buf) == br )
     {
         printf("trouble reading %s\n", fname ) ;

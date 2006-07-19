@@ -65,15 +65,15 @@ LoadGen::Smtp::worker( void* a )
         sem_wait( ths->sem_ ) ;
         printf("pthread_self %u\n\n\n", pthread_self() ) ;
         int rcpts  = ths->smtpDistr->rcptTo( rcptList, p->users) ; //TODO HARDCODED 100( number of users ?
-        int usrIdx = ths->smtpDistr->mailFrom(p->users) ;             //TODO // call an exponential distribution here
-        int msg_sz = ths->smtpDistr->msgSize() ;                 //TODO HARDCODED 100( number of users ?
+        int usrIdx = ths->smtpDistr->mailFrom(p->users) ;          // call an exponential distribution here
+        int msg_sz = ths->smtpDistr->msgSize() ;                   //TODO HARDCODED 100( number of users ?
         try
         {   printf("host:%s port:%i\n", p->smtp_server, p->smtp_port );
             smtp.open( p->dest ) ;
             smtp.greet("ehlo cucu");
             smtp.mailFrom("user");
             smtp.rcptTo("user%i", usrIdx, "domain%i", usrIdx ) ;
-            smtp.rcptTo( rcpts, rcptList ) ;                //TODO
+            smtp.rcptTo( rcpts, rcptList ) ;
             smtp.randomData(msg_sz) ;
             smtp.quit();
         }catch(Socket::Exception& e )
@@ -193,7 +193,7 @@ LoadGen::Pop3::worker( void* a )
         sem_wait( ths->sem_ ) ;
         printf("pthread_self %u\n\n\n", pthread_self() ) ;
 
-        pct = erand48( ths->xsubi_);// pick this randomly, and use a CMF
+        pct = erand48( ths->xsubi_);
         if( pct<0.075 )
             user = ths->pop3Distr->retry_user() ;
         else
@@ -202,8 +202,8 @@ LoadGen::Pop3::worker( void* a )
         try {
             printf("host:%s port:%i\n", p->smtp_server, p->smtp_port );
             pop3.open( p->pdest ) ;
-            pop3.user( 1 ) ; // TODO
-            pop3.pass( 1 ) ; // TODO
+            pop3.user( p->user_prefix, user ) ;
+            pop3.pass( p->user_prefix, user ) ; // TODO. FTM, pass is the same as userName
             pop3.stat(&m, &s) ;
             while(m--) {
                 pop3.retr(m) ;
