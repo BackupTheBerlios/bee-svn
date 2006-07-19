@@ -1,7 +1,7 @@
 #if !defined _LOAD_GEN_H_
 #define _LOAD_GEN_H_
 #include "distribute/Distribute.h"
-#include "scheduler/Scheduler.h"
+#include "../scheduler/Scheduler.h"
 #include "../../structs.h"
 #include <pthread.h>
 
@@ -19,7 +19,7 @@ namespace LoadGen {
             config_t*   cfg_ ;
             sem_t*      sem_ ;
             Distribute::Smtp* smtpDistr;
-            Scheduler::Cron   cron ;
+            Scheduler   cron ; // TODO
     } ;
 
     class Pop3 {
@@ -35,7 +35,8 @@ namespace LoadGen {
             config_t*   cfg_ ;
             sem_t*      sem_ ;
             Distribute::Pop3* pop3Distr;
-            Scheduler::Cron   cron ;
+            Scheduler   cron ; // TODO
+            unsigned short   xsubi_[3] ;
     } ;
 };
 #endif // _LOAD_GEN_H_

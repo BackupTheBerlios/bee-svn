@@ -103,8 +103,8 @@ MailStore::init( const char* host, const int port, const int maxMbox, const int 
 {
     pthread_mutex_t mtx = PTHREAD_MUTEX_INITIALIZER; 
 
-    int         i ;
-    pthread_t   ta[threads] ;
+    int         i=0, rc=0, k=0 ;
+    pthread_t   ta[threads], t ;
     struct      dist_t tmp ;
 
     arg.mbi = 0 ;
@@ -116,9 +116,11 @@ MailStore::init( const char* host, const int port, const int maxMbox, const int 
 
     for( i = 0 ; i < threads ; ++i )
     {
-        pthread_create( &ta[i], NULL, fillMbox, (void*)&arg) ;
+        rc = pthread_create( &t, NULL, fillMbox, (void*)&arg) ;
+        if( rc == 0 ) ta[k++] = t ;
+        else printf( "Error creating thread %i\n", i ) ;
     }
-    for( i = 0 ; i < threads ; ++i )
+    for( i = 0 ; i < k ; ++i )
         pthread_join( ta[i], NULL ) ;
 
 

@@ -63,11 +63,6 @@ if ( $(JAM_TOOLSET) = MINGW )
 #    MainFromObjects $(<) : $(MY_OBJS) ;
 #}
 
-rule Test
-{
-    Valgrind $(<) ;
-}
-
 actions Tar_Gz
 {
     find . -name "\.svn" > Exclude

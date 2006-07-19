@@ -29,14 +29,16 @@ typedef struct config {
     int     msg_per_day ;
     int     pop_chk ;
     int     msg_size_avg ;
-    int     msg_distr ;   // average recipients per message
-    int     msg_rcvd ;   // average recipients per message
-    int     msg_local ;  // % of mail to/from remote addresses
-    int     rate_distr ;  // % of users using modems (56Kbit)
-    int     pk_load_pct ;  // % of daily activities during busiest hour
+    int     msg_distr ;     // average recipients per message
+    int     msg_rcvd ;      // average recipients per message
+    int     msg_local ;     // % of mail to/from remote addresses
+    int     rate_distr ;    // % of users using modems (56Kbit)
+    int     pk_load_pct ;   // % of daily activities during busiest hour
     int     repeat_chk ;
-    void*   ths ;
+    void*   ths ;           // LoadGen::Smtp
+    void*   pths ;          // LoadGen::Pop3 //TODO init it pls
     sockaddr_in* dest ;
+    sockaddr_in* pdest ;    // pop3server resolved
     config() {    // default values
        init_only    = 0;
        smtp_server  = "localhost" ;

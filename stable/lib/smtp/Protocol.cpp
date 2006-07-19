@@ -48,15 +48,16 @@ Smtp::Protocol::read( )
     #define BUF_LEN 2048
     int code ;
     char buffer[ BUF_LEN ] ;
-
+    timer_.start() ;
     Socket::read( buffer, BUF_LEN ) ;
+    timer_.stop() ;
     sscanf( Socket::resp_.c_str(), "%i", &code) ;
     if ( code>>7 == 3 )
     {
         printf( "SMTP ERROR:>%s", Socket::resp_.c_str() ) ;
         return false ;
     }
-    report_->timer( &timer_ ) ;
+    report_->timer( &timer_ ) ; // TODO: why is this used like this ? set the timer which is read by the reporter
     return true ;
 }//* Smtp::Protocol::read
 

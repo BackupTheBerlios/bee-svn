@@ -9,6 +9,8 @@
 #include <netdb.h>
 
 int usage( const char* prog ) ;
+void* runSmtp(void*);
+void* runPop3(void*);
 
     int
 main (int argc, char **argv)
@@ -132,7 +134,8 @@ main (int argc, char **argv)
         exit(0);
     }
 
-    // resolv smtpserver, into dest pointer
+
+    // smtpserver, into dest pointer
     sockaddr_in     dest ;  // man 7 ip
     struct hostent* host ;
 
@@ -140,34 +143,67 @@ main (int argc, char **argv)
     dest.sin_family = AF_INET ;
 
     host = gethostbyname( cfg.smtp_server ) ;//not thread safe?
-    if( !host ) return 2 ; 
+    if( !host ) return 2 ;
 
     memcpy( (char*)&dest.sin_addr, (char*)host->h_addr, host->h_length ) ;
     cfg.dest = &dest ;
 
+
+    // pop3server, into dtest pointer
+    sockaddr_in     pdest ;  // man 7 ip
+
+    pdest.sin_port   = htons( cfg.pop3_port ) ;
+    pdest.sin_family = AF_INET ;
+
+    host = gethostbyname( cfg.pop3_server ) ;//not thread safe?
+    if( !host ) return 2 ;
+
+    memcpy( (char*)&pdest.sin_addr, (char*)host->h_addr, host->h_length ) ;
+    cfg.pdest = &pdest ;
+
 /*
-    bench.cron.callback(tick) ;
     bench.run( 80,  is_filled ) ;
     bench.run( 100, is_filled ) ;
     bench.run( 120, is_filled ) ;
 */
+    int rc=0 ;
+    pthread_t smtp_thread, pop3_thread ;
 
-/*
-    LoadGen::Smtp smtpGen ;
-    smtpGen.init( &cfg ) ;
-    smtpGen.run( ) ;
-*/
+    rc = pthread_create( &smtp_thread, 0, runSmtp, (void*)&cfg ) ;
+    if( rc == 0 ) pthread_detach( smtp_thread ) ;
+    else { printf( "ERROR creating smtp_thread\n" ) ;  exit(2) ; }
 
-    LoadGen::Pop3 pop3Gen ;
-    pop3Gen.init( &cfg ) ;
-    pop3Gen.run( ) ;
+    rc = pthread_create( &pop3_thread, 0, runPop3, (void*)&cfg ) ;
+    if( rc == 0 ) pthread_join( pop3_thread,0 ) ;
+    else { printf( "ERROR creating pop3_thread\n" ) ; exit(2) ; }
+
 
     return 0;
 }
 
 
+void*
+runSmtp( void* a )
+{
+    printf("starting smtp_gen\n" ) ;
+    config_t* cfg = (config_t*) a ;
+    LoadGen::Smtp smtpGen ;
+    smtpGen.init( cfg ) ;
+    smtpGen.run( ) ;
+}
 
-int
+void*
+runPop3( void* a )
+{
+    printf("starting pop3_gen\n" ) ;
+    config_t* cfg = (config_t*) a ;
+    LoadGen::Pop3 pop3Gen ;
+    pop3Gen.init( cfg ) ;
+    pop3Gen.run( ) ;
+}
+
+
+    int
 usage(const char* app)
 {
     printf("Usage %s [OPTIONS]\n", app );

@@ -41,9 +41,9 @@ Distribute::Smtp::Smtp( const char rcpt_dat[], const char msgsz_dat[] )
 	for( int i=0;i<msg_d_.size();i++)
 		msg_cmf_[i] = s = msg_d_[i].pct + s;
 
-	xsubi_[0] = 0x1234 ^ 12;
-	xsubi_[1] = 0x5678 ^ (12 << 8);
-	xsubi_[2] = 0x9abc ^ ~12;
+	xsubi_[0] = (unsigned short)(0x1234 ^ 12);
+	xsubi_[1] = (unsigned short)(0x5678 ^ (12 << 8));
+	xsubi_[2] = (unsigned short)(0x9abc ^ ~12);
 
 }
 
@@ -90,18 +90,21 @@ Distribute::Smtp::mailFrom(int maxRcpt)
 
 
 
-
+// TODO: test
 Distribute::Pop3::Pop3( config_t* cfg )
 {
 	// pick random users for the retry_pool
 	// and sort the retry_pool array, so we can later
 	// perform a bin-search
-	for( int i=0; i< 7500 ;++i)
+    int k =0,c ;
+	for( int i=1; i< 100001 ;i+=13)
 	{
-		int u = (int)(random()*(1.0*100000)/RAND_MAX) + 1 ;
-		// TODO a sortedInsert here
-		retry_pool[i] = u ;
+		int u = i+    (int)((double)rand()*14.0/RAND_MAX);
+		retry_pool[k++] = u ;
+        printf("\t\tleft=%i\tu=%i\tright=%i\n", i,u, i+13 ) ;
 	}
+    for( k=0; k<7500; k++)
+        printf("retry user: %i\n", retry_pool[k] );
 }
 
 
@@ -111,7 +114,7 @@ Distribute::Pop3::~Pop3()
 
 
 
-/* 
+/*
  * Return a retry_pool user index.
  * 7500 ( which is 7.5% out of 100k users
  */

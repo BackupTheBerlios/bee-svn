@@ -5,7 +5,8 @@ SubDir TOP lib pop3 ;
 T_POP3_SRC =  t_pop3.cpp ;
 
 Main t_pop3 : $(T_POP3_SRC) ;
-LinkLibraries t_pop3 : libpop3 libsocket ;
+LinkLibraries t_pop3 : libpop3 libsocket libreport ;
 Library libpop3 : Protocol.cpp ;
 SubInclude TOP lib socket ;
+SubInclude TOP lib report ;
 # vim:ft=jam

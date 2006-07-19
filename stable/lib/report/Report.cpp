@@ -4,21 +4,21 @@
 
 Report::Smtp::Smtp()
 {
-    f = fopen("statistics.csv", "a");
-    if(!f) { fprintf(stderr, "cannot open statistics.csv. Exit\n");exit(2); }
-} 
+    f = fopen("timesmtp.csv", "a");
+    if(!f) { fprintf(stderr, "cannot open timesmtp.csv. Exit\n");exit(2); }
+}
 
 Report::Smtp::~Smtp()
 {
     fclose(f);
-} 
+}
 
 Report::Smtp::Smtp(const char* host)
 {
     // still to be implemented
     printf("host=%s\n", host ) ;
-    f = fopen("statistics.csv", "a");
-    if(!f) { fprintf(stderr, "cannot open statistics.csv. Exit\n");exit(2); }
+    f = fopen("timesmtp.csv", "a");
+    if(!f) { fprintf(stderr, "cannot open timesmtp.csv. Exit\n");exit(2); }
 }
 
 
@@ -67,4 +67,60 @@ void Report::Smtp::quit()
 void Report::Smtp::rset() 
 {
     fprintf(f, "%s,%f,%u\n", "rset", timer_->elapsed(), pthread_self() ) ;
+}
+
+
+//----------------POP3 section
+Report::Pop3::Pop3()
+{
+    f = fopen("timepop3.csv", "a");
+    if(!f) { fprintf(stderr, "cannot open timepop3.csv. Exit\n");exit(2); }
+}
+
+Report::Pop3::~Pop3()
+{
+    fclose(f);
+}
+/*
+Report::Pop3::Pop3(const char* host)
+{
+    // still to be implemented
+    printf("host=%s\n", host ) ;
+    f = fopen("timepop3.csv", "a");
+    if(!f) { fprintf(stderr, "cannot open timepop3.csv. Exit\n");exit(2); }
+}
+*/
+void Report::Pop3::open()
+{
+    fprintf(f, "%s,%f,%u\n", "open", timer_->elapsed(), pthread_self() ) ;
+}
+void
+Report::Pop3::user()
+{
+    fprintf(f, "%s,%f,%u\n", "user", timer_->elapsed(), pthread_self() ) ;
+}
+void
+Report::Pop3::pass()
+{
+    fprintf(f, "%s,%f,%u\n", "pass", timer_->elapsed(), pthread_self() ) ;
+}
+void
+Report::Pop3::stat()
+{
+    fprintf(f, "%s,%f,%u\n", "stat", timer_->elapsed(), pthread_self() ) ;
+}
+void
+Report::Pop3::retr()
+{
+    fprintf(f, "%s,%f,%u\n", "retr", timer_->elapsed(), pthread_self() ) ;
+}
+void
+Report::Pop3::dele()
+{
+    fprintf(f, "%s,%f,%u\n", "dele", timer_->elapsed(), pthread_self() ) ;
+}
+void
+Report::Pop3::quit()
+{
+    fprintf(f, "%s,%f,%u\n", "quit", timer_->elapsed(), pthread_self() ) ;
 }

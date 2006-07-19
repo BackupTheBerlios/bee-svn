@@ -3,6 +3,8 @@
 
 #include <socket/Socket.h>
 #include <string>
+#include "../report/Report.h"
+
 
 namespace Pop3 {
     class Protocol : public Socket {
@@ -12,6 +14,7 @@ namespace Pop3 {
             void write( const std::string& message) ;
             void read( ) ;
             void open ( const char* host, const int& port );
+            void open ( sockaddr_in* dest ) ;
             void apop(void) ;
             void dele( unsigned long int ) ;
             void list( long int ) ;
@@ -20,10 +23,15 @@ namespace Pop3 {
             void quit( void ) ;
             void retr( long int ) ;
             void rset( void ) ;
-            void stat( void ) ;
+            int  stat( int* mails, int* size ) ; // return the number of mails a user has in Inbox
             void top( long int, long int ) ;
             void uidl( long int ) ;
             void user( const std::string& ) ;
+            void user( const int idx );
+            void pass( const int idx );
+        private:
+            Timer   timer_ ;
+            Report::Pop3*  report_ ;
     };
 }
 

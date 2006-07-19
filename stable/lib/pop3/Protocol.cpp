@@ -12,10 +12,12 @@ string itoa( int a )
     return string(str) ;
 }
 
-
+// TODO: implement reporter for POP3
 /** Default constructor. ___*/
 Pop3::Protocol::Protocol()
 {
+    report_ = new Report::Pop3() ; //TODO: what is localhost meant for ?
+    report_->timer( &timer_ ) ;
 }//_Pop3::Pop3::Protocol
 
 
@@ -24,6 +26,7 @@ Pop3::Protocol::Protocol()
 /** Default destructor. ___*/
 Pop3::Protocol::~Protocol()
 {
+    delete report_ ;
 }//_Pop3::Protocol
 
 
@@ -31,10 +34,26 @@ Pop3::Protocol::~Protocol()
     void
 Pop3::Protocol::open( const char* host, const int& port)
 {
+    timer_.start() ;
     Socket::open ( Socket::Family::Inet, Socket::Type::Stream, 0);
     connect( host, port);
     read( );
+    timer_.stop() ;
+    report_->open() ;
 }//_Pop3::Protocol::open
+
+    void
+Pop3::Protocol::open(sockaddr_in* dest ) 
+{
+    timer_.start() ;
+    Socket::open ( Socket::Family::Inet, Socket::Type::Stream, 0);
+    connect(dest) ;
+    read( );
+    timer_.stop() ;
+    report_->open() ;
+}//_Pop3::Protocol::open
+
+
 
     void
 Pop3::Protocol::write( const std::string& message)
@@ -70,41 +89,61 @@ Pop3::Protocol::read()
     void
 Pop3::Protocol::apop( void )
 {
+    timer_.start() ;
     write( "APOP \r\n" ) ;
     read( ) ;
+    timer_.stop() ;
+    //report_->apop() ; // TODO
 }
 
     void
 Pop3::Protocol::dele( unsigned long int msgNo )
 {
+    timer_.start() ;
     write( "DELE "+itoa(msgNo)+"\r\n" ) ;
     read( ) ;
+    timer_.stop() ;
+    report_->dele() ;
 }
 
     void
 Pop3::Protocol::list( long int msgNo )
 {
     if( msgNo < 0 )
-    {   write( "LIST\r\n" ) ;
+    {
+        timer_.start() ;
+        write( "LIST\r\n" ) ;
         read( ) ; // receive one line only
+        timer_.stop() ;
+        //report_->list() ;//TODO
     }else
-    {   write( "LIST "+itoa(msgNo)+"\r\n" ) ;
+    {
+        timer_.start() ;
+        write( "LIST "+itoa(msgNo)+"\r\n" ) ;
         read( ) ; // receive a multi line message ( Ends with . )
+        timer_.stop() ;
+        //report_->list() ;//TODO
     }
 }
 
     void
 Pop3::Protocol::noop( void )
 {
+    timer_.start() ;
     write( "NOOP\r\n" ) ;
     read( ) ;
+    timer_.stop() ;
+    //report_->noop() ;//TODO
 }
 
     void
 Pop3::Protocol::pass( const std::string& passwd )
 {
+    timer_.start() ;
     write( "PASS "+passwd+"\r\n" ) ;
     read( ) ;
+    timer_.stop() ;
+    report_->pass() ;
 }
 
     void
@@ -117,46 +156,102 @@ Pop3::Protocol::quit( void )
     void
 Pop3::Protocol::retr( long int msgNo )
 {
+    timer_.start() ;
     write( "RETR "+itoa(msgNo)+"\r\n" ) ;
     read( ) ; // multiline response
+    timer_.stop() ;
+    report_->retr() ;
 }
 
     void
 Pop3::Protocol::rset( void )
 {
+    timer_.start() ;
     write( "RSET\r\n" ) ;
     read( ) ;
+    timer_.stop() ;
+    //report_->rset() ;//TODO
 }
 
-    void
-Pop3::Protocol::stat( void )
+    int
+Pop3::Protocol::stat( int* mails, int* size )
 {
+    timer_.start() ;
     write( "STAT\r\n" ) ;
-    read( ) ; //+OK number_of_mess maildrop_size(octets)
+    read( ) ;
+    timer_.stop() ;
+    report_->stat() ;
+    sscanf( resp_.c_str(), "+OK %i %i", mails, size ) ;
+    return 0 ;
 }
 
     void
 Pop3::Protocol::top( long int msgNo, long int n )
 {
+    timer_.start() ;
     write( "TOP "+itoa(msgNo)+" "+itoa(n)+"\r\n" ) ;
     read( ) ;// if no err is returned, expect a multinile response
+    timer_.stop() ;
+    //report_->top() ;//TODO
 }
 
     void
 Pop3::Protocol::uidl( long int msgNo )
 {
     if( msgNo <0 )
-    {   write( "UIDL\r\n" ) ;
+    {
+        timer_.start() ;
+        write( "UIDL\r\n" ) ;
         read( ) ; //multiline
+        timer_.stop() ;
+        //report_->uidl() ;//TODO
     }else // it can be = 0 ??
-    {   write( "UIDL "+itoa(msgNo)+"\r\n" ) ;
+    {
+        timer_.start() ;
+        write( "UIDL "+itoa(msgNo)+"\r\n" ) ;
         read( ) ; //single line. extract the UniqueID
+        timer_.stop() ;
+        //report_->uidl() ;//TODO
     }
 }
 
     void
 Pop3::Protocol::user( const std::string& userName )
 {
+    timer_.start() ;
     write( "USER "+userName+"\r\n" ) ;
     read( ) ;
+    timer_.stop() ;
+    report_->user() ;
+}
+
+
+
+//TODO: userPrefix is hardcoded
+    void
+Pop3::Protocol::user( const int idx )
+{
+    char buf[512] ={0};
+    sprintf( buf, "USER user%i\r\n", idx );
+    timer_.start() ;
+    write( buf ) ;
+    read( ) ;
+    timer_.stop() ;
+    report_->user() ;
+}
+
+
+
+
+//TODO: userPrefix is hardcoded
+    void
+Pop3::Protocol::pass( const int idx )
+{
+    char buf[512] ={0};
+    sprintf( buf, "PASS user%i\r\n", idx );
+    timer_.start() ;
+    write( buf ) ;
+    read( ) ;
+    timer_.stop() ;
+    report_->user() ;
 }
