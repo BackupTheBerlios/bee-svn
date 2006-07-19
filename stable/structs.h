@@ -17,7 +17,7 @@ typedef struct config {
     char*   user_passwd ;
     int     user_start ;
     int     user_end ;
-    int     init_rest ;
+    int     init_rest ;     // minutes to wait after mbox prepopulation
     int     threads ;
     int     clients ;
     int     span ;

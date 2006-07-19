@@ -19,33 +19,33 @@ main (int argc, char **argv)
     if( argc < 2 ) { usage(argv[0]); exit(1) ; }
 
     config_t cfg ;
-    int     idx=0, c=0 ;
-    int     option_index = 0;
+    int      idx=0, c=0 ;
+    int      option_index = 0;
 
     struct option long_options[] =
     {
         {"initonly"     , 0, &cfg.init_only, 1},
-        {"smtpserver"   , 1, 0, 2},
-        {"smtpport"     , 1, 0, 3},
-        {"pop3server"   , 1, 0, 4},
-        {"pop3port"     , 1, 0, 5},
-        {"sinkserver"   , 1, 0, 6},
-        {"sinkport"     , 1, 0, 7},
-        {"localdomain"  , 1, 0, 8},
-        {"remotedomain" , 1, 0, 9},
-        {"userprefix"   , 1, 0,10},
-        {"userpasswd"   , 1, 0,11},
-        {"userstart"    , 1, 0,12},
-        {"userend"      , 1, 0,13},
-        {"initrest"     , 1, 0,14},
-        {"threads"      , 1, 0,15},
-        {"clients"      , 1, 0,16},
-        {"span"         , 1, 0,17},
-        {"warmup"       , 1, 0,18},
-        {"rampdown"     , 1, 0,19},
-        {"users"        , 1, 0,20},
-        {"resolution"   , 1, 0,21},
-        {"repeatchk"    , 1, 0,22},
+        {"smtpserver"   , 1, 0, 2}, // DONE
+        {"smtpport"     , 1, 0, 3}, // DONE
+        {"pop3server"   , 1, 0, 4}, // DONE
+        {"pop3port"     , 1, 0, 5}, // DONE
+        {"sinkserver"   , 1, 0, 6}, // TODO
+        {"sinkport"     , 1, 0, 7}, // TODO
+        {"localdomain"  , 1, 0, 8}, // TODO
+        {"remotedomain" , 1, 0, 9}, // TODO
+        {"userprefix"   , 1, 0,10}, // TODO
+        {"userpasswd"   , 1, 0,11}, // TODO
+        {"userstart"    , 1, 0,12}, // ???
+        {"userend"      , 1, 0,13}, // ???
+        {"initrest"     , 1, 0,14}, // TODO
+        {"threads"      , 1, 0,15}, // ??? is this needed ?
+        {"clients"      , 1, 0,16}, // ???
+        {"span"         , 1, 0,17}, // DONE
+        {"warmup"       , 1, 0,18}, // TODO
+        {"rampdown"     , 1, 0,19}, // TODO
+        {"users"        , 1, 0,20}, // DONE
+        {"resolution"   , 1, 0,21}, // TODO
+        {"repeatchk"    , 1, 0,22}, // TODO
 
         {0, 0, 0, 0}
     };
@@ -60,11 +60,9 @@ main (int argc, char **argv)
                 usage(argv[0]) ;
                 exit(0) ;
             case 0:     // If this option set a flag, do nothing else now.
-                if (long_options[option_index].flag != 0)
-                    break;
+                if( long_options[option_index].flag != 0 ) break;
                 printf ("option %s", long_options[option_index].name);
-                if (optarg)
-                    printf (" with arg %s", optarg);
+                if( optarg ) printf (" with arg %s", optarg);
                 printf ("\n");
                 break;
             case 2:
@@ -78,6 +76,9 @@ main (int argc, char **argv)
                 break;
             case 5:
                 cfg.pop3_port   = atoi(optarg) ;
+                break;
+            case 14:
+                cfg.init_rest   = atoi(optarg) ;
                 break;
             case 15:
                 cfg.threads     = atoi(optarg) ;
@@ -106,7 +107,7 @@ main (int argc, char **argv)
                 if (isprint (optopt))
                     fprintf (stderr, "Unknown option `-%c'.\n", optopt);
                 else
-                    fprintf (stderr, "Unknown option character `\\x%x'.\n", optopt);
+                    fprintf (stderr, "Unknown option character `\\x%x'.\n", optopt );
                 usage(argv[0]) ;
                 exit(2) ;
             default:
@@ -118,6 +119,7 @@ main (int argc, char **argv)
         printf ("Non-argument %s\n", argv[idx]);
 
     // Pre-populez `users` mailBoxuri pe smtp_server:smtp_port folosind `nbThr` threaduri
+    // TODO: make this a function
     if( cfg.init_only )
     {
         if( !cfg.users || !cfg.smtp_port ){
@@ -129,6 +131,11 @@ main (int argc, char **argv)
         MailStore ms("./data/md.csv") ;
         ms.init( cfg.smtp_server, cfg.smtp_port, cfg.users, cfg.threads ) ;
         cfg.is_filled = true ;
+        if(cfg.init_rest)
+        {
+            printf("Wait %i minutes to let mails reach the storage.", cfg.init_rest ) ;
+            sleep(cfg.init_rest);
+        }
         exit(0);
     }
 
@@ -209,7 +216,8 @@ usage(const char* app)
     printf("\t-resolution sec\t\tResolution time\n" ) ;
     printf("\t-span sec\t\ttest Span in seconds\n" ) ;
     printf("\t-users users\t\tNumber of users on server\n" );
-    printf("\t-smtpserver\t\tThe host name of the SMTP server\n");
+    printf("\t-smtpserver host\t\tThe host name of the SMTP server\n");
+    printf("\t-initrest mins\t\tWait [mins] minutes after a populating the storage\n");
     printf("\t-smtpport\t\tThe host port number of the SMTP server\n");
     printf("\t-pop3server\t\thost name of the POP3 server\n");
     printf("\t-pop3port\t\tport number of the POP3 server\n");
