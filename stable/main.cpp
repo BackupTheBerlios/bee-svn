@@ -8,9 +8,10 @@
 #include "loadgen/LoadGen.h"
 #include <netdb.h>
 
-int usage( const char* prog ) ;
-void* runSmtp(void*);
-void* runPop3(void*);
+int     usage( const char* prog ) ;
+void*   runSmtp(void*);
+void*   runPop3(void*);
+
 
     int
 main (int argc, char **argv)
@@ -18,10 +19,7 @@ main (int argc, char **argv)
     if( argc < 2 ) { usage(argv[0]); exit(1) ; }
 
     config_t cfg ;
-    int     iflag=0, smtp_port=0, users=0, idx=0, c=0, nbThr=1, nbClt=1,res=1 ;
-    int     tSpan=0 ;
-    char*   smtp_server=0 ;
-    bool    is_filled=false ;
+    int     idx=0, c=0 ;
     int     option_index = 0;
 
     struct option long_options[] =
@@ -161,28 +159,25 @@ main (int argc, char **argv)
     memcpy( (char*)&pdest.sin_addr, (char*)host->h_addr, host->h_length ) ;
     cfg.pdest = &pdest ;
 
-/*
-    bench.run( 80,  is_filled ) ;
-    bench.run( 100, is_filled ) ;
-    bench.run( 120, is_filled ) ;
-*/
-    int rc=0 ;
+    // First try to start LoadGen::Smtp
+    int rc = 0 ;
     pthread_t smtp_thread, pop3_thread ;
 
     rc = pthread_create( &smtp_thread, 0, runSmtp, (void*)&cfg ) ;
     if( rc == 0 ) pthread_detach( smtp_thread ) ;
     else { printf( "ERROR creating smtp_thread\n" ) ;  exit(2) ; }
 
+    // Then start LoadGen::Pop3
     rc = pthread_create( &pop3_thread, 0, runPop3, (void*)&cfg ) ;
     if( rc == 0 ) pthread_join( pop3_thread,0 ) ;
     else { printf( "ERROR creating pop3_thread\n" ) ; exit(2) ; }
 
-
     return 0;
 }
 
+///
 
-void*
+    void*
 runSmtp( void* a )
 {
     printf("starting smtp_gen\n" ) ;
@@ -192,7 +187,7 @@ runSmtp( void* a )
     smtpGen.run( ) ;
 }
 
-void*
+    void*
 runPop3( void* a )
 {
     printf("starting pop3_gen\n" ) ;
