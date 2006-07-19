@@ -8,4 +8,7 @@
     <note priority="medium" time="1153366307">
         Test LoadGen::pop3 semaphors.
     </note>
+    <note priority="medium" time="1153366395">
+        Pop3::cron distributes the users exponentially. Should this be changed ?
+    </note>
 </todo>
