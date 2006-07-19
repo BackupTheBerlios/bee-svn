@@ -92,35 +92,35 @@ Report::Pop3::Pop3(const char* host)
 */
 void Report::Pop3::open()
 {
-    fprintf(f, "%s,%f,%u\n", "open", timer_->elapsed(), pthread_self() ) ;
+    fprintf(f, "%s,%f,%u\n", "popen", timer_->elapsed(), pthread_self() ) ;
 }
 void
 Report::Pop3::user()
 {
-    fprintf(f, "%s,%f,%u\n", "user", timer_->elapsed(), pthread_self() ) ;
+    fprintf(f, "%s,%f,%u\n", "puser", timer_->elapsed(), pthread_self() ) ;
 }
 void
 Report::Pop3::pass()
 {
-    fprintf(f, "%s,%f,%u\n", "pass", timer_->elapsed(), pthread_self() ) ;
+    fprintf(f, "%s,%f,%u\n", "ppass", timer_->elapsed(), pthread_self() ) ;
 }
 void
 Report::Pop3::stat()
 {
-    fprintf(f, "%s,%f,%u\n", "stat", timer_->elapsed(), pthread_self() ) ;
+    fprintf(f, "%s,%f,%u\n", "pstat", timer_->elapsed(), pthread_self() ) ;
 }
 void
 Report::Pop3::retr()
 {
-    fprintf(f, "%s,%f,%u\n", "retr", timer_->elapsed(), pthread_self() ) ;
+    fprintf(f, "%s,%f,%u\n", "pretr", timer_->elapsed(), pthread_self() ) ;
 }
 void
 Report::Pop3::dele()
 {
-    fprintf(f, "%s,%f,%u\n", "dele", timer_->elapsed(), pthread_self() ) ;
+    fprintf(f, "%s,%f,%u\n", "pdele", timer_->elapsed(), pthread_self() ) ;
 }
 void
 Report::Pop3::quit()
 {
-    fprintf(f, "%s,%f,%u\n", "quit", timer_->elapsed(), pthread_self() ) ;
+    fprintf(f, "%s,%f,%u\n", "pquit", timer_->elapsed(), pthread_self() ) ;
 }

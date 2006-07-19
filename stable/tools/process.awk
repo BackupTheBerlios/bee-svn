@@ -1,12 +1,18 @@
 #!/usr/bin/awk -f
-
+# Process only timesmtp.csv
+# TODO: process timepop3.csv
 
 BEGIN {
     FS = "," ;
     #print "Analizing data..." ;
     nb_cmd = 8 ;
+    nb_pcmd = 6 ;
     cnt[0] = 0 ;        # Just to know what variables are defined :)
     time[0] = 0.0 ;     # Just to know what variables are defined :)
+
+    pcnt[0] = 0 ;        # Just to know what variables are defined :)
+    ptime[0] = 0.0 ;     # Just to know what variables are defined :)
+    
     cmd[0] = "greet" ;
     cmd[1] = "mailFrom" ;
     cmd[2] = "rcptTo" ;
@@ -15,6 +21,13 @@ BEGIN {
     cmd[5] = "open" ;
     cmd[6] = "beginData" ;
     cmd[7] = "endData" ;
+    # POP3 commands have a p prefixed, so open becomes popen
+    pcmd[0] = "popen" ;
+    pcmd[1] = "puser";
+    pcmd[2] = "ppass";
+    pcmd[3] = "pdele";
+    pcmd[4] = "pretr";
+    pcmd[5] = "pstat";
 }
 
 {
@@ -25,6 +38,13 @@ BEGIN {
             if( $2 >time[i] ) { time[i] = $2 }
             break
         }
+        found = match($1, pcmd[i])
+        if( found ) {
+            pcnt[i]++
+            if( $2 >ptime[i] ) { ptime[i] = $2 }
+            break
+        }
+        
     }
 }
 
@@ -49,5 +69,9 @@ END {
     for( i=0; i< nb_cmd; i++ )
     {
         printf "Found %i of %s. Max time=%f\n",  cnt[i], cmd[i],time[i] ;
+    }
+    for( i=0; i< nb_pcmd; i++ )
+    {
+        printf "Found %i of %s. Max time=%f\n",  pcnt[i], pcmd[i], ptime[i] ;
     }
 }
