@@ -58,7 +58,7 @@ LoadGen::Smtp::worker( void* a )
     config_t* p = (config_t*) a ;
     ::Smtp::Protocol smtp ;
     LoadGen::Smtp* ths = (LoadGen::Smtp*) p->ths ;
-    int rcptList[100] ; // TODO: HARDCODED
+    int rcptList[100] ; // TODO: HARDCODED, See specMail
 
     while( 1 )
     {
@@ -78,7 +78,7 @@ LoadGen::Smtp::worker( void* a )
             smtp.quit();
         }catch(Socket::Exception& e )
         {
-            printf("ERROR:%s\n", e.what() ) ;// Smtp logs errors internally through report_
+            printf("ERROR reported:%s\n", e.what() ) ;
             smtp.close() ;
         }
     }
@@ -202,7 +202,7 @@ LoadGen::Pop3::worker( void* a )
             printf("host:%s port:%i\n", p->smtp_server, p->smtp_port );
             pop3.open( p->pdest ) ;
             pop3.user( p->user_prefix, user ) ;
-            pop3.pass( p->user_prefix, user ) ; // TODO. FTM, pass is the same as userName
+            pop3.pass( p->user_prefix, user ) ;
             pop3.stat(&m, &s) ;
             while(m--) {
                 pop3.retr(m) ;
@@ -211,9 +211,8 @@ LoadGen::Pop3::worker( void* a )
             pop3.quit() ;
         }catch(Socket::Exception& e )
         {
-            printf("ERROR:%s\n", e.what() ) ;
-            // TODO: ++errors
-            pop3.close() ;  // dont left the socket oppened
+            printf("ERROR reported:%s\n", e.what() ) ;
+            pop3.close() ;  // dont left the socket open
         }
     }
 }
