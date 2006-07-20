@@ -59,6 +59,8 @@ LoadGen::Smtp::worker( void* a )
     ::Smtp::Protocol smtp ;
     LoadGen::Smtp* ths = (LoadGen::Smtp*) p->ths ;
     int rcptList[32] ;
+    bool local, modem ;     // local== true if mail is sent to localUser
+                            // modem== true if mail is sent at modemSpeed
 
     while( 1 )
     {
@@ -67,18 +69,27 @@ LoadGen::Smtp::worker( void* a )
         int rcpts  = ths->smtpDistr->rcptTo( rcptList, p->users) ;
         int usrIdx = ths->smtpDistr->mailFrom(p->users) ;          // call an exponential distribution here
         int msg_sz = ths->smtpDistr->msgSize() ;
+        type = erand48(xsubi_) ;
+        if( type <= 0.473 )
+            local = false ;
+        if( type > 0.473 )
+            local = true ;
+        speed = erand48(xsubi_) ;
+        if( speed <= 0.421 )
+            modem = true ;
+
         try
         {   printf("host:%s port:%i\n", p->smtp_server, p->smtp_port );
             smtp.open( p->dest ) ;
             smtp.greet("ehlo cucu");
-            smtp.mailFrom("user"); // TODO does specmail says smth abt this ?
+            smtp.mailFrom("<>"); // TODO does specmail says smth abt this ?
             // if() { local_user() } else {remote_user() }
-            smtp.rcptTo( rcpts, rcptList ) ; // TODO add domain parameter
+            smtp.rcptTo( rcpts, rcptList, local ) ; // TODO add domain parameter
             smtp.randomData(msg_sz) ;
             smtp.quit();
         }catch(Socket::Exception& e )
         {
-            printf("ERROR reported %s\n", e.what() ) ;
+            printf("SMTP SocketError :%s\n", e.what() ) ;
             smtp.close() ;
         }
     }
@@ -103,7 +114,7 @@ LoadGen::Smtp::stop()
 
 
 
-    throw ReportEx("popen");
+//    throw ReportEx("popen");
 
 
 
@@ -216,11 +227,11 @@ LoadGen::Pop3::worker( void* a )
             pop3.quit() ;
         }catch(Socket::Exception& e )
         {
-            printf("ERROR reported:%s\n", e.what() ) ;
+            printf("POP3 SocketError :%s\n", e.what() ) ;
             pop3.close() ;  // dont left the socket open
         }catch(ReportEx& e )
         {
-            printf("POP3 ERROR %s\n", e.what ) ;
+            printf("POP3 ProtocolError :%s\n", e.what() ) ;
             pop3.quit() ;
         }
 
