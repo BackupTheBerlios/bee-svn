@@ -14,6 +14,12 @@
     <note priority="medium" time="1153366463" done="1153366468">
         
     </note>
+    <note priority="medium" time="1153380229" done="1153383852">
+        implement error reporting for pop3.
+        <comment>
+            done
+        </comment>
+    </note>
     <note priority="veryhigh" time="1153366457">
         Use localdomain and remotedomain.
     </note>
@@ -26,13 +32,10 @@
     <note priority="medium" time="1153366307">
         Test LoadGen::pop3 semaphors.
     </note>
-    <note priority="medium" time="1153366395">
+    <note priority="medium" time="1153366395" done="1153384246">
         Pop3::cron distributes the users exponentially. Should this be changed ?
-    </note>
-    <note priority="medium" time="1153380229" done="1153383852">
-        implement error reporting for pop3.
         <comment>
-            done
+            The specmail guy says it's ok
         </comment>
     </note>
 </todo>
