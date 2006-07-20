@@ -4,15 +4,17 @@
 
 BEGIN {
     FS = "," ;
-    #print "Analizing data..." ;
+
     nb_cmd = 8 ;
-    nb_pcmd = 6 ;
     cnt[0] = 0 ;        # Just to know what variables are defined :)
+    err_cnt[0] = 0 ;        # Just to know what variables are defined :)
     time[0] = 0.0 ;     # Just to know what variables are defined :)
 
+    nb_pcmd = 6 ;
     pcnt[0] = 0 ;        # Just to know what variables are defined :)
+    err_pcnt[0] = 0 ;        # Just to know what variables are defined :)
     ptime[0] = 0.0 ;     # Just to know what variables are defined :)
-    
+
     cmd[0] = "greet" ;
     cmd[1] = "mailFrom" ;
     cmd[2] = "rcptTo" ;
@@ -21,6 +23,16 @@ BEGIN {
     cmd[5] = "open" ;
     cmd[6] = "beginData" ;
     cmd[7] = "endData" ;
+    # logging errors
+    err_cmd[0] = "ERRgreet" ;
+    err_cmd[1] = "ERRmailFrom" ;
+    err_cmd[2] = "ERRrcptTo" ;
+    err_cmd[3] = "ERRdata" ;
+    err_cmd[4] = "ERRquit" ;
+    err_cmd[5] = "ERRopen" ;
+    err_cmd[6] = "ERRbeginData" ;
+    err_cmd[7] = "ERRendData" ;
+
     # POP3 commands have a p prefixed, so open becomes popen
     pcmd[0] = "popen" ;
     pcmd[1] = "puser";
@@ -28,6 +40,13 @@ BEGIN {
     pcmd[3] = "pdele";
     pcmd[4] = "pretr";
     pcmd[5] = "pstat";
+    # logging pop3 error
+    err_pcmd[0] = "ERRpopen" ;
+    err_pcmd[1] = "ERRpuser";
+    err_pcmd[2] = "ERRppass";
+    err_pcmd[3] = "ERRpdele";
+    err_pcmd[4] = "ERRpretr";
+    err_pcmd[5] = "ERRpstat";
 }
 
 {
@@ -38,13 +57,23 @@ BEGIN {
             if( $2 >time[i] ) { time[i] = $2 }
             break
         }
+        found = match($1, err_cmd[i])
+        if( found ) {
+            err_cnt[i]++
+            break
+        }
+        
         found = match($1, pcmd[i])
         if( found ) {
             pcnt[i]++
             if( $2 >ptime[i] ) { ptime[i] = $2 }
             break
         }
-        
+        found = match($1, err_pcmd[i])
+        if( found ) {
+            err_pcnt[i]++
+            break
+        }
     }
 }
 
