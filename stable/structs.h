@@ -2,6 +2,19 @@
 #define _STRUCTS_H_
 
 #include <netinet/in.h>
+#include <stdexcept>
+class ReportEx :public std::runtime_error {
+    public:
+        ReportEx() : std::runtime_error("report" )
+        {
+        };
+
+        ReportEx(const char* ex) : std::runtime_error(ex)
+        {
+        };
+};
+
+
 
 typedef struct config {
     int     init_only ;

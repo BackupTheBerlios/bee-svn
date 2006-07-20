@@ -1,6 +1,7 @@
 #include "Report.h"
 #include <cstdlib>
 #include <pthread.h>
+#include "../../structs.h"
 
 Report::Smtp::Smtp()
 {
@@ -185,34 +186,41 @@ Report::Pop3::quit()
 void Report::Pop3::openErr()
 {
     fprintf(f, "ERR%s,%f,%u\n", "popen", timer_->elapsed(), pthread_self() ) ;
+    throw ReportEx("Pop::open");
 }
 void
 Report::Pop3::userErr()
 {
     fprintf(f, "ERR%s,%f,%u\n", "puser", timer_->elapsed(), pthread_self() ) ;
+    throw ReportEx("Pop::user");
 }
 void
 Report::Pop3::passErr()
 {
     fprintf(f, "ERR%s,%f,%u\n", "ppass", timer_->elapsed(), pthread_self() ) ;
+    throw ReportEx("Pop::pass");
 }
 void
 Report::Pop3::statErr()
 {
     fprintf(f, "ERR%s,%f,%u\n", "pstat", timer_->elapsed(), pthread_self() ) ;
+    throw ReportEx("Pop::stat");
 }
 void
 Report::Pop3::retrErr()
 {
     fprintf(f, "ERR%s,%f,%u\n", "pretr", timer_->elapsed(), pthread_self() ) ;
+    throw ReportEx("Pop::retr");
 }
 void
 Report::Pop3::deleErr()
 {
     fprintf(f, "ERR%s,%f,%u\n", "pdele", timer_->elapsed(), pthread_self() ) ;
+    throw ReportEx("Pop::dele");
 }
 void
 Report::Pop3::quitErr()
 {
     fprintf(f, "ERR%s,%f,%u\n", "pquit", timer_->elapsed(), pthread_self() ) ;
+    throw ReportEx("Pop::quit");
 }

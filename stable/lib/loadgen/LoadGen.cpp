@@ -78,7 +78,7 @@ LoadGen::Smtp::worker( void* a )
             smtp.quit();
         }catch(Socket::Exception& e )
         {
-            printf("ERROR reported\n" ) ;
+            printf("ERROR reported %s\n", e.what() ) ;
             smtp.close() ;
         }
     }
@@ -100,6 +100,10 @@ LoadGen::Smtp::stop()
 
 
 
+
+
+
+    throw ReportEx("popen");
 
 
 
@@ -204,6 +208,7 @@ LoadGen::Pop3::worker( void* a )
             pop3.user( p->user_prefix, user ) ;
             pop3.pass( p->user_prefix, user ) ;
             pop3.stat(&m, &s) ;
+            printf("MESSAGES:%i\n", m) ;
             while(m--) {
                 pop3.retr(m) ;
                 pop3.dele(m) ;
@@ -213,7 +218,12 @@ LoadGen::Pop3::worker( void* a )
         {
             printf("ERROR reported:%s\n", e.what() ) ;
             pop3.close() ;  // dont left the socket open
+        }catch(ReportEx& e )
+        {
+            printf("POP3 ERROR %s\n", e.what ) ;
+            pop3.quit() ;
         }
+
     }
 }
 

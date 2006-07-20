@@ -116,15 +116,6 @@ Pop3::Protocol::apop( void )
     //report_->apop() ; // TODO
 }
 
-    void
-Pop3::Protocol::dele( unsigned long int msgNo )
-{
-    timer_.start() ;
-    write( "DELE "+itoa(msgNo)+"\r\n" ) ;
-    read( ) ;
-    timer_.stop() ;
-    report_->dele() ;
-}
 
     void
 Pop3::Protocol::list( long int msgNo )
@@ -176,11 +167,25 @@ Pop3::Protocol::quit( void )
     void
 Pop3::Protocol::retr( long int msgNo )
 {
+    char buf[512];
+    sprintf( buf, "RETR %lu\r\n", msgNo ) ;
     timer_.start() ;
-    write( "RETR "+itoa(msgNo)+"\r\n" ) ;
+    write( buf ) ;
     if(!read()) report_->retrErr() ; // multiline response
     timer_.stop() ;
     report_->retr() ;
+}
+
+    void
+Pop3::Protocol::dele( unsigned long int msgNo )
+{
+    char buf[512] ;
+    sprintf( buf, "DELE %lu\r\n", msgNo ) ;
+    timer_.start() ;
+    write( buf ) ;
+    read( ) ;
+    timer_.stop() ;
+    report_->dele() ;
 }
 
     void
@@ -198,10 +203,10 @@ Pop3::Protocol::stat( int* mails, int* size )
 {
     timer_.start() ;
     write( "STAT\r\n" ) ;
-    if(!read() ) report_->statErr();
+    if(!read() ) { report_->statErr(); return 1; }
     timer_.stop() ;
     report_->stat() ;
-    sscanf( resp_.c_str(), "+OK %i %i", mails, size ) ;
+    sscanf( resp_.c_str(), "+OK %u %u", mails, size ) ;
     return 0 ;
 }
 
