@@ -7,6 +7,9 @@
 #include "distribute/MailStore.h"
 #include "loadgen/LoadGen.h"
 #include <netdb.h>
+       #include <sys/types.h>
+       #include <sys/wait.h>
+
 
 int     usage( const char* prog ) ;
 void*   runSmtp(void*);
@@ -166,19 +169,67 @@ main (int argc, char **argv)
     memcpy( (char*)&pdest.sin_addr, (char*)host->h_addr, host->h_length ) ;
     cfg.pdest = &pdest ;
 
-    // First try to start LoadGen::Smtp
+
+    pid_t spid, ppid;
+    spid = fork();
+    //ppid = fork();
     int rc = 0 ;
+    int status ;
+    
+
+    if (spid >= 0 ) /* fork succeeded */
+    {
+        if (spid == 0  ) /* fork() returns 0 to the child process */
+        {
+            printf("CHILD: I am the child process!\n");
+            printf("CHILD: Here's my PID: %d\n", getpid());
+            printf("CHILD: My parent's PID is: %d\n", getppid());
+            printf("CHILD: The value of my copy of spid is: %d\n", spid);
+            printf("CHILD: Sleeping for 1 second...\n");
+            ppid = fork() ;
+            if( ppid >= 0 )
+            {
+                if(ppid==0)runPop3(&cfg);
+            }
+            runSmtp(&cfg);
+            printf("CHILD: Enter an exit value (0 to 255): ");
+            scanf(" %d", &rc);
+            printf("CHILD: Goodbye!\n");    
+            exit(rc); /* child exits with user-provided return code */
+        }
+        else /* fork() returns new pid to the parent process */
+        {
+            printf("PARENT: I am the parent process!\n");
+            printf("PARENT: Here's my PID: %d\n", getpid());
+            printf("PARENT: The value of my copy of spid is %d\n", spid);
+            printf("PARENT: I will now wait for my child to exit.\n");
+            wait(&status); /* wait for child to exit, and store its status */
+            //waitpid(-1, &status, 0);
+            printf("PARENT: Child's exit code is: %d\n", WEXITSTATUS(status));
+            printf("PARENT: Goodbye!\n");             
+            exit(0);  /* parent exits */       
+        }
+    }
+    else /* fork returns -1 on failure */
+    {
+        perror("fork"); /* display error message */
+        exit(0); 
+    }
+    
+    // First try to start LoadGen::Smtp
+#if 0
     pthread_t smtp_thread, pop3_thread ;
 
     rc = pthread_create( &smtp_thread, 0, runSmtp, (void*)&cfg ) ;
-    if( rc == 0 ) pthread_detach( smtp_thread ) ;
+    if( rc == 0 ) pthread_detach( smtp_thread) ;
     else { printf( "ERROR creating smtp_thread\n" ) ;  exit(2) ; }
 
     // Then start LoadGen::Pop3
     rc = pthread_create( &pop3_thread, 0, runPop3, (void*)&cfg ) ;
-    if( rc == 0 ) pthread_join( pop3_thread,0 ) ;
+    if( rc == 0 ) pthread_detach( pop3_thread) ;
     else { printf( "ERROR creating pop3_thread\n" ) ; exit(2) ; }
-
+#endif
+    sleep(10);
     return 0;
 }
 

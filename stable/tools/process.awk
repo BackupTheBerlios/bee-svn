@@ -55,24 +55,20 @@ BEGIN {
         if( found ) {
             cnt[i]++
             if( $2 >time[i] ) { time[i] = $2 }
-            break
         }
         found = match($1, err_cmd[i])
         if( found ) {
             err_cnt[i]++
-            break
         }
         
         found = match($1, pcmd[i])
         if( found ) {
             pcnt[i]++
             if( $2 >ptime[i] ) { ptime[i] = $2 }
-            break
         }
         found = match($1, err_pcmd[i])
         if( found ) {
             err_pcnt[i]++
-            break
         }
     }
 }
@@ -102,5 +98,6 @@ END {
     for( i=0; i< nb_pcmd; i++ )
     {
         printf "Found %i of %s. Max time=%f\n",  pcnt[i], pcmd[i], ptime[i] ;
+        printf "ERRORS %i errors on %s\n", err_pcnt[i], pcmd[i] ;
     }
 }

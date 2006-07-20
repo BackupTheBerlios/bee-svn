@@ -78,7 +78,7 @@ LoadGen::Smtp::worker( void* a )
             smtp.quit();
         }catch(Socket::Exception& e )
         {
-            printf("ERROR reported:%s\n", e.what() ) ;
+            printf("ERROR reported\n" ) ;
             smtp.close() ;
         }
     }

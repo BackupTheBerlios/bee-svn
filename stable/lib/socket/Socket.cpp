@@ -135,7 +135,7 @@ void
 Socket::connect( sockaddr_in* dest )
 {
     int rval = ::connect( sock_, (sockaddr*)dest, sizeof(sockaddr_in) ) ;
-    if( rval < 0 ) throw Socket::Exception( strerror(errno) ) ;
+    if( rval < 0 ) throw Socket::Exception("Cannot connect" ) ;
     is_conn_ = true ;
 }
 

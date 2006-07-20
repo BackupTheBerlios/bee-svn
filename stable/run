@@ -1,1 +1,1 @@
-./main -threads 100 -users 100 -smtpport 25 -pop3port 110 -smtpserver gigi -pop3server gigi -span 10 &>log
+./main -threads 100 -users 100 -smtpport 25 -pop3port 110 -smtpserver gigi -pop3server gigi -span 60
