@@ -19,6 +19,14 @@ namespace Report {
             void endData() ;
             void quit() ;
             void rset() ;
+            void openErr() ;
+            void greetErr() ;
+            void mailFromErr() ;
+            void rcptToErr() ;
+            void beginDataErr() ;
+            void endDataErr() ;
+            void quitErr() ;
+            void rsetErr() ;
         private:
             Timer* timer_ ;
             int    session_ ;

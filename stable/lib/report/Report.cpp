@@ -22,52 +22,105 @@ Report::Smtp::Smtp(const char* host)
 }
 
 
-void Report::Smtp::open() 
+void Report::Smtp::open()
 {
     fprintf(f, "%s,%f,%u\n", "open", timer_->elapsed(), pthread_self() ) ;
 }
 
 
-void Report::Smtp::greet() 
+void Report::Smtp::greet()
 {
     fprintf(f, "%s,%f,%u\n", "greet", timer_->elapsed(), pthread_self() ) ;
 }
 
 
-void Report::Smtp::mailFrom() 
+void Report::Smtp::mailFrom()
 {
     fprintf(f, "%s,%f,%u\n", "mailFrom", timer_->elapsed(), pthread_self() ) ;
 }
 
 
-void Report::Smtp::rcptTo() 
+void Report::Smtp::rcptTo()
 {
     fprintf(f, "%s,%f,%u\n", "rcptTo", timer_->elapsed(), pthread_self() ) ;
 }
 
 
-void Report::Smtp::beginData() 
+void Report::Smtp::beginData()
 {
     fprintf(f, "%s,%f,%u\n", "beginData", timer_->elapsed(), pthread_self() ) ;
 }
 
 
-void Report::Smtp::endData() 
+void Report::Smtp::endData()
 {
     fprintf(f, "%s,%f,%u\n", "endData", timer_->elapsed(), pthread_self() ) ;
 }
 
 
-void Report::Smtp::quit() 
+void Report::Smtp::quit()
 {
     fprintf(f, "%s,%f,%u\n", "quit", timer_->elapsed(), pthread_self() ) ;
 }
 
 
-void Report::Smtp::rset() 
+void Report::Smtp::rset()
 {
     fprintf(f, "%s,%f,%u\n", "rset", timer_->elapsed(), pthread_self() ) ;
 }
+
+
+// Err reporting function
+
+void Report::Smtp::openErr()
+{
+    fprintf(f, "ERR%s,%f,%u\n", "open", timer_->elapsed(), pthread_self() ) ;
+}
+
+
+void Report::Smtp::greetErr()
+{
+    fprintf(f, "ERR%s,%f,%u\n", "greet", timer_->elapsed(), pthread_self() ) ;
+}
+
+
+void Report::Smtp::mailFromErr()
+{
+    fprintf(f, "ERR%s,%f,%u\n", "mailFrom", timer_->elapsed(), pthread_self() ) ;
+}
+
+
+void Report::Smtp::rcptToErr()
+{
+    fprintf(f, "ERR%s,%f,%u\n", "rcptTo", timer_->elapsed(), pthread_self() ) ;
+}
+
+
+void Report::Smtp::beginDataErr()
+{
+    fprintf(f, "ERR%s,%f,%u\n", "beginData", timer_->elapsed(), pthread_self() ) ;
+}
+
+
+void Report::Smtp::endDataErr()
+{
+    fprintf(f, "ERR%s,%f,%u\n", "endData", timer_->elapsed(), pthread_self() ) ;
+}
+
+
+void Report::Smtp::quitErr()
+{
+    fprintf(f, "ERR%s,%f,%u\n", "quit", timer_->elapsed(), pthread_self() ) ;
+}
+
+
+void Report::Smtp::rsetErr()
+{
+    fprintf(f, "ERR%s,%f,%u\n", "rset", timer_->elapsed(), pthread_self() ) ;
+}
+
+
+
 
 
 //----------------POP3 section
