@@ -5,10 +5,22 @@
             Done
         </comment>
     </note>
+    <note priority="high" time="1153366319" done="1153396528">
+        Implement a mail-sink.
+        <comment>
+            Sink implemented
+        </comment>
+    </note>
     <note priority="high" time="1153397738" done="1153383816">
         make process.awk count the errors too(smtp and pop3)
         <comment>
             done
+        </comment>
+    </note>
+    <note priority="medium" time="1153366395" done="1153384246">
+        Pop3::cron distributes the users exponentially. Should this be changed ?
+        <comment>
+            The specmail guy says it's ok
         </comment>
     </note>
     <note priority="medium" time="1153366463" done="1153366468">
@@ -23,19 +35,13 @@
     <note priority="veryhigh" time="1153366457">
         Use localdomain and remotedomain.
     </note>
-    <note priority="high" time="1153366319">
-        Implement a mail-sink.
-    </note>
     <note priority="high" time="1153366427">
         Implement/Study repeatChk.
     </note>
+    <note priority="high" time="1153396551">
+        Count the messages received by mailsink
+    </note>
     <note priority="medium" time="1153366307">
         Test LoadGen::pop3 semaphors.
-    </note>
-    <note priority="medium" time="1153366395" done="1153384246">
-        Pop3::cron distributes the users exponentially. Should this be changed ?
-        <comment>
-            The specmail guy says it's ok
-        </comment>
     </note>
 </todo>

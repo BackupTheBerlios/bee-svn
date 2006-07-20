@@ -9,7 +9,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 
-void dostuff(int); /* function prototype */
+void dostuff(int, FILE*); /* function prototype */
 void error(char *msg)
 {
     perror(msg);
@@ -21,6 +21,8 @@ int main(int argc, char *argv[])
     int sockfd, newsockfd, portno, clilen, pid;
     struct sockaddr_in serv_addr, cli_addr;
     int opt,val;
+    FILE* f = fopen("concount.txt", "w" ) ;
+    if(!f){ printf("cant open concount.txt\n"); exit(2); }
 
     if (argc < 2) {
         fprintf(stderr,"ERROR, no port provided\n");
@@ -53,7 +55,8 @@ int main(int argc, char *argv[])
             error("ERROR on fork");
         if (pid == 0)  {
             close(sockfd);
-            dostuff(newsockfd);
+            dostuff(newsockfd, f);
+            fclose(f);
             exit(0);
         }
         else close(newsockfd);
@@ -66,7 +69,7 @@ int main(int argc, char *argv[])
   for each connection.  It handles all communication
   once a connnection has been established.
  *****************************************/
-void dostuff (int sock)
+void dostuff (int sock, FILE* f)
 {
     int n;
     char buffer[256];
@@ -115,6 +118,8 @@ void dostuff (int sock)
 		if(strstr( buffer, "\r\n.\r\n")) break;
             }while(1) ;
             printf("got all data, moving on\n");
+            fprintf(f,"%i", 1) ;
+            // Log that all went ok, and count at the end of test
             n= write( sock, "250 OK\r\n",8 ) ;
             if (n < 0) { error("ERROR writing to socket"); ok=0; }
             continue;
