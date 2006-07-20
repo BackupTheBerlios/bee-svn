@@ -60,7 +60,7 @@ LoadGen::Smtp::worker( void* a )
     LoadGen::Smtp* ths = (LoadGen::Smtp*) p->ths ;
     int rcptList[100] ; // TODO: HARDCODED
 
-    while( 1 ) 
+    while( 1 )
     {
         sem_wait( ths->sem_ ) ;
         printf("pthread_self %u\n\n\n", pthread_self() ) ;
@@ -71,15 +71,14 @@ LoadGen::Smtp::worker( void* a )
         {   printf("host:%s port:%i\n", p->smtp_server, p->smtp_port );
             smtp.open( p->dest ) ;
             smtp.greet("ehlo cucu");
-            smtp.mailFrom("user");
-            smtp.rcptTo("user%i", usrIdx, "domain%i", usrIdx ) ;
-            smtp.rcptTo( rcpts, rcptList ) ;
+            smtp.mailFrom("user"); // TODO does specmail says smth abt this ?
+            // if() { local_user() } else {remote_user() }
+            smtp.rcptTo( rcpts, rcptList ) ; // TODO add domain parameter
             smtp.randomData(msg_sz) ;
             smtp.quit();
         }catch(Socket::Exception& e )
         {
-            printf("ERROR:%s\n", e.what() ) ;
-            // TODO: ++errors ;
+            printf("ERROR:%s\n", e.what() ) ;// Smtp logs errors internally through report_
             smtp.close() ;
         }
     }
