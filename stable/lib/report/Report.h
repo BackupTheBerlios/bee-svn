@@ -45,6 +45,14 @@ namespace Report {
             void retr() ;
             void dele() ;
             void quit() ;
+            void openErr() ;
+            void userErr() ;
+            void passErr() ;
+            void statErr() ;
+            void retrErr() ;
+            void topErr() ;
+            void deleErr() ;
+            void quitErr() ;
         private:
             Timer* timer_ ;
             int    session_ ;

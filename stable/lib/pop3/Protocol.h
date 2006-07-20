@@ -12,7 +12,7 @@ namespace Pop3 {
             Protocol();
             ~Protocol();
             void write( const std::string& message) ;
-            void read( ) ;
+            bool read( ) ;
             void open ( const char* host, const int& port );
             void open ( sockaddr_in* dest ) ;
             void apop(void) ;

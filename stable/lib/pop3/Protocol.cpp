@@ -28,40 +28,7 @@ Pop3::Protocol::~Protocol()
     delete report_ ;
 }//_Pop3::Protocol
 
-
-
-    void
-Pop3::Protocol::open( const char* host, const int& port)
-{
-    timer_.start() ;
-    Socket::open ( Socket::Family::Inet, Socket::Type::Stream, 0);
-    connect( host, port);
-    read( );
-    timer_.stop() ;
-    report_->open() ;
-}//_Pop3::Protocol::open
-
-    void
-Pop3::Protocol::open(sockaddr_in* dest ) 
-{
-    timer_.start() ;
-    Socket::open ( Socket::Family::Inet, Socket::Type::Stream, 0);
-    connect(dest) ;
-    read( );
-    timer_.stop() ;
-    report_->open() ;
-}//_Pop3::Protocol::open
-
-
-
-    void
-Pop3::Protocol::write( const std::string& message)
-{
-    cout <<message <<endl;//debug
-    Socket::write( message ) ;
-}
-
-    void
+    bool
 Pop3::Protocol::read()
 {
 #define BUF_LEN 2048
@@ -75,14 +42,68 @@ Pop3::Protocol::read()
 
         if(resp_.find( "+OK ",0) != string::npos)
         {   printf("-OK\n" ) ;
-            return ;
+            return true;
         }
         if(resp_.find("-ERR ",0) != string::npos)
         {   printf("ERROR\n") ;
-            return ;
+            return false;
         }
     }
 }
+/*
+    bool
+Pop3::Protocol::read( )
+{
+    #define BUF_LEN 2048
+    char code[8] ;
+    char buffer[ BUF_LEN ] ;
+    timer_.start() ;
+    Socket::read( buffer, BUF_LEN ) ;
+    timer_.stop() ;
+    sscanf( Socket::resp_.c_str(), "%s ", code) ;
+    if ( strcmp(code, "-ERR") )
+    {
+        printf( "POP3 ERROR:>%s", Socket::resp_.c_str() ) ;
+        return false ; // This return false, I should throw an error ?
+    }
+    report_->timer( &timer_ ) ;     //set the timer which is read by the reporter
+    return true ;
+}//* Smtp::Protocol::read
+*/
+
+
+
+    void
+Pop3::Protocol::open( const char* host, const int& port)
+{
+    timer_.start() ;
+    Socket::open ( Socket::Family::Inet, Socket::Type::Stream, 0);
+    connect( host, port);
+    if(!read()) report_->openErr();
+    timer_.stop() ;
+    report_->open() ;
+}//_Pop3::Protocol::open
+
+    void
+Pop3::Protocol::open(sockaddr_in* dest ) 
+{
+    timer_.start() ;
+    Socket::open ( Socket::Family::Inet, Socket::Type::Stream, 0);
+    connect(dest) ;
+    if(!read()) report_->openErr() ;
+    timer_.stop() ;
+    report_->open() ;
+}//_Pop3::Protocol::open
+
+
+
+    void
+Pop3::Protocol::write( const std::string& message)
+{
+    cout <<message <<endl;//debug
+    Socket::write( message ) ;
+}
+
 
 
     void
@@ -90,7 +111,7 @@ Pop3::Protocol::apop( void )
 {
     timer_.start() ;
     write( "APOP \r\n" ) ;
-    read( ) ;
+    read() ;
     timer_.stop() ;
     //report_->apop() ; // TODO
 }
@@ -140,7 +161,7 @@ Pop3::Protocol::pass( const std::string& passwd )
 {
     timer_.start() ;
     write( "PASS "+passwd+"\r\n" ) ;
-    read( ) ;
+    if(!read()) report_->passErr() ;
     timer_.stop() ;
     report_->pass() ;
 }
@@ -149,7 +170,7 @@ Pop3::Protocol::pass( const std::string& passwd )
 Pop3::Protocol::quit( void )
 {
     write( "QUIT\r\n" ) ;
-    read( ) ;
+    if(!read()) report_->quitErr() ;
 }
 
     void
@@ -157,7 +178,7 @@ Pop3::Protocol::retr( long int msgNo )
 {
     timer_.start() ;
     write( "RETR "+itoa(msgNo)+"\r\n" ) ;
-    read( ) ; // multiline response
+    if(!read()) report_->retrErr() ; // multiline response
     timer_.stop() ;
     report_->retr() ;
 }
@@ -177,7 +198,7 @@ Pop3::Protocol::stat( int* mails, int* size )
 {
     timer_.start() ;
     write( "STAT\r\n" ) ;
-    read( ) ;
+    if(!read() ) report_->statErr();
     timer_.stop() ;
     report_->stat() ;
     sscanf( resp_.c_str(), "+OK %i %i", mails, size ) ;
@@ -189,7 +210,7 @@ Pop3::Protocol::top( long int msgNo, long int n )
 {
     timer_.start() ;
     write( "TOP "+itoa(msgNo)+" "+itoa(n)+"\r\n" ) ;
-    read( ) ;// if no err is returned, expect a multinile response
+    //if(!read()) report_->topErr() ;// if no err is returned, expect a multinile response
     timer_.stop() ;
     //report_->top() ;//TODO
 }
@@ -201,7 +222,7 @@ Pop3::Protocol::uidl( long int msgNo )
     {
         timer_.start() ;
         write( "UIDL\r\n" ) ;
-        read( ) ; //multiline
+        read() ; //multiline
         timer_.stop() ;
         //report_->uidl() ;//TODO
     }else // it can be = 0 ??
@@ -219,7 +240,7 @@ Pop3::Protocol::user( const std::string& userName )
 {
     timer_.start() ;
     write( "USER "+userName+"\r\n" ) ;
-    read( ) ;
+    if(!read()) report_->userErr() ;
     timer_.stop() ;
     report_->user() ;
 }
@@ -234,7 +255,7 @@ Pop3::Protocol::user( const char* prefix, const int idx )
     sprintf( buf, "USER %s%i\r\n", prefix, idx );
     timer_.start() ;
     write( buf ) ;
-    read( ) ;
+    if(!read()) report_->userErr() ;
     timer_.stop() ;
     report_->user() ;
 }
@@ -251,7 +272,7 @@ Pop3::Protocol::pass( const char* prefix, const int idx )
     sprintf( buf, "PASS %s%i\r\n", prefix, idx );
     timer_.start() ;
     write( buf ) ;
-    read( ) ;
+    if(!read()) report_->passErr() ;
     timer_.stop() ;
     report_->user() ;
 }

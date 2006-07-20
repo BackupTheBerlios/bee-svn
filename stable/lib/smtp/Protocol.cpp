@@ -72,8 +72,8 @@ Smtp::Protocol::open( const char* h, const unsigned int p )
 {
     timer_.start() ;
     Socket::open( Socket::Family::Inet, Socket::Type::Stream, 0 ) ;
-    Socket::connect( h, p ) ;       //TODO: ++errors. see if SMTP can connect
-    if(!read()) report_->openErr() ;// TODO                       // banner
+    Socket::connect( h, p ) ;
+    if(!read()) report_->openErr() ;
     timer_.stop() ;
     report_->open( ) ;
 }//* Smtp::Protocol::open
@@ -87,7 +87,7 @@ Smtp::Protocol::open( sockaddr_in* dest )
     timer_.start() ;
     Socket::open( Socket::Family::Inet, Socket::Type::Stream, 0 ) ;
     Socket::connect( dest ) ;       //TODO: see if SMTP can connect
-    if(!read()) report_->openErr() ;// banner
+    if(!read()) report_->openErr() ;
     timer_.stop() ;
     report_->open( ) ;
 }//* Smtp::Protocol::open
@@ -327,7 +327,7 @@ Smtp::Protocol::vrfy( const std::string& useR )
 {
     timer_.start() ;
     write( "VRFY " + useR) ;
-    if(!read()) report_->vrfyErr() ;
+   // if(!read()) report_->vrfyErr() ;
     timer_.stop() ;
     report_->rset() ;
 }//* Smtp::Protocol::vrfy
@@ -342,7 +342,7 @@ Smtp::Protocol::expn( const std::string& aliaS )
 {
     timer_.start() ;
     write( "EXPN " + aliaS ) ;
-    if(!read()) report_->expnErr() ;
+    //if(!read()) report_->expnErr() ;
     timer_.stop() ;
     report_->rset() ;
 }//* Smtp::Protocol::expn
@@ -357,7 +357,7 @@ Smtp::Protocol::noop( void )
 {
     timer_.start() ;
     write( "NOOP\r\n") ;
-    if(!read()) report_->noopErr() ;
+    //if(!read()) report_->noopErr() ;
     timer_.stop() ;
     report_->rset() ;
 }//* Smtp::Protocol::noop
@@ -372,7 +372,7 @@ Smtp::Protocol::turn( void )
 {
     timer_.start() ;
     write( "TURN\r\n") ;
-    if(!read()) report_->turnErr() ;
+    //if(!read()) report_->turnErr() ;
     timer_.stop() ;
     report_->rset() ;
 }//* Smtp::Protocol::turn

@@ -58,15 +58,15 @@ LoadGen::Smtp::worker( void* a )
     config_t* p = (config_t*) a ;
     ::Smtp::Protocol smtp ;
     LoadGen::Smtp* ths = (LoadGen::Smtp*) p->ths ;
-    int rcptList[100] ; // TODO: HARDCODED, See specMail
+    int rcptList[32] ;
 
     while( 1 )
     {
         sem_wait( ths->sem_ ) ;
         printf("pthread_self %u\n\n\n", pthread_self() ) ;
-        int rcpts  = ths->smtpDistr->rcptTo( rcptList, p->users) ; //TODO HARDCODED 100( number of users ?
+        int rcpts  = ths->smtpDistr->rcptTo( rcptList, p->users) ;
         int usrIdx = ths->smtpDistr->mailFrom(p->users) ;          // call an exponential distribution here
-        int msg_sz = ths->smtpDistr->msgSize() ;                   //TODO HARDCODED 100( number of users ?
+        int msg_sz = ths->smtpDistr->msgSize() ;
         try
         {   printf("host:%s port:%i\n", p->smtp_server, p->smtp_port );
             smtp.open( p->dest ) ;

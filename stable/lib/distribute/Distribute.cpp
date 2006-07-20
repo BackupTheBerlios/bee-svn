@@ -51,8 +51,9 @@ Distribute::Smtp::~Smtp() {} ;
 
 
 // check dis for bug. too tired to look at it
+// This should pick if the user is local or remote
 int
-Distribute::Smtp::rcptTo( int a[30], int maxRcpt )
+Distribute::Smtp::rcptTo( int a[32], int maxRcpt )
 {
 	int i=0,c,n;
 	float r = erand48(xsubi_) ;
@@ -67,6 +68,8 @@ Distribute::Smtp::rcptTo( int a[30], int maxRcpt )
 	}
 	return n ;
 }
+
+
 
 int
 Distribute::Smtp::msgSize()

@@ -177,3 +177,42 @@ Report::Pop3::quit()
 {
     fprintf(f, "%s,%f,%u\n", "pquit", timer_->elapsed(), pthread_self() ) ;
 }
+
+
+
+// Error reporting for pop3
+
+void Report::Pop3::openErr()
+{
+    fprintf(f, "ERR%s,%f,%u\n", "popen", timer_->elapsed(), pthread_self() ) ;
+}
+void
+Report::Pop3::userErr()
+{
+    fprintf(f, "ERR%s,%f,%u\n", "puser", timer_->elapsed(), pthread_self() ) ;
+}
+void
+Report::Pop3::passErr()
+{
+    fprintf(f, "ERR%s,%f,%u\n", "ppass", timer_->elapsed(), pthread_self() ) ;
+}
+void
+Report::Pop3::statErr()
+{
+    fprintf(f, "ERR%s,%f,%u\n", "pstat", timer_->elapsed(), pthread_self() ) ;
+}
+void
+Report::Pop3::retrErr()
+{
+    fprintf(f, "ERR%s,%f,%u\n", "pretr", timer_->elapsed(), pthread_self() ) ;
+}
+void
+Report::Pop3::deleErr()
+{
+    fprintf(f, "ERR%s,%f,%u\n", "pdele", timer_->elapsed(), pthread_self() ) ;
+}
+void
+Report::Pop3::quitErr()
+{
+    fprintf(f, "ERR%s,%f,%u\n", "pquit", timer_->elapsed(), pthread_self() ) ;
+}
