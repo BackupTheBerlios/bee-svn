@@ -55,7 +55,7 @@ Smtp::Protocol::read( )
     if ( code>>7 == 3 )
     {
         printf( "SMTP ERROR:>%s", Socket::resp_.c_str() ) ;
-        return false ;
+        return false ; // This return false, I should throw an error ?
     }
     report_->timer( &timer_ ) ;     //set the timer which is read by the reporter
     return true ;
@@ -64,17 +64,20 @@ Smtp::Protocol::read( )
 
 
 /**
- * Open a connection. **/
+ * Open a connection.
+ * Ca sistem de logare a errorilor: raportez eroarea, si apoi arunc exceptia,
+ * ca sa nu mai continue ciclul de instructiuni din SmtpSession **/
     void
 Smtp::Protocol::open( const char* h, const unsigned int p )
 {
     timer_.start() ;
     Socket::open( Socket::Family::Inet, Socket::Type::Stream, 0 ) ;
     Socket::connect( h, p ) ;       //TODO: ++errors. see if SMTP can connect
-    read( ) ;// banner
+    if(!read()) report_->openErr() ;// TODO                       // banner
     timer_.stop() ;
     report_->open( ) ;
 }//* Smtp::Protocol::open
+
 
 /**
  * Open a connection. **/
@@ -84,7 +87,7 @@ Smtp::Protocol::open( sockaddr_in* dest )
     timer_.start() ;
     Socket::open( Socket::Family::Inet, Socket::Type::Stream, 0 ) ;
     Socket::connect( dest ) ;       //TODO: see if SMTP can connect
-    read( ) ;// banner
+    if(!read()) report_->openErr() ;// banner
     timer_.stop() ;
     report_->open( ) ;
 }//* Smtp::Protocol::open
@@ -101,7 +104,7 @@ Smtp::Protocol::greet( const string& greeT )
 
     timer_.start() ;
     write( greeT + "\r\n" ) ;//unsafe
-    read( ) ;
+    if(!read()) report_->greetErr() ;
     timer_.stop() ;
     report_->greet( ) ;
 }//* Smtp::Protocol::greet
@@ -123,7 +126,7 @@ Smtp::Protocol::mailFrom( const char* userFormaT, const unsigned int useR,
 
     timer_.start() ;
     write( buf) ;
-    read( ) ;
+    if(!read()) report_->mailFromErr() ;
     timer_.stop() ;
     report_->mailFrom( ) ;
 }//* Smtp::Protocol::mailFrom
@@ -141,7 +144,7 @@ Smtp::Protocol::mailFrom( const char* userName )
 
     timer_.start() ;
     write( fmt ) ;
-    read( ) ;
+    if(!read()) report_->mailFromErr() ;
     timer_.stop() ;
     report_->mailFrom( ) ;
 }//* Smtp::Protocol::mailFrom
@@ -164,7 +167,7 @@ Smtp::Protocol::rcptTo( const char* userFormaT, const unsigned int useR,
 
     timer_.start() ;
     write( buf ) ;
-    read( ) ;
+    if(!read()) report_->rcptToErr()  ;
     timer_.stop() ;
     report_->rcptTo( ) ;
 }//* Smtp::Protocol::rcptTo
@@ -183,7 +186,7 @@ Smtp::Protocol::rcptTo( const char* userName )
 
     timer_.start() ;
     write( fmt ) ;
-    read( ) ;
+    if(!read()) report_->rcptToErr();
     timer_.stop() ;
     report_->rcptTo( ) ;
 }//* Smtp::Protocol::rcptTo----------------------------------
@@ -209,7 +212,7 @@ Smtp::Protocol::beginData( )
 {
     timer_.start() ;
     write( "DATA\r\n" ) ;
-    read( ) ;
+    if(!read()) report_->beginDataErr() ;
     timer_.stop() ;
     report_->beginData( ) ;
 }//* Smtp::Protocol::data
@@ -277,7 +280,7 @@ Smtp::Protocol::endData()
 {
     timer_.start() ;
     write("\r\n.\r\n" ) ;
-    read( ) ;
+    if(!read()) report_->endDataErr() ;
     timer_.stop() ;
     report_->endData( ) ;
 }//*
@@ -293,7 +296,7 @@ Smtp::Protocol::quit( )
 {
     timer_.start() ;
     write( "QUIT\r\n" ) ;
-    read( ) ;
+    if(!read()) report_->quitErr() ;
     timer_.stop() ;
     report_->quit( ) ;
     close( ) ;
@@ -309,7 +312,7 @@ Smtp::Protocol::rset( void )
 {
     timer_.start() ;
     write( "RSET\r\n") ;
-    read( ) ;
+    if(!read()) report_->rsetErr() ;
     timer_.stop() ;
     report_->rset() ;
 }//* Smtp::Protocol::rset
@@ -324,7 +327,7 @@ Smtp::Protocol::vrfy( const std::string& useR )
 {
     timer_.start() ;
     write( "VRFY " + useR) ;
-    read( ) ;
+    if(!read()) report_->vrfyErr() ;
     timer_.stop() ;
     report_->rset() ;
 }//* Smtp::Protocol::vrfy
@@ -339,7 +342,7 @@ Smtp::Protocol::expn( const std::string& aliaS )
 {
     timer_.start() ;
     write( "EXPN " + aliaS ) ;
-    read( ) ;
+    if(!read()) report_->expnErr() ;
     timer_.stop() ;
     report_->rset() ;
 }//* Smtp::Protocol::expn
@@ -354,7 +357,7 @@ Smtp::Protocol::noop( void )
 {
     timer_.start() ;
     write( "NOOP\r\n") ;
-    read( ) ;
+    if(!read()) report_->noopErr() ;
     timer_.stop() ;
     report_->rset() ;
 }//* Smtp::Protocol::noop
@@ -369,7 +372,7 @@ Smtp::Protocol::turn( void )
 {
     timer_.start() ;
     write( "TURN\r\n") ;
-    read( ) ;
+    if(!read()) report_->turnErr() ;
     timer_.stop() ;
     report_->rset() ;
 }//* Smtp::Protocol::turn
