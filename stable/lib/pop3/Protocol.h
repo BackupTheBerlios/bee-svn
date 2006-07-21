@@ -1,5 +1,8 @@
 #if !defined POP3_H
 #define POP3_H
+#if defined DEBUG
+    #include "../../Debug.h"
+#endif
 
 #include <socket/Socket.h>
 #include <string>

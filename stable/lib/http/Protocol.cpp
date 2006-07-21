@@ -80,7 +80,7 @@ Http::Protocol::read()
             return ;
         }
         if(resp_.find("-ERR ",0) != string::npos)
-        {   printf("ERROR\n") ;
+        {   fprintf( stderr, "HttpProtocol ERROR\n") ;
             return ;
         }
     }

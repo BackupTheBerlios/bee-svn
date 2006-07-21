@@ -45,7 +45,7 @@ Pop3::Protocol::read()
             return true;
         }
         if(resp_.find("-ERR ",0) != string::npos)
-        {   printf("ERROR\n") ;
+        {   fprintf( stderr, "ERROR\n") ;
             return false;
         }
     }

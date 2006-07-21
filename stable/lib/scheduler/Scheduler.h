@@ -1,5 +1,8 @@
 #if !defined _SCHEDULER_H_
 #define _SCHEDULER_H_
+#if defined DEBUG
+    #include "../../Debug.h"
+#endif
 
 #include <list>
 #include <vector>

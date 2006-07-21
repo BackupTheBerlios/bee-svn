@@ -62,22 +62,22 @@ LoadGen::Smtp::worker( void* a )
     ::Smtp::Protocol smtp ;
     LoadGen::Smtp* ths = (LoadGen::Smtp*) p->ths ;
     rcpt_t rcptList[32] ;
-    bool local, modem ;     // local== true ,mail is sent to localUser
-                            // modem== true ,mail is sent at modemSpeed
+    bool modem ;
+
 
     while( 1 )
     {
         sem_wait( ths->sem_ ) ;
-        printf("pthread_self %u\n\n\n", pthread_self() ) ;
+        debug("pthread_self %u", pthread_self() ) ;
         int rcpts  = ths->smtpDistr->rcptTo( rcptList, p->users) ;
         int usrIdx = ths->smtpDistr->mailFrom(p->users) ;          // call an exponential distribution here
         int msg_sz = ths->smtpDistr->msgSize() ;
-        float speed = erand48(ths->xsubi_) ;
+        float speed = (1.0*rand())/RAND_MAX ;
         if( speed <= 0.421 )
             modem = true ;
 
         try
-        {   printf("host:%s port:%i\n", p->smtp_server, p->smtp_port );
+        {   debug("host:%s port:%i", p->smtp_server, p->smtp_port );
             smtp.open( p->dest ) ;
             smtp.greet("ehlo cucu");
             smtp.mailFrom("<>"); // TODO does specmail says smth abt this ?
@@ -87,7 +87,7 @@ LoadGen::Smtp::worker( void* a )
             smtp.quit();
         }catch(Socket::Exception& e )
         {
-            printf("SMTP SocketError :%s\n", e.what() ) ;
+            fprintf( stderr, "SMTP SocketError :%s\n", e.what() ) ;
             smtp.close() ;
         }
     }
@@ -203,21 +203,21 @@ LoadGen::Pop3::worker( void* a )
     while( 1 )
     {
         sem_wait( ths->sem_ ) ;
-        printf("pthread_self %u\n\n\n", pthread_self() ) ;
+        debug("pthread_self %u", pthread_self() ) ;
 
-        pct = erand48( ths->xsubi_);
+        pct = (1.0*rand())/RAND_MAX ;
         if( pct<0.075 )
             user = ths->pop3Distr->retry_user() ;
         else
             user = ths->pop3Distr->random_user() ;
 
         try {
-            printf("host:%s port:%i\n", p->smtp_server, p->smtp_port );
+            debug("host:%s port:%i\n", p->smtp_server, p->smtp_port );
             pop3.open( p->pdest ) ;
             pop3.user( p->user_prefix, user ) ;
             pop3.pass( p->user_prefix, user ) ;
             pop3.stat(&m, &s) ;
-            printf("MESSAGES:%i\n", m) ;
+            debug("MESSAGES:%i\n", m) ;
             while(m--) {
                 pop3.retr(m) ;
                 pop3.dele(m) ;
@@ -225,11 +225,11 @@ LoadGen::Pop3::worker( void* a )
             pop3.quit() ;
         }catch(Socket::Exception& e )
         {
-            printf("POP3 SocketError :%s\n", e.what() ) ;
+            fprintf( stderr, "POP3 SocketError :%s\n", e.what() ) ;
             pop3.close() ;  // dont left the socket open
         }catch(ReportEx& e )
         {
-            printf("POP3 ProtocolError :%s\n", e.what() ) ;
+            fprintf( stderr, "POP3 ProtocolError :%s\n", e.what() ) ;
             pop3.quit() ;
         }
 

@@ -3,6 +3,9 @@
 #include <cstdlib>
 #include <unistd.h>
 #include <getopt.h>
+       #include <sys/time.h>
+       #include <time.h>
+
 #include "structs.h"
 #include "distribute/MailStore.h"
 #include "loadgen/LoadGen.h"
@@ -20,7 +23,7 @@ void*   runPop3(void*);
 main (int argc, char **argv)
 {
     if( argc < 2 ) { usage(argv[0]); exit(1) ; }
-
+DBG ;
     config_t cfg ;
     int      idx=0, c=0 ;
     int      option_index = 0;
@@ -54,7 +57,9 @@ main (int argc, char **argv)
     };
 
     opterr = 0;
-
+    timeval tv ;
+    gettimeofday( &tv , 0 ) ;
+    srand(tv.tv_usec) ;
     while( -1 != (c = getopt_long_only( argc, argv, "ihH:P:T:C:R:S:U:", long_options, &option_index)) )
     {
         switch (c)

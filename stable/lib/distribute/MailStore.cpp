@@ -26,7 +26,7 @@ MailStore::MailStore(const char* fname)
     for( k=0; k < md.size(); ++k)
     {
         md[k].step = 100.0/md[k].pct ;
-        printf("pct[%f]\t-- step[%f]\n", md[k].pct, md[k].step ) ;
+        debug("pct[%f]\t-- step[%f]", md[k].pct, md[k].step ) ;
     }
 }
 
@@ -48,10 +48,12 @@ MailStore::sendMails( const char* host, const int port, const int userIdx, const
             smtp.sendFile( "./data/populate.eml") ;
             smtp.endData();
             smtp.quit() ;
-            printf("Sent %i mails out of %i, to %s\n", i+1, quantity, user) ;
+            debug("Sent %i mails out of %i, to %s", i+1, quantity, user) ;
         }catch( Socket::Exception& e )
         {
-            printf("ERROR: %s\n", e.what() ) ;
+            fprintf( stderr, "Smtp ProtocolError: %s\n", e.what() ) ;
+            smtp.close() ;
+            debug( "Smtp ProtocolError: %s", e.what() ) ;
         }
     }
 }

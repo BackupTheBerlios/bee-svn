@@ -54,7 +54,7 @@ Smtp::Protocol::read( )
     sscanf( Socket::resp_.c_str(), "%i", &code) ;
     if ( code>>7 == 3 )
     {
-        printf( "SMTP ERROR:>%s", Socket::resp_.c_str() ) ;
+        fprintf( stderr, "SMTP ERROR:>%s", Socket::resp_.c_str() ) ;
         return false ; // This return false, I should throw an error ?
     }
     report_->timer( &timer_ ) ;     //set the timer which is read by the reporter
@@ -199,6 +199,7 @@ Smtp::Protocol::rcptTo( int rcptsz, rcpt_t rcptList[] )
     for(int i=0; i<rcptsz; ++i)
     {
         sprintf(fmt,"user%i@%s", rcptList[i].idx,(rcptList[i].local==true?"localdomain":"remotedomain")) ;// HARDCODED
+        debug("SMTP rcpt to: %s\n", fmt ) ;
         rcptTo( fmt ) ;
     }
 }//* Smtp::Protocol::rcptTo-----------------------------------
@@ -224,21 +225,18 @@ Smtp::Protocol::randomData( int msg_sz )
 {
     int rb ;
     int sz = ( msg_sz < 8192 ) ? msg_sz : 8192 ;
-    char buf[sz+1] ;
 
-
-    beginData();
     //generate the message here
-    int fd = ::open("/dev/urandom", O_RDONLY ) ;
+    char* msg = (char*)malloc( sz*sizeof(char) ) ;
+    memset( msg, 'a', sz*sizeof(char) ) ;
+    beginData();
     do
     {
-        rb = ::read( fd, buf, sz ) ;
-        buf[rb] = '\0' ;
-        write(buf, rb) ;
-        write("\n" ) ;
-    }while( msg_sz-=rb ) ;
+        sz = ( msg_sz < 8192 ) ? msg_sz : 8192 ;
+        ::write( sock_, msg, sz ) ;
+    }while( msg_sz-=sz ) ;
     endData() ;
-    ::close(fd) ;
+    free( msg ) ;
 }
 
 /**

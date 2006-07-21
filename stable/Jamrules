@@ -12,7 +12,7 @@ if ( $(OS) = LINUX )
     LINK     = $(C++) ;
     OPTIM    = -O0 ;                                    #compiler optimization flags, e.g. -O2, -O3, etc.
     LINKLIBS = -lpthread -rdynamic -lrt -ldl ;          #FreeBSD doesnt use -ldl -lrt
-    C++FLAGS = -g -fmessage-length=75 -DUNIX -DLINUX -fPIC -D_GLIBCXX_DEBUG ;     # C++ compiler flags, e.g. -DSOMETHING
+    C++FLAGS = -g -fmessage-length=75 -DDEBUG -DUNIX -DLINUX -fPIC -D_GLIBCXX_DEBUG ;     # C++ compiler flags, e.g. -DSOMETHING
     CCFLAGS  = $(C++FLAGS) ;                            # CC compiler flags, e.g. -DSOMETHING
     SO_LINKFLAGS = -shared ;
     SHRSUF = so ;

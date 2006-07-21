@@ -1,5 +1,8 @@
 #if !defined PROTOCOL_H
 #define PROTOCOL_H
+#if defined DEBUG
+    #include "../../Debug.h"
+#endif
 
 #include "socket/Socket.h"
 #include "timer/Timer.h"

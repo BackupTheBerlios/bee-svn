@@ -47,7 +47,7 @@ template<class T, class Arg>
 T*
 Producer<T,Arg>::produce( Arg* a )
 {
-    printf("++PRODUCE\n" ) ;
+    debug("++PRODUCE\n" ) ;
         T*      t ;
         t = new T ;
         t->rcpts  = smtpDistr.rcptTo( t->rcptList, 100) ;
@@ -87,7 +87,7 @@ smtp_load_gen( int nbcl, int nbtr, int refresh, int tduration ) ;
 int main(int argc, char* argv[])
 {
 
-    if( argc <=3 ) { printf( "%s clients refresh_time[sec] test_duration[sec]\n", argv[0] ) ;
+    if( argc <=3 ) { debug( "%s clients refresh_time[sec] test_duration[sec]", argv[0] ) ;
         return 1 ;
     }
     smtp_load_gen( atoi(argv[1]), 20, atoi(argv[2]), atoi(argv[3])) ;

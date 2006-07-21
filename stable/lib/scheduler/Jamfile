@@ -4,8 +4,9 @@ SubDir $(TOP) lib scheduler  ;
 
 
 Main t_sched : t_sched.cpp ;
-LinkLibraries t_sched :  libscheduler  librategen ;
+LinkLibraries t_sched :  libscheduler  librategen libdebug ;
 Library libscheduler : Scheduler.cpp ;
 SubInclude TOP lib distribute  ;
+SubInclude TOP lib debug  ;
 
 # vim:ft=jam

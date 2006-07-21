@@ -20,7 +20,8 @@ Distribute::Smtp::Smtp( const char rcpt_dat[], const char msgsz_dat[] )
 	}
 	fclose(f);
 	s=0;
-	printf("rcpt_d_.size = %i\n",rcpt_d_.size() );
+    debug( "rcpt_d_.size = %i\n", rcpt_d_.size() );
+
 	for( int i=0;i<rcpt_d_.size();i++)
 		rcpt_cmf_[i] = s = rcpt_d_[i] + s;
 
@@ -40,11 +41,6 @@ Distribute::Smtp::Smtp( const char rcpt_dat[], const char msgsz_dat[] )
 	s=0;
 	for( int i=0;i<msg_d_.size();i++)
 		msg_cmf_[i] = s = msg_d_[i].pct + s;
-
-	xsubi_[0] = (unsigned short)(0x1234 ^ 12);
-	xsubi_[1] = (unsigned short)(0x5678 ^ (12 << 8));
-	xsubi_[2] = (unsigned short)(0x9abc ^ ~12);
-
 }
 
 Distribute::Smtp::~Smtp() {} ;
@@ -54,8 +50,9 @@ Distribute::Smtp::~Smtp() {} ;
 int
 Distribute::Smtp::rcptTo( rcpt_t a[32], int maxRcpt )
 {
-	int i=0,c,n;
-	float r = erand48(xsubi_) ;
+	int i=0,c=0,n=0;
+    unsigned short xs[3] ;
+    float r = (1.0*rand())/RAND_MAX ;
 	while ( (r>rcpt_cmf_[i]) && (i<rcpt_d_.size()) )
 	{
 		i++;
@@ -64,8 +61,8 @@ Distribute::Smtp::rcptTo( rcpt_t a[32], int maxRcpt )
 	{
 		c = rand() ;
 		a[i].idx = (int)(c*(1.0*maxRcpt)/RAND_MAX) + 1 ;
-	    float type = erand48(xsubi_) ;
-        if( type <= 0.473 ) // This distributes the rcptTo, so it should reside in distr
+	    r = (1.0*rand())/RAND_MAX ;
+        if( r <= 0.473 ) // This distributes the rcptTo, so it should reside in distr
             a[i].local = false ;
 	}
 	return n ;
@@ -77,7 +74,7 @@ int
 Distribute::Smtp::msgSize()
 {
 	int i=0;
-	float r = erand48(xsubi_) ;
+	float r = (1.0*rand())/RAND_MAX ; 
 	while ( (r>msg_cmf_[i]) && (i<msg_d_.size()) )
 		i++;
 	return msg_d_[i].size ;
@@ -106,10 +103,10 @@ Distribute::Pop3::Pop3( config_t* cfg )
 	{
 		int u = i+    (int)((double)rand()*14.0/RAND_MAX);
 		retry_pool[k++] = u ;
-        printf("\t\tleft=%i\tu=%i\tright=%i\n", i,u, i+13 ) ;
+        debug("\t\tleft=%i\tu=%i\tright=%i", i,u, i+13 ) ;
 	}
     for( k=0; k<7500; k++)
-        printf("retry user: %i\n", retry_pool[k] );
+        debug("retry user: %i is %i", k, retry_pool[k] );
 }
 
 

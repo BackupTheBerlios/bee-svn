@@ -1,5 +1,8 @@
 #if !defined _LOAD_GEN_H_
 #define _LOAD_GEN_H_
+#if defined DEBUG
+    #include "../../Debug.h"
+#endif
 #include "distribute/Distribute.h"
 #include "../scheduler/Scheduler.h"
 #include "../../structs.h"

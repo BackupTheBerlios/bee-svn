@@ -1,5 +1,8 @@
 #include <vector>
 #include <pthread.h>
+#if defined DEBUG
+    #include "../../Debug.h"
+#endif
 
 using namespace std;
 

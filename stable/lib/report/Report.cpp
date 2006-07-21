@@ -17,7 +17,6 @@ Report::Smtp::~Smtp()
 Report::Smtp::Smtp(const char* host)
 {
     // still to be implemented
-    printf("host=%s\n", host ) ;
     f = fopen("timesmtp.csv", "a");
     if(!f) { fprintf(stderr, "cannot open timesmtp.csv. Exit\n");exit(2); }
 }

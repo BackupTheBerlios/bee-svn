@@ -40,26 +40,26 @@ Scheduler::run( )
 {
     double tm ;
 
-    printf("+++ENTER JOB++++\n");
+    debug("+++ENTER JOB++++");
     print_time( ) ;
     timeval tv ;
     gettimeofday(&tv, 0 ) ;
     elapsed_ = tv.tv_sec + tv.tv_usec*0.000001 ;
-    if( cronTab_.empty() ) { printf("running\n"); cronTab_.push_back( elapsed_+ g_->exponential() ) ; }
+    if( cronTab_.empty() ) { debug("running"); cronTab_.push_back( elapsed_+ g_->exponential() ) ; }
 
     show() ;
-    printf("front=%f elapsed_=%f diff=%f\n", cronTab_.front(),elapsed_, elapsed_- cronTab_.front() ) ;
+    debug("front=%f elapsed_=%f diff=%f", cronTab_.front(),elapsed_, elapsed_- cronTab_.front() ) ;
     if( elapsed_ >= cronTab_.front() )
     {
         tm = g_->exponential() ;
-        printf("runJob exponential=%f, exponential=--%f--  elapsed_+exponential=%f\n", elapsed_, tm, elapsed_+tm ) ;
+        debug("runJob exponential=%f, exponential=--%f--  elapsed_+exponential=%f", elapsed_, tm, elapsed_+tm ) ;
         sem_post( &sem_ ) ;
         cronTab_.pop_front();
         cronTab_.push_back( elapsed_ + tm ) ; // push_back another value
 
     }
 
-    printf("---EXIT JOB--2--\n\n");
+    debug("---EXIT JOB--2--");
     return 0;
 }//* Cron::runJob
 
@@ -73,7 +73,7 @@ Scheduler::print_time( )
 
     time( &rawtime );
     timeinfo = localtime ( &rawtime );
-    printf( "Elapsed:%i -- Date: %s", (clock() /CLOCKS_PER_SEC)+1, asctime (timeinfo));
+    debug( "Elapsed:%i -- Date: %s", (clock() /CLOCKS_PER_SEC)+1, asctime (timeinfo));
     //fprintf( stderr, "Elapsed:%i -- Date: %s", (clock() /CLOCKS_PER_SEC)+1, asctime (timeinfo));
 }//* Cron::print_time
 
@@ -85,7 +85,6 @@ Scheduler::show( )
 
     it = cronTab_.begin() ;
     for( ; it!=cronTab_.end() && *it != RAND_MAX; ++it )
-        cout << *it <<" " ;
-    cout <<endl ;
+        debug("%f", *it ) ;
 }//* Cron::show
 

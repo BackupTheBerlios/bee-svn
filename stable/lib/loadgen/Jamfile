@@ -3,7 +3,7 @@ TOP ?= $(DOTDOT)/$(DOTDOT) ;
 SubDir $(TOP) lib loadgen ;
 
 Main t_loadgen1 : t_loadgen1.cpp ;
-LinkLibraries t_loadgen1 : libloadgen libdistribute libscheduler librategen libsmtp libsocket libreport libpop3 ;
+LinkLibraries t_loadgen1 : libloadgen libdistribute libscheduler librategen libsmtp libsocket libreport libpop3 libdebug ;
 Library libloadgen : LoadGen.cpp ;
 SubInclude TOP lib distribute ;
 SubInclude TOP lib scheduler ;

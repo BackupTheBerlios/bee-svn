@@ -1,6 +1,8 @@
 #if !defined HTTP_H
 #define HTTP_H
-
+#if defined DEBUG
+    #include "../../Debug.h"
+#endif
 #include <socket/Socket.h>
 #include <string>
 

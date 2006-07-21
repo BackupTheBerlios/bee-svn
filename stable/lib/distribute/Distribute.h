@@ -1,5 +1,8 @@
 #if !defined _DISTRIBUTE_H_
 #define _DISTRIBUTE_H_
+#if defined DEBUG
+    #include "../../Debug.h"
+#endif
 #include <vector>
 #include "../../structs.h"
 
@@ -22,7 +25,7 @@ namespace Distribute {
         private:
             float       msg_cmf_[32] ;
             float       rcpt_cmf_[32] ;
-            u_short     xsubi_[3] ;
+            //u_short     xsubi_[3] ;
             vector<float>   rcpt_d_ ; // rcpt distribution
             vector<MsgDist> msg_d_ ;  // msg size distribution
     } ;

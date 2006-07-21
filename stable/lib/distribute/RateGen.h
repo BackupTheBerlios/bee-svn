@@ -1,5 +1,9 @@
 #if !defined _RATE_GEN_H_
 #define _RATE_GEN_H_
+#if defined DEBUG
+    #include "../../Debug.h"
+#endif
+
 
 class RateGen {
     public:

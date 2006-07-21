@@ -1,5 +1,9 @@
 #if !defined _REPORT_H_
 #define _REPORT_H_
+#if defined DEBUG
+    #include "../../Debug.h"
+#endif
+
 #include "timer/Timer.h"
 #include <cstdio>
 
