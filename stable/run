@@ -1,1 +1,1 @@
-./main -threads 100 -users 100 -smtpport 25 -pop3port 110 -smtpserver localhost -pop3server localhost -span 1
+./main -threads 100 -users 100 -smtpport 25 -pop3port 110 -smtpserver localhost -pop3server localhost -span 10

@@ -6,6 +6,9 @@
 LoadGen::Smtp::Smtp( )
 {
     smtpDistr = new Distribute::Smtp("./data/rcpt.csv","./data/msgsz.csv") ;
+    xsubi_[0] = (unsigned short)(0x1234 ^ 12);
+    xsubi_[1] = (unsigned short)(0x5678 ^ (12 << 8));
+    xsubi_[2] = (unsigned short)(0x9abc ^ ~12);
 }
 
 
@@ -58,9 +61,9 @@ LoadGen::Smtp::worker( void* a )
     config_t* p = (config_t*) a ;
     ::Smtp::Protocol smtp ;
     LoadGen::Smtp* ths = (LoadGen::Smtp*) p->ths ;
-    int rcptList[32] ;
-    bool local, modem ;     // local== true if mail is sent to localUser
-                            // modem== true if mail is sent at modemSpeed
+    rcpt_t rcptList[32] ;
+    bool local, modem ;     // local== true ,mail is sent to localUser
+                            // modem== true ,mail is sent at modemSpeed
 
     while( 1 )
     {
@@ -69,12 +72,7 @@ LoadGen::Smtp::worker( void* a )
         int rcpts  = ths->smtpDistr->rcptTo( rcptList, p->users) ;
         int usrIdx = ths->smtpDistr->mailFrom(p->users) ;          // call an exponential distribution here
         int msg_sz = ths->smtpDistr->msgSize() ;
-        type = erand48(xsubi_) ;
-        if( type <= 0.473 )
-            local = false ;
-        if( type > 0.473 )
-            local = true ;
-        speed = erand48(xsubi_) ;
+        float speed = erand48(ths->xsubi_) ;
         if( speed <= 0.421 )
             modem = true ;
 
@@ -84,7 +82,7 @@ LoadGen::Smtp::worker( void* a )
             smtp.greet("ehlo cucu");
             smtp.mailFrom("<>"); // TODO does specmail says smth abt this ?
             // if() { local_user() } else {remote_user() }
-            smtp.rcptTo( rcpts, rcptList, local ) ; // TODO add domain parameter
+            smtp.rcptTo( rcpts, rcptList ) ; // TODO add domain parameter
             smtp.randomData(msg_sz) ;
             smtp.quit();
         }catch(Socket::Exception& e )

@@ -15,6 +15,15 @@ class ReportEx :public std::runtime_error {
 };
 
 
+typedef struct rcpt {
+    int     idx ;
+    bool    local ;
+    rcpt() {
+        idx   =0 ;
+        local =true ;
+    };
+} rcpt_t ;
+
 
 typedef struct config {
     int     init_only ;

@@ -193,12 +193,12 @@ Smtp::Protocol::rcptTo( const char* userName )
 
 
 void
-Smtp::Protocol::rcptTo( int rcptsz, int rcptList[] )
+Smtp::Protocol::rcptTo( int rcptsz, rcpt_t rcptList[] )
 {
     char fmt[1024] = {0};
     for(int i=0; i<rcptsz; ++i)
     {
-        sprintf(fmt,"user%i", rcptList[i]) ;
+        sprintf(fmt,"user%i@%s", rcptList[i].idx,(rcptList[i].local==true?"localdomain":"remotedomain")) ;// HARDCODED
         rcptTo( fmt ) ;
     }
 }//* Smtp::Protocol::rcptTo-----------------------------------

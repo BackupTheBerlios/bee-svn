@@ -49,11 +49,10 @@ Distribute::Smtp::Smtp( const char rcpt_dat[], const char msgsz_dat[] )
 
 Distribute::Smtp::~Smtp() {} ;
 
-
 // check dis for bug. too tired to look at it
 // This should pick if the user is local or remote
 int
-Distribute::Smtp::rcptTo( int a[32], int maxRcpt )
+Distribute::Smtp::rcptTo( rcpt_t a[32], int maxRcpt )
 {
 	int i=0,c,n;
 	float r = erand48(xsubi_) ;
@@ -64,7 +63,10 @@ Distribute::Smtp::rcptTo( int a[32], int maxRcpt )
 	for( n=i+1;i>=0;--i)
 	{
 		c = rand() ;
-		a[i] = (int)(c*(1.0*maxRcpt)/RAND_MAX) + 1 ;
+		a[i].idx = (int)(c*(1.0*maxRcpt)/RAND_MAX) + 1 ;
+	    float type = erand48(xsubi_) ;
+        if( type <= 0.473 ) // This distributes the rcptTo, so it should reside in distr
+            a[i].local = false ;
 	}
 	return n ;
 }

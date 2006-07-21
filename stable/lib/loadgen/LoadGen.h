@@ -20,6 +20,7 @@ namespace LoadGen {
             sem_t*      sem_ ;
             Distribute::Smtp* smtpDistr;
             Scheduler   cron ;
+            unsigned short   xsubi_[3] ;
     } ;
 
     class Pop3 {

@@ -10,7 +10,7 @@ main(int argc, char* argv[] )
     Distribute::Smtp smtpDistr( "./rcpt.csv", "./msgsz.csv" );
     int nb_tries = atoi( argv[1] ) ;
     int maxRcpt = atoi(argv[2] ) ;
-    int rcptList[30] ;
+    rcpt_t rcptList[30] ;
 
     printf("----Testing Distribute::Smtp::rcptTo\n");
     
@@ -19,7 +19,7 @@ main(int argc, char* argv[] )
         int nb_rcpt = smtpDistr.rcptTo(rcptList,maxRcpt) ;
         printf("Will send to : ");
         for( int k=0; k< nb_rcpt; ++k )
-            printf( " %i,", rcptList[k] ) ;
+            printf( " %i,", rcptList[k].idx ) ;
         printf("\n");
     }
     printf("----Testing Distribute::Smtp::msgSize\n");

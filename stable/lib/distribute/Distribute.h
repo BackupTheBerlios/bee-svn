@@ -17,11 +17,11 @@ namespace Distribute {
             Smtp( const char rcpt_dat[], const char msgsz_dat[] ) ;
             ~Smtp() ;
             int         mailFrom(int maxRcpt) ;
-            int         rcptTo( int a[30],int maxRcpt ) ;
+            int         rcptTo( rcpt_t a[32],int maxRcpt ) ;
             int         msgSize() ;
         private:
-            float       msg_cmf_[30] ;
-            float       rcpt_cmf_[30] ;
+            float       msg_cmf_[32] ;
+            float       rcpt_cmf_[32] ;
             u_short     xsubi_[3] ;
             vector<float>   rcpt_d_ ; // rcpt distribution
             vector<MsgDist> msg_d_ ;  // msg size distribution
@@ -37,7 +37,7 @@ namespace Distribute {
         private:
             int search( const int p, int left, int rigth ) ;
             int isRetry( const int p ) ;
-            int retry_pool[7500] ;
+            int retry_pool[7500] ; // TODO hardcoded
     } ;
 };
 

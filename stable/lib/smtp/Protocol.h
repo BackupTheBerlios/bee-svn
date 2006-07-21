@@ -4,6 +4,7 @@
 #include "socket/Socket.h"
 #include "timer/Timer.h"
 #include "report/Report.h"
+#include "../../structs.h"
 
 namespace Smtp {
     class Protocol: public Socket
@@ -29,7 +30,7 @@ namespace Smtp {
                     const char* domainFormat, const unsigned int domainIdx ) ;
 
             void rcptTo ( const char* userName ) ;
-            void rcptTo ( int rcptsz, int rcptList[] ) ;
+            void rcptTo ( int rcptsz, rcpt_t rcptList[] ) ;
             void rcptTo ( const char* userFormat,   const unsigned int userIdx,
                     const char* domainFormat, const unsigned int domainIdx ) ;
             void beginData() ;
