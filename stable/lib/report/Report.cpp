@@ -7,6 +7,10 @@ Report::Smtp::Smtp()
 {
     f = fopen("timesmtp.csv", "a");
     if(!f) { fprintf(stderr, "cannot open timesmtp.csv. Exit\n");exit(2); }
+    /* On 4.2BSD and 4.3BSD systems, setbuf() always uses a
+       suboptimal buffer size and should be avoided.
+    */
+    setlinebuf(f);
 }
 
 Report::Smtp::~Smtp()
@@ -19,6 +23,7 @@ Report::Smtp::Smtp(const char* host)
     // still to be implemented
     f = fopen("timesmtp.csv", "a");
     if(!f) { fprintf(stderr, "cannot open timesmtp.csv. Exit\n");exit(2); }
+    setlinebuf(f);
 }
 
 
