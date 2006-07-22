@@ -11,7 +11,7 @@
     #include <sys/socket.h>
     #include <sys/types.h>
     #include <netinet/in.h>
-   #include <arpa/inet.h>
+    #include <arpa/inet.h>
 #endif
 
 #include <errno.h>
@@ -90,10 +90,19 @@ Socket::open( Socket::Family::Flag family, Socket::Type::Flag type, const int pr
 
     //debug( "sock=%i", rval ) ;
     if( rval == -1 ) throw Socket::Exception( strerror(errno) ) ;
+
+
     sock_   = rval ;
     family_ = family ;
     type_   = type ;
     is_open_= true ;
+
+    /* Set to non-blocking */
+    int oldopts, rc ;
+    oldopts = fcntl( sock_, F_GETFL, 0);
+    rc = fcntl( sock_, F_SETFL, oldopts | O_NONBLOCK);
+    if( rc == -1 ) throw Socket::Exception( strerror(errno) );
+
     //debug("E");
 }//*Socket::open
 
@@ -101,12 +110,13 @@ Socket::open( Socket::Family::Flag family, Socket::Type::Flag type, const int pr
 
 /**
  * Connect the socket to a remote peer.
- * @todo connect should be non-blocking
+ * @todo connect should be non-blocking, and wait 5 seconds
  * @param[in] hostNamE The name of host.
  * @param p Remote peer port.**/
     void
 Socket::connect( const char* h, const int p)
 {
+    printf("Connecting...\n"); // TODO
     char* hostName = (char*)h ;
     //debug( "host=%s, port=%i", hostName , p ) ;
 
@@ -121,8 +131,37 @@ Socket::connect( const char* h, const int p)
     if( !host ) throw Socket::Exception( strerror(errno) ) ;
 
     memcpy( (char*)&dest.sin_addr, (char*)host->h_addr, host->h_length ) ;
-    int rval = ::connect( sock_, (sockaddr*)&dest, sizeof(dest) ) ;
-    if( rval < 0 ) throw Socket::Exception( strerror(errno) ) ;
+
+    fd_set rfds, wfds ;
+    struct timeval tv ;
+    tv.tv_sec = tout_ ;
+    tv.tv_usec = 0 ;
+    FD_ZERO(&rfds);
+    FD_ZERO(&wfds);
+    FD_SET( sock_,&rfds) ;
+    FD_SET( sock_,&wfds) ;
+    int rc = ::connect( sock_, (sockaddr*)&dest, sizeof(dest) ) ;
+    if( rc == -1)
+    {
+        /* Connection in progress, select could be used */
+        if( errno == EINPROGRESS )
+        {
+            int sc = select( sock_+1, &rfds, &wfds, 0, &tv ) ;
+            if( sc == -1)
+                throw Socket::Exception( strerror(errno) )  ;   // error in select()
+            else if( sc )
+            {
+                printf("data is available now.\n");             // connected
+                is_conn_ = true ;
+                return ;
+            }
+            else
+                throw Socket::Exception( "connection timed out" ) ;    // Connect timeout( TODO: ++errCnt
+        }else
+        {
+            throw Socket::Exception( strerror(errno)) ;        // Connect failed( TODO: ++errCnt
+        }
+    }
     is_conn_ = true ;
 }//*Socket::connect
 
@@ -134,8 +173,35 @@ Socket::connect( const char* h, const int p)
 void
 Socket::connect( sockaddr_in* dest )
 {
-    int rval = ::connect( sock_, (sockaddr*)dest, sizeof(sockaddr_in) ) ;
-    if( rval < 0 ) throw Socket::Exception("Cannot connect" ) ;
+    printf("Connecting...\n"); // TODO
+    fd_set rfds, wfds ;
+    struct timeval tv ;
+    FD_ZERO(&rfds);
+    FD_ZERO(&wfds);
+    FD_SET( sock_,&rfds) ;
+    FD_SET( sock_,&wfds) ;
+    int rc = ::connect( sock_+1, (sockaddr*)&dest, sizeof(dest) ) ;
+    if( rc == -1)
+    {
+        /* Connection in progress, select could be used */
+        if( errno == EINPROGRESS )
+        {
+            int sc = select( 1, &rfds, &wfds, 0, &tv ) ;
+            if( sc == -1)
+                throw Socket::Exception( strerror(errno) )  ;   // error in select()
+            else if( sc )
+            {
+                printf("Data is available now.\n");             // connected
+                is_conn_ = true ;
+                return ;
+            }
+            else
+                throw Socket::Exception( strerror(errno) ) ;    // Connect timeout( TODO: increment errCnt
+        }else
+        {
+            throw Socket::Exception( strerror(errno) ) ;        // Connect failed( TODO: ++errCnt
+        }
+    }
     is_conn_ = true ;
 }
 
@@ -187,8 +253,8 @@ Socket::read( char* s, unsigned int n )
     FD_SET ( sock_, &rd ) ;
     FD_SET ( sock_, &er ) ;
 
-    wait.tv_usec = 0 ;          // n number of micro seconds to sleep.
-    wait.tv_sec  = tout_ ;  // n number of seconds to sleep.
+    wait.tv_sec  = tout_ ;      // seconds to sleep.(SpecMAIL says 5 seconds is QoS required)
+    wait.tv_usec = 0 ;          // micro seconds to sleep.
 
     int rval = select( sock_ +1, &rd, NULL, &er, &wait ) ;
 
