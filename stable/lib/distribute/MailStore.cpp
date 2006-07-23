@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include "MailStore.h"
-#include "lib/smtp/Protocol.h"
+#include "smtp/Protocol.h"
 
 MailStore::MailStore(const char* fname)
 {

@@ -1,7 +1,7 @@
 #include <cstdlib>
 #include <cstdio>
 #include "Distribute.h"
-#include "../../structs.h"
+#include "structs.h"
 
 
 

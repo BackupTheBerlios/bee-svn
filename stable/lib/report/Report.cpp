@@ -1,7 +1,7 @@
 #include "Report.h"
 #include <cstdlib>
 #include <pthread.h>
-#include "../../structs.h"
+#include "structs.h"
 
 Report::Smtp::Smtp()
 {

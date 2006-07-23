@@ -3,15 +3,15 @@
 #include <cstdlib>
 #include <unistd.h>
 #include <getopt.h>
-       #include <sys/time.h>
-       #include <time.h>
+#include <sys/time.h>
+#include <time.h>
 
 #include "structs.h"
-#include "distribute/MailStore.h"
-#include "loadgen/LoadGen.h"
+#include "MailStore.h"
+#include "LoadGen.h"
 #include <netdb.h>
-       #include <sys/types.h>
-       #include <sys/wait.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 
 int     usage( const char* prog ) ;

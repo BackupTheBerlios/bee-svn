@@ -1,4 +1,4 @@
-#include "Protocol.h"
+#include "pop3/Protocol.h"
 #include <pthread.h>
 
 
