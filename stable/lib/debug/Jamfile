@@ -1,6 +1,0 @@
-TOP ?= $(DOTDOT)/$(DOTDOT) ;
-
-SubDir TOP lib debug ;
-
-Library libdebug : Debug.cpp ;
-# vim:ft=jam

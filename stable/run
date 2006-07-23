@@ -1,1 +1,0 @@
-DBG=yes ./main -threads 100 -users 100000 -smtpport 25 -pop3port 110 -smtpserver gigi -pop3server gigi -initonly
