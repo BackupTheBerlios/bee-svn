@@ -39,6 +39,10 @@ class Socket
                 Exception(const char* ex) : std::runtime_error(ex)
                 {
                 };
+
+                Exception(const char* mymsg, const char* strerr) :  std::runtime_error(string(mymsg)+string(strerr)) 
+                {
+                };
         };
 
         //! Socket families

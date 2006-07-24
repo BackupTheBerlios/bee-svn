@@ -22,6 +22,7 @@ Smtp::Protocol::Protocol( )
 {
     //debug( "C" ) ;
     report_ = new Report::Smtp("localhost" ) ;
+    report_->timer( &timer_ ) ;     //set the timer which is read by the reporter
 }//*
 
 
@@ -55,11 +56,10 @@ Smtp::Protocol::read( )
     if ( code>>7 == 3 )
     {
         fprintf( stderr, "SMTP ERROR:>%s", Socket::resp_.c_str() ) ;
-        return false ; // This return false, I should throw an error ?
+        debug("ERROR:%s", Socket::resp_.c_str() ) ;
+        throw Socket::Exception("Smtp error");
     }
-    report_->timer( &timer_ ) ;     //set the timer which is read by the reporter
-    return true ;
-}//* Smtp::Protocol::read
+}
 
 
 
@@ -71,12 +71,18 @@ Smtp::Protocol::read( )
 Smtp::Protocol::open( const char* h, const unsigned int p )
 {
     timer_.start() ;
-    Socket::open( Socket::Family::Inet, Socket::Type::Stream, 0 ) ;
-    Socket::connect( h, p ) ;
-    if(!read()) report_->openErr() ;
+    try {
+        Socket::open( Socket::Family::Inet, Socket::Type::Stream, 0 ) ;
+        Socket::connect( h, p ) ;
+        read() ;
+    }catch(Socket::Exception& ex)
+    {
+        report_->openErr() ;// I should rethrow it, so LoadGen catch-es it
+        throw ex;
+    }
     timer_.stop() ;
     report_->open( ) ;
-}//* Smtp::Protocol::open
+}
 
 
 /**
@@ -85,14 +91,21 @@ Smtp::Protocol::open( const char* h, const unsigned int p )
 Smtp::Protocol::open( sockaddr_in* dest )
 {
     timer_.start() ;
-    Socket::open( Socket::Family::Inet, Socket::Type::Stream, 0 ) ;
-    Socket::connect( dest ) ;       //TODO: see if SMTP can connect
-    if(!read()) report_->openErr() ;
+    try {
+        Socket::open( Socket::Family::Inet, Socket::Type::Stream, 0 ) ;
+        Socket::connect( dest ) ;
+        read();
+    }catch(Socket::Exception& ex)
+    {
+        report_->openErr() ;
+        throw ex;
+    }
     timer_.stop() ;
     report_->open( ) ;
-}//* Smtp::Protocol::open
+}
 
 
+//--
 
 /**
  * Decide if we greet with ehlo or helo. **/
@@ -100,14 +113,18 @@ Smtp::Protocol::open( sockaddr_in* dest )
     void
 Smtp::Protocol::greet( const string& greeT )
 {
-    //debug( "greet=[%s]", greeT.c_str() ) ;
-
+    debug("greet: %s", greeT.c_str() ) ;
     timer_.start() ;
-    write( greeT + "\r\n" ) ;//unsafe
-    if(!read()) report_->greetErr() ;
+    try {
+        write( greeT + "\r\n" ) ;
+        read() ;
+    }catch(Socket::Exception& ex)
+    {
+        report_->greetErr();
+    }
     timer_.stop() ;
     report_->greet( ) ;
-}//* Smtp::Protocol::greet
+}
 
 
 
@@ -123,13 +140,19 @@ Smtp::Protocol::mailFrom( const char* userFormaT, const unsigned int useR,
 
     sprintf( fmt, "MAIL FROM: %s@%s\r\n", userFormaT, domainFormaT ) ;
     sprintf( buf, fmt, useR, domaiN ) ;
-
+    debug("%s", buf ) ;
     timer_.start() ;
-    write( buf) ;
-    if(!read()) report_->mailFromErr() ;
+    try{
+        write( buf) ;
+        read() ;
+    }catch(Socket::Exception&ex)
+    {
+        report_->mailFromErr() ;
+        throw ex ;
+    }
     timer_.stop() ;
     report_->mailFrom( ) ;
-}//* Smtp::Protocol::mailFrom
+}
 
 
 
@@ -141,13 +164,19 @@ Smtp::Protocol::mailFrom( const char* userName )
     char fmt[4096];
 
     sprintf( fmt, "MAIL FROM: %s\r\n", userName ) ;
-
+    debug("%s", fmt ) ;
     timer_.start() ;
-    write( fmt ) ;
-    if(!read()) report_->mailFromErr() ;
+    try {
+        write( fmt ) ;
+        read();
+    }catch(Socket::Exception&ex)
+    {
+        report_->mailFromErr() ;
+        throw ex ;
+    }
     timer_.stop() ;
     report_->mailFrom( ) ;
-}//* Smtp::Protocol::mailFrom
+}
 
 
 
@@ -164,13 +193,19 @@ Smtp::Protocol::rcptTo( const char* userFormaT, const unsigned int useR,
 
     sprintf( fmt, "RCPT TO: %s@%s\r\n", userFormaT, domainFormaT ) ;
     sprintf( buf, fmt, useR, domaiN ) ;
-
+    debug("%s", buf) ;
     timer_.start() ;
-    write( buf ) ;
-    if(!read()) report_->rcptToErr()  ;
+    try{
+        write( buf ) ;
+        read();
+    }catch(Socket::Exception&ex)
+    {
+        report_->rcptToErr()  ;
+        throw ex;
+    }
     timer_.stop() ;
     report_->rcptTo( ) ;
-}//* Smtp::Protocol::rcptTo
+}
 
 
 
@@ -183,13 +218,19 @@ Smtp::Protocol::rcptTo( const char* userName )
     char fmt[ 1024 ] ;
 
     sprintf( fmt, "RCPT TO: %s\r\n", userName ) ;
-
+    debug( "%s", fmt ) ;
     timer_.start() ;
-    write( fmt ) ;
-    if(!read()) report_->rcptToErr();
+    try{
+        write( fmt ) ;
+        read() ;
+    }catch(Socket::Exception&ex)
+    {
+        report_->rcptToErr( ) ;
+        throw ex ;
+    }
     timer_.stop() ;
     report_->rcptTo( ) ;
-}//* Smtp::Protocol::rcptTo----------------------------------
+}
 
 
 void
@@ -199,10 +240,9 @@ Smtp::Protocol::rcptTo( int rcptsz, rcpt_t rcptList[] )
     for(int i=0; i<rcptsz; ++i)
     {
         sprintf(fmt,"user%i@%s", rcptList[i].idx,(rcptList[i].local==true?"localdomain":"remotedomain")) ;// HARDCODED
-        debug("SMTP rcpt to: %s\n", fmt ) ;
         rcptTo( fmt ) ;
     }
-}//* Smtp::Protocol::rcptTo-----------------------------------
+}
 
 
 
@@ -211,12 +251,19 @@ Smtp::Protocol::rcptTo( int rcptsz, rcpt_t rcptList[] )
     void
 Smtp::Protocol::beginData( )
 {
+    debug("DATA");
     timer_.start() ;
-    write( "DATA\r\n" ) ;
-    if(!read()) report_->beginDataErr() ;
+    try {
+        write( "DATA\r\n" ) ;
+        read() ;
+    }catch(Socket::Exception&ex)
+    {
+        report_->beginDataErr() ;
+        throw ex ;
+    }
     timer_.stop() ;
     report_->beginData( ) ;
-}//* Smtp::Protocol::data
+}
 
 
 
@@ -233,7 +280,8 @@ Smtp::Protocol::randomData( int msg_sz )
     do
     {
         sz = ( msg_sz < 8192 ) ? msg_sz : 8192 ;
-        ::write( sock_, msg, sz ) ;
+        ::write( sock_, msg, sz ) ;// FIXME: this does not throw any errors
+        debug("DATA:+%i bytes", sz ) ;
     }while( msg_sz-=sz ) ;
     endData() ;
     free( msg ) ;
@@ -276,12 +324,19 @@ Smtp::Protocol::sendFile( const char name[])
     void
 Smtp::Protocol::endData()
 {
+    debug(".");
     timer_.start() ;
-    write("\r\n.\r\n" ) ;
-    if(!read()) report_->endDataErr() ;
+    try {
+        write("\r\n.\r\n" ) ;
+        read();
+    }catch(Socket::Exception&ex)
+    {
+        report_->endDataErr() ;
+        throw ex ;
+    }
     timer_.stop() ;
     report_->endData( ) ;
-}//*
+}
 
 
 
@@ -292,13 +347,20 @@ Smtp::Protocol::endData()
     void
 Smtp::Protocol::quit( )
 {
+    debug("quit");
     timer_.start() ;
-    write( "QUIT\r\n" ) ;
-    if(!read()) report_->quitErr() ;
+    try {
+        write( "QUIT\r\n" ) ;
+        read();
+    }catch(Socket::Exception&ex)
+    {
+        report_->quitErr() ;
+        throw ex ;
+    }
+    close( ) ;
     timer_.stop() ;
     report_->quit( ) ;
-    close( ) ;
-}//* Smtp::Protocol::quit
+}
 
 
 // Implement the functions below. Dont forget about timer.start/stop, report
@@ -324,11 +386,17 @@ Smtp::Protocol::rset( void )
 Smtp::Protocol::vrfy( const std::string& useR )
 {
     timer_.start() ;
-    write( "VRFY " + useR) ;
-   // if(!read()) report_->vrfyErr() ;
+    try {
+        write( "VRFY " + useR) ;
+        read() ;
+    }catch(Socket::Exception&ex)
+    {
+        //report_->vrfyErr() ;//TODO
+        throw ex ;
+    }
     timer_.stop() ;
     report_->rset() ;
-}//* Smtp::Protocol::vrfy
+}
 
 
 

@@ -25,7 +25,7 @@ using namespace std ;
 
 /**
  * Default constructor. **/
-Socket::Socket() : sock_(-1), tout_(5), is_open_(false), is_conn_(false)
+Socket::Socket() : sock_(-1), tout_(25), is_open_(false), is_conn_(false)
 , is_sync_(true)
 {
     //debug( "C" ) ;
@@ -89,7 +89,7 @@ Socket::open( Socket::Family::Flag family, Socket::Type::Flag type, const int pr
     int rval = socket( family, type, protocol_i ) ;
 
     //debug( "sock=%i", rval ) ;
-    if( rval == -1 ) throw Socket::Exception( strerror(errno) ) ;
+    if( rval == -1 ) throw Socket::Exception( "unable to create socket", strerror(errno) ) ;
 
 
     sock_   = rval ;
@@ -101,7 +101,7 @@ Socket::open( Socket::Family::Flag family, Socket::Type::Flag type, const int pr
     int oldopts, rc ;
     oldopts = fcntl( sock_, F_GETFL, 0);
     rc = fcntl( sock_, F_SETFL, oldopts | O_NONBLOCK);
-    if( rc == -1 ) throw Socket::Exception( strerror(errno) );
+    if( rc == -1 ) throw Socket::Exception( "unable to non-block", strerror(errno) );
 
     //debug("E");
 }//*Socket::open
@@ -116,7 +116,6 @@ Socket::open( Socket::Family::Flag family, Socket::Type::Flag type, const int pr
     void
 Socket::connect( const char* h, const int p)
 {
-    printf("Connecting...\n"); // TODO
     char* hostName = (char*)h ;
     //debug( "host=%s, port=%i", hostName , p ) ;
 
@@ -128,7 +127,7 @@ Socket::connect( const char* h, const int p)
     dest.sin_family = family_ ;
 
     host = gethostbyname( hostName ) ;//not thread safe?
-    if( !host ) throw Socket::Exception( strerror(errno) ) ;
+    if( !host ) throw Socket::Exception( "unable to resolve hostname", strerror(errno) ) ;
 
     memcpy( (char*)&dest.sin_addr, (char*)host->h_addr, host->h_length ) ;
 
@@ -148,18 +147,22 @@ Socket::connect( const char* h, const int p)
         {
             int sc = select( sock_+1, &rfds, &wfds, 0, &tv ) ;
             if( sc == -1)
-                throw Socket::Exception( strerror(errno) )  ;   // error in select()
+                throw Socket::Exception( "select failed",strerror(errno) )  ;   // error in select()
             else if( sc )
             {
-                printf("data is available now.\n");             // connected
+                debug("data is available now.\n");             // connected
                 is_conn_ = true ;
                 return ;
             }
             else
+            {
+                debug("connection timed out");   
                 throw Socket::Exception( "connection timed out" ) ;    // Connect timeout( TODO: ++errCnt
+            }
         }else
         {
-            throw Socket::Exception( strerror(errno)) ;        // Connect failed( TODO: ++errCnt
+            debug("connect failed");
+            throw Socket::Exception( "connect failed", strerror(errno)) ;        // Connect failed( TODO: ++errCnt
         }
     }
     is_conn_ = true ;
@@ -173,7 +176,7 @@ Socket::connect( const char* h, const int p)
 void
 Socket::connect( sockaddr_in* dest )
 {
-    printf("Connecting...\n"); // TODO
+    debug("Connecting..."); // TODO
     fd_set rfds, wfds ;
     struct timeval tv ;
     FD_ZERO(&rfds);
@@ -188,18 +191,22 @@ Socket::connect( sockaddr_in* dest )
         {
             int sc = select( 1, &rfds, &wfds, 0, &tv ) ;
             if( sc == -1)
-                throw Socket::Exception( strerror(errno) )  ;   // error in select()
+                throw Socket::Exception( "error in select", strerror(errno) )  ;   // error in select()
             else if( sc )
             {
-                printf("Data is available now.\n");             // connected
+                debug("Data is available now.");             // connected
                 is_conn_ = true ;
                 return ;
             }
             else
-                throw Socket::Exception( strerror(errno) ) ;    // Connect timeout( TODO: increment errCnt
+            {
+                debug("connect timeout");
+                throw Socket::Exception( "connect timeout",strerror(errno) ) ;    // Connect timeout( TODO: increment errCnt
+            }
         }else
         {
-            throw Socket::Exception( strerror(errno) ) ;        // Connect failed( TODO: ++errCnt
+            debug("connect failed");
+            throw Socket::Exception( "connect failed", strerror(errno) ) ;        // Connect failed( TODO: ++errCnt
         }
     }
     is_conn_ = true ;
@@ -218,7 +225,7 @@ Socket::write( const char* msg, const int& size )
     if( !size ) throw Socket::Exception( "empty message" ) ;
 
     rval = ::send( sock_, msg, size, 0 ) ;
-    if( rval == -1 ) throw Socket::Exception( strerror(errno) ) ;
+    if( rval == -1 ) throw Socket::Exception( "send failed", strerror(errno) ) ;
 }//*Socket::send
 
 
@@ -231,9 +238,27 @@ Socket::write( const string& m )
     int rval ;
 
     if( m.empty() ) throw Socket::Exception( "empty message" ) ;
+    timeval wait ;      //! timeout for select
+    fd_set  wd, er ;    //! readable and error file descriptors set
+    FD_ZERO( &wd ) ;
+    FD_ZERO( &er ) ;
+    FD_SET ( sock_, &wd ) ;
+    FD_SET ( sock_, &er ) ;
 
-    rval = ::send( sock_, m.c_str(), m.size(), 0 ) ;
-    if( rval == -1 ) throw Socket::Exception( strerror(errno) ) ;
+    wait.tv_sec  = tout_ ;      // seconds to sleep.(SpecMAIL says 5 seconds is QoS required)
+    wait.tv_usec = 0 ;          // micro seconds to sleep.
+
+    rval = select( sock_ +1, NULL, &wd, &er, &wait ) ;
+
+    if( rval == -1 ) throw Socket::Exception( "select readfailed",strerror( h_errno ) );
+    if( rval  )
+    {
+        rval = ::send( sock_, m.c_str(), m.size(), 0 ) ;
+        if( rval == -1 ) throw Socket::Exception( "write failed:", strerror(errno) ) ;
+    }else
+    {
+        throw Socket::Exception( "write timed out" ) ;
+    }
 }//* Socket::write
 
 
@@ -258,20 +283,20 @@ Socket::read( char* s, unsigned int n )
 
     int rval = select( sock_ +1, &rd, NULL, &er, &wait ) ;
 
-    if( rval == -1 ) throw Socket::Exception( strerror( h_errno ) );
+    if( rval == -1 ) throw Socket::Exception( "select readfailed",strerror( h_errno ) );
     if( rval  )
     {
         rval = ::read( sock_, s, n ) ;
-        if(-1 == rval ) throw Socket::Exception( strerror(errno) ) ;
-        if( 0 == rval ) throw Socket::Exception( "Connection reset by peer" ) ;
+        if(-1 == rval ) throw { debug("read error:%s", strerror(errno)) ; Socket::Exception( "Read erorr:", strerror(errno) ) ; }
+        if( 0 == rval ) throw { debug("connection reset by server"); Socket::Exception( "Connection reset by peer" ) ; }
         s[rval] = '\0' ; //is this necessary ?
         resp_ += s ;
         //debug("resp_=%s", resp_.c_str() ) ;
         return ;
     }else
     {
+        debug("read timed out");
         throw Socket::Exception( "read timed out" ) ;
-        return ;
     }
 
 }//*Socket::recv

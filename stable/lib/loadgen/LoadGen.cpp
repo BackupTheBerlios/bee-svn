@@ -77,13 +77,16 @@ LoadGen::Smtp::worker( void* a )
             modem = true ;
 
         try
-        {   debug("host:%s port:%i", p->smtp_server, p->smtp_port );
+        {
+#if 0
+            debug("host:%s port:%i", p->smtp_server, p->smtp_port );
             smtp.open( p->dest ) ;
             smtp.greet("ehlo cucu");
             smtp.mailFrom("<>"); // TODO does specmail says smth abt this ?
             // if() { local_user() } else {remote_user() }
             smtp.rcptTo( rcpts, rcptList ) ; // TODO add domain parameter
             smtp.randomData(msg_sz) ;
+#endif
             smtp.quit();
         }catch(Socket::Exception& e )
         {

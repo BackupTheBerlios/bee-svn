@@ -1,6 +1,10 @@
 #if !defined _MAIL_STORE_
 #define _MAIL_STORE_
 
+#if defined DEBUG
+    #include "Debug.h"
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -51,8 +55,9 @@ MailStore::sendMails( const char* host, const int port, const int userIdx, const
             debug("Sent %i mails out of %i, to %s", i+1, quantity, user) ;
         }catch( Socket::Exception& e )
         {
-            fprintf( stderr, "Smtp ProtocolError: %s\n", e.what() ) ;
+            --i ;// mail not sent: try again
             smtp.close() ;
+            fprintf( stderr, "Smtp ProtocolError: %s\n", e.what() ) ;
             debug( "Smtp ProtocolError: %s", e.what() ) ;
         }
     }
@@ -73,6 +78,11 @@ MailStore::fillMbox( void* t )
         {
             i = arg->mbi ;
             arg->mbi++ ;
+            if( arg->mbi%1000 == 0 )
+            {
+                printf("DND: sleeping 5 seconds\n");
+                sleep(5); // sleep for 10 sec, after 1000 mboxes filled
+            }
         }
         pthread_mutex_unlock( arg->mtx );
 
@@ -84,14 +94,13 @@ MailStore::fillMbox( void* t )
                 if( arg->mbf > arg->end )
                 {
                     pthread_mutex_unlock( arg->mtx );
-                    printf("all done: exit\n");
+                    debug("all done: exit");
                     pthread_exit(0);
                 }
                 z=arg->mbf++ ;
                 pthread_mutex_unlock( arg->mtx ) ;
-                rc = printf("User%i will have %i\n mails", z, arg->p->md[k].msg ) ;
+                debug("User%i will have %i mails", z, arg->p->md[k].msg ) ;
                 arg->p->sendMails( arg->host, arg->port, z, arg->p->md[k].msg ) ;
-
             }
         }
     }

@@ -21,13 +21,14 @@ extern FILE* logHandle ;
 
 //! Use this macro to activate the calling of debug()
 #if !defined DBG
-#   define DBG useDebug_g =getenv("DBG") ;\
+    #define DBG useDebug_g =getenv("DBG") ;\
     logHandle = fopen( "this.log", "a" ) ;\
-    if( !logHandle ){ printf( "Can't open log\n") ;exit(0) ;}
+    if( !logHandle ){ printf( "Can't open log\n") ;exit(0) ;} \
+    setvlinebuf(logHandle);
 #endif
 
 #if !defined UNDBG
-#   define UNDBG fclose( logHandle ) ;
+    #define UNDBG fclose( logHandle ) ;
 #endif
 
 

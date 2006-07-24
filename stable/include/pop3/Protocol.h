@@ -15,7 +15,7 @@ namespace Pop3 {
             Protocol();
             ~Protocol();
             void write( const std::string& message) ;
-            bool read( ) ;
+            void read( ) ;
             void open ( const char* host, const int& port );
             void open ( sockaddr_in* dest ) ;
             void apop(void) ;
@@ -26,7 +26,7 @@ namespace Pop3 {
             void quit( void ) ;
             void retr( long int ) ;
             void rset( void ) ;
-            int  stat( int* mails, int* size ) ; // return the number of mails a user has in Inbox
+            bool  stat( int* mails, int* size ) ; // return the number of mails a user has in Inbox
             void top( long int, long int ) ;
             void uidl( long int ) ;
             void user( const std::string& ) ;
