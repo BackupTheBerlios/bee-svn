@@ -1,5 +1,5 @@
 #include "Socket.h"
-#if defined USE_DEBUG
+#if defined DEBUG
     #include "Debug.h"
 #endif
 
@@ -287,8 +287,8 @@ Socket::read( char* s, unsigned int n )
     if( rval  )
     {
         rval = ::read( sock_, s, n ) ;
-        if(-1 == rval ) throw { debug("read error:%s", strerror(errno)) ; Socket::Exception( "Read erorr:", strerror(errno) ) ; }
-        if( 0 == rval ) throw { debug("connection reset by server"); Socket::Exception( "Connection reset by peer" ) ; }
+        if(-1 == rval ) { debug("read error:%s", strerror(errno)); throw Socket::Exception( "Read erorr:", strerror(errno) ) ; }
+        if( 0 == rval ) { debug("connection reset by server"); throw Socket::Exception( "Connection reset by peer" ) ; }
         s[rval] = '\0' ; //is this necessary ?
         resp_ += s ;
         //debug("resp_=%s", resp_.c_str() ) ;

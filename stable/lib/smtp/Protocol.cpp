@@ -8,7 +8,7 @@
  * smtp.greet( );
  * Clasa Smtp i se seteaza un obiect de tip results( se poate gasi alt nume :)  care
  * contine numarul de calluri catre functii, si timpii lor.
- * ăsta e modul in care face httpperf, adica ţine Rezultatele in memorie,
+ * �sta e modul in care face httpperf, adica ţine Rezultatele in memorie,
  * ca la sfârşit sa facă un dump al rezultatelor
 
 #if defined USE_DEBUG
@@ -43,6 +43,7 @@ Smtp::Protocol::~Protocol()
 // 354 >>7 = 2
 // 451 >>7 = 3
 // 500 >>7 = 3
+// 550 >>7 = 4
     bool
 Smtp::Protocol::read( )
 {
@@ -53,7 +54,7 @@ Smtp::Protocol::read( )
     Socket::read( buffer, BUF_LEN ) ;
     timer_.stop() ;
     sscanf( Socket::resp_.c_str(), "%i", &code) ;
-    if ( code>>7 == 3 )
+    if ( code>= 400 )
     {
         fprintf( stderr, "SMTP ERROR:>%s", Socket::resp_.c_str() ) ;
         debug("ERROR:%s", Socket::resp_.c_str() ) ;
