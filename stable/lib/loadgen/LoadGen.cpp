@@ -78,15 +78,13 @@ LoadGen::Smtp::worker( void* a )
 
         try
         {
-#if 0
-            debug("host:%s port:%i", p->smtp_server, p->smtp_port );
-            smtp.open( p->dest ) ;
+            //debug("host:%s port:%i", p->smtp_server, p->smtp_port );
+            smtp.open( "gigi", 25 ) ;
             smtp.greet("ehlo cucu");
             smtp.mailFrom("<>"); // TODO does specmail says smth abt this ?
             // if() { local_user() } else {remote_user() }
             smtp.rcptTo( rcpts, rcptList ) ; // TODO add domain parameter
             smtp.randomData(msg_sz) ;
-#endif
             smtp.quit();
         }catch(Socket::Exception& e )
         {
@@ -216,7 +214,7 @@ LoadGen::Pop3::worker( void* a )
 
         try {
             debug("host:%s port:%i\n", p->smtp_server, p->smtp_port );
-            pop3.open( p->pdest ) ;
+            pop3.open( "gigi", 110 ) ;
             pop3.user( p->user_prefix, user ) ;
             pop3.pass( p->user_prefix, user ) ;
             pop3.stat(&m, &s) ;
@@ -230,12 +228,7 @@ LoadGen::Pop3::worker( void* a )
         {
             fprintf( stderr, "POP3 SocketError :%s\n", e.what() ) ;
             pop3.close() ;  // dont left the socket open
-        }catch(ReportEx& e )
-        {
-            fprintf( stderr, "POP3 ProtocolError :%s\n", e.what() ) ;
-            pop3.quit() ;
         }
-
     }
 }
 

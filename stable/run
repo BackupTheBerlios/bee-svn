@@ -1,1 +1,2 @@
-DBG=yes ./main -threads 10 -users 100000 -smtpport 25 -pop3port 110 -smtpserver gigi -pop3server gigi -initonly
+./main -threads 100 -users 100000 -smtpport 25 -pop3port 110 -smtpserver gigi -pop3server gigi -span 3600 &>/dev/null
+

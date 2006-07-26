@@ -8,6 +8,10 @@
 #include <sys/types.h> 
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <strings.h>
+#include <string.h>
+
+
 
 void dostuff(int, FILE*); /* function prototype */
 void error(char *msg)
@@ -23,7 +27,7 @@ int main(int argc, char *argv[])
     int opt,val;
     FILE* f = fopen("concount.txt", "w" ) ;
     if(!f){ printf("cant open concount.txt\n"); exit(2); }
-
+    setvbuf( f, (char *)NULL, _IONBF, 0 ) ;
     if (argc < 2) {
         fprintf(stderr,"ERROR, no port provided\n");
         exit(1);
@@ -82,7 +86,7 @@ void dostuff (int sock, FILE* f)
         bzero(buffer,256);
         n = read(sock,buffer,255);
         printf("cmd: %s\n", buffer);
-        if (n < 0) { error("ERROR reading from socket"); ok=0; }
+        if (n  < 0) { error("ERROR reading from socket"); ok=0; }
         if (n == 0) { printf("Server closed socket"); ok=0; }
         if( !strncasecmp(buffer, "EHLO", 4 )  ) {
             n= write( sock, "250-MailSink hello\r\n250-SIZE 10485760\r\n250 OK\r\n", 47 ) ;
@@ -104,7 +108,7 @@ void dostuff (int sock, FILE* f)
             if (n < 0) { error("ERROR writing to socket"); ok=0; }
             continue;
         }
-        if( !strncasecmp(buffer, "DATA", 4 )  ) { // TODO: read BDAT ARGV
+        if( !strncasecmp(buffer, "DATA", 4 )  ) {
             n= write( sock, "354 OK\r\n",8 ) ;
             if (n < 0) { error("ERROR writing to socket"); ok=0; }
             
@@ -133,11 +137,11 @@ void dostuff (int sock, FILE* f)
 	n= write( sock, "500 Bad\r\n",9 ) ;
 	if (n < 0) { error("ERROR writing to socket"); ok=0; }
     }
-    /*
-       MAIL FROM:
-       RCPT TO:
-       NOOP
-       BDAT 228 LAST
-       QUIT
-       */
 }
+/*
+MAIL FROM:
+RCPT TO:
+NOOP
+BDAT 228 LAST
+QUIT
+*/

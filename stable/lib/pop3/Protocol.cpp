@@ -2,7 +2,7 @@
 #include <string>
 #include <iostream>
 #include <stdlib.h> // itoa
-
+//Pop3::Protocol
 using namespace std;
 
 string itoa( int a )
@@ -36,12 +36,14 @@ Pop3::Protocol::read()
 
     for( ;;)
     {
+        printf("Read\n");
         Socket::read( buffer, BUF_LEN ) ;
         if(!resp_.empty() ) cout <<resp_ <<endl ; //debug
 
         if(resp_.find( "+OK ",0) != string::npos)
         {
             printf("+OK\n" ) ; // debug
+            return ;
         }
         if(resp_.find("-ERR ",0) != string::npos)
         {   fprintf( stderr, "Pop3 ERROR\n") ;
@@ -207,7 +209,7 @@ Pop3::Protocol::dele( unsigned long int msgNo )
     }catch(Socket::Exception&ex)
     {
         report_->deleErr() ;
-        throw ex ;
+//        throw ex ;
     }
     timer_.stop() ;
     report_->dele() ;

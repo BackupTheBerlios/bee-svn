@@ -2,7 +2,7 @@
 #include <cstdio>
 #include "Distribute.h"
 #include "structs.h"
-
+//Distribute::Pop3::search
 
 
 Distribute::Smtp::Smtp( const char rcpt_dat[], const char msgsz_dat[] )
@@ -77,7 +77,7 @@ Distribute::Smtp::msgSize()
 	float r = (1.0*rand())/RAND_MAX ; 
 	while ( (r>msg_cmf_[i]) && (i<msg_d_.size()) )
 		i++;
-	return msg_d_[i].size ;
+	return msg_d_[i].size*1024 ;
 }
 
 
@@ -146,16 +146,22 @@ Distribute::Pop3::random_user()
 int
 Distribute::Pop3::search( const int p, int left, int right )
 {
-        int mid ;
-        if ( right < left ) return -1 ;
+    int mid ;
+    if ( right < left ) return -1 ;
 	mid = (right-left)/2+left;
-
+    for( int i=1; i<7500; ++i)
+    {
+        if( p == retry_pool[i] ) return 0 ;
+        if( p > retry_pool[i] ) return -1 ;
+    }
+/*
 	if ( p > retry_pool[mid] )
 		search( p, mid+1, right ) ;
 	else if ( p < retry_pool[mid] )
 		search( p, left, mid-1 ) ;
 	else
 		return mid ;
+*/
 }
 
 
