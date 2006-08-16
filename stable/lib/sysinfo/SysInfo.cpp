@@ -248,7 +248,7 @@ SysInfo::readInfo( const char* device, unsigned int* reads, unsigned int* sector
         printf("Can't find device %s\n", device ) ;
         return 0 ;
     }
-    br = sscanf( loc, "%*s %i %i %i" , &reads, &sectors, &mergedReads ) ;
+    br = sscanf( loc, "%*s %u %u %u" , &reads, &sectors, &mergedReads ) ;
     if( !br )
     {
         printf( "Can't get info from %s\n", fname ) ;
