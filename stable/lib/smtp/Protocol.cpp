@@ -5,6 +5,11 @@
 #include <unistd.h>
 
 /*
+ * Error counting
+ * Each function tries to catch a socketException.
+ * If any is caugth, then is rethrown, so the LoadGen will catch it,
+ * and stop the UserEmulation in place */
+/*
  * smtp.greet( );
  * Clasa Smtp i se seteaza un obiect de tip results( se poate gasi alt nume :)  care
  * contine numarul de calluri catre functii, si timpii lor.
@@ -15,6 +20,8 @@
     #include "common/Debug.h"
 #endif
 */
+
+
 
 /**
  * Default contructor. **/
@@ -39,11 +46,6 @@ Smtp::Protocol::~Protocol()
 
 /**
  * Get and tests, a smtp response. **/
-// 250 >>7 = 1
-// 354 >>7 = 2
-// 451 >>7 = 3
-// 500 >>7 = 3
-// 550 >>7 = 4
     bool
 Smtp::Protocol::read( )
 {
@@ -65,9 +67,7 @@ Smtp::Protocol::read( )
 
 
 /**
- * Open a connection.
- * Ca sistem de logare a errorilor: raportez eroarea, si apoi arunc exceptia,
- * ca sa nu mai continue ciclul de instructiuni din SmtpSession **/
+ * Open a connection. */
     void
 Smtp::Protocol::open( const char* h, const unsigned int p  )
 {
@@ -78,12 +78,15 @@ Smtp::Protocol::open( const char* h, const unsigned int p  )
         read() ;
     }catch(Socket::Exception& ex)
     {
-        report_->openErr() ;// I should rethrow it, so LoadGen catch-es it
+        report_->openErr() ;
         throw ex;
     }
     timer_.stop() ;
     report_->open( ) ;
 }
+
+
+
 /**
  * Open a connection. **/
     void
@@ -104,7 +107,7 @@ Smtp::Protocol::open( sockaddr_in* dest )
 }
 
 
-//--
+/* SMTP Protocol specific functions */
 
 /**
  * Decide if we greet with ehlo or helo. **/
@@ -120,6 +123,7 @@ Smtp::Protocol::greet( const string& greeT )
     }catch(Socket::Exception& ex)
     {
         report_->greetErr();
+        throw ex ;
     }
     timer_.stop() ;
     report_->greet( ) ;
@@ -232,6 +236,9 @@ Smtp::Protocol::rcptTo( const char* userName )
 }
 
 
+
+/**
+ * Specify the recipient. **/
 void
 Smtp::Protocol::rcptTo( int rcptsz, rcpt_t rcptList[] )
 {
@@ -279,12 +286,15 @@ Smtp::Protocol::randomData( int msg_sz )
     do
     {
         sz = ( msg_sz < 8192 ) ? msg_sz : 8192 ;
-        ::write( sock_, msg, sz ) ;// FIXME: this does not throw any errors
         debug("DATA:+%i bytes", sz ) ;
+        rb = ::write( sock_, msg, sz ) ;
+        if( rb <= -1 ) throw Exception( strerror(errno) ) ;
     }while( msg_sz-=sz ) ;
     endData() ;
     free( msg ) ;
 }
+
+
 
 /**
  * @param in_fd : Must be an opened file descriptor. **/
@@ -300,6 +310,8 @@ Smtp::Protocol::sendFile( int in_fd )
     rval = sendfile( sock_, in_fd, &begin, stat_buf.st_size);
     if( -1 == rval ) throw Exception( strerror(errno) ) ;
 }
+
+
 
     void
 Smtp::Protocol::sendFile( const char name[])
@@ -319,6 +331,7 @@ Smtp::Protocol::sendFile( const char name[])
 }
 
 
+
 /** **/
     void
 Smtp::Protocol::endData()
@@ -336,8 +349,6 @@ Smtp::Protocol::endData()
     timer_.stop() ;
     report_->endData( ) ;
 }
-
-
 
 
 

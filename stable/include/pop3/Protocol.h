@@ -26,7 +26,7 @@ namespace Pop3 {
             void quit( void ) ;
             void retr( long int ) ;
             void rset( void ) ;
-            bool  stat( int* mails, int* size ) ; // return the number of mails a user has in Inbox
+            void  stat( int* mails, int* size ) ;
             void top( long int, long int ) ;
             void uidl( long int ) ;
             void user( const std::string& ) ;
