@@ -1,6 +1,7 @@
 #include "LoadGen.h"
 #include "smtp/Protocol.h"
 #include "pop3/Protocol.h"
+#include <cmath>
 
 
 LoadGen::Smtp::Smtp( )
@@ -73,18 +74,23 @@ LoadGen::Smtp::worker( void* a )
         int usrIdx = ths->smtpDistr->mailFrom(p->users) ;          // call an exponential distribution here
         int msg_sz = ths->smtpDistr->msgSize() ;
         float speed = (1.0*rand())/RAND_MAX ;
+        modem = false ;
         if( speed <= 0.421 )
             modem = true ;
 
         try
         {
-            //debug("host:%s port:%i", p->smtp_server, p->smtp_port );
+            smtp.timeout(5) ; //6,000
+            smtp.latency(modem) ;
             smtp.open( "gigi", 25 ) ;
             smtp.greet("ehlo cucu");
             smtp.mailFrom("<>"); // TODO does specmail says smth abt this ?
-            // if() { local_user() } else {remote_user() }
             smtp.rcptTo( rcpts, rcptList ) ; // TODO add domain parameter
+            float sec_tout  = 5 + ((0.1*msg_sz) / 3000  ) ;
+            int sec = (int)floor(sec_tout) ;
+            smtp.timeout(sec, ((int)sec_tout-sec)*1000000) ;
             smtp.randomData(msg_sz) ;
+            smtp.timeout(5) ; //6,000
             smtp.quit();
         }catch(Socket::Exception& e )
         {
@@ -218,11 +224,13 @@ LoadGen::Pop3::worker( void* a )
             pop3.user( p->user_prefix, user ) ;
             pop3.pass( p->user_prefix, user ) ;
             pop3.stat(&m, &s) ;
-            debug("MESSAGES:%i\n", m) ;
+            debug("MESSAGES:%i %i\n", m,s ) ;
+	    pop3.timeout(671); 	
             while(m--) {
                 pop3.retr(m) ;
                 pop3.dele(m) ;
             }
+            pop3.timeout(5) ;
             pop3.quit() ;
         }catch(Socket::Exception& e )
         {

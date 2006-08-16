@@ -100,18 +100,21 @@ class Socket
 
     public:
         int     sock_ ;     //!< Socket descriptor.
-        int     tout_ ;     //!< Socket timeout.
+        int     tout_ ;     //!< Socket timeout in seconds
+        int     usec_tout_ ;//!< sockket timeotou in microseconds
         bool    is_open_ ;  //!< Tells if the socket was created.
         bool    is_conn_ ;  //!< Tells if the socket was connected.
         bool    is_sync_ ;//!< Is the socket sync or async ?
         string  resp_ ;     //!< Place to hold responses.
+        int sentBytes ;
+        int latency_ ;
         Type::Flag      type_ ;
         Family::Flag    family_ ;
 
     public:
         Socket( ) ;
         ~Socket( ) ;
-
+        void latency( bool ) ;
         void open   ( Socket::Family::Flag family ,
                       Socket::Type::Flag type,
                       const int protocol_i ) ;
@@ -120,7 +123,10 @@ class Socket
         void read   ( char* s, unsigned int n) ;
         void connect( const char* hostName, const int port ) ;
         void connect( sockaddr_in* dest ) ;
-        void timeout( int const& tout ) ;   //!< Set timeout
+        void timeout( int const& sec_tout )
+        { tout_ = sec_tout ; usec_tout_ = 0 ; }
+        void timeout( int const& sec_tout, int usec_tout )
+        { tout_ = sec_tout; usec_tout_ = usec_tout; }
         unsigned int  timeout() ;                    //!< Get timeout
         void close  ( ) ;                   //!< Close the connection
         void close  ( const int how ) ;           //!< Close the connection

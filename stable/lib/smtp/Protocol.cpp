@@ -2,7 +2,7 @@
 #if !defined WIN32
     #include <sys/sendfile.h>
 #endif
-
+#include <unistd.h>
 
 /*
  * smtp.greet( );
@@ -69,7 +69,7 @@ Smtp::Protocol::read( )
  * Ca sistem de logare a errorilor: raportez eroarea, si apoi arunc exceptia,
  * ca sa nu mai continue ciclul de instructiuni din SmtpSession **/
     void
-Smtp::Protocol::open( const char* h, const unsigned int p )
+Smtp::Protocol::open( const char* h, const unsigned int p  )
 {
     timer_.start() ;
     try {
@@ -84,8 +84,6 @@ Smtp::Protocol::open( const char* h, const unsigned int p )
     timer_.stop() ;
     report_->open( ) ;
 }
-
-
 /**
  * Open a connection. **/
     void

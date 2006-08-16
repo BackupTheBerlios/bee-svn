@@ -15,38 +15,38 @@ BEGIN {
     err_pcnt[0] = 0 ;        # Just to know what variables are defined :)
     ptime[0] = 0.0 ;     # Just to know what variables are defined :)
 
-    cmd[0] = "greet" ;
-    cmd[1] = "mailFrom" ;
-    cmd[2] = "rcptTo" ;
-    cmd[3] = "data" ;
-    cmd[4] = "quit" ;
-    cmd[5] = "open" ;
-    cmd[6] = "beginData" ;
-    cmd[7] = "endData" ;
+    cmd[0] = "open" ;
+    cmd[1] = "greet" ;
+    cmd[2] = "mailFrom" ;
+    cmd[3] = "rcptTo" ;
+    cmd[4] = "data" ;
+    cmd[5] = "beginData" ;
+    cmd[6] = "endData" ;
+    cmd[7] = "quit" ;
     # logging errors
-    err_cmd[0] = "ERRgreet" ;
-    err_cmd[1] = "ERRmailFrom" ;
-    err_cmd[2] = "ERRrcptTo" ;
-    err_cmd[3] = "ERRdata" ;
-    err_cmd[4] = "ERRquit" ;
-    err_cmd[5] = "ERRopen" ;
-    err_cmd[6] = "ERRbeginData" ;
-    err_cmd[7] = "ERRendData" ;
+    err_cmd[0] = "ERRopen" ;
+    err_cmd[1] = "ERRgreet" ;
+    err_cmd[2] = "ERRmailFrom" ;
+    err_cmd[3] = "ERRrcptTo" ;
+    err_cmd[4] = "ERRdata" ;
+    err_cmd[5] = "ERRbeginData" ;
+    err_cmd[6] = "ERRendData" ;
+    err_cmd[7] = "ERRquit" ;
 
     # POP3 commands have a p prefixed, so open becomes popen
     pcmd[0] = "popen" ;
     pcmd[1] = "puser";
     pcmd[2] = "ppass";
-    pcmd[3] = "pdele";
+    pcmd[3] = "pstat";
     pcmd[4] = "pretr";
-    pcmd[5] = "pstat";
+    pcmd[5] = "pdele";
     # logging pop3 error
     err_pcmd[0] = "ERRpopen" ;
     err_pcmd[1] = "ERRpuser";
     err_pcmd[2] = "ERRppass";
-    err_pcmd[3] = "ERRpdele";
+    err_pcmd[3] = "ERRpstat";
     err_pcmd[4] = "ERRpretr";
-    err_pcmd[5] = "ERRpstat";
+    err_pcmd[5] = "ERRpdele";
 }
 
 {
@@ -90,10 +90,11 @@ END {
     print "| Delivery Time    |        60    |     >95%    |    99.05%   |  99.09%  | 63.73%  |"
     print "| Error Rate       |        NA    |     <1%     |     0.00%   |   0.00%  |  0.00%  |"
     print "`----------------------------------------------------------------------------------'"
+
     print "Results:"
     for( i=0; i< nb_cmd; i++ )
     {
-        printf "Found %i of %s. Max time=%f\n",  cnt[i], cmd[i],time[i] ;
+        printf "Number of SMTP %s: %i. Max time=%f\n", cmd[i], cnt[i], time[i] ;
     }
     for( i=0; i< nb_pcmd; i++ )
     {

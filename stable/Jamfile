@@ -1,9 +1,14 @@
 TOP = . ;
 #TEST
 T_BEE_SRC   =  main.cpp ;
+T_MAILSINK  = mailsink.c ;
 SubDir TOP ;
 C++FLAGS += -DDEBUG ;
+
 Main main : $(T_BEE_SRC) ;
+Main mailsink : $(T_MAILSINK) ;
+
+
 LinkLibraries main : libmstore libloadgen libdistribute libscheduler librategen libsmtp libsocket libreport libpop3 libdebug ;
 SubInclude TOP lib distribute  ;
 SubInclude TOP lib socket ;

@@ -34,7 +34,7 @@ namespace Report {
         private:
             Timer* timer_ ;
             int    session_ ;
-            FILE* f ;
+            int  out ;
     } ;
     class Pop3 {
         public:
@@ -60,7 +60,7 @@ namespace Report {
         private:
             Timer* timer_ ;
             int    session_ ;
-            FILE* f ;
+            int  out ;
     } ;
 } ;
 #endif // _REPORT_H_

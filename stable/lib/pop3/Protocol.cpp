@@ -115,6 +115,24 @@ Pop3::Protocol::apop( void )
     //report_->apop() ; // TODO
 }
 
+    bool
+Pop3::Protocol::stat( int* mails, int* size )
+{
+    timer_.start() ;
+    try {
+        write( "STAT\r\n" ) ;
+        read() ;
+    }catch(Socket::Exception&ex)
+    {
+        report_->statErr();
+        return false;
+    }
+    timer_.stop() ;
+    report_->stat() ;
+    sscanf( resp_.c_str(), "+OK %u %u", mails, size ) ;
+    return true ;
+}
+
 
     void
 Pop3::Protocol::list( long int msgNo )
@@ -169,6 +187,7 @@ Pop3::Protocol::quit( void )
     try{
         write( "QUIT\r\n" ) ;
         read();
+	close() ;
     }catch(Socket::Exception&ex)
     {
         report_->quitErr() ;
@@ -181,6 +200,7 @@ Pop3::Protocol::quit( void )
     void
 Pop3::Protocol::retr( long int msgNo )
 {
+    if(  !msgNo ) return ;
     char buf[512];
     sprintf( buf, "RETR %lu\r\n", msgNo ) ;
     timer_.start() ;
@@ -199,9 +219,9 @@ Pop3::Protocol::retr( long int msgNo )
     void
 Pop3::Protocol::dele( unsigned long int msgNo )
 {
+    if(  !msgNo ) return ;
     char buf[512] ;
     sprintf( buf, "DELE %lu\r\n", msgNo ) ;
-
     timer_.start() ;
     try{
         write( buf ) ;
@@ -223,24 +243,6 @@ Pop3::Protocol::rset( void )
     read( ) ;
     timer_.stop() ;
     //report_->rset() ;//TODO
-}
-
-    bool
-Pop3::Protocol::stat( int* mails, int* size )
-{
-    timer_.start() ;
-    try {
-        write( "STAT\r\n" ) ;
-        read() ;
-    }catch(Socket::Exception&ex)
-    {
-        report_->statErr();
-        return false;
-    }
-    timer_.stop() ;
-    report_->stat() ;
-    sscanf( resp_.c_str(), "+OK %u %u", mails, size ) ;
-    return true ;
 }
 
     void

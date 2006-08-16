@@ -10,6 +10,7 @@
 #include <math.h>
 #include "MailStore.h"
 #include "smtp/Protocol.h"
+#include <unistd.h>
 
 MailStore::MailStore(const char* fname)
 {

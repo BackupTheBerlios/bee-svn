@@ -19,13 +19,22 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <unistd.h>
 
 using namespace std ;
 
+void
+Socket::latency(bool modem)
+{
+    if(modem)
+        latency_ = 999990 ;
+    else
+        latency_ = 0 ;
+}
 
 /**
  * Default constructor. **/
-Socket::Socket() : sock_(-1), tout_(25), is_open_(false), is_conn_(false)
+Socket::Socket() : sock_(-1), tout_(5), usec_tout_(0), is_open_(false), is_conn_(false), sentBytes(0), latency_(0)
 , is_sync_(true)
 {
     //debug( "C" ) ;
@@ -57,22 +66,6 @@ Socket::~Socket()
 }//*Socket::~Socket
 
 
-
-/**
- * Set timeout.
- * @param[in] tout Timeout to set. **/
-void Socket::timeout( int const& tout)
-{
-    tout_ = tout ;
-}//*Socket::timeout
-
-
-/**
- * Get timeout. **/
-unsigned int Socket::timeout()
-{
-    return tout_ ;
-}//*Socket::timeout
 
 
 /**
@@ -134,7 +127,8 @@ Socket::connect( const char* h, const int p)
     fd_set rfds, wfds ;
     struct timeval tv ;
     tv.tv_sec = tout_ ;
-    tv.tv_usec = 0 ;
+    tv.tv_usec = usec_tout_ ;
+
     FD_ZERO(&rfds);
     FD_ZERO(&wfds);
     FD_SET( sock_,&rfds) ;
@@ -179,10 +173,15 @@ Socket::connect( sockaddr_in* dest )
     debug("Connecting..."); // TODO
     fd_set rfds, wfds ;
     struct timeval tv ;
+   
     FD_ZERO(&rfds);
     FD_ZERO(&wfds);
     FD_SET( sock_,&rfds) ;
     FD_SET( sock_,&wfds) ;
+
+    tv.tv_sec  = tout_ ;      // seconds to sleep.(SpecMAIL says 5 seconds is QoS required)
+    tv.tv_usec = usec_tout_ ;          // micro seconds to sleep.
+    
     int rc = ::connect( sock_+1, (sockaddr*)&dest, sizeof(dest) ) ;
     if( rc == -1)
     {
@@ -223,9 +222,35 @@ Socket::write( const char* msg, const int& size )
     int rval ;
 
     if( !size ) throw Socket::Exception( "empty message" ) ;
+    
+    timeval wait ;      //! timeout for select
+    fd_set  wd, er ;    //! readable and error file descriptors set
+    FD_ZERO( &wd ) ;
+    FD_ZERO( &er ) ;
+    FD_SET ( sock_, &wd ) ;
+    FD_SET ( sock_, &er ) ;
 
-    rval = ::send( sock_, msg, size, 0 ) ;
-    if( rval == -1 ) throw Socket::Exception( "send failed", strerror(errno) ) ;
+    wait.tv_sec  = tout_ ;      // seconds to sleep.(SpecMAIL says 5 seconds is QoS required)
+    wait.tv_usec = usec_tout_ ;          // micro seconds to sleep.
+    
+    rval = select( sock_ +1, NULL, &wd, &er, &wait ) ;
+
+    if( rval == -1 ) throw Socket::Exception( "select readfailed",strerror( h_errno ) );
+    if( rval  )
+    {
+        rval = ::send( sock_, msg, size, 0 ) ;
+        if( rval == -1 ) throw Socket::Exception( "write failed:", strerror(errno) ) ;
+    }else
+    {
+        throw Socket::Exception( "write timed out" ) ;
+    }
+
+    sentBytes+=size ;
+    if( sentBytes >= 6000 ) //bytesSent
+    {
+        usleep(latency_) ;
+        sentBytes = 0 ;
+    }
 }//*Socket::send
 
 
@@ -246,7 +271,7 @@ Socket::write( const string& m )
     FD_SET ( sock_, &er ) ;
 
     wait.tv_sec  = tout_ ;      // seconds to sleep.(SpecMAIL says 5 seconds is QoS required)
-    wait.tv_usec = 0 ;          // micro seconds to sleep.
+    wait.tv_usec = usec_tout_ ;          // micro seconds to sleep.
 
     rval = select( sock_ +1, NULL, &wd, &er, &wait ) ;
 
@@ -258,6 +283,12 @@ Socket::write( const string& m )
     }else
     {
         throw Socket::Exception( "write timed out" ) ;
+    }
+    sentBytes+=m.size() ;
+    if( sentBytes >= 6000 ) //bytesSent
+    {
+        usleep(latency_) ;
+        sentBytes = 0 ;
     }
 }//* Socket::write
 
@@ -279,17 +310,17 @@ Socket::read( char* s, unsigned int n )
     FD_SET ( sock_, &er ) ;
 
     wait.tv_sec  = tout_ ;      // seconds to sleep.(SpecMAIL says 5 seconds is QoS required)
-    wait.tv_usec = 0 ;          // micro seconds to sleep.
+    wait.tv_usec = usec_tout_ ;          // micro seconds to sleep.
 
     int rval = select( sock_ +1, &rd, NULL, &er, &wait ) ;
 
     if( rval == -1 ) throw Socket::Exception( "select readfailed",strerror( h_errno ) );
     if( rval  )
     {
-        rval = ::read( sock_, s, n ) ;
-        if(-1 == rval ) { debug("read error:%s", strerror(errno)); throw Socket::Exception( "Read erorr:", strerror(errno) ) ; }
-        if( 0 == rval ) { debug("connection reset by server"); throw Socket::Exception( "Connection reset by peer" ) ; }
-        s[rval] = '\0' ; //is this necessary ?
+        int rc = ::read( sock_, s, n ) ;
+        if(-1 == rc ) { debug("read error:%s", strerror(errno)); throw Socket::Exception( "Read erorr:", strerror(errno) ) ; }
+        if( 0 == rc ) { debug("connection reset by server"); throw Socket::Exception( "Connection reset by peer" ) ; }
+        s[rc] = '\0' ; //is this necessary ?
         resp_ += s ;
         //debug("resp_=%s", resp_.c_str() ) ;
         return ;

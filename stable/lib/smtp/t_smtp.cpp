@@ -1,5 +1,6 @@
 #include <iostream>
 #include "smtp/Protocol.h"
+#include <unistd.h>
 
 
 int t_smtp()

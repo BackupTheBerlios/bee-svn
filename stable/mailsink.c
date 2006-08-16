@@ -1,11 +1,6 @@
-/* A simple server in the internet domain using TCP
-   The port number is passed as an argument 
-   This version runs forever, forking off a separate 
-   process for each connection
-   */
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/types.h> 
+#include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <strings.h>
@@ -24,7 +19,7 @@ int main(int argc, char *argv[])
 {
     int sockfd, newsockfd, portno, clilen, pid;
     struct sockaddr_in serv_addr, cli_addr;
-    int opt,val;
+    int opt=0,val=0;
     FILE* f = fopen("concount.txt", "w" ) ;
     if(!f){ printf("cant open concount.txt\n"); exit(2); }
     setvbuf( f, (char *)NULL, _IONBF, 0 ) ;
@@ -34,8 +29,7 @@ int main(int argc, char *argv[])
     }
 
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
-    if (sockfd < 0) 
-        error("ERROR opening socket");
+    if (sockfd < 0) error("ERROR opening socket");
     val = setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
     if( val == -1 ) error("setsockopt reuseaddr");
 
@@ -68,11 +62,6 @@ int main(int argc, char *argv[])
     return 0; /* we never get here */
 }
 
-/******** DOSTUFF() *********************
-  There is a separate instance of this function 
-  for each connection.  It handles all communication
-  once a connnection has been established.
- *****************************************/
 void dostuff (int sock, FILE* f)
 {
     int n;
@@ -111,15 +100,15 @@ void dostuff (int sock, FILE* f)
         if( !strncasecmp(buffer, "DATA", 4 )  ) {
             n= write( sock, "354 OK\r\n",8 ) ;
             if (n < 0) { error("ERROR writing to socket"); ok=0; }
-            
-            do{ 
-        	bzero(buffer,256);
+
+            do{
+                bzero(buffer,256);
                 n = read(sock,buffer,255);
                 printf("cmd: %s\n", buffer);
                 if (n < 0) { error("ERROR reading from socket"); ok=0; }
                 if (n == 0) { printf("Server closed socket"); ok=0; }
-		if(strstr( buffer, ".\r\n")==buffer) break;
-		if(strstr( buffer, "\r\n.\r\n")) break;
+                if(strstr( buffer, ".\r\n")==buffer) break;
+                if(strstr( buffer, "\r\n.\r\n")) break;
             }while(1) ;
             printf("got all data, moving on\n");
             fprintf(f,"%i", 1) ;
@@ -134,14 +123,14 @@ void dostuff (int sock, FILE* f)
             if (n < 0) { error("ERROR writing to socket"); ok=0; }
             continue;
         }
-	n= write( sock, "500 Bad\r\n",9 ) ;
-	if (n < 0) { error("ERROR writing to socket"); ok=0; }
+        n= write( sock, "500 Bad\r\n",9 ) ;
+        if (n < 0) { error("ERROR writing to socket"); ok=0; }
     }
 }
 /*
-MAIL FROM:
-RCPT TO:
-NOOP
-BDAT 228 LAST
-QUIT
-*/
+   MAIL FROM:
+   RCPT TO:
+   NOOP
+   BDAT 228 LAST
+   QUIT
+   */
