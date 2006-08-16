@@ -3,12 +3,18 @@
 
 using namespace std;
 
-int main()
+int main(int argc, char* argv[])
 {
     SysInfo r ;
     float one_m, five_m, ften_m;
     unsigned int read, sect, mergeRead ;
-    for(int i=0; i<10; ++i)
+
+    if(argc < 2 ) { printf("Tell me in seconds, how long will I run !\n"); return 1 ;}
+
+    int seconds=atoi(argv[1]);
+    if(seconds <= 0) { printf("Seconds means 1..3600+\n"); return 1; }
+    
+    for(int i=0; i<seconds; ++i)
     {
         cout <<"MemFree:" <<r.memFree() <<endl ;
         cout <<"MemTotal:" <<r.memTotal() <<endl ;
