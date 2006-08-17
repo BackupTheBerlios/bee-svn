@@ -29,7 +29,7 @@ Pop3::Protocol::~Protocol()
 }
 
 
-    
+
 /* Overriden functions to be POP3 aware */
     void
 Pop3::Protocol::read()
@@ -214,28 +214,32 @@ Pop3::Protocol::stat( int* mails, int* size )
 }
 
 
-    void
+    int
 Pop3::Protocol::list( long int msgNo )
 {
     try {
-    if( msgNo < 0 )
-    {
-        timer_.start() ;
-        write( "LIST\r\n" ) ;
-        read( ) ; // receive one line only
-        timer_.stop() ;
-        //report_->list() ;//TODO
-    }else
-    {
-        timer_.start() ;
-        write( "LIST "+itoa(msgNo)+"\r\n" ) ;
-        read( ) ; // receive a multi line message ( Ends with . )
-        timer_.stop() ;
-        //report_->list() ;//TODO
-    }
+        // LIST all messages
+        if( msgNo < 0 ) 
+        {
+            timer_.start() ;
+            write( "LIST\r\n" ) ;
+            read( ) ;           // receive a multi line message ( Ends with . )
+            timer_.stop() ;
+            report_->list() ;
+        }else
+        {
+            int msg_sz = 0, msg_no=0 ;
+            timer_.start() ;
+            write( "LIST "+itoa(msgNo)+"\r\n" ) ;
+            read( ) ;           // receive one line only
+            timer_.stop() ;
+            report_->list() ;
+            sscanf( resp_.c_str(), "+OK %u %u", &msg_no, &msg_sz ) ;
+            return msg_sz ;
+        }
     }catch(Socket::Exception&ex)
     {
-        //report_->listErr() ;
+        report_->listErr() ;
         throw ex ;
     }
 }
@@ -258,7 +262,7 @@ Pop3::Protocol::quit( void )
     try{
         write( "QUIT\r\n" ) ;
         read();
-	close() ;
+        close() ;
     }catch(Socket::Exception&ex)
     {
         report_->quitErr() ;
