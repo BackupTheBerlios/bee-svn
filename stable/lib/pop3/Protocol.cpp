@@ -235,7 +235,7 @@ Pop3::Protocol::list( long int msgNo )
     }
     }catch(Socket::Exception&ex)
     {
-        report_->listErr() ;
+        //report_->listErr() ;
         throw ex ;
     }
 }

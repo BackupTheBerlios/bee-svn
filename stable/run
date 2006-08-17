@@ -3,5 +3,5 @@
 #ulimit -n 100000
 #ulimit -a
 
-./main -threads 10 -users 100000 -smtpport 25 -pop3port 110 -smtpserver gigi -pop3server gigi -initonly
+DBG=1 ./main -threads 10 -users 100000 -smtpport 25 -pop3port 110 -smtpserver gigi -pop3server gigi -initonly
 

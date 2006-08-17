@@ -85,6 +85,12 @@ DBG ;
             case 5:
                 cfg.pop3_port   = atoi(optarg) ;
                 break;
+            case 10:
+                cfg.user_prefix = optarg ;
+                break;
+            case 11:
+                cfg.user_passwd = optarg ;
+                break;
             case 14:
                 cfg.init_rest   = atoi(optarg) ;
                 break;
