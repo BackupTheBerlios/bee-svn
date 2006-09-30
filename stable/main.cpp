@@ -183,33 +183,32 @@ DBG ;
 
     pid_t spid, ppid;
     spid = fork();
-    //ppid = fork();
     int rc = 0 ;
     int status ;
-    
 
     if (spid >= 0 ) /* fork succeeded */
     {
-        if (spid == 0  ) /* fork() returns 0 to the child process */
-        {
-            printf("CHILD: I am the child process!\n");
-            printf("CHILD: Here's my PID: %d\n", getpid());
-            printf("CHILD: My parent's PID is: %d\n", getppid());
-            printf("CHILD: The value of my copy of spid is: %d\n", spid);
-            printf("CHILD: Sleeping for 1 second...\n");
-            ppid = fork() ;
-            if( ppid >= 0 )
-            {
-                if(ppid==0)runPop3(&cfg);
-            }
+        if (spid == 0  ) {/* 0 to the child process */
+            printf("SMTP: I am the SMTP process!\n");
+            printf("SMTP: Here's my PID: %d\n", getpid());
+            printf("SMTP: My parent's PID is: %d\n", getppid());
+            printf("SMTP: The value of my copy of spid is: %d\n", spid);
             runSmtp(&cfg);
-            printf("CHILD: Enter an exit value (0 to 255): ");
-            scanf(" %d", &rc);
-            printf("CHILD: Goodbye!\n");    
-            exit(rc); /* child exits with user-provided return code */
-        }
-        else /* fork() returns new pid to the parent process */
+            printf("SMTP: Finished!\n");
+            exit(1); /* child exits with user-provided return code */
+        } else /* fork() returns new pid to the parent process */
         {
+            ppid = fork() ;
+            if(ppid==0) { /* 0 to the child process */
+                printf("POP3: I am the POP3 process!\n");
+                printf("POP3: Here's my PID: %d\n", getpid());
+                printf("POP3: My parent's PID is: %d\n", getppid());
+                printf("POP3: The value of my copy of spid is: %d\n", spid);
+                runPop3(&cfg);
+                printf("POP3: Finished!\n");
+                exit(1); /* child exits with user-provided return code */
+            }
+            else {
             printf("PARENT: I am the parent process!\n");
             printf("PARENT: Here's my PID: %d\n", getpid());
             printf("PARENT: The value of my copy of spid is %d\n", spid);
@@ -217,8 +216,9 @@ DBG ;
             wait(&status); /* wait for child to exit, and store its status */
             //waitpid(-1, &status, 0);
             printf("PARENT: Child's exit code is: %d\n", WEXITSTATUS(status));
-            printf("PARENT: Goodbye!\n");             
-            exit(0);  /* parent exits */       
+            printf("PARENT: Goodbye!\n");
+            exit(0);  /* parent exits */
+            }
         }
     }
     else /* fork returns -1 on failure */
@@ -240,7 +240,6 @@ DBG ;
     if( rc == 0 ) pthread_detach( pop3_thread) ;
     else { printf( "ERROR creating pop3_thread\n" ) ; exit(2) ; }
 #endif
-    sleep(10);
     return 0;
 }
 

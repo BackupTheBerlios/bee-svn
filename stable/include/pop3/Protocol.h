@@ -20,7 +20,7 @@ namespace Pop3 {
             void open ( sockaddr_in* dest ) ;
             void apop(void) ;
             void dele( unsigned long int ) ;
-            void list( long int ) ;
+            int list( long int ) ;
             void noop( void ) ;
             void pass( const std::string& ) ;
             void quit( void ) ;

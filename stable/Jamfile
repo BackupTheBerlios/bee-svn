@@ -1,5 +1,5 @@
 TOP = . ;
-#TEST
+
 T_BEE_SRC   =  main.cpp ;
 T_MAILSINK  = mailsink.c ;
 SubDir TOP ;
