@@ -12,7 +12,10 @@
 #include <netdb.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-
+/*
+ * TODO: add syncronization between pop3 and smtp generators.
+ * If smtp forks before pop3, it will have to wait until pop3 is ready.
+ * How will pop3 behave if smtp exits before ?*/
 
 int     usage( const char* prog ) ;
 void*   runSmtp(void*);
