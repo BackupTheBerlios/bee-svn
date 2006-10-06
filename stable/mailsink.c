@@ -6,8 +6,6 @@
 #include <strings.h>
 #include <string.h>
 
-
-
 void dostuff(int, FILE*); /* function prototype */
 void error(char *msg)
 {
