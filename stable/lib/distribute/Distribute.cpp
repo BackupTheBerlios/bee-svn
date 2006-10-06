@@ -69,14 +69,17 @@ Distribute::Smtp::rcptTo( rcpt_t a[32], int maxRcpt )
 }
 
 
-
+/*
+ * I forgot what this does :)*/
 int
 Distribute::Smtp::msgSize()
 {
 	int i=0;
 	float r = (1.0*rand())/RAND_MAX ; 
+	// sequential search
 	while ( (r>msg_cmf_[i]) && (i<msg_d_.size()) )
 		i++;
+	if( i >=msg_d_.size() ) --i ; // if i == msg_d_.size(), the loop exits, but msg_d_[i] is inaccessable
 	return msg_d_[i].size*1024 ;
 }
 
@@ -102,7 +105,8 @@ Distribute::Pop3::Pop3( config_t* cfg )
 	for( int i=1; i< 100001 ;i+=13) // TODO HARDCODED 100000 nb_users
 	{
 		int u = i+    (int)((double)rand()*14.0/RAND_MAX);
-		retry_pool[k++] = u ;
+		retry_pool[k] = u ;
+        if(k<7500)k++;
         debug("\t\tleft=%i\tu=%i\tright=%i", i,u, i+13 ) ;
 	}
     for( k=0; k<7500; k++)
@@ -124,7 +128,7 @@ int
 Distribute::Pop3::retry_user( )
 {
 	int i = (int)(random()*(1.0*7500)/RAND_MAX) + 1 ;
-	return retry_pool[ i ];
+	return retry_pool[ i ]; // FMR, UMR, ABR
 }
 
 
@@ -146,22 +150,12 @@ Distribute::Pop3::random_user()
 int
 Distribute::Pop3::search( const int p, int left, int right )
 {
-    int mid ;
-    if ( right < left ) return -1 ;
-	mid = (right-left)/2+left;
     for( int i=1; i<7500; ++i)
     {
-        if( p == retry_pool[i] ) return 0 ;
+        if( p == retry_pool[i] ) return 0 ; //UMR
         if( p > retry_pool[i] ) return -1 ;
     }
-/*
-	if ( p > retry_pool[mid] )
-		search( p, mid+1, right ) ;
-	else if ( p < retry_pool[mid] )
-		search( p, left, mid-1 ) ;
-	else
-		return mid ;
-*/
+    return -1 ;
 }
 
 

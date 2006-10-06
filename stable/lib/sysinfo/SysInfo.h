@@ -33,8 +33,8 @@ class SysInfo {
        int netTx( const char* iface, long int* bytes, long int* pkts ) ;
        // param[in] device
 
-       int readInfo( const char* device, unsigned int* reads, unsigned int* sectors, unsigned int* mergedReads );
-       int writeInfo( const char* device, unsigned int* writes, unsigned int* sectors );
+       int readInfo( const char* device, int* reads, int* sectors, int* mergedReads );
+       int writeInfo( const char* device, int* writes, int* sectors );
        int reads( const char* device ) ;
        int writes( const char* device ) ;
 } ;

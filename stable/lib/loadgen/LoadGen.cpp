@@ -51,6 +51,8 @@ LoadGen::Smtp::run()
     {
         cron.run();
     }
+    // if Pop3 exits before Smtp, it will destroy the
+    // shared semaphore, resulting in a core.
 }
 
 
@@ -68,7 +70,7 @@ LoadGen::Smtp::worker( void* a )
 
     while( 1 )
     {
-        sem_wait( ths->sem_ ) ;
+        sem_wait( ths->sem_ ) ; //UMR ?? //CORE ??
         debug("pthread_self %u", pthread_self() ) ;
         int rcpts  = ths->smtpDistr->rcptTo( rcptList, p->users) ;
         int usrIdx = ths->smtpDistr->mailFrom(p->users) ;          // call an exponential distribution here
@@ -80,21 +82,16 @@ LoadGen::Smtp::worker( void* a )
 
         try
         {
-            int sec=0 ;
-            float sec_tout=0.0 ;
             smtp.timeout(5) ; //6,000
             smtp.latency(modem) ;
-            //smtp.open( "gigi", 25 ) ;
-            smtp.open( p->dest ) ;
+            smtp.open( "gigi", 25 ) ;
             smtp.greet("ehlo cucu");
-            smtp.mailFrom("<>");                // TODO does specmail says smth abt this ?
-            smtp.rcptTo( rcpts, rcptList ) ;    // TODO add domain parameter
-            // QoS is different for DATA
-            sec_tout= 5 + ((0.1*msg_sz) / 3000  ) ;
-            sec     = (int)floor(sec_tout) ;
-            smtp.timeout(sec, ((int)sec_tout-sec)*1000000) ; // 1,000,000 * usec
+            smtp.mailFrom("<>"); // TODO does specmail says smth abt this ?
+            smtp.rcptTo( rcpts, rcptList ) ; // TODO add domain parameter
+            float sec_tout  = 5 + ((0.1*msg_sz) / 3000  ) ;
+            int sec = (int)floor(sec_tout) ;
+            smtp.timeout(sec, ((int)sec_tout-sec)*1000000) ;
             smtp.randomData(msg_sz) ;
-            // Default QoS
             smtp.timeout(5) ; //6,000
             smtp.quit();
         }catch(Socket::Exception& e )
@@ -119,17 +116,13 @@ LoadGen::Smtp::stop()
 }
 
 
-
-
-
 //-----------------Pop3 Load Generator-----------------------------
 LoadGen::Pop3::Pop3( )
 {
     // will have to implement Distribute::pop3
-    pop3Distr = new Distribute::Pop3(cfg_) ;
-    xsubi_[0] = (unsigned short)(0x1234 ^ 12);
-    xsubi_[1] = (unsigned short)(0x5678 ^ (12 << 8));
-    xsubi_[2] = (unsigned short)(0x9abc ^ ~12);
+    //xsubi_[0] = (unsigned short)(0x1234 ^ 12);
+    //xsubi_[1] = (unsigned short)(0x5678 ^ (12 << 8));
+    //xsubi_[2] = (unsigned short)(0x9abc ^ ~12);
 }
 
 
@@ -147,6 +140,7 @@ LoadGen::Pop3::init( config_t* cfg )
     cfg_    = cfg ;
     sem_    = cron.semaphore() ;
     cfg_->pths = this ;
+    pop3Distr = new Distribute::Pop3(cfg_) ;
 }
 
 
@@ -200,25 +194,17 @@ LoadGen::Pop3::worker( void* a )
 
         try {
             debug("host:%s port:%i\n", p->smtp_server, p->smtp_port );
-            //pop3.open( "gigi", 110 ) ;
-            pop3.open( p->pdest ) ;
+            pop3.open( "gigi", 110 ) ;
             pop3.user( p->user_prefix, user ) ;
             pop3.pass( p->user_prefix, user ) ;
             pop3.stat(&m, &s) ;
-            debug("MESSAGES:%i SIZE%i\n", m,s ) ;
+            debug("MESSAGES:%i %i\n", m,s ) ;
+	    pop3.timeout(671); 	
             while(m--) {
-                int   msg_sz = pop3.list(m) ;
-                float sec_tout = 0.0 ;
-                int   sec = 0 ;
-                // QoS is different for RETR
-                sec_tout= 5 + ((0.1*msg_sz) / 3000  ) ;
-                sec     = (int)floor(sec_tout) ;
-                pop3.timeout(sec, ((int)sec_tout-sec)*1000000) ; // 1,000,000 * usec
                 pop3.retr(m) ;
-                // Default QoS
-                pop3.timeout(5) ;
                 pop3.dele(m) ;
             }
+            pop3.timeout(5) ;
             pop3.quit() ;
         }catch(Socket::Exception& e )
         {

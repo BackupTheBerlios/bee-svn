@@ -226,7 +226,7 @@ SysInfo::netTx( const char* iface, long int* bytes, long int* pkts )
 
 
 int
-SysInfo::readInfo( const char* device, unsigned int* reads, unsigned int* sectors, unsigned int* mergedReads )
+SysInfo::readInfo( const char* device, int* reads, int* sectors, int* mergedReads )
 {
     int fh,br=0 ;
     int     bufsz = 8192 ;
@@ -241,23 +241,23 @@ SysInfo::readInfo( const char* device, unsigned int* reads, unsigned int* sector
         return 0 ;
     }
 
-    /* Start parsing */
+   /* Start parsing */
     char* loc = strstr( buf, device ) ;
     if( !loc )
     {
         printf("Can't find device %s\n", device ) ;
         return 0 ;
     }
-    br = sscanf( loc, "%*s %u %u %u" , reads, sectors, mergedReads ) ;
+    br = sscanf( loc, "%*i %*i %i" , &sectors ) ;
     if( !br )
     {
-        printf( "Can't get info from %s\n", fname ) ;
+        printf( "Can't get info from %s", fname ) ;
         return 0 ;
     }
     return 1 ;
 }
 
 int
-SysInfo::writeInfo( const char* device, unsigned int* writes, unsigned int* sectors )
+SysInfo::writeInfo( const char* device, int* writes, int* sectors )
 {
 }

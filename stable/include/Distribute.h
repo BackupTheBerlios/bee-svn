@@ -40,7 +40,7 @@ namespace Distribute {
         private:
             int search( const int p, int left, int rigth ) ;
             int isRetry( const int p ) ;
-            int retry_pool[7500] ; // TODO hardcoded
+            int retry_pool[7501] ; // TODO hardcoded
     } ;
 };
 

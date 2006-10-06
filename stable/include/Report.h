@@ -48,7 +48,6 @@ namespace Report {
             void stat() ;
             void retr() ;
             void dele() ;
-            void list() ;
             void quit() ;
             void openErr() ;
             void userErr() ;
@@ -57,7 +56,6 @@ namespace Report {
             void retrErr() ;
             void topErr() ;
             void deleErr() ;
-            void listErr() ;
             void quitErr() ;
         private:
             Timer* timer_ ;

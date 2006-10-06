@@ -20,13 +20,13 @@ namespace Pop3 {
             void open ( sockaddr_in* dest ) ;
             void apop(void) ;
             void dele( unsigned long int ) ;
-            int list( long int ) ;
+            void list( long int ) ;
             void noop( void ) ;
             void pass( const std::string& ) ;
             void quit( void ) ;
             void retr( long int ) ;
             void rset( void ) ;
-            void  stat( int* mails, int* size ) ;
+            bool  stat( int* mails, int* size ) ; // return the number of mails a user has in Inbox
             void top( long int, long int ) ;
             void uidl( long int ) ;
             void user( const std::string& ) ;
