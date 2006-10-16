@@ -8,19 +8,19 @@ extern  struct  globals_s glob;
 static  int     recursiveFlag = 0;
 static  int     forceFlag = 0;
 
-int wait_axi_start(int timeout) ;
-int wait_axi_stop(int timeout) ;
+int wait_start(int timeout) ;
+int wait_stop(int timeout) ;
 
 
 
 /*
 */
-int util_axiStart(int test_type, int timeout, char *start)
+int util_start(int test_type, int timeout, char *start)
 {
     //int rc =-1;
-    printf("* Starting Axigen ... %s\n", getenv(AXI_START));
+    printf("* Starting ... %s\n", getenv(AXI_START));
     if(AXI_TTYPE == TEST_LOCAL ){
-        wait_axi_start( timeout );
+        wait_start( timeout );
         sleep(1);// still need to wait a little
         printf("OK\n");
     }else {
@@ -34,7 +34,7 @@ int util_axiStart(int test_type, int timeout, char *start)
 
 
 /**
- * \brief wait until axigen is started
+ * \brief wait until is started
  * \todo Replace hardcoded path to maillog to an ENV path
  * \todo make it work remote too
  * Will read from maillog file, in a manner simmilar to 
@@ -42,14 +42,14 @@ int util_axiStart(int test_type, int timeout, char *start)
  * \warning WORKS LOCALLY ONLY.
  */
 int
-wait_axi_start(int timeout)
+wait_start(int timeout)
 {
-    #define supRL 24
-    #define axiRL 11
+    #define RL 24
+    #define RL 11
     int fd=0, i=0 ,rc=0, newsz=0, oldsz=0;
     char buf[512]={0};
     char* supRdyStr = "SUCCESS: supervise ready";
-    char* axiRdyStr = "INFO: ready";
+    char* rdyStr = "INFO: ready";
     int   supRdy=FALSE ;
 
     printf("Waiting\n* LOG\n++++++++++\n");
@@ -84,11 +84,11 @@ wait_axi_start(int timeout)
             /* a possible bug might be if SUPERVISER text gets in the same
             * buffer with INFO: ready. Then we get a false status*/
             if( supRdy == FALSE ) {
-                rc = util_strsrch( buf, i, supRdyStr, supRL );
+                rc = util_strsrch( buf, i, supRdyStr, RL );
                 supRdy = rc ;
                 if(rc)printf("////////Found SUPERVISER/////\n"); 
             }else {
-                rc = util_strsrch( buf, i, axiRdyStr, axiRL );
+                rc = util_strsrch( buf, i, rdyStr, RL );
                 if( rc ) { printf("----------\n");close(fd);return TRUE; }
             }
         }
@@ -100,25 +100,25 @@ wait_axi_start(int timeout)
 }
 
 
-int util_axiStop(int test_type, int timeout, char *stop)
+int util_stop(int test_type, int timeout, char *stop)
 {
-    printf("* Stoping Axigen...\n");
+    printf("* Stoping ...\n");
     fflush(stdout);
-    wait_axi_stop( timeout );
-    printf("* Axigen stopped\n");
+    wait_stop( timeout );
+    printf("* stopped\n");
     //sleep(2);//! @todo replace this with a proper wait
     return 0 ;
 }
 
 int
-wait_axi_stop(int timeout)
+wait_stop(int timeout)
 {
     #define supRL 30
     #define axiRL 25
     int fd=0, i=0 ,rc=0;//, newsz=0, oldsz=0;
     char buf[512]={0};
     char* supRdyStr = "INFO: supervise: caught signal";
-    char* axiRdyStr = "INFO: supervise: finished";
+    char* rdyStr = "INFO: supervise: finished";
     int   supRdy=FALSE ;
 
     printf("Waiting\n* LOG\n++++++++++\n");
@@ -157,7 +157,7 @@ wait_axi_stop(int timeout)
                         supRdy = rc ;
                         if(rc)printf("////////Found SUPERVISER/////\n"); 
                     }else {
-                        rc = util_strsrch( buf, i, axiRdyStr, axiRL );
+                        rc = util_strsrch( buf, i, rdyStr, axiRL );
                         if( rc ) { printf("----------\n");close(fd);return TRUE; }
                     }
                 }
@@ -460,7 +460,7 @@ int util_getCode(char *str)
 {
     if (!util_startsWith(str, "OK:") && !util_startsWith(str, "Error:"))
     {
-        fprintf(stderr, "The string received from axigenhost is '%s'\n", str);
+        fprintf(stderr, "The string received from host is '%s'\n", str);
         fprintf(stderr, "Expecting OK: or Error:\n");
         exit(1);
     }
@@ -486,11 +486,10 @@ int util_getCode(char *str)
 /**
  * \brief Check to see if a core was droped.
  * \return FALSE if core not dropped.
- * \todo put axi_core_dir as parameter.
  * For the moment, this works local only.
- * Have to implement the same function in axigenhost.c*/
-int util_checkCoreLocal(const char* core_srcDir, const char* dbg_srcDir, const char* axi_workDir,
-                             const char* axi_cfgFile, const char* crash_destDir )
+ * Have to implement the same function in host.c*/
+int util_checkCoreLocal(const char* core_srcDir, const char* dbg_srcDir, const char* workDir,
+                             const char* cfgFile, const char* crash_destDir )
 {
     DIR* dir ;
     struct dirent* entry, *core ;
@@ -513,9 +512,9 @@ int util_checkCoreLocal(const char* core_srcDir, const char* dbg_srcDir, const c
                         glob.testbot_path, core->d_name ) ;
                 return TRUE ;
             }
-            sprintf(src, "%s/%s", glob.axi_coreDir , core->d_name );
+            sprintf(src, "%s/%s", glob.coreDir , core->d_name );
 
-            // 1. Move Axigen CORE
+            // 1. Move CORE
             sprintf( cmd, "/bin/mv %s %s", src, dst ) ;
             system(cmd);
             closedir(dir) ;
@@ -524,25 +523,25 @@ int util_checkCoreLocal(const char* core_srcDir, const char* dbg_srcDir, const c
             dir = opendir( dbg_srcDir );
             if(!dir ) {
                 fprintf(stderr, "Can't open %s : %s\n",
-                                glob.axi_dbgDir, strerror(errno)) ;
+                                glob.dbgDir, strerror(errno)) ;
                 exit(-1);
             }
             while( (entry = readdir(dir)) )
             {
                 if( !strcmp(entry->d_name,".") || !strcmp(entry->d_name,"..") ) continue ;
-                sprintf( src, "%s/%s", glob.axi_dbgDir, entry->d_name) ;
+                sprintf( src, "%s/%s", glob.dbgDir, entry->d_name) ;
                 sprintf( cmd, "/bin/mv %s %s", src, dst );
                 system( cmd );
             }
             closedir(dir);
 
-            // 3. Move Axigen LOG
-            sprintf(src, "%s/log/default.txt", axi_workDir ) ;
+            // 3. Move LOG
+            sprintf(src, "%s/log/default.txt", workDir ) ;
             sprintf(cmd, "/bin/mv %s %s", src, dst ) ;
             system(cmd);
 
-            // 4. copy Axigen CONFIG
-            sprintf( cmd, "/bin/cp %s %s", axi_cfgFile, dst ) ;
+            // 4. copy  CONFIG
+            sprintf( cmd, "/bin/cp %s %s", cfgFile, dst ) ;
             system( cmd ) ;
             return TRUE ;
         }
