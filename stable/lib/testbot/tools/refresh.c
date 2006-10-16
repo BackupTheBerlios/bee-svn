@@ -14,8 +14,27 @@ struct globals_s glob;
 static int rc_parseArgs( int argc, char* argv[] ) ;
 
 
+static int refresh_local()
+{
+    printf("* refresh_client: Removing %s\n", dest);
+    sprintf(cmd, "/bin/rm -rf %s", dest);
+    if (system(cmd))
+    {
+        printf("* refresh_client: Error: %s not deleted\n", dest);
+        return 1;
+    }
+    printf("* refresh_client: copying %s to %s\n", source, dest);
+    if(dest[strlen(dest)-1] =='/' ) dest[strlen(dest)-1] = '\0';
+    sprintf(cmd, "/bin/cp -R %s %s", source, dest);
+    if (system(cmd))
+    {
+        printf("* refresh_client: Error: File not copied\n");
+        return 1;
+    }
+    return 0;
+}
 
-int client_refresh(char *host, int port, char *sursa, char *dest)
+static int refresh_remote(char *host, int port, char *sursa, char *dest)
 {
     char command[MAX_LIN] = {0};
     int cod, sockfd;
@@ -53,27 +72,12 @@ static int pt_refresh(int test_type, char *source, char *dest, char *host, int p
     }
     if (test_type == TEST_LOCAL)
     {
-        printf("* refresh_client: Removing %s\n", dest);
-        sprintf(cmd, "/bin/rm -rf %s", dest);
-        if (system(cmd))
-        {
-            printf("* refresh_client: Error: %s not deleted\n", dest);
-            return 1;
-        }
-        printf("* refresh_client: copying %s to %s\n", source, dest);
-        if(dest[strlen(dest)-1] =='/' ) dest[strlen(dest)-1] = '\0';
-        sprintf(cmd, "/bin/cp -R %s %s", source, dest);
-        if (system(cmd))
-        {
-            printf("* refresh_client: Error: File not copied\n");
-            return 1;
-        }
-        return 0;
+        return refresh_local();
     }
 
     if (test_type == TEST_REMOTE)
     {
-        if (client_refresh(host, port, source, dest))
+        if (refresh_remote(host, port, source, dest))
         {
             printf("* refresh_client: Error: Could not make refresh!!!\n");
             return EXIT_FAILURE;
