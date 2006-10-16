@@ -1,15 +1,15 @@
 CC  = gcc -g -I../ -Wall
 LIB = ../util.c ../socket.c
 BIN = ./bin
-TARGETS=action cp mkdir rm refresh
+TARGETS=rexec cp mkdir rm refresh
 
 
 all: $(TARGETS)
 #	find ./bin/ -maxdepth 1 -type f -exec scp {} testbot@gigi:/home/testbot/current/engine/ \;
 #	find ./bin/ -maxdepth 1 -type f -exec cp {} ../../engine \;
 
-action:
-	$(CC) action.c $(LIB) -o $(BIN)/action
+rexec:
+	$(CC) rexec.c $(LIB) -o $(BIN)/rexec
 cp:
 	$(CC) cp.c $(LIB) -o $(BIN)/cp
 
