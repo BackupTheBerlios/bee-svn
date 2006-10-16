@@ -25,18 +25,18 @@
 #include <pcre.h>
 #include <ctype.h>
 
-#define PUT_TTYPE   "pt_ttype"
-#define PUT_HOST    "pt_host"
-#define PUT_PORT    "pt_port"
-#define PUT_WORKDIR "pt_workdir"
-#define PUT_STOP    "pt_stop"
-#define PUT_START   "pt_start"
-#define PUT_RESTART "pt_restart"
-#define PUT_TOOL    "pt_tool"
-#define PUT_DEFDOM  "pt_fresh"    /* Default configuration, meaning users and domains */
-#define PUT_COREDIR "pt_coredir"
-#define PUT_DBGDIR  "pt_dbgdir"
-#define PUT_CFGFILE "pt_cfgfile"
+#define PT_TTYPE   "pt_ttype"
+#define PT_HOST    "pt_host"
+#define PT_PORT    "pt_port"
+#define PT_WORKDIR "pt_workdir"
+#define PT_STOP    "pt_stop"
+#define PT_START   "pt_start"
+#define PT_RESTART "pt_restart"
+#define PT_TOOL    "pt_tool"
+#define PT_DEFDOM  "pt_fresh"    /* Default configuration, meaning users and domains */
+#define PT_COREDIR "pt_coredir"
+#define PT_DBGDIR  "pt_dbgdir"
+#define PT_CFGFILE "pt_cfgfile"
 #define EXT_EXEC    ".bat"
 #define PLAT 3
 
