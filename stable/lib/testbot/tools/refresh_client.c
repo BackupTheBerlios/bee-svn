@@ -1,6 +1,6 @@
 /**
- *   \brief    Handles the refreshing of axigen state(users/domains).
- *   \see      axigenhost.c 
+ *   \brief    Handles the refreshing of putgen state(users/domains).
+ *   \see      putgenhost.c 
  *   \author   Cristina Balan, Andrei Paduraru 
  *   \date     Thu Aug 17 17:38:13 2006
  *
@@ -39,7 +39,7 @@ int client_refresh(char *host, int port, char *sursa, char *dest)
 
 
 
-static int axi_refresh(int test_type, char *source, char *dest, char *host, int port)   // Cristina
+static int put_refresh(int test_type, char *source, char *dest, char *host, int port)   // Cristina
 {
     char cmd[MAX_LIN] = { 0 };
     struct stat buf;
@@ -91,35 +91,35 @@ int main(int argc, char* argv[])
     int port;
 
     rc_parseArgs( argc, argv);
-    util_isEnv(AXI_TTYPE);
-    util_isEnv(AXI_STOP);
-    util_isEnv(AXI_START);
-    util_isEnv(AXI_DEFDOM);
-    util_isEnv(AXI_WORKDIR);
-    tc = getenv(AXI_TTYPE);
+    util_isEnv(PUT_TTYPE);
+    util_isEnv(PUT_STOP);
+    util_isEnv(PUT_START);
+    util_isEnv(PUT_DEFDOM);
+    util_isEnv(PUT_WORKDIR);
+    tc = getenv(PUT_TTYPE);
 
     if (!strcasecmp(tc, "local"))
     {
         printf("* refresh_client: Working local\n");
-        util_axiStop(TEST_LOCAL, 5, getenv(AXI_STOP)); //! @todo replace 5 with a proper timeout
-        axi_refresh(TEST_LOCAL, getenv(AXI_DEFDOM), getenv(AXI_WORKDIR), 0, 0);
-        util_axiStart(TEST_LOCAL, 5, getenv(AXI_START));//! @todo replace 5
+        util_putStop(TEST_LOCAL, 5, getenv(PUT_STOP)); //! @todo replace 5 with a proper timeout
+        put_refresh(TEST_LOCAL, getenv(PUT_DEFDOM), getenv(PUT_WORKDIR), 0, 0);
+        util_putStart(TEST_LOCAL, 5, getenv(PUT_START));//! @todo replace 5
     } else if (!strcasecmp(tc, "remote"))
     {
         printf("* refresh_client: Working remote\n");
-        util_isEnv(AXI_HOST);
-        util_isEnv(AXI_PORT);
+        util_isEnv(PUT_HOST);
+        util_isEnv(PUT_PORT);
 
-        host = getenv(AXI_HOST);
-        port = atoi(getenv(AXI_PORT));
-        path = getenv(AXI_WORKDIR);
-        util_axiStop(TEST_REMOTE, 5, getenv(AXI_STOP)); //! @todo replace 5
-        axi_refresh(TEST_REMOTE, getenv(AXI_DEFDOM), getenv(AXI_WORKDIR), host,
+        host = getenv(PUT_HOST);
+        port = atoi(getenv(PUT_PORT));
+        path = getenv(PUT_WORKDIR);
+        util_putStop(TEST_REMOTE, 5, getenv(PUT_STOP)); //! @todo replace 5
+        put_refresh(TEST_REMOTE, getenv(PUT_DEFDOM), getenv(PUT_WORKDIR), host,
                     port);
-        util_axiStart(TEST_REMOTE, 5, getenv(AXI_START));//! @todo replace 5
+        util_putStart(TEST_REMOTE, 5, getenv(PUT_START));//! @todo replace 5
     } else
     {
-        printf("* refresh_client : Invalid $axi_ttype\n");
+        printf("* refresh_client : Invalid $put_ttype\n");
         return 1;
     }
     return EXIT_SUCCESS;
@@ -153,15 +153,15 @@ rc_parseArgs( int argc, char* argv[] )
                 printf("* testbot: Error: Give valid context local/remote.\n");
                 tb_usage();
             }*/
-            setenv("axi_ttype", optarg, 1);
+            setenv("put_ttype", optarg, 1);
             break;
         case 'H':
             //glob.hostname = optarg;
-            setenv("axi_host", optarg, 1);
+            setenv("put_host", optarg, 1);
             break;
         case 'P':
             //glob.port = atoi(optarg);   // fixme
-            setenv("axi_port", optarg, 1);
+            setenv("put_port", optarg, 1);
             break;
         case 'h':
             rc_usage();

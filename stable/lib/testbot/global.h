@@ -25,18 +25,18 @@
 #include <pcre.h>
 #include <ctype.h>
 
-#define AXI_TTYPE   "axi_ttype"
-#define AXI_HOST    "axi_host"
-#define AXI_PORT    "axi_port"
-#define AXI_WORKDIR "axi_workdir"
-#define AXI_STOP    "axi_stop"
-#define AXI_START   "axi_start"
-#define AXI_RESTART "axi_restart"
-#define AXI_TOOL    "axi_tool"
-#define AXI_DEFDOM  "axi_fresh"    /* Default configuration, meaning users and domains */
-#define AXI_COREDIR "axi_coredir"
-#define AXI_DBGDIR  "axi_dbgdir"
-#define AXI_CFGFILE "axi_cfgfile"
+#define PUT_TTYPE   "put_ttype"
+#define PUT_HOST    "put_host"
+#define PUT_PORT    "put_port"
+#define PUT_WORKDIR "put_workdir"
+#define PUT_STOP    "put_stop"
+#define PUT_START   "put_start"
+#define PUT_RESTART "put_restart"
+#define PUT_TOOL    "put_tool"
+#define PUT_DEFDOM  "put_fresh"    /* Default configuration, meaning users and domains */
+#define PUT_COREDIR "put_coredir"
+#define PUT_DBGDIR  "put_dbgdir"
+#define PUT_CFGFILE "put_cfgfile"
 #define EXT_EXEC    ".bat"
 #define PLAT 3
 
@@ -69,11 +69,11 @@ struct globals_s {
     char   cur_path[PATH_MAX];      //! retine variabila PATH inainte de rescriere
     char   cur_dir[PATH_MAX];       //! retine directorul curent, inainte k sa il schimb in /tmp/pid
     char   testbot_path[PATH_MAX] ; //! Path to testbot dir
-    char*  axi_coreDir ;            //! Path to core dir
-    char*  axi_workDir ;
-    char   axi_bin[PATH_MAX] ;
-    char*  axi_cfgFile;
-    char*  axi_dbgDir ;
+    char*  put_coreDir ;            //! Path to core dir
+    char*  put_workDir ;
+    char   put_bin[PATH_MAX] ;
+    char*  put_cfgFile;
+    char*  put_dbgDir ;
     char*  dest_coreDir ;
     int    verbose ;
     int    script_tout ;            //! script timeout in seconds. after this expires, the script is killed

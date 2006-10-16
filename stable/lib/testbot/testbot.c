@@ -1,6 +1,6 @@
 /**
  *   \brief    The side that runs the scripts.
- *   \see      axigenhost.c
+ *   \see      putgenhost.c
  *   \author   Cristina Balan, Andrei Paduraru, Marius Negreanu
  *   \date     Thu Aug 17 17:38:13 2006
  *
@@ -40,7 +40,7 @@ main(int argc, char *argv[])
 
     tb_parseConf();
     tb_envInit();
-    tb_checkTools(getenv(AXI_TOOL)) ;
+    tb_checkTools(getenv(PUT_TOOL)) ;
 
     if (!glob.test_dir) {
         printf("* testbot: Provide the test directory.\n");
@@ -52,8 +52,8 @@ main(int argc, char *argv[])
             printf("* testbot: Tests will be done LOCALLY.\n");
     }
     if (glob.test_type == TEST_REMOTE) {
-        util_isEnv(AXI_HOST);
-        util_isEnv(AXI_PORT);
+        util_isEnv(PUT_HOST);
+        util_isEnv(PUT_PORT);
         if (glob.verbose == TRUE)
             printf("* testbot: Tests will be done REMOTE.\n");
     }
@@ -81,11 +81,11 @@ tb_parseArgs( int argc, char* argv[] )
                 printf("* testbot: Error: Give valid context local/remote.\n");
                 tb_usage();
             }
-            setenv( AXI_TTYPE, optarg, 1);
+            setenv( PUT_TTYPE, optarg, 1);
             break;
         case 'H':
             glob.hostname = optarg;
-            setenv( AXI_HOST, optarg, 1);
+            setenv( PUT_HOST, optarg, 1);
             break;
         case 'o':
             if (!strcasecmp(optarg, "linux")) {
@@ -104,7 +104,7 @@ tb_parseArgs( int argc, char* argv[] )
             tb_usage();
         case 'P':
             glob.port = atoi(optarg);   // fixme
-            setenv( AXI_PORT, optarg, 1);
+            setenv( PUT_PORT, optarg, 1);
             break;
         case 'd':
             glob.test_dir = optarg;
@@ -144,10 +144,10 @@ static void tb_usage(void)
     printf("TestBot version %s\n", VER);
     printf("USAGE: testbot [options...]\n");
     printf("\t-d tests_dir            The directory containing the test scripts\n");
-    printf("\t-D                      Act as daemon( axigenhost )\n");
-    printf("\t-H host                 Host on which axigenhost runs.\n");
+    printf("\t-D                      Act as daemon( putgenhost )\n");
+    printf("\t-H host                 Host on which putgenhost runs.\n");
     printf("\t-o remote_OS            The OS that runs on the remote machine\n");
-    printf("\t-P port                 Port on which axigenhost listens.\n");
+    printf("\t-P port                 Port on which putgenhost listens.\n");
     printf("\t-r refresh              Restore server's state after each testRun ?\n");
     printf("\t                        (y)es, (n)o, (a)sk.[default yes]\n");
     printf("\t-t test_type            Local or remote\n");
@@ -185,24 +185,24 @@ int tb_globalsInit(int argc, char *argv[])
 int tb_envInit(void)
 {
     /* build the PATH like /home/tools/bin:$PATH */
-    util_isEnv(AXI_TOOL);
-    strcpy(glob.cur_path, getenv(AXI_TOOL));
+    util_isEnv(PUT_TOOL);
+    strcpy(glob.cur_path, getenv(PUT_TOOL));
     strcat(glob.cur_path, ":");
     strcat(glob.cur_path, getenv("PATH"));
     setenv("PATH", glob.cur_path, 1);
 
-    util_isEnv(AXI_WORKDIR);
-    util_isEnv(AXI_TTYPE);
-    util_isEnv(AXI_START);
-    util_isEnv(AXI_TOOL);
-    util_isEnv(AXI_COREDIR);
-    util_isEnv(AXI_DBGDIR);
-    util_isEnv(AXI_CFGFILE);
-    glob.axi_workDir = getenv( AXI_WORKDIR );
-    glob.axi_cfgFile = getenv( AXI_CFGFILE );
-    glob.axi_coreDir = getenv( AXI_COREDIR ) ;
-    glob.axi_dbgDir  = getenv( AXI_DBGDIR );
-    setenv("PERLLIB", getenv(AXI_TOOL),1);
+    util_isEnv(PUT_WORKDIR);
+    util_isEnv(PUT_TTYPE);
+    util_isEnv(PUT_START);
+    util_isEnv(PUT_TOOL);
+    util_isEnv(PUT_COREDIR);
+    util_isEnv(PUT_DBGDIR);
+    util_isEnv(PUT_CFGFILE);
+    glob.put_workDir = getenv( PUT_WORKDIR );
+    glob.put_cfgFile = getenv( PUT_CFGFILE );
+    glob.put_coreDir = getenv( PUT_COREDIR ) ;
+    glob.put_dbgDir  = getenv( PUT_DBGDIR );
+    setenv("PERLLIB", getenv(PUT_TOOL),1);
     tb_setErrorlog();
     return 0 ;
 }
@@ -211,7 +211,7 @@ static int tb_checkTools(const char* tools_path)
 {
     char buf[PATH_MAX]={0} ;
     #define NB_TOOLS 5
-    char* tools[NB_TOOLS] ={"axigen_action", "cp", "mkdir", "refresh_client", "rm"}; 
+    char* tools[NB_TOOLS] ={"putgen_action", "cp", "mkdir", "refresh_client", "rm"}; 
     struct stat s;
     int i, rc ;
 
@@ -294,14 +294,14 @@ static int tb_fileAction(const char *fileName, struct stat *statbuf,
 {
     if (!util_endsWith( fileName, ".bat"))
         return TRUE ;
-    tb_axiRefresh(fileName);
-//    tb_axiStart();
+    tb_putRefresh(fileName);
+//    tb_putStart();
     getcwd(glob.cur_dir, PATH_MAX);
     tb_setupTmp( fileName);
     chdir(glob.tmp_dir);
     tb_runBat(basename((char*)fileName));
-    tb_checkCore(glob.axi_coreDir, glob.axi_dbgDir, glob.axi_workDir,
-                 glob.axi_cfgFile, glob.dest_coreDir ) ;
+    tb_checkCore(glob.put_coreDir, glob.put_dbgDir, glob.put_workDir,
+                 glob.put_cfgFile, glob.dest_coreDir ) ;
     tb_cleanupTmp() ;
     sleep(2);
     chdir(glob.cur_dir);
@@ -390,7 +390,7 @@ static int tb_setupTmp(const char *source_bat)
     sprintf(comm, "/bin/cp -R %s %s/", cpstr, glob.tmp_dir);
     if (glob.verbose == TRUE)
         printf("* testbot: Running '%s'\n", comm);
-    system(comm);               // TODO: replace this with a functionaxi_fresh
+    system(comm);               // TODO: replace this with a functionput_fresh
 
     return 0 ;
 }
@@ -407,7 +407,7 @@ static int tb_cleanupTmp(void)
 
 
 
-/** Search a file for axi_fi=y or axi_fi=n . */
+/** Search a file for put_fi=y or put_fi=n . */
 static int tb_parseBat(const char *filename)
 {
     char line[MAX_LIN]={0};
@@ -418,7 +418,7 @@ static int tb_parseBat(const char *filename)
     int matches;
     const char *error = NULL;
     struct stat inf;
-    re = pcre_compile("#.*axi_fi\\s*=\\s*\"?([y|Y|n|N])\"?\\s+",
+    re = pcre_compile("#.*put_fi\\s*=\\s*\"?([y|Y|n|N])\"?\\s+",
                         0,
                         &error,
                         &erroffset,
@@ -460,23 +460,23 @@ static int tb_parseBat(const char *filename)
 
 
 
-int tb_checkCore(const char* core_srcDir, const char* dbg_srcDir, const char* axi_workDir,
-                 const char* axi_cfgFile, const char* crash_destDir )
+int tb_checkCore(const char* core_srcDir, const char* dbg_srcDir, const char* put_workDir,
+                 const char* put_cfgFile, const char* crash_destDir )
 {
     int rc =FALSE;
 
     if(glob.test_type == TEST_LOCAL )
-        rc = util_checkCoreLocal(core_srcDir, dbg_srcDir, axi_workDir, axi_cfgFile, core_srcDir) ;
+        rc = util_checkCoreLocal(core_srcDir, dbg_srcDir, put_workDir, put_cfgFile, core_srcDir) ;
     if(glob.test_type == TEST_REMOTE)
-        rc = tb_checkCoreRemote(core_srcDir, dbg_srcDir, axi_workDir, axi_cfgFile, core_srcDir) ;
+        rc = tb_checkCoreRemote(core_srcDir, dbg_srcDir, put_workDir, put_cfgFile, core_srcDir) ;
     if( rc && glob.act_as_daemon == FALSE )
-        system("echo -e 'AXIGEN CORE!\nCheck testbot log!'|wall");
+        system("echo -e 'PUTGEN CORE!\nCheck testbot log!'|wall");
     return rc ;
 }
 
 
-static int tb_checkCoreRemote(const char* core_srcDir, const char* dbg_srcDir, const char* axi_workDir,
-                              const char* axi_cfgFile, const char* crash_destDir )
+static int tb_checkCoreRemote(const char* core_srcDir, const char* dbg_srcDir, const char* put_workDir,
+                              const char* put_cfgFile, const char* crash_destDir )
 {
     char cmd[MAX_LIN]={0}; // Max line should therefore be 3 times the length of PATH_MAX
     int rc = 0 ;
@@ -484,7 +484,7 @@ static int tb_checkCoreRemote(const char* core_srcDir, const char* dbg_srcDir, c
 
     sock = sock_connectTo( glob.hostname, glob.port );
     sprintf(cmd, "CHECKCORE %s %s %s %s %s",
-            core_srcDir, dbg_srcDir, axi_workDir, axi_cfgFile, crash_destDir );
+            core_srcDir, dbg_srcDir, put_workDir, put_cfgFile, crash_destDir );
     sock_sendLine(sock, cmd ) ;
     rc = sock_getStatus( sock );
     close(sock);
@@ -496,8 +496,8 @@ static int tb_checkCoreRemote(const char* core_srcDir, const char* dbg_srcDir, c
 
 
 
-/** Restore the default Axigen state. */
-int tb_axiRefresh(const char *bat_file)
+/** Restore the default `Product under test`(PUT) state. */
+int tb_putRefresh(const char *bat_file)
 {
     int cod;
      int rc=0;
@@ -510,12 +510,12 @@ int tb_axiRefresh(const char *bat_file)
         char r = 0;
 
         do{
-            printf("* testbot: Reinstall default axigen configuration?[y/n]:");
+            printf("* testbot: Reinstall default putgen configuration?[y/n]:");
             r = getchar();
             while(getchar()!='\n');
         }while (r != 'y' && r != 'n') ;
         if (r == 'n') {
-            printf("# testbot: Keeping axigen's current state\n");
+            printf("# testbot: Keeping putgen's current state\n");
             return 0 ;
         }
     }
@@ -525,7 +525,7 @@ int tb_axiRefresh(const char *bat_file)
         return 0 ;
 
     /* We excluded all NO's, so we're left with the yes. */
-    /* Try to restore the default axigen state --groleo */
+    /* Try to restore the default putgen state --groleo */
     rc = system("refresh_client");
     printf("%d\n", rc );
     if(rc == -1 || WEXITSTATUS(rc)!=0)
@@ -546,8 +546,8 @@ static int tb_logPrint( const int cod,  const char *name)
 #if 0
     char *nm;
     FILE *f;
-    util_isEnv("axi_errorlog");
-    nm = getenv("axi_errorlog");
+    util_isEnv("put_errorlog");
+    nm = getenv("put_errorlog");
     if (cod == 69)
     {
         printf("* testbot: Script exited ok\n");
@@ -686,7 +686,7 @@ static int tb_setErrorlog()
     char *host;
     char *defhost = "localhost";
 
-    host = getenv( AXI_HOST );
+    host = getenv( PUT_HOST );
     if (!host)
         host = defhost;
 
@@ -698,7 +698,7 @@ static int tb_setErrorlog()
 
     sprintf(rez, "%s/errors/error.log.%s-%d", pathname, host, getpid());
     printf("# testbot: log is: %s\n", rez);
-    return setenv("axi_errorlog", rez, 1);
+    return setenv("put_errorlog", rez, 1);
 }
 
 

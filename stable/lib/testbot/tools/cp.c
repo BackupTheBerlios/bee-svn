@@ -95,8 +95,8 @@ int main(int argc, char *argv[])
         return 1;
     }
     cp_parseArgs(argc, argv);
-    util_isEnv(AXI_TTYPE);
-    type = getenv(AXI_TTYPE);
+    util_isEnv(PUT_TTYPE);
+    type = getenv(PUT_TTYPE);
 
     if (!strcmp(type, "local"))
     {
@@ -108,13 +108,13 @@ int main(int argc, char *argv[])
         char *host;
         int port;
 
-        util_isEnv(AXI_HOST);
-        util_isEnv(AXI_PORT);
-        host = getenv(AXI_HOST);
-        port = atoi(getenv(AXI_PORT));
+        util_isEnv(PUT_HOST);
+        util_isEnv(PUT_PORT);
+        host = getenv(PUT_HOST);
+        port = atoi(getenv(PUT_PORT));
         return client_copy(host, port, argv[1], argv[2]);
     } else
-        printf("cp: Error: Invalid $axi_ttype\n");
+        printf("cp: Error: Invalid $put_ttype\n");
     return 1;
 }
 
@@ -147,15 +147,15 @@ cp_parseArgs( int argc, char* argv[] )
                 printf("* testbot: Error: Give valid context local/remote.\n");
                 tb_usage();
             }*/
-            setenv("axi_ttype", optarg, 1);
+            setenv("put_ttype", optarg, 1);
             break;
         case 'H':
             //glob.hostname = optarg;
-            setenv("axi_host", optarg, 1);
+            setenv("put_host", optarg, 1);
             break;
         case 'P':
             //glob.port = atoi(optarg);   // fixme
-            setenv("axi_port", optarg, 1);
+            setenv("put_port", optarg, 1);
             break;
         case 'h':
             cp_usage();

@@ -18,8 +18,8 @@ int wait_stop(int timeout) ;
 int util_start(int test_type, int timeout, char *start)
 {
     //int rc =-1;
-    printf("* Starting ... %s\n", getenv(AXI_START));
-    if(AXI_TTYPE == TEST_LOCAL ){
+    printf("* Starting ... %s\n", getenv(PUT_START));
+    if(PUT_TTYPE == TEST_LOCAL ){
         wait_start( timeout );
         sleep(1);// still need to wait a little
         printf("OK\n");
@@ -57,7 +57,7 @@ wait_start(int timeout)
     fd = open( "/var/log/maillog", O_RDONLY );
     //lseek(fd, 0, SEEK_END);
     oldsz = util_fileSize( "/var/log/maillog" );
-    rc = system( getenv(AXI_START) ) ;
+    rc = system( getenv(PUT_START) ) ;
     if( rc == -1 ) {
         printf("Failed\n" );
         exit(EXIT_FAILURE);
@@ -95,7 +95,7 @@ wait_start(int timeout)
     }
     close(fd);
 #undef supRL
-#undef axiRL
+#undef putRL
     return 1;
 }
 
@@ -114,7 +114,7 @@ int
 wait_stop(int timeout)
 {
     #define supRL 30
-    #define axiRL 25
+    #define putRL 25
     int fd=0, i=0 ,rc=0;//, newsz=0, oldsz=0;
     char buf[512]={0};
     char* supRdyStr = "INFO: supervise: caught signal";
@@ -126,7 +126,7 @@ wait_stop(int timeout)
     fd = open( "/var/log/maillog", O_RDONLY );
     lseek(fd, 0, SEEK_END);
     //oldsz = util_fileSize( "/var/log/maillog" );
-    rc = system( getenv(AXI_STOP) ) ; //! @todo replace getenv with a parameter 
+    rc = system( getenv(PUT_STOP) ) ; //! @todo replace getenv with a parameter 
     if( rc == -1 ) {
         printf("Failed\n" );
         exit(EXIT_FAILURE);
@@ -157,13 +157,13 @@ wait_stop(int timeout)
                         supRdy = rc ;
                         if(rc)printf("////////Found SUPERVISER/////\n"); 
                     }else {
-                        rc = util_strsrch( buf, i, rdyStr, axiRL );
+                        rc = util_strsrch( buf, i, rdyStr, putRL );
                         if( rc ) { printf("----------\n");close(fd);return TRUE; }
                     }
                 }
     }
 #undef supRL
-#undef axiRL
+#undef putRL
     return 1;
 }
 

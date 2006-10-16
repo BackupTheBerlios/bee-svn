@@ -1,6 +1,6 @@
 /**
  *   \brief    Wraps around rm command.
- *   \see      axigenhost.c 
+ *   \see      putgenhost.c 
  *   \author   Cristina Balan, Andrei Paduraru 
  *   \date     Thu Aug 17 17:38:13 2006
  *
@@ -26,8 +26,8 @@ int main(int argc, char *argv[])
         return 1;
     }
     rm_parseArgs( argc, argv);
-    util_isEnv(AXI_TTYPE);
-    tc = getenv(AXI_TTYPE);
+    util_isEnv(PUT_TTYPE);
+    tc = getenv(PUT_TTYPE);
     if (argc < 2)
     {
         fprintf(stderr, "Error: no valid sintax");
@@ -41,10 +41,10 @@ int main(int argc, char *argv[])
         return system(comand);
     } else if (!strcmp(tc, "remote"))
     {
-        util_isEnv(AXI_HOST);
-        util_isEnv(AXI_PORT);
-        host = getenv(AXI_HOST);
-        port = atoi(getenv(AXI_PORT));
+        util_isEnv(PUT_HOST);
+        util_isEnv(PUT_PORT);
+        host = getenv(PUT_HOST);
+        port = atoi(getenv(PUT_PORT));
         if (!strcmp(argv[1], "-R") || !strcmp(argv[1], "-r"))
         {
             return client_rm(host, port, argv[2]);
@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
         }
 
     } else
-        printf("Invalid $axi_ttype\n");
+        printf("Invalid $put_ttype\n");
     return 1;
 }
 
@@ -89,15 +89,15 @@ rm_parseArgs( int argc, char* argv[] )
                 printf("* testbot: Error: Give valid context local/remote.\n");
                 tb_usage();
             }*/
-            setenv("axi_ttype", optarg, 1);
+            setenv("put_ttype", optarg, 1);
             break;
         case 'H':
             //glob.hostname = optarg;
-            setenv("axi_host", optarg, 1);
+            setenv("put_host", optarg, 1);
             break;
         case 'P':
             //glob.port = atoi(optarg);   // fixme
-            setenv("axi_port", optarg, 1);
+            setenv("put_port", optarg, 1);
             break;
         case 'h':
             rm_usage();

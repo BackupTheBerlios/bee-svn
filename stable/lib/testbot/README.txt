@@ -1,8 +1,8 @@
 
 
-Axigen Testing Framework.
+Testing Framework.
 =========================
-    The Axigen Testing Framework is composed of two modules:
+    The Testing Framework is composed of two modules:
         1. the testCases.
         2. utility library.
         3. the testDriver(testbot).
@@ -21,10 +21,10 @@ testSuite->
         ./tests/pop3/apop.bat          (testBatch)
     * testDir holds the script that does the appropriate test job.
     * testBatch is a shell script, which calls the testScript in an
-      unique way, and specify weather axigen configuration will be
+      unique way, and specify weather configuration will be
       reseted or not, through the axi_fi=yes(no) option
 
-    Ex: after running this testCase, axigen state will be reseted.
+    Ex: after running this testCase, state will be reseted.
         perl ./apop/apop.pl
         # axi_fi=yes
 

@@ -45,8 +45,8 @@ int main(int argc, char *argv[])
         return 1;
     }
     md_parseArgs( argc, argv);
-    util_isEnv(AXI_TTYPE);
-    tc = getenv(AXI_TTYPE);
+    util_isEnv(PUT_TTYPE);
+    tc = getenv(PUT_TTYPE);
 
     if (!strcmp(tc, "local"))
     {
@@ -56,13 +56,13 @@ int main(int argc, char *argv[])
         return system(command);
     } else if (!strcmp(tc, "remote"))
     {
-        util_isEnv(AXI_HOST);
-        util_isEnv(AXI_PORT);
-        host = getenv(AXI_HOST);
-        port = atoi(getenv(AXI_PORT));
+        util_isEnv(PUT_HOST);
+        util_isEnv(PUT_PORT);
+        host = getenv(PUT_HOST);
+        port = atoi(getenv(PUT_PORT));
         return client_mkdir(host, port, argv[1]);
     } else
-        printf("mkdir: Error: Invalid $axi_ttype\n");
+        printf("mkdir: Error: Invalid $put_ttype\n");
     return 1;
 }
 
@@ -92,15 +92,15 @@ md_parseArgs( int argc, char* argv[] )
                 printf("* testbot: Error: Give valid context local/remote.\n");
                 tb_usage();
             }*/
-            setenv("axi_ttype", optarg, 1);
+            setenv("put_ttype", optarg, 1);
             break;
         case 'H':
             //glob.hostname = optarg;
-            setenv("axi_host", optarg, 1);
+            setenv("put_host", optarg, 1);
             break;
         case 'P':
             //glob.port = atoi(optarg);   // fixme
-            setenv("axi_port", optarg, 1);
+            setenv("put_port", optarg, 1);
             break;
         case 'h':
             md_usage();

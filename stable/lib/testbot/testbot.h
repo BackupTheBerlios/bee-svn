@@ -1,11 +1,11 @@
 #ifndef TESTBOT_H
 #define TESTBOT_H
 
-static int  tb_axiRefresh(const char *filename);
-static int  tb_checkCore(const char* core_srcDir, const char* dbg_srcDir, const char* axi_workDir,
-                         const char* axi_cfgFile, const char* crash_destDir ) ;
-static int  tb_checkCoreRemote(const char* core_srcDir, const char* dbg_srcDir, const char* axi_workDir,
-                               const char* axi_cfgFile, const char* crash_destDir ) ;
+static int  tb_putRefresh(const char *filename);
+static int  tb_checkCore(const char* core_srcDir, const char* dbg_srcDir, const char* put_workDir,
+                         const char* put_cfgFile, const char* crash_destDir ) ;
+static int  tb_checkCoreRemote(const char* core_srcDir, const char* dbg_srcDir, const char* put_workDir,
+                               const char* put_cfgFile, const char* crash_destDir ) ;
 static int  tb_checkTools(const char* tools_path) ;
 static int  tb_cleanupTmp(void) ;
 static int  tb_setupTmp( const char *source_bat) ;
