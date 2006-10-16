@@ -144,10 +144,10 @@ static void tb_usage(void)
     printf("TestBot version %s\n", VER);
     printf("USAGE: testbot [options...]\n");
     printf("\t-d tests_dir            The directory containing the test scripts\n");
-    printf("\t-D                      Act as daemon( ptgenhost )\n");
-    printf("\t-H host                 Host on which ptgenhost runs.\n");
+    printf("\t-D                      Act as daemon( rshd )\n");
+    printf("\t-H host                 Host on which rshd runs.\n");
     printf("\t-o remote_OS            The OS that runs on the remote machine\n");
-    printf("\t-P port                 Port on which ptgenhost listens.\n");
+    printf("\t-P port                 Port on which rshd listens.\n");
     printf("\t-r refresh              Restore server's state after each testRun ?\n");
     printf("\t                        (y)es, (n)o, (a)sk.[default yes]\n");
     printf("\t-t test_type            Local or remote\n");
@@ -176,7 +176,7 @@ int tb_globalsInit(int argc, char *argv[])
     glob.script_tout = 20 ;
     getcwd( glob.testbot_path, PATH_MAX ) ;
     if (!getcwd(glob.tmp_dir, PATH_MAX)) {
-        printf("cant get current dir:%s\n", strerror(errno));
+        perror("Cant get current dir");
     }
     return 0 ;
 }
@@ -211,7 +211,7 @@ static int tb_checkTools(const char* tools_path)
 {
     char buf[PATH_MAX]={0} ;
     #define NB_TOOLS 5
-    char* tools[NB_TOOLS] ={"ptgen_action", "cp", "mkdir", "refresh", "rm"}; 
+    char* tools[NB_TOOLS] ={"action", "cp", "mkdir", "refresh", "rm"}; 
     struct stat s;
     int i, rc ;
 
@@ -295,7 +295,7 @@ static int tb_fileAction(const char *fileName, struct stat *statbuf,
     if (!util_endsWith( fileName, ".bat"))
         return TRUE ;
     tb_ptRefresh(fileName);
-//    tb_ptStart();
+//    ptStart();
     getcwd(glob.cur_dir, PATH_MAX);
     tb_setupTmp( fileName);
     chdir(glob.tmp_dir);
@@ -364,7 +364,7 @@ static int tb_runTests(const char* dir)
 
 static int tb_setupTmp(const char *source_bat)
 {
-    char comm[PATH_MAX]={0};
+    char cmd[PATH_MAX]={0};
     char cpstr[PATH_MAX]={0};
     int cod;
     char* p;
@@ -380,17 +380,17 @@ static int tb_setupTmp(const char *source_bat)
 
     if (glob.verbose == TRUE)
         printf("# testbot: Copying %s to '%s'\n", source_bat, glob.tmp_dir);
-    sprintf(comm, "/bin/cp -R %s %s/", source_bat, glob.tmp_dir);
-    system(comm);               // TODO: replace this with a function
+    sprintf(cmd, "/bin/cp -R %s %s/", source_bat, glob.tmp_dir);
+    system(cmd);               // TODO: replace this with a function
 
     //Find the dir coresponding to this bat
     strcpy(cpstr, source_bat ) ;
     p = strrchr(cpstr, '.' ) ;
     *p='\0';
-    sprintf(comm, "/bin/cp -R %s %s/", cpstr, glob.tmp_dir);
+    sprintf(cmd, "/bin/cp -R %s %s/", cpstr, glob.tmp_dir);
     if (glob.verbose == TRUE)
-        printf("* testbot: Running '%s'\n", comm);
-    system(comm);               // TODO: replace this with a functionpt_fresh
+        printf("* testbot: Running '%s'\n", cmd);
+    system(cmd);               // TODO: replace this with a functionpt_fresh
 
     return 0 ;
 }
@@ -470,7 +470,7 @@ int tb_checkCore(const char* core_srcDir, const char* dbg_srcDir, const char* pt
     if(glob.test_type == TEST_REMOTE)
         rc = tb_checkCoreRemote(core_srcDir, dbg_srcDir, pt_workDir, pt_cfgFile, core_srcDir) ;
     if( rc && glob.act_as_daemon == FALSE )
-        system("echo -e 'PUTGEN CORE!\nCheck testbot log!'|wall");
+        system("echo -e 'CORE!\nCheck testbot log!'|wall");
     return rc ;
 }
 
@@ -510,12 +510,12 @@ int tb_ptRefresh(const char *bat_file)
         char r = 0;
 
         do{
-            printf("* testbot: Reinstall default ptgen configuration?[y/n]:");
+            printf("* testbot: Reinstall default configuration?[y/n]:");
             r = getchar();
             while(getchar()!='\n');
         }while (r != 'y' && r != 'n') ;
         if (r == 'n') {
-            printf("# testbot: Keeping ptgen's current state\n");
+            printf("# testbot: Keeping current state\n");
             return 0 ;
         }
     }
@@ -526,7 +526,7 @@ int tb_ptRefresh(const char *bat_file)
 
     /* We excluded all NO's, so we're left with the yes. */
     /* Try to restore the default ptgen state --groleo */
-    rc = system("refresh_client");
+    rc = system("refresh");
     printf("%d\n", rc );
     if(rc == -1 || WEXITSTATUS(rc)!=0)
     {
@@ -536,38 +536,6 @@ int tb_ptRefresh(const char *bat_file)
 
     return 0 ;
 }
-
-
-
-
-
-static int tb_logPrint( const int cod,  const char *name)
-{
-#if 0
-    char *nm;
-    FILE *f;
-    util_isEnv("pt_errorlog");
-    nm = getenv("pt_errorlog");
-    if (cod == 69)
-    {
-        printf("* testbot: Script exited ok\n");
-        return 0 ;
-    }
-    f = fopen(nm, "a");
-    if (!f)
-    {
-        fprintf(stderr, "* testbot: Error: Can't open %s\n", nm);
-        exit(-1);
-    }
-    fprintf(f, "* testbot: Script %s has exited with code %d\n", name, cod);     // FIXME:change 
-                                                                                // 
-    // this
-    fclose(f);
-#endif
-    return 0 ;
-}
-
-
 
 
 
@@ -700,11 +668,4 @@ static int tb_setErrorlog()
     printf("# testbot: log is: %s\n", rez);
     return setenv("pt_errorlog", rez, 1);
 }
-
-
-
-
-
-
-
 

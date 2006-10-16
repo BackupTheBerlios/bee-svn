@@ -11,7 +11,6 @@ static int  tb_cleanupTmp(void) ;
 static int  tb_setupTmp( const char *source_bat) ;
 static int  tb_envInit(void) ;
 static int  tb_globalsInit(int argc, char* argv[]) ;
-static int  tb_logPrint(const int cod, const char *name) ;
 static int  tb_parseArgs( int argc, char* args[]);
 static int  tb_parseBat(const char *filename) ;
 static int  tb_parseConf(void) ;
@@ -24,5 +23,4 @@ static int  tb_setErrorlog(void) ;
 static void tb_usage(void) ;
 int
 expand_env(char * str, char* varName, int maxLen );
-    
 #endif

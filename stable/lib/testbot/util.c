@@ -20,11 +20,13 @@ int util_ptStart(int test_type, int timeout, char *start)
     //int rc =-1;
     printf("* Starting ... %s\n", getenv(PUT_START));
     if(test_type == TEST_LOCAL ){
-        wait_start( timeout );
+        util_ptStartLocal( timeout );
         sleep(1);// still need to wait a little
         printf("OK\n");
     }else {
-        //sock_sendLine(sockfd, "START 5");// hardcoded timeout
+        int sockfd=-1;
+        sockfd = sock_connectTo(glob.hostname, glob.port);
+        sock_sendLine(sockfd, "START 5");// hardcoded timeout
         printf("OK\n");
     }
     return TRUE ;
@@ -41,8 +43,8 @@ int util_ptStart(int test_type, int timeout, char *start)
  * tail -f, looks for SUCCESS: supervise ready, and INFO: ready
  * \warning WORKS LOCALLY ONLY.
  */
-int
-wait_start(int timeout)
+static int
+util_ptStartLocal(int timeout)
 {
     #define supRL 24
     #define ptRL 11
@@ -99,19 +101,24 @@ wait_start(int timeout)
     return 1;
 }
 
+static int
+util_ptStartRemote()
+{
+}
+
 
 int util_ptStop(int test_type, int timeout, char *stop)
 {
     printf("* Stoping ...\n");
-    fflush(stdout);
-    wait_stop( timeout );
+    if(glob.ttype == TEST_LOCAL)
+        util_ptStopLocal( timeout );
+    if(glob.ttype == TEST_REMOTE)
     printf("* stopped\n");
-    //sleep(2);//! @todo replace this with a proper wait
     return 0 ;
 }
 
-int
-wait_stop(int timeout)
+static int
+util_ptStopLocal(int timeout)
 {
     #define supRL 30
     #define ptRL 25
