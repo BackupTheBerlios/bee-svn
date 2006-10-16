@@ -15,7 +15,7 @@ int wait_stop(int timeout) ;
 
 /*
 */
-int util_start(int test_type, int timeout, char *start)
+int util_putStart(int test_type, int timeout, char *start)
 {
     //int rc =-1;
     printf("* Starting ... %s\n", getenv(PUT_START));
@@ -44,8 +44,8 @@ int util_start(int test_type, int timeout, char *start)
 int
 wait_start(int timeout)
 {
-    #define RL 24
-    #define RL 11
+    #define supRL 24
+    #define putRL 11
     int fd=0, i=0 ,rc=0, newsz=0, oldsz=0;
     char buf[512]={0};
     char* supRdyStr = "SUCCESS: supervise ready";
@@ -84,11 +84,11 @@ wait_start(int timeout)
             /* a possible bug might be if SUPERVISER text gets in the same
             * buffer with INFO: ready. Then we get a false status*/
             if( supRdy == FALSE ) {
-                rc = util_strsrch( buf, i, supRdyStr, RL );
+                rc = util_strsrch( buf, i, supRdyStr, supRL );
                 supRdy = rc ;
                 if(rc)printf("////////Found SUPERVISER/////\n"); 
             }else {
-                rc = util_strsrch( buf, i, rdyStr, RL );
+                rc = util_strsrch( buf, i, rdyStr, putRL );
                 if( rc ) { printf("----------\n");close(fd);return TRUE; }
             }
         }
@@ -100,7 +100,7 @@ wait_start(int timeout)
 }
 
 
-int util_stop(int test_type, int timeout, char *stop)
+int util_putStop(int test_type, int timeout, char *stop)
 {
     printf("* Stoping ...\n");
     fflush(stdout);
@@ -512,7 +512,7 @@ int util_checkCoreLocal(const char* core_srcDir, const char* dbg_srcDir, const c
                         glob.testbot_path, core->d_name ) ;
                 return TRUE ;
             }
-            sprintf(src, "%s/%s", glob.coreDir , core->d_name );
+            sprintf(src, "%s/%s", glob.put_coreDir , core->d_name );
 
             // 1. Move CORE
             sprintf( cmd, "/bin/mv %s %s", src, dst ) ;
@@ -523,13 +523,13 @@ int util_checkCoreLocal(const char* core_srcDir, const char* dbg_srcDir, const c
             dir = opendir( dbg_srcDir );
             if(!dir ) {
                 fprintf(stderr, "Can't open %s : %s\n",
-                                glob.dbgDir, strerror(errno)) ;
+                                glob.put_dbgDir, strerror(errno)) ;
                 exit(-1);
             }
             while( (entry = readdir(dir)) )
             {
                 if( !strcmp(entry->d_name,".") || !strcmp(entry->d_name,"..") ) continue ;
-                sprintf( src, "%s/%s", glob.dbgDir, entry->d_name) ;
+                sprintf( src, "%s/%s", glob.put_dbgDir, entry->d_name) ;
                 sprintf( cmd, "/bin/mv %s %s", src, dst );
                 system( cmd );
             }
