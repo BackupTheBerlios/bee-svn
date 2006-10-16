@@ -84,7 +84,7 @@ LoadGen::Smtp::worker( void* a )
         {
             smtp.timeout(5) ; //6,000
             smtp.latency(modem) ;
-            smtp.open( "gigi", 25 ) ;
+            smtp.open( "hawaii", 2501 ) ;
             smtp.greet("ehlo cucu");
             smtp.mailFrom("<>"); // TODO does specmail says smth abt this ?
             smtp.rcptTo( rcpts, rcptList ) ; // TODO add domain parameter
@@ -194,7 +194,7 @@ LoadGen::Pop3::worker( void* a )
 
         try {
             debug("host:%s port:%i\n", p->smtp_server, p->smtp_port );
-            pop3.open( "gigi", 110 ) ;
+            pop3.open( "hawaii", 1101 ) ;
             pop3.user( p->user_prefix, user ) ;
             pop3.pass( p->user_prefix, user ) ;
             pop3.stat(&m, &s) ;

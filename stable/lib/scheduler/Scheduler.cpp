@@ -13,7 +13,7 @@
 Scheduler::Scheduler()
 {
     g_ = new RateGen( 12, 15 ) ;
-    sem_=0;
+    //sem_=0;
     elapsed_ = 0 ;
     sem_init( &sem_ , 0 , 0 ) ;
 }
