@@ -103,6 +103,7 @@ callback_refresh( int sock, char *buf )
         if( system( com ) == -1 ) {
                 return errno;
         }
+
         sock_sendStatus( sock, 0 );
         return 0;
 }
@@ -121,6 +122,7 @@ callback_copy( int sock, char *buf )
         char *src_file, *dest_dir;
 
         rb = sscanf( buf, "%s %s %d", src_file, dest_dir, &len );
+
         if( rb != 3 || len <= 0 ) {
                 printf( "Invalid syntax for COPY\n" );
                 return FALSE;
@@ -145,6 +147,7 @@ callback_copy( int sock, char *buf )
                 }
                 len -= bw;
         }
+
         sock_sendStatus( sock, 0 );
         close( f );
         return 0;
@@ -160,12 +163,13 @@ callback_rm( int sock, char *buf )
         char path[MAX_LIN] = { 0 };
 
         rb = sscanf( buf, "%s", path );
+
         if( rb != 1 ) {
                 printf( "Invalid syntax for RM\n" );
                 return FALSE;
         }
 
-        sprintf( cmd, "rm -rf %s", path );
+        sprintf( cmd, "/bin/rm -rf %s", path );
         sock_sendStatus( sock, 0 );     // fix this pls
         return system( cmd );
 }
@@ -178,15 +182,15 @@ callback_mkdir( int sock, char *buf )
         int rb;
         char path[MAX_LIN] = { 0 };
 
-        printf( "MKDIR '%s'\n", path );
         rb = sscanf( buf, "%s", path );
+
         if( rb != 1 ) {
                 printf( "Invalid syntax for MKDIR\n" );
                 return FALSE;
         }
 
         if( mkdir( path, 0777 ) == -1 ) {
-                printf( "error:[%s]", strerror( errno ) );
+                printf( "mkdir: ERR:[%s]", strerror( errno ) );
                 sock_sendStatus( sock, errno );
                 return errno;
         }
@@ -205,7 +209,7 @@ callback_execute( int sock, char *buf )
 
         p = buf;
         if( !p ) {
-                printf( "null p\n" );
+                printf( "ERR: null command\n" );
                 return -1;
         }
         rc = system( p );
@@ -218,12 +222,13 @@ callback_execute( int sock, char *buf )
 int
 callback_checkCore( int sock, char *buf )
 {
-        char core_srcDir[PATH_MAX] = { 0 }, dbg_srcDir[PATH_MAX] = {
-        0}, pt_workDir[PATH_MAX] = {
-        0}, pt_cfgFile[PATH_MAX] = {
-        0}, crash_destDir[PATH_MAX] = {
-        0};
+        char core_srcDir[PATH_MAX] = { 0 } ;
+        char dbg_srcDir[PATH_MAX] = { 0 } ;
+        char pt_workDir[PATH_MAX] = { 0 } ;
+        char pt_cfgFile[PATH_MAX] = { 0 } ;
+        char crash_destDir[PATH_MAX] = { 0 };
         int rc = FALSE;
+
         sscanf( buf, "%s %s %s %s %s", core_srcDir, dbg_srcDir, pt_workDir,
                 pt_cfgFile, crash_destDir );
         rc = util_checkCoreLocal( core_srcDir, dbg_srcDir, pt_workDir,
@@ -240,7 +245,6 @@ callback_client( int socket )
         char buf[8192] = { 0 };
         int ok = 1;
         int n, i;
-
 
         while( ok ) {
                 char *p = NULL;
@@ -260,11 +264,9 @@ callback_client( int socket )
                 //extract keyword
                 p = strchr( buf, ' ' );
                 if( p ) {
-                        *p = '\0';
-                        p++;
-                        for( i = 0; *( p + i ) >= 32 && *( p + i ) != '\0';
-                             ++i );
-                        *( p + i ) = '\0';
+                        *p++ = '\0';
+                        for( i = 0; *(p+i) >= 32 && *(p+i) != '\0'; ++i );
+                        *(p+i) = '\0';
                         printf( "cmd[%s] param[%s]\n", buf, p );
                 } else {
                         printf( "\n--Unknown command--\n" );
@@ -300,13 +302,12 @@ callback_rsh( int portno )
         serv_addr.sin_port = htons( portno );
         if( bind( sockfd, ( struct sockaddr * )&serv_addr, sizeof( serv_addr ) )
             < 0 ) {
-                fprintf( stderr, "rsh: Error on binding: %s\n",
-                         strerror( errno ) );
+                perror("rsh: ERR on binding");
                 exit( -1 );
         }
         cod = listen( sockfd, 5 );
         if( cod < 0 ) {
-                printf( "rsh: ERR:%s\n", strerror( errno ) );
+                perror( "rsh: ERR on listen");
                 exit( -1 );
         }
         clilen = sizeof( cli_addr );
@@ -316,8 +317,7 @@ callback_rsh( int portno )
                         accept( sockfd, ( struct sockaddr * )&cli_addr,
                                 &clilen );
                 if( newsockfd < 0 ) {
-                        fprintf( stderr, "rsh: Error on accept: %s",
-                                 strerror( errno ) );
+                        perror( "rsh: ERR on accept");
                         exit( -1 );
                 }
                 callback_client( newsockfd );
@@ -358,7 +358,7 @@ rshDaemon( int port )
         if( sid < 0 )
                 exit( EXIT_FAILURE );
         if( ( chdir( "/" ) ) < 0 ) {
-                fprintf( stderr, "rsh: Can't change to /\n" );
+                perror( "rsh: Can't change to /" );
                 exit( EXIT_FAILURE );
         }
         if( signal( SIGINT, util_terminare ) == SIG_ERR ) {
