@@ -19,3 +19,5 @@ clean:
 
 tar:
 	tar cvf testbot.tar .
+indent:
+	indent -br -brs -cdw -ce -l80 -nut -ncs -prs -nsai -npcs -nsaf -nsaw -i8 *.c

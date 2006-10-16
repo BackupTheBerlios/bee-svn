@@ -20,7 +20,7 @@ refresh_local(  )
         printf( "* refresh_client: Removing %s\n", dest );
         sprintf( cmd, "/bin/rm -rf %s", dest );
         if( system( cmd ) ) {
-                printf( "* refresh_client: Error: %s not deleted\n", dest );
+                printf( "* refresh_client: ERR: %s not deleted\n", dest );
                 return 1;
         }
         printf( "* refresh_client: copying %s to %s\n", source, dest );
@@ -28,7 +28,7 @@ refresh_local(  )
                 dest[strlen( dest ) - 1] = '\0';
         sprintf( cmd, "/bin/cp -R %s %s", source, dest );
         if( system( cmd ) ) {
-                printf( "* refresh_client: Error: File not copied\n" );
+                printf( "* refresh_client: ERR: File not copied\n" );
                 return 1;
         }
         return 0;
@@ -46,7 +46,7 @@ refresh_remote( char *host, int port, char *sursa, char *dest )
         sock_sendLine( sockfd, command );
         cod = sock_getStatus( sockfd );
         if( cod < 0 ) {
-                fprintf( stderr, "Error: %s\n", strerror( cod ) );
+                fprintf( stderr, "ERR: %s\n", strerror( cod ) );
                 close( sockfd );
                 return cod;
         }
@@ -66,7 +66,7 @@ pt_refresh( int test_type, char *source, char *dest, char *host, int port )     
 
         cod = stat( source, &buf );
         if( cod != 0 ) {
-                fprintf( stderr, "* refresh_client: Error: %s: %s\n", source,
+                fprintf( stderr, "* refresh_client: ERR: %s: %s\n", source,
                          strerror( errno ) );
                 exit( -1 );
         }
@@ -76,7 +76,7 @@ pt_refresh( int test_type, char *source, char *dest, char *host, int port )     
 
         if( test_type == TEST_REMOTE ) {
                 if( refresh_remote( host, port, source, dest ) ) {
-                        printf( "* refresh_client: Error: Could not make refresh!!!\n" );
+                        printf( "* refresh_client: ERR: Could not make refresh!!!\n" );
                         return EXIT_FAILURE;
                 }
                 return 0;
@@ -151,7 +151,7 @@ rc_parseArgs( int argc, char *argv[] )
                                 if( !strcasecmp( optarg, "local" ) )
                                         //glob.test_type = TEST_LOCAL;
                                         /*if (!glob.test_type) {
-                                           printf("* testbot: Error: Give valid context local/remote.\n");
+                                           printf("* testbot: ERR: Give valid context local/remote.\n");
                                            tb_usage();
                                            } */
                                         setenv( "pt_ttype", optarg, 1 );

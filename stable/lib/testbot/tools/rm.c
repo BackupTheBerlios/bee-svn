@@ -30,7 +30,7 @@ main( int argc, char *argv[] )
         util_isEnv( PT_TTYPE );
         tc = getenv( PT_TTYPE );
         if( argc < 2 ) {
-                fprintf( stderr, "Error: no valid sintax" );
+                fprintf( stderr, "ERR: no valid sintax" );
                 return 1;
         }
 
@@ -82,7 +82,7 @@ rm_parseArgs( int argc, char *argv[] )
                                 if( !strcasecmp( optarg, "local" ) )
                                         //glob.test_type = TEST_LOCAL;
                                         /*if (!glob.test_type) {
-                                           printf("* testbot: Error: Give valid context local/remote.\n");
+                                           printf("* testbot: ERR: Give valid context local/remote.\n");
                                            tb_usage();
                                            } */
                                         setenv( "pt_ttype", optarg, 1 );

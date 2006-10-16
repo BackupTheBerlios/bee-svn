@@ -20,7 +20,7 @@ sock_connectTo( char *host, int port )
         // socket create
         sockfd = socket( AF_INET, SOCK_STREAM, 0 );
         if( sockfd == -1 ) {
-                perror( "Error: can't create socket" ); /* No \n ; see man perror */
+                perror( "ERR: can't create socket" ); /* No \n ; see man perror */
                 return -1;
         }
         // connected with server
@@ -48,7 +48,7 @@ sock_connectTo( char *host, int port )
 
 
 /**
- * send on socket Error: errno
+ * send on socket ERR: errno
  * or OK: Command successful*/
 int
 sock_sendStatus( int sock, int cod )

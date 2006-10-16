@@ -24,7 +24,7 @@ client_mkdir( char *host, int port, char *path )
         cod = sock_getStatus( sockfd );
         if( cod ) {
                 fprintf( stderr,
-                         "* mkdir: Error: Could not create the directory %s: %s\n",
+                         "* mkdir: ERR: Could not create the directory %s: %s\n",
                          path, strerror( cod ) );
                 close( sockfd );
                 return cod;
@@ -63,7 +63,7 @@ main( int argc, char *argv[] )
                 port = atoi( getenv( PT_PORT ) );
                 return client_mkdir( host, port, argv[1] );
         } else
-                printf( "mkdir: Error: Invalid $pt_ttype\n" );
+                printf( "mkdir: ERR: Invalid $pt_ttype\n" );
         return 1;
 }
 
@@ -90,7 +90,7 @@ md_parseArgs( int argc, char *argv[] )
                                 if( !strcasecmp( optarg, "local" ) )
                                         //glob.test_type = TEST_LOCAL;
                                         /*if (!glob.test_type) {
-                                           printf("* testbot: Error: Give valid context local/remote.\n");
+                                           printf("* testbot: ERR: Give valid context local/remote.\n");
                                            tb_usage();
                                            } */
                                         setenv( "pt_ttype", optarg, 1 );

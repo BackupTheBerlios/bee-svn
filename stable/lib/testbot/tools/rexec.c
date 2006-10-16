@@ -27,14 +27,14 @@ cli_main( char *host, int port, char *c )
         cod = sock_getStatus( sockfd );
         if( cod < 0 ) {
                 fprintf( stderr,
-                         "* ptgen_action: Error: No remote host confirmation!\n" );
+                         "* ptgen_action: ERR: No remote host confirmation!\n" );
                 return errno;
         }
         if( cod > 0 ) {
-                fprintf( stderr, "* ptgen_action: Error: '%s'\n",
+                fprintf( stderr, "* ptgen_action: ERR: '%s'\n",
                          strerror( cod ) );
                 fprintf( stderr,
-                         "* ptgen_action: Error: Can't execute : '%s'\n", c );
+                         "* ptgen_action: ERR: Can't execute : '%s'\n", c );
                 close( sockfd );
                 return 1;
         }
@@ -102,7 +102,7 @@ aa_parseArgs( int argc, char *argv[] )
                                 if( !strcasecmp( optarg, "local" ) )
                                         //glob.test_type = TEST_LOCAL;
                                         /*if (!glob.test_type) {
-                                           printf("* testbot: Error: Give valid context local/remote.\n");
+                                           printf("* testbot: ERR: Give valid context local/remote.\n");
                                            tb_usage();
                                            } */
                                         setenv( "pt_ttype", optarg, 1 );

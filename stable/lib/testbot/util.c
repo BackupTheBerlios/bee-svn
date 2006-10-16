@@ -475,10 +475,10 @@ int
 util_getCode( char *str )
 {
         if( !util_startsWith( str, "OK:" )
-            && !util_startsWith( str, "Error:" ) ) {
+            && !util_startsWith( str, "ERR:" ) ) {
                 fprintf( stderr, "The string received from host is '%s'\n",
                          str );
-                fprintf( stderr, "Expecting OK: or Error:\n" );
+                fprintf( stderr, "Expecting OK: or ERR:\n" );
                 exit( 1 );
         }
         printf( "* Received : `%s`\n", str );

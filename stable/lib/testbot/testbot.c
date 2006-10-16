@@ -77,7 +77,7 @@ tb_parseArgs( int argc, char *argv[] )
                         if( !strcasecmp( optarg, "local" ) )
                                 glob.test_type = TEST_LOCAL;
                         if( !glob.test_type ) {
-                                printf( "* testbot: Error: Give valid context local/remote.\n" );
+                                printf( "* testbot: ERR: Give valid context local/remote.\n" );
                                 tb_usage(  );
                         }
                         setenv( PT_TTYPE, optarg, 1 );
@@ -100,7 +100,7 @@ tb_parseArgs( int argc, char *argv[] )
                                 break;
                         }
                         fprintf( stderr,
-                                 "* testbot: Error: Provide a valid platform!\n" );
+                                 "* testbot: ERR: Provide a valid platform!\n" );
                         tb_usage(  );
                 case 'P':
                         glob.port = atoi( optarg );     // fixme
@@ -123,7 +123,7 @@ tb_parseArgs( int argc, char *argv[] )
                                 break;
                         }
                         fprintf( stderr,
-                                 "* testbot: Error: invalid parameter '%s'\n\n",
+                                 "* testbot: ERR: invalid parameter '%s'\n\n",
                                  optarg );
                         tb_usage(  );
                 case 'v':
@@ -351,7 +351,7 @@ tb_runTests( const char *dir )
         char fullPath[PATH_MAX] = { 0 };
 
         if( stat( dir, &inf ) < 0 ) {
-                printf( "! testbot: Error: The directory '%s' doesn't exist.\n",
+                printf( "! testbot: ERR: The directory '%s' doesn't exist.\n",
                         dir );
                 return 0;
         }
@@ -390,7 +390,7 @@ tb_setupTmp( const char *source_bat )
         cod = mkdir( glob.tmp_dir, 0755 );
         if( cod ) {
                 fprintf( stderr,
-                         "! testbot: Error: Cannot make directory %s: %s\n",
+                         "! testbot: ERR: Cannot make directory %s: %s\n",
                          glob.tmp_dir, strerror( errno ) );
                 exit( -1 );
         }
@@ -556,7 +556,7 @@ tb_ptRefresh( const char *bat_file )
         rc = system( "refresh" );
         printf( "%d\n", rc );
         if( rc == -1 || WEXITSTATUS( rc ) != 0 ) {
-                printf( "! testbot: Error: Could not make refresh!\n" );
+                printf( "! testbot: ERR: Could not make refresh!\n" );
                 exit( 1 );
         }
 
@@ -597,7 +597,7 @@ tb_parseConf(  )
         FILE *f = fopen( glob.config_file, "r" );
 
         if( !f ) {
-                printf( "! testbot: Error: Could not find config file: %s: %s!\n", glob.config_file, strerror( errno ) );
+                printf( "! testbot: ERR: Could not find config file: %s: %s!\n", glob.config_file, strerror( errno ) );
                 exit( 1 );
         }
         re = pcre_compile( "(\\w+)\\s*=\\s*\"(.+)\"", 0, &error, &erroffset,
@@ -696,7 +696,7 @@ tb_setErrorlog(  )
                 host = defhost;
 
         if( getcwd( pathname, PATH_MAX ) == NULL ) {
-                printf( "! testbot: Error: getting current dirrectory\n" );
+                printf( "! testbot: ERR: getting current dirrectory\n" );
                 return 1;
         }
 

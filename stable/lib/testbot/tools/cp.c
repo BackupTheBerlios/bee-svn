@@ -54,7 +54,7 @@ copy_remote( char *host, int port, char *src_file, char *dest_dir )
 
         int l = util_fileSize( src_file );
         if( l == -1 ) {
-                fprintf( stderr, "cp: Error: '%s' in not a regular file\n",
+                fprintf( stderr, "cp: ERR: '%s' in not a regular file\n",
                          src_file );
                 exit( -1 );
         }
@@ -71,7 +71,7 @@ copy_remote( char *host, int port, char *src_file, char *dest_dir )
 
         if( cod < 0 ) {
                 fprintf( stderr,
-                         "cp: Error: Receiving command confirmation!\n" );
+                         "cp: ERR: Receiving command confirmation!\n" );
                 exit( -1 );
                 return 1;
         }
@@ -141,7 +141,7 @@ cp_parseArgs( int argc, char *argv[] )
                                 if( !strcasecmp( optarg, "local" ) )
                                         //glob.test_type = TEST_LOCAL;
                                         /*if (!glob.test_type) {
-                                           printf("* testbot: Error: Give valid context local/remote.\n");
+                                           printf("* testbot: ERR: Give valid context local/remote.\n");
                                            tb_usage();
                                            } */
                                         setenv( "pt_ttype", optarg, 1 );

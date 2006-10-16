@@ -84,14 +84,15 @@ callback_refresh( int sock, char *buf )
 {
         char com[MAX_LIN] = { 0 };
         struct stat stats;
-        char cale_s[MAX_LIN] = { 0 }, cale_d[MAX_LIN] = {
-        0};
+        char cale_s[MAX_LIN] = { 0 };
+        char cale_d[MAX_LIN] = { 0 };
         int cod = 0, rb = 0;
 
         rb = sscanf( buf, "%s %s", cale_s, cale_d );
+
         cod = stat( cale_s, &stats );
         if( cod != 0 ) {
-                printf( "rsh: Error: Can't find %s\n", cale_s );
+                printf( "rsh: ERR: Can't find %s\n", cale_s );
                 exit( -1 );
         }
         sprintf( com, "rm -rf %s", cale_d );
@@ -289,7 +290,7 @@ callback_rsh( int portno )
         printf( "Running on port:%d\n", portno );
         sockfd = socket( AF_INET, SOCK_STREAM, 0 );
         if( sockfd < 0 ) {
-                fprintf( stderr, "rsh: Error: opening socket: %s\n",
+                fprintf( stderr, "rsh: ERR: opening socket: %s\n",
                          strerror( errno ) );
                 return 1;
         }
@@ -305,7 +306,7 @@ callback_rsh( int portno )
         }
         cod = listen( sockfd, 5 );
         if( cod < 0 ) {
-                printf( "rsh: Error:%s\n", strerror( errno ) );
+                printf( "rsh: ERR:%s\n", strerror( errno ) );
                 exit( -1 );
         }
         clilen = sizeof( cli_addr );
