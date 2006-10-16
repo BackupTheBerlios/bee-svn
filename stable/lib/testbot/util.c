@@ -19,12 +19,12 @@ int util_ptStart(int test_type, int timeout, char *start)
 {
     //int rc =-1;
     printf("* Starting ... %s\n", getenv(PUT_START));
-    if(PUT_TTYPE == TEST_LOCAL ){
+    if(test_type == TEST_LOCAL ){
         wait_start( timeout );
         sleep(1);// still need to wait a little
         printf("OK\n");
     }else {
-        sock_sendLine(sockfd, "START 5");// hardcoded timeout
+        //sock_sendLine(sockfd, "START 5");// hardcoded timeout
         printf("OK\n");
     }
     return TRUE ;

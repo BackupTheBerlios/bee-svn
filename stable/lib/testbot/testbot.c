@@ -211,7 +211,7 @@ static int tb_checkTools(const char* tools_path)
 {
     char buf[PATH_MAX]={0} ;
     #define NB_TOOLS 5
-    char* tools[NB_TOOLS] ={"ptgen_action", "cp", "mkdir", "refresh_client", "rm"}; 
+    char* tools[NB_TOOLS] ={"ptgen_action", "cp", "mkdir", "refresh", "rm"}; 
     struct stat s;
     int i, rc ;
 
