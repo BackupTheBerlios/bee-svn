@@ -29,6 +29,7 @@ util_ptStart( int test_type, int timeout, char *start )
                 sockfd = sock_connectTo( glob.hostname, glob.port );
                 sock_sendLine( sockfd, "START 5" );     // hardcoded timeout
                 printf( "OK\n" );
+                close(sockfd);
         }
         return TRUE;
 }
@@ -108,10 +109,6 @@ util_ptStartLocal( int timeout )
         return 1;
 }
 
-static int
-util_ptStartRemote(  )
-{
-}
 
 
 int
@@ -120,8 +117,14 @@ util_ptStop( int test_type, int timeout, char *stop )
         printf( "* Stoping ...\n" );
         if( glob.ttype == TEST_LOCAL )
                 util_ptStopLocal( timeout );
+                sleep(1);
+                printf( "OK\n" );
         if( glob.ttype == TEST_REMOTE )
-                printf( "* stopped\n" );
+                int sockfd = -1;
+                sockfd = sock_connectTo( glob.hostname, glob.port );
+                sock_sendLine( sockfd, "STOP 5" );     // hardcoded timeout
+                printf( "OK\n" );
+                close(sockfd);
         return 0;
 }
 
@@ -137,10 +140,8 @@ util_ptStopLocal( int timeout )
         int supRdy = FALSE;
 
         printf( "Waiting\n* LOG\n++++++++++\n" );
-        //oldsz = util_fileSize( "/var/log/maillog" );
         fd = open( "/var/log/maillog", O_RDONLY );
         lseek( fd, 0, SEEK_END );
-        //oldsz = util_fileSize( "/var/log/maillog" );
         rc = system( getenv( PT_STOP ) );      //! @todo replace getenv with a parameter 
         if( rc == -1 ) {
                 printf( "Failed\n" );
@@ -149,10 +150,6 @@ util_ptStopLocal( int timeout )
                 return FALSE;
         }
         for( ;; ) {
-                /*newsz = util_fileSize( "/var/log/maillog" );
-                   if( newsz == oldsz )
-                   continue ;
-                   oldsz = newsz ; */
                 memset( buf, '\0', 512 );
                 i = read( fd, buf, sizeof( buf ) - 1 );
                 if( i < 0 ) {

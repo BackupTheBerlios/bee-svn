@@ -41,15 +41,14 @@ main( int argc, char *argv[] )
 
         tb_parseConf(  );
         tb_envInit(  );
-        tb_checkTools( getenv( PT_TOOL ) );
+        tb_checkTools( getenv( PT_TOOL ) );indent -br -brs -cdw -ce -l80 -nut -ncs -prs -nsai -npcs -nsaf -nsaw -i8 *.c
 
         if( !glob.test_dir ) {
                 printf( "* testbot: Provide the test directory.\n" );
                 tb_usage(  );
         }
 
-        if( glob.test_type == TEST_LOCAL ) {
-                if( glob.verbose == TRUE )
+        if( glob.test_type == TEST_LOCAL && glob.verbose == TRUE )
                         printf( "* testbot: Tests will be done LOCALLY.\n" );
         }
         if( glob.test_type == TEST_REMOTE ) {
@@ -216,7 +215,7 @@ tb_checkTools( const char *tools_path )
 {
         char buf[PATH_MAX] = { 0 };
 #define NB_TOOLS 5
-        char *tools[NB_TOOLS] = { "action", "cp", "mkdir", "refresh", "rm" };
+        char *tools[NB_TOOLS] = { "rexec", "cp", "mkdir", "refresh", "rm" };
         struct stat s;
         int i, rc;
 
@@ -490,11 +489,13 @@ tb_checkCore( const char *core_srcDir, const char *dbg_srcDir,
         if( glob.test_type == TEST_LOCAL )
                 rc = util_checkCoreLocal( core_srcDir, dbg_srcDir, pt_workDir,
                                           pt_cfgFile, core_srcDir );
+
         if( glob.test_type == TEST_REMOTE )
                 rc = tb_checkCoreRemote( core_srcDir, dbg_srcDir, pt_workDir,
                                          pt_cfgFile, core_srcDir );
-        if( rc && glob.act_as_daemon == FALSE )
-                system( "echo -e 'CORE!\nCheck testbot log!'|wall" );
+
+        if( rc && !glob.act_as_daemon )
+                system( "echo -e 'Tested Product droped CORE!'|wall" );
         return rc;
 }
 
@@ -674,15 +675,7 @@ expand_env( char *str, char *varName, int maxLen )
         return TRUE;
 }
 
-/*
-   Ar trebui sa fie ceva de genul. executabil local/remote [platforma_remote]
-   [host_remote] [port_remote] director/fisier de teste
 
-   prin local se inteleg testele care nu au nevoie de ce a fost implementat in 
-   proiectul acesta, adik de tool-urile de cp, rm, etc
-
-   Optiune inseamana o litera: y, dupa fiecare test se face fresh install, n - 
-   nu se face fresh install, a - ask, se intreaba */
 
 static int
 tb_setErrorlog(  )
