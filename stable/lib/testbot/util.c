@@ -19,7 +19,7 @@ int
 util_ptStart( int test_type, int timeout, char *start )
 {
         //int rc =-1;
-        printf( "* Starting ... %s\n", getenv( PUT_START ) );
+        printf( "* Starting ... %s\n", getenv( PT_START ) );
         if( test_type == TEST_LOCAL ) {
                 util_ptStartLocal( timeout );
                 sleep( 1 );     // still need to wait a little
@@ -60,7 +60,7 @@ util_ptStartLocal( int timeout )
         fd = open( "/var/log/maillog", O_RDONLY );
         //lseek(fd, 0, SEEK_END);
         oldsz = util_fileSize( "/var/log/maillog" );
-        rc = system( getenv( PUT_START ) );
+        rc = system( getenv( PT_START ) );
         if( rc == -1 ) {
                 printf( "Failed\n" );
                 exit( EXIT_FAILURE );
@@ -141,7 +141,7 @@ util_ptStopLocal( int timeout )
         fd = open( "/var/log/maillog", O_RDONLY );
         lseek( fd, 0, SEEK_END );
         //oldsz = util_fileSize( "/var/log/maillog" );
-        rc = system( getenv( PUT_STOP ) );      //! @todo replace getenv with a parameter 
+        rc = system( getenv( PT_STOP ) );      //! @todo replace getenv with a parameter 
         if( rc == -1 ) {
                 printf( "Failed\n" );
                 exit( EXIT_FAILURE );

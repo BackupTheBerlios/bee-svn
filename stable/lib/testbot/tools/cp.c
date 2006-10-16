@@ -94,8 +94,8 @@ main( int argc, char *argv[] )
                 return 1;
         }
         cp_parseArgs( argc, argv );
-        util_isEnv( PUT_TTYPE );
-        type = getenv( PUT_TTYPE );
+        util_isEnv( PT_TTYPE );
+        type = getenv( PT_TTYPE );
 
         if( !strcmp( type, "local" ) ) {
                 str = ( char * )malloc( strlen( argv[1] ) + strlen( argv[2] ) +
@@ -106,10 +106,10 @@ main( int argc, char *argv[] )
                 char *host;
                 int port;
 
-                util_isEnv( PUT_HOST );
-                util_isEnv( PUT_PORT );
-                host = getenv( PUT_HOST );
-                port = atoi( getenv( PUT_PORT ) );
+                util_isEnv( PT_HOST );
+                util_isEnv( PT_PORT );
+                host = getenv( PT_HOST );
+                port = atoi( getenv( PT_PORT ) );
                 return copy_remote( host, port, argv[1], argv[2] );
         } else
                 printf( "cp: ERR: Invalid $pt_ttype\n" );

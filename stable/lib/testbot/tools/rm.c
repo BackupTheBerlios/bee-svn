@@ -27,8 +27,8 @@ main( int argc, char *argv[] )
                 return 1;
         }
         rm_parseArgs( argc, argv );
-        util_isEnv( PUT_TTYPE );
-        tc = getenv( PUT_TTYPE );
+        util_isEnv( PT_TTYPE );
+        tc = getenv( PT_TTYPE );
         if( argc < 2 ) {
                 fprintf( stderr, "Error: no valid sintax" );
                 return 1;
@@ -39,10 +39,10 @@ main( int argc, char *argv[] )
                 strcat( comand, argv[1] );
                 return system( comand );
         } else if( !strcmp( tc, "remote" ) ) {
-                util_isEnv( PUT_HOST );
-                util_isEnv( PUT_PORT );
-                host = getenv( PUT_HOST );
-                port = atoi( getenv( PUT_PORT ) );
+                util_isEnv( PT_HOST );
+                util_isEnv( PT_PORT );
+                host = getenv( PT_HOST );
+                port = atoi( getenv( PT_PORT ) );
                 if( !strcmp( argv[1], "-R" ) || !strcmp( argv[1], "-r" ) ) {
                         return client_rm( host, port, argv[2] );
                 } else {

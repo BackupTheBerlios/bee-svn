@@ -41,7 +41,7 @@ main( int argc, char *argv[] )
 
         tb_parseConf(  );
         tb_envInit(  );
-        tb_checkTools( getenv( PUT_TOOL ) );
+        tb_checkTools( getenv( PT_TOOL ) );
 
         if( !glob.test_dir ) {
                 printf( "* testbot: Provide the test directory.\n" );
@@ -53,8 +53,8 @@ main( int argc, char *argv[] )
                         printf( "* testbot: Tests will be done LOCALLY.\n" );
         }
         if( glob.test_type == TEST_REMOTE ) {
-                util_isEnv( PUT_HOST );
-                util_isEnv( PUT_PORT );
+                util_isEnv( PT_HOST );
+                util_isEnv( PT_PORT );
                 if( glob.verbose == TRUE )
                         printf( "* testbot: Tests will be done REMOTE.\n" );
         }
@@ -80,11 +80,11 @@ tb_parseArgs( int argc, char *argv[] )
                                 printf( "* testbot: Error: Give valid context local/remote.\n" );
                                 tb_usage(  );
                         }
-                        setenv( PUT_TTYPE, optarg, 1 );
+                        setenv( PT_TTYPE, optarg, 1 );
                         break;
                 case 'H':
                         glob.hostname = optarg;
-                        setenv( PUT_HOST, optarg, 1 );
+                        setenv( PT_HOST, optarg, 1 );
                         break;
                 case 'o':
                         if( !strcasecmp( optarg, "linux" ) ) {
@@ -104,7 +104,7 @@ tb_parseArgs( int argc, char *argv[] )
                         tb_usage(  );
                 case 'P':
                         glob.port = atoi( optarg );     // fixme
-                        setenv( PUT_PORT, optarg, 1 );
+                        setenv( PT_PORT, optarg, 1 );
                         break;
                 case 'd':
                         glob.test_dir = optarg;
@@ -189,24 +189,24 @@ int
 tb_envInit( void )
 {
         /* build the PATH like /home/tools/bin:$PATH */
-        util_isEnv( PUT_TOOL );
-        strcpy( glob.cur_path, getenv( PUT_TOOL ) );
+        util_isEnv( PT_TOOL );
+        strcpy( glob.cur_path, getenv( PT_TOOL ) );
         strcat( glob.cur_path, ":" );
         strcat( glob.cur_path, getenv( "PATH" ) );
         setenv( "PATH", glob.cur_path, 1 );
 
-        util_isEnv( PUT_WORKDIR );
-        util_isEnv( PUT_TTYPE );
-        util_isEnv( PUT_START );
-        util_isEnv( PUT_TOOL );
-        util_isEnv( PUT_COREDIR );
-        util_isEnv( PUT_DBGDIR );
-        util_isEnv( PUT_CFGFILE );
-        glob.pt_workDir = getenv( PUT_WORKDIR );
-        glob.pt_cfgFile = getenv( PUT_CFGFILE );
-        glob.pt_coreDir = getenv( PUT_COREDIR );
-        glob.pt_dbgDir = getenv( PUT_DBGDIR );
-        setenv( "PERLLIB", getenv( PUT_TOOL ), 1 );
+        util_isEnv( PT_WORKDIR );
+        util_isEnv( PT_TTYPE );
+        util_isEnv( PT_START );
+        util_isEnv( PT_TOOL );
+        util_isEnv( PT_COREDIR );
+        util_isEnv( PT_DBGDIR );
+        util_isEnv( PT_CFGFILE );
+        glob.pt_workDir = getenv( PT_WORKDIR );
+        glob.pt_cfgFile = getenv( PT_CFGFILE );
+        glob.pt_coreDir = getenv( PT_COREDIR );
+        glob.pt_dbgDir = getenv( PT_DBGDIR );
+        setenv( "PERLLIB", getenv( PT_TOOL ), 1 );
         tb_setErrorlog(  );
         return 0;
 }
@@ -523,7 +523,7 @@ tb_checkCoreRemote( const char *core_srcDir, const char *dbg_srcDir,
 
 
 
-/** Restore the default `Product under test`(PUT) state. */
+/** Restore the default `Product under test`(PT) state. */
 int
 tb_ptRefresh( const char *bat_file )
 {
@@ -691,7 +691,7 @@ tb_setErrorlog(  )
         char *host;
         char *defhost = "localhost";
 
-        host = getenv( PUT_HOST );
+        host = getenv( PT_HOST );
         if( !host )
                 host = defhost;
 

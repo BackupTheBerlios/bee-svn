@@ -48,8 +48,8 @@ main( int argc, char *argv[] )
                 return 1;
         }
         md_parseArgs( argc, argv );
-        util_isEnv( PUT_TTYPE );
-        tc = getenv( PUT_TTYPE );
+        util_isEnv( PT_TTYPE );
+        tc = getenv( PT_TTYPE );
 
         if( !strcmp( tc, "local" ) ) {
                 command = ( char * )malloc( strlen( argv[1] ) + 8 );
@@ -57,10 +57,10 @@ main( int argc, char *argv[] )
                 strcat( command, argv[1] );
                 return system( command );
         } else if( !strcmp( tc, "remote" ) ) {
-                util_isEnv( PUT_HOST );
-                util_isEnv( PUT_PORT );
-                host = getenv( PUT_HOST );
-                port = atoi( getenv( PUT_PORT ) );
+                util_isEnv( PT_HOST );
+                util_isEnv( PT_PORT );
+                host = getenv( PT_HOST );
+                port = atoi( getenv( PT_PORT ) );
                 return client_mkdir( host, port, argv[1] );
         } else
                 printf( "mkdir: Error: Invalid $pt_ttype\n" );

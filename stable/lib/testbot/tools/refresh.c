@@ -93,31 +93,31 @@ main( int argc, char *argv[] )
         int port;
 
         rc_parseArgs( argc, argv );
-        util_isEnv( PUT_TTYPE );
-        util_isEnv( PUT_STOP );
-        util_isEnv( PUT_START );
-        util_isEnv( PUT_DEFDOM );
-        util_isEnv( PUT_WORKDIR );
-        tc = getenv( PUT_TTYPE );
+        util_isEnv( PT_TTYPE );
+        util_isEnv( PT_STOP );
+        util_isEnv( PT_START );
+        util_isEnv( PT_DEFDOM );
+        util_isEnv( PT_WORKDIR );
+        tc = getenv( PT_TTYPE );
 
         if( !strcasecmp( tc, "local" ) ) {
                 printf( "* refresh_client: Working local\n" );
-                util_ptStop( TEST_LOCAL, 5, getenv( PUT_STOP ) );       //! @todo replace 5 with a proper timeout
-                pt_refresh( TEST_LOCAL, getenv( PUT_DEFDOM ),
-                            getenv( PUT_WORKDIR ), 0, 0 );
-                util_ptStart( TEST_LOCAL, 5, getenv( PUT_START ) );     //! @todo replace 5
+                util_ptStop( TEST_LOCAL, 5, getenv( PT_STOP ) );       //! @todo replace 5 with a proper timeout
+                pt_refresh( TEST_LOCAL, getenv( PT_DEFDOM ),
+                            getenv( PT_WORKDIR ), 0, 0 );
+                util_ptStart( TEST_LOCAL, 5, getenv( PT_START ) );     //! @todo replace 5
         } else if( !strcasecmp( tc, "remote" ) ) {
                 printf( "* refresh_client: Working remote\n" );
-                util_isEnv( PUT_HOST );
-                util_isEnv( PUT_PORT );
+                util_isEnv( PT_HOST );
+                util_isEnv( PT_PORT );
 
-                host = getenv( PUT_HOST );
-                port = atoi( getenv( PUT_PORT ) );
-                path = getenv( PUT_WORKDIR );
-                util_ptStop( TEST_REMOTE, 5, getenv( PUT_STOP ) );      //! @todo replace 5
-                pt_refresh( TEST_REMOTE, getenv( PUT_DEFDOM ),
-                            getenv( PUT_WORKDIR ), host, port );
-                util_ptStart( TEST_REMOTE, 5, getenv( PUT_START ) );    //! @todo replace 5
+                host = getenv( PT_HOST );
+                port = atoi( getenv( PT_PORT ) );
+                path = getenv( PT_WORKDIR );
+                util_ptStop( TEST_REMOTE, 5, getenv( PT_STOP ) );      //! @todo replace 5
+                pt_refresh( TEST_REMOTE, getenv( PT_DEFDOM ),
+                            getenv( PT_WORKDIR ), host, port );
+                util_ptStart( TEST_REMOTE, 5, getenv( PT_START ) );    //! @todo replace 5
         } else {
                 printf( "* refresh_client : Invalid $pt_ttype\n" );
                 return 1;

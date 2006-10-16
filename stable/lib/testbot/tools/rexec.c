@@ -61,17 +61,17 @@ main( int argc, char *argv[] )
                 return EXIT_FAILURE;
         }
 
-        util_isEnv( PUT_TTYPE );
-        ttype = getenv( PUT_TTYPE );
+        util_isEnv( PT_TTYPE );
+        ttype = getenv( PT_TTYPE );
 
          /*LOCAL*/ if( !strcasecmp( ttype, "local" ) ) {
                 cod = system( argv[1] );
                 exit( WEXITSTATUS( cod ) );
         } else if( !strcasecmp( ttype, "remote" ) ) {
-                util_isEnv( PUT_HOST );
-                util_isEnv( PUT_PORT );
-                hostname = getenv( PUT_HOST );
-                port = atoi( getenv( PUT_PORT ) );
+                util_isEnv( PT_HOST );
+                util_isEnv( PT_PORT );
+                hostname = getenv( PT_HOST );
+                port = atoi( getenv( PT_PORT ) );
                 cod = cli_main( hostname, port, argv[1] );
         } else
                 printf( "* ptgen_action: Invalid test type\n" );
