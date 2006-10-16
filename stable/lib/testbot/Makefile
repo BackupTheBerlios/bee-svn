@@ -8,7 +8,7 @@ all: $(TARGETS)
 #	$(CC) testhost.c $(LIB) /usr/lib/libpcre.a -o testhost
 
 testbot:
-	$(CC) testbot.c rshdaemon.c $(LIB) /usr/lib/libpcre.a -o testbot
+	$(CC) testbot.c rshd.c $(LIB) /usr/lib/libpcre.a -o testbot
 #	scp ./testbot testbot@gigi:/home/testbot/current/testbot
 #	cp ./testbot ..
 	make -C ./tools
