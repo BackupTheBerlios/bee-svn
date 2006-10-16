@@ -5,10 +5,10 @@
 #include "global.h"
 
 int   client_rm(char* host, int port, char* path);
-int   util_putStart(int test_type, int timeout, char *start) ;
-int   util_putStop(int test_type, int timeout, char *start);
-int   util_checkCoreLocal(const char* core_srcDir, const char* dbg_srcDir, const char* put_workDir,
-                         const char* put_cfgFile, const char* crash_destDir ) ;
+int   util_ptStart(int test_type, int timeout, char *start) ;
+int   util_ptStop(int test_type, int timeout, char *start);
+int   util_checkCoreLocal(const char* core_srcDir, const char* dbg_srcDir, const char* pt_workDir,
+                         const char* pt_cfgFile, const char* crash_destDir ) ;
 
 int   util_fileSize( char* name ) ;
 int   util_getCode(char* str) ;

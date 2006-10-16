@@ -15,7 +15,7 @@ int wait_stop(int timeout) ;
 
 /*
 */
-int util_putStart(int test_type, int timeout, char *start)
+int util_ptStart(int test_type, int timeout, char *start)
 {
     //int rc =-1;
     printf("* Starting ... %s\n", getenv(PUT_START));
@@ -45,7 +45,7 @@ int
 wait_start(int timeout)
 {
     #define supRL 24
-    #define putRL 11
+    #define ptRL 11
     int fd=0, i=0 ,rc=0, newsz=0, oldsz=0;
     char buf[512]={0};
     char* supRdyStr = "SUCCESS: supervise ready";
@@ -88,19 +88,19 @@ wait_start(int timeout)
                 supRdy = rc ;
                 if(rc)printf("////////Found SUPERVISER/////\n"); 
             }else {
-                rc = util_strsrch( buf, i, rdyStr, putRL );
+                rc = util_strsrch( buf, i, rdyStr, ptRL );
                 if( rc ) { printf("----------\n");close(fd);return TRUE; }
             }
         }
     }
     close(fd);
 #undef supRL
-#undef putRL
+#undef ptRL
     return 1;
 }
 
 
-int util_putStop(int test_type, int timeout, char *stop)
+int util_ptStop(int test_type, int timeout, char *stop)
 {
     printf("* Stoping ...\n");
     fflush(stdout);
@@ -114,7 +114,7 @@ int
 wait_stop(int timeout)
 {
     #define supRL 30
-    #define putRL 25
+    #define ptRL 25
     int fd=0, i=0 ,rc=0;//, newsz=0, oldsz=0;
     char buf[512]={0};
     char* supRdyStr = "INFO: supervise: caught signal";
@@ -157,13 +157,13 @@ wait_stop(int timeout)
                         supRdy = rc ;
                         if(rc)printf("////////Found SUPERVISER/////\n"); 
                     }else {
-                        rc = util_strsrch( buf, i, rdyStr, putRL );
+                        rc = util_strsrch( buf, i, rdyStr, ptRL );
                         if( rc ) { printf("----------\n");close(fd);return TRUE; }
                     }
                 }
     }
 #undef supRL
-#undef putRL
+#undef ptRL
     return 1;
 }
 
@@ -512,7 +512,7 @@ int util_checkCoreLocal(const char* core_srcDir, const char* dbg_srcDir, const c
                         glob.testbot_path, core->d_name ) ;
                 return TRUE ;
             }
-            sprintf(src, "%s/%s", glob.put_coreDir , core->d_name );
+            sprintf(src, "%s/%s", glob.pt_coreDir , core->d_name );
 
             // 1. Move CORE
             sprintf( cmd, "/bin/mv %s %s", src, dst ) ;
@@ -523,13 +523,13 @@ int util_checkCoreLocal(const char* core_srcDir, const char* dbg_srcDir, const c
             dir = opendir( dbg_srcDir );
             if(!dir ) {
                 fprintf(stderr, "Can't open %s : %s\n",
-                                glob.put_dbgDir, strerror(errno)) ;
+                                glob.pt_dbgDir, strerror(errno)) ;
                 exit(-1);
             }
             while( (entry = readdir(dir)) )
             {
                 if( !strcmp(entry->d_name,".") || !strcmp(entry->d_name,"..") ) continue ;
-                sprintf( src, "%s/%s", glob.put_dbgDir, entry->d_name) ;
+                sprintf( src, "%s/%s", glob.pt_dbgDir, entry->d_name) ;
                 sprintf( cmd, "/bin/mv %s %s", src, dst );
                 system( cmd );
             }

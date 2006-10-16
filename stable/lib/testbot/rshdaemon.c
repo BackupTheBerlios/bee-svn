@@ -14,7 +14,7 @@ int sockfd, newsockfd;
 char start[MAX_LIN];
 char stop[MAX_LIN];
 char restart[MAX_LIN];
-char put_fresh[MAX_LIN];
+char pt_fresh[MAX_LIN];
 
 typedef struct {
     char* keyword;
@@ -49,7 +49,7 @@ callback_start( int sock, char* buf)
     startCmd = strchr(buf,' ');
     if( rb != 1 || !startCmd ) {printf("Invalid syntax for START\n"); return FALSE;}
 
-    util_putStart(TEST_LOCAL, timeout, startCmd);
+    util_ptStart(TEST_LOCAL, timeout, startCmd);
     sock_sendStatus(sock,0);
     return TRUE ; //! @todo pls return a proper value(sendStatus)
 }
@@ -65,7 +65,7 @@ callback_stop( int sock, char* buf)
     stopCmd = strchr(buf,' ');
     if( rb != 1 || !stopCmd ) {printf("Invalid syntax for STOP\n"); return FALSE;}
 
-    util_putStop(TEST_LOCAL, timeout, stopCmd);
+    util_ptStop(TEST_LOCAL, timeout, stopCmd);
     sock_sendStatus(sock,0);
     return TRUE ;
 }
@@ -196,10 +196,10 @@ int
 callback_checkCore( int sock, char* buf )
 {
     char core_srcDir[PATH_MAX]={0}, dbg_srcDir[PATH_MAX]={0},
-         put_workDir[PATH_MAX]={0}, put_cfgFile[PATH_MAX]={0}, crash_destDir[PATH_MAX]={0} ;
+         pt_workDir[PATH_MAX]={0}, pt_cfgFile[PATH_MAX]={0}, crash_destDir[PATH_MAX]={0} ;
     int rc = FALSE ;
-    sscanf( buf, "%s %s %s %s %s", core_srcDir, dbg_srcDir, put_workDir, put_cfgFile, crash_destDir );
-    rc = util_checkCoreLocal( core_srcDir, dbg_srcDir, put_workDir, put_cfgFile, crash_destDir );
+    sscanf( buf, "%s %s %s %s %s", core_srcDir, dbg_srcDir, pt_workDir, pt_cfgFile, crash_destDir );
+    rc = util_checkCoreLocal( core_srcDir, dbg_srcDir, pt_workDir, pt_cfgFile, crash_destDir );
     sock_sendStatus(sock, rc);//! @todo figure out what status i should send
     return FALSE;// means no core was found
 }

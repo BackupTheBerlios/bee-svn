@@ -25,18 +25,18 @@
 #include <pcre.h>
 #include <ctype.h>
 
-#define PUT_TTYPE   "put_ttype"
-#define PUT_HOST    "put_host"
-#define PUT_PORT    "put_port"
-#define PUT_WORKDIR "put_workdir"
-#define PUT_STOP    "put_stop"
-#define PUT_START   "put_start"
-#define PUT_RESTART "put_restart"
-#define PUT_TOOL    "put_tool"
-#define PUT_DEFDOM  "put_fresh"    /* Default configuration, meaning users and domains */
-#define PUT_COREDIR "put_coredir"
-#define PUT_DBGDIR  "put_dbgdir"
-#define PUT_CFGFILE "put_cfgfile"
+#define PUT_TTYPE   "pt_ttype"
+#define PUT_HOST    "pt_host"
+#define PUT_PORT    "pt_port"
+#define PUT_WORKDIR "pt_workdir"
+#define PUT_STOP    "pt_stop"
+#define PUT_START   "pt_start"
+#define PUT_RESTART "pt_restart"
+#define PUT_TOOL    "pt_tool"
+#define PUT_DEFDOM  "pt_fresh"    /* Default configuration, meaning users and domains */
+#define PUT_COREDIR "pt_coredir"
+#define PUT_DBGDIR  "pt_dbgdir"
+#define PUT_CFGFILE "pt_cfgfile"
 #define EXT_EXEC    ".bat"
 #define PLAT 3
 
@@ -69,11 +69,11 @@ struct globals_s {
     char   cur_path[PATH_MAX];      //! retine variabila PATH inainte de rescriere
     char   cur_dir[PATH_MAX];       //! retine directorul curent, inainte k sa il schimb in /tmp/pid
     char   testbot_path[PATH_MAX] ; //! Path to testbot dir
-    char*  put_coreDir ;            //! Path to core dir
-    char*  put_workDir ;
-    char   put_bin[PATH_MAX] ;
-    char*  put_cfgFile;
-    char*  put_dbgDir ;
+    char*  pt_coreDir ;            //! Path to core dir
+    char*  pt_workDir ;
+    char   pt_bin[PATH_MAX] ;
+    char*  pt_cfgFile;
+    char*  pt_dbgDir ;
     char*  dest_coreDir ;
     int    verbose ;
     int    script_tout ;            //! script timeout in seconds. after this expires, the script is killed

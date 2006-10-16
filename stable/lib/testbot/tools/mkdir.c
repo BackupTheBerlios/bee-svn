@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
         port = atoi(getenv(PUT_PORT));
         return client_mkdir(host, port, argv[1]);
     } else
-        printf("mkdir: Error: Invalid $put_ttype\n");
+        printf("mkdir: Error: Invalid $pt_ttype\n");
     return 1;
 }
 
@@ -92,15 +92,15 @@ md_parseArgs( int argc, char* argv[] )
                 printf("* testbot: Error: Give valid context local/remote.\n");
                 tb_usage();
             }*/
-            setenv("put_ttype", optarg, 1);
+            setenv("pt_ttype", optarg, 1);
             break;
         case 'H':
             //glob.hostname = optarg;
-            setenv("put_host", optarg, 1);
+            setenv("pt_host", optarg, 1);
             break;
         case 'P':
             //glob.port = atoi(optarg);   // fixme
-            setenv("put_port", optarg, 1);
+            setenv("pt_port", optarg, 1);
             break;
         case 'h':
             md_usage();

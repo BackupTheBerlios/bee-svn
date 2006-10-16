@@ -114,7 +114,7 @@ int main(int argc, char *argv[])
         port = atoi(getenv(PUT_PORT));
         return client_copy(host, port, argv[1], argv[2]);
     } else
-        printf("cp: Error: Invalid $put_ttype\n");
+        printf("cp: Error: Invalid $pt_ttype\n");
     return 1;
 }
 
@@ -147,15 +147,15 @@ cp_parseArgs( int argc, char* argv[] )
                 printf("* testbot: Error: Give valid context local/remote.\n");
                 tb_usage();
             }*/
-            setenv("put_ttype", optarg, 1);
+            setenv("pt_ttype", optarg, 1);
             break;
         case 'H':
             //glob.hostname = optarg;
-            setenv("put_host", optarg, 1);
+            setenv("pt_host", optarg, 1);
             break;
         case 'P':
             //glob.port = atoi(optarg);   // fixme
-            setenv("put_port", optarg, 1);
+            setenv("pt_port", optarg, 1);
             break;
         case 'h':
             cp_usage();

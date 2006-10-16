@@ -1,6 +1,6 @@
 /**
- *   \brief    Handles the refreshing of putgen state(users/domains).
- *   \see      putgenhost.c 
+ *   \brief    Handles the refreshing of ptgen state(users/domains).
+ *   \see      ptgenhost.c 
  *   \author   Cristina Balan, Andrei Paduraru 
  *   \date     Thu Aug 17 17:38:13 2006
  *
@@ -39,7 +39,7 @@ int client_refresh(char *host, int port, char *sursa, char *dest)
 
 
 
-static int put_refresh(int test_type, char *source, char *dest, char *host, int port)   // Cristina
+static int pt_refresh(int test_type, char *source, char *dest, char *host, int port)   // Cristina
 {
     char cmd[MAX_LIN] = { 0 };
     struct stat buf;
@@ -101,9 +101,9 @@ int main(int argc, char* argv[])
     if (!strcasecmp(tc, "local"))
     {
         printf("* refresh_client: Working local\n");
-        util_putStop(TEST_LOCAL, 5, getenv(PUT_STOP)); //! @todo replace 5 with a proper timeout
-        put_refresh(TEST_LOCAL, getenv(PUT_DEFDOM), getenv(PUT_WORKDIR), 0, 0);
-        util_putStart(TEST_LOCAL, 5, getenv(PUT_START));//! @todo replace 5
+        util_ptStop(TEST_LOCAL, 5, getenv(PUT_STOP)); //! @todo replace 5 with a proper timeout
+        pt_refresh(TEST_LOCAL, getenv(PUT_DEFDOM), getenv(PUT_WORKDIR), 0, 0);
+        util_ptStart(TEST_LOCAL, 5, getenv(PUT_START));//! @todo replace 5
     } else if (!strcasecmp(tc, "remote"))
     {
         printf("* refresh_client: Working remote\n");
@@ -113,13 +113,13 @@ int main(int argc, char* argv[])
         host = getenv(PUT_HOST);
         port = atoi(getenv(PUT_PORT));
         path = getenv(PUT_WORKDIR);
-        util_putStop(TEST_REMOTE, 5, getenv(PUT_STOP)); //! @todo replace 5
-        put_refresh(TEST_REMOTE, getenv(PUT_DEFDOM), getenv(PUT_WORKDIR), host,
+        util_ptStop(TEST_REMOTE, 5, getenv(PUT_STOP)); //! @todo replace 5
+        pt_refresh(TEST_REMOTE, getenv(PUT_DEFDOM), getenv(PUT_WORKDIR), host,
                     port);
-        util_putStart(TEST_REMOTE, 5, getenv(PUT_START));//! @todo replace 5
+        util_ptStart(TEST_REMOTE, 5, getenv(PUT_START));//! @todo replace 5
     } else
     {
-        printf("* refresh_client : Invalid $put_ttype\n");
+        printf("* refresh_client : Invalid $pt_ttype\n");
         return 1;
     }
     return EXIT_SUCCESS;
@@ -153,15 +153,15 @@ rc_parseArgs( int argc, char* argv[] )
                 printf("* testbot: Error: Give valid context local/remote.\n");
                 tb_usage();
             }*/
-            setenv("put_ttype", optarg, 1);
+            setenv("pt_ttype", optarg, 1);
             break;
         case 'H':
             //glob.hostname = optarg;
-            setenv("put_host", optarg, 1);
+            setenv("pt_host", optarg, 1);
             break;
         case 'P':
             //glob.port = atoi(optarg);   // fixme
-            setenv("put_port", optarg, 1);
+            setenv("pt_port", optarg, 1);
             break;
         case 'h':
             rc_usage();

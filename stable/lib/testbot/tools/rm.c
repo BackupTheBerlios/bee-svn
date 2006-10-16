@@ -1,6 +1,6 @@
 /**
  *   \brief    Wraps around rm command.
- *   \see      putgenhost.c 
+ *   \see      ptgenhost.c 
  *   \author   Cristina Balan, Andrei Paduraru 
  *   \date     Thu Aug 17 17:38:13 2006
  *
@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
         }
 
     } else
-        printf("Invalid $put_ttype\n");
+        printf("Invalid $pt_ttype\n");
     return 1;
 }
 
@@ -89,15 +89,15 @@ rm_parseArgs( int argc, char* argv[] )
                 printf("* testbot: Error: Give valid context local/remote.\n");
                 tb_usage();
             }*/
-            setenv("put_ttype", optarg, 1);
+            setenv("pt_ttype", optarg, 1);
             break;
         case 'H':
             //glob.hostname = optarg;
-            setenv("put_host", optarg, 1);
+            setenv("pt_host", optarg, 1);
             break;
         case 'P':
             //glob.port = atoi(optarg);   // fixme
-            setenv("put_port", optarg, 1);
+            setenv("pt_port", optarg, 1);
             break;
         case 'h':
             rm_usage();

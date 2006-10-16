@@ -1,6 +1,6 @@
 /**
  *   \brief    The side that runs the scripts.
- *   \see      putgenhost.c
+ *   \see      ptgenhost.c
  *   \author   Cristina Balan, Andrei Paduraru, Marius Negreanu
  *   \date     Thu Aug 17 17:38:13 2006
  *
@@ -144,10 +144,10 @@ static void tb_usage(void)
     printf("TestBot version %s\n", VER);
     printf("USAGE: testbot [options...]\n");
     printf("\t-d tests_dir            The directory containing the test scripts\n");
-    printf("\t-D                      Act as daemon( putgenhost )\n");
-    printf("\t-H host                 Host on which putgenhost runs.\n");
+    printf("\t-D                      Act as daemon( ptgenhost )\n");
+    printf("\t-H host                 Host on which ptgenhost runs.\n");
     printf("\t-o remote_OS            The OS that runs on the remote machine\n");
-    printf("\t-P port                 Port on which putgenhost listens.\n");
+    printf("\t-P port                 Port on which ptgenhost listens.\n");
     printf("\t-r refresh              Restore server's state after each testRun ?\n");
     printf("\t                        (y)es, (n)o, (a)sk.[default yes]\n");
     printf("\t-t test_type            Local or remote\n");
@@ -198,10 +198,10 @@ int tb_envInit(void)
     util_isEnv(PUT_COREDIR);
     util_isEnv(PUT_DBGDIR);
     util_isEnv(PUT_CFGFILE);
-    glob.put_workDir = getenv( PUT_WORKDIR );
-    glob.put_cfgFile = getenv( PUT_CFGFILE );
-    glob.put_coreDir = getenv( PUT_COREDIR ) ;
-    glob.put_dbgDir  = getenv( PUT_DBGDIR );
+    glob.pt_workDir = getenv( PUT_WORKDIR );
+    glob.pt_cfgFile = getenv( PUT_CFGFILE );
+    glob.pt_coreDir = getenv( PUT_COREDIR ) ;
+    glob.pt_dbgDir  = getenv( PUT_DBGDIR );
     setenv("PERLLIB", getenv(PUT_TOOL),1);
     tb_setErrorlog();
     return 0 ;
@@ -211,7 +211,7 @@ static int tb_checkTools(const char* tools_path)
 {
     char buf[PATH_MAX]={0} ;
     #define NB_TOOLS 5
-    char* tools[NB_TOOLS] ={"putgen_action", "cp", "mkdir", "refresh_client", "rm"}; 
+    char* tools[NB_TOOLS] ={"ptgen_action", "cp", "mkdir", "refresh_client", "rm"}; 
     struct stat s;
     int i, rc ;
 
@@ -294,14 +294,14 @@ static int tb_fileAction(const char *fileName, struct stat *statbuf,
 {
     if (!util_endsWith( fileName, ".bat"))
         return TRUE ;
-    tb_putRefresh(fileName);
-//    tb_putStart();
+    tb_ptRefresh(fileName);
+//    tb_ptStart();
     getcwd(glob.cur_dir, PATH_MAX);
     tb_setupTmp( fileName);
     chdir(glob.tmp_dir);
     tb_runBat(basename((char*)fileName));
-    tb_checkCore(glob.put_coreDir, glob.put_dbgDir, glob.put_workDir,
-                 glob.put_cfgFile, glob.dest_coreDir ) ;
+    tb_checkCore(glob.pt_coreDir, glob.pt_dbgDir, glob.pt_workDir,
+                 glob.pt_cfgFile, glob.dest_coreDir ) ;
     tb_cleanupTmp() ;
     sleep(2);
     chdir(glob.cur_dir);
@@ -390,7 +390,7 @@ static int tb_setupTmp(const char *source_bat)
     sprintf(comm, "/bin/cp -R %s %s/", cpstr, glob.tmp_dir);
     if (glob.verbose == TRUE)
         printf("* testbot: Running '%s'\n", comm);
-    system(comm);               // TODO: replace this with a functionput_fresh
+    system(comm);               // TODO: replace this with a functionpt_fresh
 
     return 0 ;
 }
@@ -407,7 +407,7 @@ static int tb_cleanupTmp(void)
 
 
 
-/** Search a file for put_fi=y or put_fi=n . */
+/** Search a file for pt_fi=y or pt_fi=n . */
 static int tb_parseBat(const char *filename)
 {
     char line[MAX_LIN]={0};
@@ -418,7 +418,7 @@ static int tb_parseBat(const char *filename)
     int matches;
     const char *error = NULL;
     struct stat inf;
-    re = pcre_compile("#.*put_fi\\s*=\\s*\"?([y|Y|n|N])\"?\\s+",
+    re = pcre_compile("#.*pt_fi\\s*=\\s*\"?([y|Y|n|N])\"?\\s+",
                         0,
                         &error,
                         &erroffset,
@@ -460,23 +460,23 @@ static int tb_parseBat(const char *filename)
 
 
 
-int tb_checkCore(const char* core_srcDir, const char* dbg_srcDir, const char* put_workDir,
-                 const char* put_cfgFile, const char* crash_destDir )
+int tb_checkCore(const char* core_srcDir, const char* dbg_srcDir, const char* pt_workDir,
+                 const char* pt_cfgFile, const char* crash_destDir )
 {
     int rc =FALSE;
 
     if(glob.test_type == TEST_LOCAL )
-        rc = util_checkCoreLocal(core_srcDir, dbg_srcDir, put_workDir, put_cfgFile, core_srcDir) ;
+        rc = util_checkCoreLocal(core_srcDir, dbg_srcDir, pt_workDir, pt_cfgFile, core_srcDir) ;
     if(glob.test_type == TEST_REMOTE)
-        rc = tb_checkCoreRemote(core_srcDir, dbg_srcDir, put_workDir, put_cfgFile, core_srcDir) ;
+        rc = tb_checkCoreRemote(core_srcDir, dbg_srcDir, pt_workDir, pt_cfgFile, core_srcDir) ;
     if( rc && glob.act_as_daemon == FALSE )
         system("echo -e 'PUTGEN CORE!\nCheck testbot log!'|wall");
     return rc ;
 }
 
 
-static int tb_checkCoreRemote(const char* core_srcDir, const char* dbg_srcDir, const char* put_workDir,
-                              const char* put_cfgFile, const char* crash_destDir )
+static int tb_checkCoreRemote(const char* core_srcDir, const char* dbg_srcDir, const char* pt_workDir,
+                              const char* pt_cfgFile, const char* crash_destDir )
 {
     char cmd[MAX_LIN]={0}; // Max line should therefore be 3 times the length of PATH_MAX
     int rc = 0 ;
@@ -484,7 +484,7 @@ static int tb_checkCoreRemote(const char* core_srcDir, const char* dbg_srcDir, c
 
     sock = sock_connectTo( glob.hostname, glob.port );
     sprintf(cmd, "CHECKCORE %s %s %s %s %s",
-            core_srcDir, dbg_srcDir, put_workDir, put_cfgFile, crash_destDir );
+            core_srcDir, dbg_srcDir, pt_workDir, pt_cfgFile, crash_destDir );
     sock_sendLine(sock, cmd ) ;
     rc = sock_getStatus( sock );
     close(sock);
@@ -497,7 +497,7 @@ static int tb_checkCoreRemote(const char* core_srcDir, const char* dbg_srcDir, c
 
 
 /** Restore the default `Product under test`(PUT) state. */
-int tb_putRefresh(const char *bat_file)
+int tb_ptRefresh(const char *bat_file)
 {
     int cod;
      int rc=0;
@@ -510,12 +510,12 @@ int tb_putRefresh(const char *bat_file)
         char r = 0;
 
         do{
-            printf("* testbot: Reinstall default putgen configuration?[y/n]:");
+            printf("* testbot: Reinstall default ptgen configuration?[y/n]:");
             r = getchar();
             while(getchar()!='\n');
         }while (r != 'y' && r != 'n') ;
         if (r == 'n') {
-            printf("# testbot: Keeping putgen's current state\n");
+            printf("# testbot: Keeping ptgen's current state\n");
             return 0 ;
         }
     }
@@ -525,7 +525,7 @@ int tb_putRefresh(const char *bat_file)
         return 0 ;
 
     /* We excluded all NO's, so we're left with the yes. */
-    /* Try to restore the default putgen state --groleo */
+    /* Try to restore the default ptgen state --groleo */
     rc = system("refresh_client");
     printf("%d\n", rc );
     if(rc == -1 || WEXITSTATUS(rc)!=0)
@@ -546,8 +546,8 @@ static int tb_logPrint( const int cod,  const char *name)
 #if 0
     char *nm;
     FILE *f;
-    util_isEnv("put_errorlog");
-    nm = getenv("put_errorlog");
+    util_isEnv("pt_errorlog");
+    nm = getenv("pt_errorlog");
     if (cod == 69)
     {
         printf("* testbot: Script exited ok\n");
@@ -698,7 +698,7 @@ static int tb_setErrorlog()
 
     sprintf(rez, "%s/errors/error.log.%s-%d", pathname, host, getpid());
     printf("# testbot: log is: %s\n", rez);
-    return setenv("put_errorlog", rez, 1);
+    return setenv("pt_errorlog", rez, 1);
 }
 
 
