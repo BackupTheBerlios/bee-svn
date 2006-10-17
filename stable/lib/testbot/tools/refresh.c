@@ -15,8 +15,9 @@ static int rc_parseArgs( int argc, char *argv[] );
 
 
 static int
-refresh_local(  )
+refresh_local( char* source, char* dest )
 {
+        char cmd[8192] = { 0 } ;
         printf( "* refresh_client: Removing %s\n", dest );
         sprintf( cmd, "/bin/rm -rf %s", dest );
         if( system( cmd ) ) {
@@ -60,7 +61,6 @@ refresh_remote( char *host, int port, char *sursa, char *dest )
 static int
 pt_refresh( int test_type, char *source, char *dest, char *host, int port )     // Cristina
 {
-        char cmd[MAX_LIN] = { 0 };
         struct stat buf;
         int cod = 0;
 
@@ -71,7 +71,7 @@ pt_refresh( int test_type, char *source, char *dest, char *host, int port )     
                 exit( -1 );
         }
         if( test_type == TEST_LOCAL ) {
-                return refresh_local(  );
+                return refresh_local( source, dest );
         }
 
         if( test_type == TEST_REMOTE ) {
