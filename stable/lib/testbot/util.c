@@ -8,8 +8,8 @@ extern struct globals_s glob;
 static int recursiveFlag = 0;
 static int forceFlag = 0;
 
-int wait_start( int timeout );
-int wait_stop( int timeout );
+static int util_ptStartLocal( int timeout );
+static int util_ptStopLocal( int timeout );
 
 
 
@@ -115,16 +115,17 @@ int
 util_ptStop( int test_type, int timeout, char *stop )
 {
         printf( "* Stoping ...\n" );
-        if( glob.ttype == TEST_LOCAL )
+        if( glob.test_type == TEST_LOCAL )
                 util_ptStopLocal( timeout );
                 sleep(1);
                 printf( "OK\n" );
-        if( glob.ttype == TEST_REMOTE )
+        if( glob.test_type == TEST_REMOTE ) {
                 int sockfd = -1;
                 sockfd = sock_connectTo( glob.hostname, glob.port );
                 sock_sendLine( sockfd, "STOP 5" );     // hardcoded timeout
                 printf( "OK\n" );
                 close(sockfd);
+        }
         return 0;
 }
 

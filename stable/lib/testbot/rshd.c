@@ -8,7 +8,7 @@
  */
 #include "util.h"
 #include "socket.h"
-#include "rshdaemon.h"
+#include "rshd.h"
 
 int sockfd, newsockfd;
 char start[MAX_LIN];

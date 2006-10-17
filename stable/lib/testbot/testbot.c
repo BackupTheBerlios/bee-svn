@@ -10,7 +10,7 @@
 
 #include "util.h"
 #include "testbot.h"
-#include "rshdaemon.h"
+#include "rshd.h"
 #include "socket.h"
 
 
@@ -41,14 +41,14 @@ main( int argc, char *argv[] )
 
         tb_parseConf(  );
         tb_envInit(  );
-        tb_checkTools( getenv( PT_TOOL ) );indent -br -brs -cdw -ce -l80 -nut -ncs -prs -nsai -npcs -nsaf -nsaw -i8 *.c
+        tb_checkTools( getenv( PT_TOOL ) );
 
         if( !glob.test_dir ) {
                 printf( "* testbot: Provide the test directory.\n" );
                 tb_usage(  );
         }
 
-        if( glob.test_type == TEST_LOCAL && glob.verbose == TRUE )
+        if( glob.test_type == TEST_LOCAL && glob.verbose == TRUE ){
                         printf( "* testbot: Tests will be done LOCALLY.\n" );
         }
         if( glob.test_type == TEST_REMOTE ) {
