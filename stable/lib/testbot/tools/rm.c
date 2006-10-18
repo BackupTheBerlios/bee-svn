@@ -10,7 +10,7 @@
 #include "util.h"
 #include "socket.h"
 
-struct globals_s glob;
+struct config_ss glob;
 static int rm_parseArgs( int argc, char *argv[] );
 
 int
@@ -27,8 +27,8 @@ main( int argc, char *argv[] )
                 return 1;
         }
         rm_parseArgs( argc, argv );
-        util_isEnv( AXI_TTYPE );
-        tc = getenv( AXI_TTYPE );
+        util_isEnv( SUT_TTYPE );
+        tc = getenv( SUT_TTYPE );
         if( argc < 2 ) {
                 fprintf( stderr, "ERR: no valid sintax" );
                 return 1;
@@ -39,10 +39,10 @@ main( int argc, char *argv[] )
                 sprintf(cmd, "/bin/rm -rf %s", argv[optind] ) ;
                 return system( cmd );
         } else if( !strcmp( tc, "remote" ) ) {
-                util_isEnv( AXI_HOST );
-                util_isEnv( AXI_PORT );
-                host = getenv( AXI_HOST );
-                port = atoi( getenv( AXI_PORT ) );
+                util_isEnv( SUT_HOST );
+                util_isEnv( SUT_PORT );
+                host = getenv( SUT_HOST );
+                port = atoi( getenv( SUT_PORT ) );
                 return util_rmRemote( host, port, argv[optind] );
 
         } else

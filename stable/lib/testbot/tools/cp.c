@@ -9,7 +9,7 @@
 #include "socket.h"
 #include <libgen.h>
 
-struct globals_s glob;
+struct config_ss glob;
 static int cp_parseArgs( int argc, char *argv[] );
 
 static int
@@ -47,7 +47,7 @@ static int
 copy_remote( char *host, int port, char *src_file, char *dest_dir )
 {
         int cod;
-        char cmd[MAX_LIN] = { 0 };
+        char cmd[LINE_MAX] = { 0 };
         char *bname, sockfd;
 
         sockfd = sock_connectTo( host, port );
@@ -94,8 +94,8 @@ main( int argc, char *argv[] )
                 return 1;
         }
         cp_parseArgs( argc, argv );
-        util_isEnv( AXI_TTYPE );
-        type = getenv( AXI_TTYPE );
+        util_isEnv( SUT_TTYPE );
+        type = getenv( SUT_TTYPE );
 
         if( !strcmp( type, "local" ) ) {
                 str = ( char * )malloc( strlen( argv[1] ) + strlen( argv[2] ) +
@@ -106,10 +106,10 @@ main( int argc, char *argv[] )
                 char *host;
                 int port;
 
-                util_isEnv( AXI_HOST );
-                util_isEnv( AXI_PORT );
-                host = getenv( AXI_HOST );
-                port = atoi( getenv( AXI_PORT ) );
+                util_isEnv( SUT_HOST );
+                util_isEnv( SUT_PORT );
+                host = getenv( SUT_HOST );
+                port = atoi( getenv( SUT_PORT ) );
                 return copy_remote( host, port, argv[optind], argv[optind+1] );
         } else
                 printf( "cp: ERR: Invalid $axi_ttype\n" );

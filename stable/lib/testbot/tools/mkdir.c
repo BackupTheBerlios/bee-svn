@@ -9,13 +9,13 @@
 #include "util.h"
 #include "socket.h"
 
-struct globals_s glob;
+struct config_ss glob;
 static int md_parseArgs( int argc, char *argv[] );
 
 static int
 client_mkdir( char *host, int port, char *path )
 {
-        char cmd[MAX_LIN] = "";
+        char cmd[LINE_MAX] = "";
         int cod = 0, sockfd = -1;
 
         sockfd = sock_connectTo( host, port );
@@ -48,18 +48,18 @@ main( int argc, char *argv[] )
                 return 1;
         }
         md_parseArgs( argc, argv );
-        util_isEnv( AXI_TTYPE );
-        tc = getenv( AXI_TTYPE );
+        util_isEnv( SUT_TTYPE );
+        tc = getenv( SUT_TTYPE );
 
         if( !strcmp( tc, "local" ) ) {
                 char cmd[PATH_MAX+10] = {0} ; //!fix bof
                 sprintf( cmd, "mkdir %s", argv[optind] ) ;
                 return system( cmd );
         } else if( !strcmp( tc, "remote" ) ) {
-                util_isEnv( AXI_HOST );
-                util_isEnv( AXI_PORT );
-                host = getenv( AXI_HOST );
-                port = atoi( getenv( AXI_PORT ) );
+                util_isEnv( SUT_HOST );
+                util_isEnv( SUT_PORT );
+                host = getenv( SUT_HOST );
+                port = atoi( getenv( SUT_PORT ) );
                 return client_mkdir( host, port, argv[optind] );
         } else
                 printf( "mkdir: ERR: Invalid $axi_ttype\n" );

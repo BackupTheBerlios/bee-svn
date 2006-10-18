@@ -10,7 +10,7 @@
 #include "socket.h"
 
 
-struct globals_s glob;
+struct config_ss glob;
 static int rc_parseArgs( int argc, char *argv[] );
 
 
@@ -38,7 +38,7 @@ refresh_local( char* source, char* dest )
 static int
 refresh_remote( char *host, int port, char *sursa, char *dest )
 {
-        char command[MAX_LIN] = { 0 };
+        char command[LINE_MAX] = { 0 };
         int cod, sockfd;
 
         sockfd = sock_connectTo( host, port );
@@ -93,32 +93,32 @@ main( int argc, char *argv[] )
         char *path;
 
         rc_parseArgs( argc, argv );
-        util_isEnv( AXI_TTYPE );
-        util_isEnv( AXI_STOP );
-        util_isEnv( AXI_START );
-        util_isEnv( AXI_DEFDOM );
-        util_isEnv( AXI_WORKDIR );
-        tc = getenv( AXI_TTYPE );
+        util_isEnv( SUT_TTYPE );
+        util_isEnv( SUT_STOP );
+        util_isEnv( SUT_START );
+        util_isEnv( SUT_DEFDOM );
+        util_isEnv( SUT_WORKDIR );
+        tc = getenv( SUT_TTYPE );
 
         if( !strcasecmp( tc, "local" ) ) {
                 printf( "* refresh: Working local\n" );
-                util_axiStop( TEST_LOCAL, 5, getenv( AXI_STOP ),0,0 );       //! @todo replace 5 with a proper timeout
-                axi_refresh( TEST_LOCAL, getenv( AXI_DEFDOM ),
-                            getenv( AXI_WORKDIR ), 0, 0 );
-                util_axiStart( TEST_LOCAL, 5, getenv( AXI_START ) ,0,0);     //! @todo replace 5
+                util_axiStop( TEST_LOCAL, 5, getenv( SUT_STOP ),0,0 );       //! @todo replace 5 with a proper timeout
+                axi_refresh( TEST_LOCAL, getenv( SUT_DEFDOM ),
+                            getenv( SUT_WORKDIR ), 0, 0 );
+                util_axiStart( TEST_LOCAL, 5, getenv( SUT_START ) ,0,0);     //! @todo replace 5
         } else if( !strcasecmp( tc, "remote" ) ) {
                 printf( "* refresh: Working remote\n" );
-                util_isEnv( AXI_HOST );
-                util_isEnv( AXI_PORT );
+                util_isEnv( SUT_HOST );
+                util_isEnv( SUT_PORT );
 
-                glob.hostname = getenv( AXI_HOST );
-                glob.port = atoi( getenv( AXI_PORT ) );
-                path = getenv( AXI_WORKDIR );
-                util_axiStop( TEST_REMOTE, 5, getenv( AXI_STOP ),
+                glob.hostname = getenv( SUT_HOST );
+                glob.port = atoi( getenv( SUT_PORT ) );
+                path = getenv( SUT_WORKDIR );
+                util_axiStop( TEST_REMOTE, 5, getenv( SUT_STOP ),
                                 glob.hostname, glob.port );
-                axi_refresh( TEST_REMOTE, getenv( AXI_DEFDOM ),
-                            getenv( AXI_WORKDIR ), glob.hostname, glob.port );
-                util_axiStart( TEST_REMOTE, 5, getenv( AXI_START ) ,
+                axi_refresh( TEST_REMOTE, getenv( SUT_DEFDOM ),
+                            getenv( SUT_WORKDIR ), glob.hostname, glob.port );
+                util_axiStart( TEST_REMOTE, 5, getenv( SUT_START ) ,
                                 glob.hostname, glob.port );    //! @todo replace 5
         } else {
                 printf( "* refresh : Invalid $axi_ttype\n" );

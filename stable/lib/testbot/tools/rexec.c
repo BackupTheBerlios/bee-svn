@@ -6,17 +6,16 @@
  *
  *   Copyright (c) Gecad Technologies
  */
-#include "util.h"
+#include "sut.h"
 #include "socket.h"
 #include <wait.h>
 
-struct globals_s glob;
 static int aa_parseArgs( int argc, char *argv[] );
 
 static int
 cli_main( char *host, int port, char *c )
 {
-        char cmd[MAX_LIN] = { 0 };
+        char cmd[LINE_MAX] = { 0 };
         int cod, sockfd;
 
          /*REMOTE*/
@@ -49,20 +48,20 @@ main( int argc, char *argv[] )
         char *hostname = 0, *ttype = 0;
         int port = 0;
         int cod = -1;
-        glob.verbose = 1;
+        int verbose = 1;
         if( argc < 2 ) {
                 printf( "rexec: missing operand\n" );
                 printf( "Try `rexec -h` for more information.\n" );
                 return EXIT_FAILURE;
         }
         aa_parseArgs( argc, argv );
-        if( signal( SIGINT, util_terminare ) == SIG_ERR ) {
+        if( signal( SIGINT, sut_sigint ) == SIG_ERR ) {
                 perror( "* rexec: Signal error!" );
                 return EXIT_FAILURE;
         }
 
-        util_isEnv( AXI_TTYPE );
-        ttype = getenv( AXI_TTYPE );
+        str_isEnv( verbose, SUT_TTYPE );
+        ttype = getenv( SUT_TTYPE );
 
          /*LOCAL*/
         if( !strcasecmp( ttype, "local" ) ) {
@@ -71,10 +70,10 @@ main( int argc, char *argv[] )
         } else if( !strcasecmp( ttype, "remote" ) ) {
 //                char cmd[PATH_MAX]={0};
 //                int i=0;
-                util_isEnv( AXI_HOST );
-                util_isEnv( AXI_PORT );
-                hostname = getenv( AXI_HOST );
-                port = atoi( getenv( AXI_PORT ) );
+                str_isEnv( verbose, SUT_HOST );
+                str_isEnv( verbose, SUT_PORT );
+                hostname = getenv( SUT_HOST );
+                port = atoi( getenv( SUT_PORT ) );
                 cod = cli_main( hostname, port, argv[optind] );
         } else
                 printf( "* rexec: Invalid test type\n" );
@@ -116,7 +115,6 @@ aa_parseArgs( int argc, char *argv[] )
                 case 'h':
                         aa_usage(  );
                 case 'v':
-                        glob.verbose = TRUE;
                         break;
                 }
         }
