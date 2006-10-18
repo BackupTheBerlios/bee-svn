@@ -9,7 +9,7 @@
 #include "socket.h"
 #include <libgen.h>
 
-struct config_ss glob;
+struct config_s cfg;
 static int cp_parseArgs( int argc, char *argv[] );
 
 static int
@@ -87,6 +87,7 @@ main( int argc, char *argv[] )
         // char *type;
         char *type;
         char *str;
+        int verbose = 1;
 
         if( argc < 2 ) {
                 printf( "cp: missing file operand\n" );
@@ -94,7 +95,7 @@ main( int argc, char *argv[] )
                 return 1;
         }
         cp_parseArgs( argc, argv );
-        util_isEnv( SUT_TTYPE );
+        str_isEnv( verbose, SUT_TTYPE );
         type = getenv( SUT_TTYPE );
 
         if( !strcmp( type, "local" ) ) {
@@ -106,8 +107,8 @@ main( int argc, char *argv[] )
                 char *host;
                 int port;
 
-                util_isEnv( SUT_HOST );
-                util_isEnv( SUT_PORT );
+                str_isEnv( verbose, SUT_HOST );
+                str_isEnv( verbose, SUT_PORT );
                 host = getenv( SUT_HOST );
                 port = atoi( getenv( SUT_PORT ) );
                 return copy_remote( host, port, argv[optind], argv[optind+1] );
@@ -152,7 +153,6 @@ cp_parseArgs( int argc, char *argv[] )
                 case 'h':
                         cp_usage(  );
                 case 'v':
-                        glob.verbose = TRUE;
                         break;
                 }
         }
