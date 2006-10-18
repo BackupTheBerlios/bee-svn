@@ -86,12 +86,12 @@ sut_startLocal( int timeout, char* maillog, char* start )
                         /* a possible bug might be if SUPERVISER text gets in the same
                          * buffer with INFO: ready. Then we get a false status*/
                         if( supRdy == FALSE ) {
-                                rc = util_strsrch( buf, i, supRdyStr, strlen(supRdyStr) );
+                                rc = str_search( buf, i, supRdyStr, strlen(supRdyStr) );
                                 supRdy = rc;
                                 if( rc )
                                         printf( "~~~~~~~Found SUPERVISER~~~~~~~\n" );
                         } else {
-                                rc = util_strsrch( buf, i, rdyStr, strlen(rdyStr) );
+                                rc = str_search( buf, i, rdyStr, strlen(rdyStr) );
                                 if( rc ) {
                                         printf( "~~~~~~~\n" );
                                         close( fd );
@@ -113,11 +113,11 @@ sut_stop( int test_type, int timeout, char *stop, char* hostname, int port )
 {
         printf( "* axiStop ...\n" );
         if( test_type == TEST_LOCAL ) {
-                util_axiStopLocal( timeout, stop );
+                sut_stopLocal( timeout, "/var/log/maillog", stop );
                 sleep(1);
         }
         if( test_type == TEST_REMOTE ) {
-                util_axiStopRemote( timeout, stop, hostname, port );
+                sut_stopRemote( timeout, stop, hostname, port );
                 sleep(1);
         }
         return 0;
@@ -174,12 +174,12 @@ sut_stopLocal( int timeout, char* maillog, char* stop )
                         /* a possible bug might be if SUPERVISER text gets in the same
                          * buffer with INFO: ready. Then we get a false status*/
                         if( supRdy == FALSE ) {
-                                rc = util_strsrch( buf, i, supRdyStr, strlen(supRdyStr) );
+                                rc = str_search( buf, i, supRdyStr, strlen(supRdyStr) );
                                 supRdy = rc;
                                 if( rc )
                                         printf( "////////Found SUPERVISER/////\n" );
                         } else {
-                                rc = util_strsrch( buf, i, rdyStr, strlen(rdyStr) );
+                                rc = str_search( buf, i, rdyStr, strlen(rdyStr) );
                                 if( rc ) {
                                         printf( "----------\n" );
                                         close( fd );
@@ -205,11 +205,11 @@ sut_refresh( int test_type,
         int cod = 0;
 
         if( test_type == TEST_LOCAL ) {
-                return refresh_local( source, dest );
+                return sut_refreshLocal( source, dest );
         }
 
         if( test_type == TEST_REMOTE ) {
-                if( refresh_remote( host, port, source, dest ) ) {
+                if( sut_refreshRemote( host, port, source, dest ) ) {
                         printf( "* refresh: ERR: Could not make refresh!!!\n" );
                         return EXIT_FAILURE;
                 }
@@ -283,11 +283,11 @@ sut_checkCore( int test_type,
         int rc = FALSE;
 
         if( test_type == TEST_LOCAL )
-                rc = util_checkCoreLocal( core_srcDir, dbg_srcDir, axi_workDir,
+                rc = sut_checkCoreLocal( core_srcDir, dbg_srcDir, axi_workDir,
                                           axi_cfgFile, core_srcDir );
 
         if( test_type == TEST_REMOTE )
-                rc = tb_checkCoreRemote( core_srcDir, dbg_srcDir, axi_workDir,
+                rc = sut_checkCoreRemote( core_srcDir, dbg_srcDir, axi_workDir,
                                          axi_cfgFile, core_srcDir );
 
         if( rc && !cfg.act_as_daemon )
@@ -398,3 +398,16 @@ sut_checkCoreLocal( const char *core_srcDir, const char *dbg_srcDir,
 
 
 
+void
+sut_sigpipe(  )
+{
+        printf( "Bailing out\n" );
+        exit( 1 );
+}
+
+void
+sut_sigint()
+{
+        printf( "Bailing out\n" );
+        exit( 1 );
+}

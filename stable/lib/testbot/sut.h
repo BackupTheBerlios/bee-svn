@@ -25,4 +25,5 @@ sut_checkCoreLocal( const char *core_srcDir, const char *dbg_srcDir,
                      const char *workDir, const char *cfgFile,
                      const char *crash_destDir );
 
-
+void sut_sigpipe();
+void sut_sigint();

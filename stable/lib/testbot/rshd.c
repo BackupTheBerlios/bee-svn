@@ -8,6 +8,7 @@
  */
 #include "strop.h"
 #include "socket.h"
+#include "sut.h"
 #include "rshd.h"
 #include "callbacks.h"
 
@@ -68,7 +69,7 @@ rsh_main( int port )
         stderr = fopen( "/dev/null", "w" );
 #endif
         /* Daemon */
-        callback_rsh( port );
+        callback_socket( port );
         return 0;
 }
 
@@ -113,7 +114,7 @@ callback_socket( int portno )
                         perror( "rsh: ERR on accept");
                         exit( -1 );
                 }
-                callback_client( newsockfd );
+                callback_command( newsockfd );
         }
 }
 
@@ -156,7 +157,7 @@ callback_command( int socket )
                         continue;
                 }
                 for( i = 0; callbacks[i].keyword != NULL; i++ )
-                        if( util_matches( buf, callbacks[i].keyword ) ) {
+                        if( str_matches( buf, callbacks[i].keyword ) ) {
                                 callbacks[i].call( socket, p );
                                 break;
                         }

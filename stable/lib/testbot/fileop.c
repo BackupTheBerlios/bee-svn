@@ -8,14 +8,14 @@ extern struct cfgals_s cfg;
 static int recursiveFlag = 0;
 static int forceFlag = 0;
 
-static int util_axiStartLocal( int timeout, char* start );
-static int util_axiStopLocal( int timeout, char* stop );
+static int sut_axiStartLocal( int timeout, char* start );
+static int sut_axiStopLocal( int timeout, char* stop );
 
 
 
 
 int
-util_fileSize( char *name )
+sut_fileSize( char *name )
 {
         struct stat inf;
 
@@ -30,7 +30,7 @@ util_fileSize( char *name )
 
 
 void
-util_terminare(  )
+sut_terminare(  )
 {
         printf( "Bailing out\n" );
         exit( 1 );

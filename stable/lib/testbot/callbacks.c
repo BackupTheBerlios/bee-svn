@@ -18,7 +18,7 @@ callback_start( int sock, char *buf )
                 return FALSE;
         }
 
-        util_axiStart( TEST_LOCAL, timeout, startCmd,0,0 );
+        sut_start( TEST_LOCAL, timeout, startCmd,0,0 );
         sock_sendStatus( sock, 0 );
         return TRUE;            //! @todo pls return a proper value(sendStatus)
 }
@@ -37,7 +37,7 @@ callback_stop( int sock, char *buf )
                 return FALSE;
         }
         printf("STOP %d [%s]\n", timeout, stopCmd );
-        util_axiStop( TEST_LOCAL, timeout, stopCmd,0,0 );
+        sut_stop( TEST_LOCAL, timeout, stopCmd,0,0 );
         sock_sendStatus( sock, 0 );
         return TRUE;
 }
@@ -198,7 +198,7 @@ callback_checkCore( int sock, char *buf )
 
         sscanf( buf, "%s %s %s %s %s", core_srcDir, dbg_srcDir, axi_workDir,
                 axi_cfgFile, crash_destDir );
-        rc = util_checkCoreLocal( core_srcDir, dbg_srcDir, axi_workDir,
+        rc = sut_checkCore( TEST_LOCAL, core_srcDir, dbg_srcDir, axi_workDir,
                                   axi_cfgFile, crash_destDir );
         sock_sendStatus( sock, rc );    //! @todo figure out what status i should send
         return FALSE;           // means no core was found

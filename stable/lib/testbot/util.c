@@ -8,20 +8,20 @@ extern struct globals_s glob;
 static int recursiveFlag = 0;
 static int forceFlag = 0;
 
-static int util_ptStartLocal( int timeout );
-static int util_ptStopLocal( int timeout );
+static int sut_ptStartLocal( int timeout );
+static int sut_ptStopLocal( int timeout );
 
 
 
 /*
 */
 int
-util_ptStart( int test_type, int timeout, char *start )
+sut_ptStart( int test_type, int timeout, char *start )
 {
         //int rc =-1;
         printf( "* Starting ... %s\n", getenv( PT_START ) );
         if( test_type == TEST_LOCAL ) {
-                util_ptStartLocal( timeout );
+                sut_ptStartLocal( timeout );
                 sleep( 1 );     // still need to wait a little
                 printf( "OK\n" );
         } else {
@@ -46,7 +46,7 @@ util_ptStart( int test_type, int timeout, char *start )
  * \warning WORKS LOCALLY ONLY.
  */
 static int
-util_ptStartLocal( int timeout )
+sut_ptStartLocal( int timeout )
 {
 #define supRL 24
 #define ptRL 11
@@ -57,10 +57,10 @@ util_ptStartLocal( int timeout )
         int supRdy = FALSE;
 
         printf( "Waiting\n* LOG\n++++++++++\n" );
-        oldsz = util_fileSize( "/var/log/maillog" );
+        oldsz = sut_fileSize( "/var/log/maillog" );
         fd = open( "/var/log/maillog", O_RDONLY );
         //lseek(fd, 0, SEEK_END);
-        oldsz = util_fileSize( "/var/log/maillog" );
+        oldsz = sut_fileSize( "/var/log/maillog" );
         rc = system( getenv( PT_START ) );
         if( rc == -1 ) {
                 printf( "Failed\n" );
@@ -69,7 +69,7 @@ util_ptStartLocal( int timeout )
                 return FALSE;
         }
         for( ;; ) {
-                /*newsz = util_fileSize( "/var/log/maillog" );
+                /*newsz = sut_fileSize( "/var/log/maillog" );
                    if( newsz == oldsz )
                    continue ; */
                 oldsz = newsz;
@@ -89,12 +89,12 @@ util_ptStartLocal( int timeout )
                         /* a possible bug might be if SUPERVISER text gets in the same
                          * buffer with INFO: ready. Then we get a false status*/
                         if( supRdy == FALSE ) {
-                                rc = util_strsrch( buf, i, supRdyStr, supRL );
+                                rc = sut_strsrch( buf, i, supRdyStr, supRL );
                                 supRdy = rc;
                                 if( rc )
                                         printf( "////////Found SUPERVISER/////\n" );
                         } else {
-                                rc = util_strsrch( buf, i, rdyStr, ptRL );
+                                rc = sut_strsrch( buf, i, rdyStr, ptRL );
                                 if( rc ) {
                                         printf( "----------\n" );
                                         close( fd );
@@ -112,11 +112,11 @@ util_ptStartLocal( int timeout )
 
 
 int
-util_ptStop( int test_type, int timeout, char *stop )
+sut_ptStop( int test_type, int timeout, char *stop )
 {
         printf( "* Stoping ...\n" );
         if( glob.test_type == TEST_LOCAL )
-                util_ptStopLocal( timeout );
+                sut_ptStopLocal( timeout );
                 sleep(1);
                 printf( "OK\n" );
         if( glob.test_type == TEST_REMOTE ) {
@@ -130,7 +130,7 @@ util_ptStop( int test_type, int timeout, char *stop )
 }
 
 static int
-util_ptStopLocal( int timeout )
+sut_ptStopLocal( int timeout )
 {
 #define supRL 30
 #define ptRL 25
@@ -167,12 +167,12 @@ util_ptStopLocal( int timeout )
                         /* a possible bug might be if SUPERVISER text gets in the same
                          * buffer with INFO: ready. Then we get a false status*/
                         if( supRdy == FALSE ) {
-                                rc = util_strsrch( buf, i, supRdyStr, supRL );
+                                rc = sut_strsrch( buf, i, supRdyStr, supRL );
                                 supRdy = rc;
                                 if( rc )
                                         printf( "////////Found SUPERVISER/////\n" );
                         } else {
-                                rc = util_strsrch( buf, i, rdyStr, ptRL );
+                                rc = sut_strsrch( buf, i, rdyStr, ptRL );
                                 if( rc ) {
                                         printf( "----------\n" );
                                         close( fd );
@@ -188,7 +188,7 @@ util_ptStopLocal( int timeout )
 
 
 int
-util_fileSize( char *name )
+sut_fileSize( char *name )
 {
         struct stat inf;
 
@@ -203,14 +203,14 @@ util_fileSize( char *name )
 
 
 void
-util_terminare(  )
+sut_terminare(  )
 {
         printf( "Bailing out\n" );
         exit( 1 );
 }
 
 int
-util_strsrch( const char *hay_stack, int hay_size, const char *needle,
+sut_strsrch( const char *hay_stack, int hay_size, const char *needle,
               int needle_size )
 {
         int i, j;
@@ -232,7 +232,7 @@ util_strsrch( const char *hay_stack, int hay_size, const char *needle,
 
 
 int
-util_isEnv( char *var_name )
+sut_isEnv( char *var_name )
 {
         if( !getenv( var_name ) ) {
                 fprintf( stderr, "$%s not exported.\n", var_name );
@@ -246,7 +246,7 @@ util_isEnv( char *var_name )
 
 
 int
-util_startsWith( char *str, char *exp )
+sut_startsWith( char *str, char *exp )
 {
         int i;
 
@@ -271,7 +271,7 @@ client_rm( char *host, int port, char *path )
         sprintf( cmd, "RM %s", path );
         write( sockfd, cmd, strlen( cmd ) );    //TODO: check for error
         read( sockfd, str, 8191 );
-        cod = util_getCode( str );
+        cod = sut_getCode( str );
         if( cod ) {
                 fprintf( stderr, "Error, could not delete the path %s: %s\n",
                          path, strerror( cod ) );
@@ -285,7 +285,7 @@ client_rm( char *host, int port, char *path )
 
 
 int
-util_matches( char *buffer, char *string )
+sut_matches( char *buffer, char *string )
 {
         if( !strncasecmp( buffer, string, strlen( string ) ) )
                 return 1;
@@ -456,7 +456,7 @@ my_rm( char *srcName )
 }
 
 int
-util_endsWith( const char *str, const char *model )
+sut_endsWith( const char *str, const char *model )
 {
         int len_str = strlen( str );
         int len_m = strlen( model );
@@ -470,10 +470,10 @@ util_endsWith( const char *str, const char *model )
 }
 
 int
-util_getCode( char *str )
+sut_getCode( char *str )
 {
-        if( !util_startsWith( str, "OK:" )
-            && !util_startsWith( str, "ERR:" ) ) {
+        if( !sut_startsWith( str, "OK:" )
+            && !sut_startsWith( str, "ERR:" ) ) {
                 fprintf( stderr, "The string received from host is '%s'\n",
                          str );
                 fprintf( stderr, "Expecting OK: or ERR:\n" );
@@ -504,7 +504,7 @@ util_getCode( char *str )
  * For the moment, this works local only.
  * Have to implement the same function in host.c*/
 int
-util_checkCoreLocal( const char *core_srcDir, const char *dbg_srcDir,
+sut_checkCoreLocal( const char *core_srcDir, const char *dbg_srcDir,
                      const char *workDir, const char *cfgFile,
                      const char *crash_destDir )
 {

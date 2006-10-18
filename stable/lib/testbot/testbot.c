@@ -25,7 +25,7 @@ main( int argc, char *argv[] )
         struct config_s    cfg;          /* used to pass parameters around */
 
         if( argc == 1 ) tb_usage(  );
-        tb_cfgalsInit( argc, argv );
+        tb_cfgInit( argc, argv );
         tb_parseArgs( cfg, argc, argv );
 
         if( cfg.act_as_daemon ) {
@@ -163,7 +163,7 @@ tb_usage( void )
 }
 
 int
-tb_initConfig( struct config_s cfg, int argc, char *argv[] )
+tb_cfgInit( struct config_s cfg, int argc, char *argv[] )
 {
         cfg.port = 0;
         cfg.test_type   = TEST_UNSET;    // 0:not set. 1:local 2:remote
@@ -486,14 +486,8 @@ tb_checkCore( const char *core_srcDir, const char *dbg_srcDir,
 {
         int rc = FALSE;
 
-        if( cfg.test_type == TEST_LOCAL )
-                rc = util_checkCoreLocal( core_srcDir, dbg_srcDir, axi_workDir,
+        rc = sut_checkCore( cfg.test_type, core_srcDir, dbg_srcDir, axi_workDir,
                                           axi_cfgFile, core_srcDir );
-
-        if( cfg.test_type == TEST_REMOTE )
-                rc = tb_checkCoreRemote( core_srcDir, dbg_srcDir, axi_workDir,
-                                         axi_cfgFile, core_srcDir );
-
         if( rc && !cfg.act_as_daemon )
                 system( "echo -e 'Tested Product droped CORE!'|wall" );
         return rc;

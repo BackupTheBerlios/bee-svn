@@ -76,8 +76,8 @@ str_endsWith( const char *str, const char *model )
 int
 str_getCode( char *str )
 {
-        if( !util_startsWith( str, "OK:" )
-            && !util_startsWith( str, "ERR:" ) ) {
+        if( !str_startsWith( str, "OK:" )
+            && !str_startsWith( str, "ERR:" ) ) {
                 fprintf( stderr, "The string received from host is '%s'\n",
                          str );
                 fprintf( stderr, "Expecting OK: or ERR:\n" );
