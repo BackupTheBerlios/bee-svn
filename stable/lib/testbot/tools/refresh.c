@@ -10,7 +10,7 @@
 #include "socket.h"
 
 
-struct config_ss glob;
+struct config_s cfg ;
 static int rc_parseArgs( int argc, char *argv[] );
 
 
@@ -93,33 +93,33 @@ main( int argc, char *argv[] )
         char *path;
 
         rc_parseArgs( argc, argv );
-        util_isEnv( SUT_TTYPE );
-        util_isEnv( SUT_STOP );
-        util_isEnv( SUT_START );
-        util_isEnv( SUT_DEFDOM );
-        util_isEnv( SUT_WORKDIR );
+        str_isEnv(1, SUT_TTYPE );
+        str_isEnv(1, SUT_STOP );
+        str_isEnv(1, SUT_START );
+        str_isEnv(1, SUT_DEFDOM );
+        str_isEnv(1, SUT_WORKDIR );
         tc = getenv( SUT_TTYPE );
 
         if( !strcasecmp( tc, "local" ) ) {
                 printf( "* refresh: Working local\n" );
-                util_axiStop( TEST_LOCAL, 5, getenv( SUT_STOP ),0,0 );       //! @todo replace 5 with a proper timeout
-                axi_refresh( TEST_LOCAL, getenv( SUT_DEFDOM ),
+                sut_stop( TEST_LOCAL, 5, getenv( SUT_STOP ),0,0 );       //! @todo replace 5 with a proper timeout
+                sut_refresh( TEST_LOCAL, getenv( SUT_DEFDOM ),
                             getenv( SUT_WORKDIR ), 0, 0 );
-                util_axiStart( TEST_LOCAL, 5, getenv( SUT_START ) ,0,0);     //! @todo replace 5
+                sut_start( TEST_LOCAL, 5, getenv( SUT_START ) ,0,0);     //! @todo replace 5
         } else if( !strcasecmp( tc, "remote" ) ) {
                 printf( "* refresh: Working remote\n" );
-                util_isEnv( SUT_HOST );
-                util_isEnv( SUT_PORT );
+                str_isEnv(1, SUT_HOST );
+                str_isEnv(1, SUT_PORT );
 
-                glob.hostname = getenv( SUT_HOST );
-                glob.port = atoi( getenv( SUT_PORT ) );
+                cfg.hostname = getenv( SUT_HOST );
+                cfg.port = atoi( getenv( SUT_PORT ) );
                 path = getenv( SUT_WORKDIR );
-                util_axiStop( TEST_REMOTE, 5, getenv( SUT_STOP ),
-                                glob.hostname, glob.port );
+                sut_stop( TEST_REMOTE, 5, getenv( SUT_STOP ),
+                                cfg.hostname, cfg.port );
                 axi_refresh( TEST_REMOTE, getenv( SUT_DEFDOM ),
-                            getenv( SUT_WORKDIR ), glob.hostname, glob.port );
-                util_axiStart( TEST_REMOTE, 5, getenv( SUT_START ) ,
-                                glob.hostname, glob.port );    //! @todo replace 5
+                            getenv( SUT_WORKDIR ), cfg.hostname, cfg.port );
+                sut_start( TEST_REMOTE, 5, getenv( SUT_START ) ,
+                               cfg.hostname, cfg.port );    //! @todo replace 5
         } else {
                 printf( "* refresh : Invalid $axi_ttype\n" );
                 return 1;
@@ -154,25 +154,25 @@ rc_parseArgs( int argc, char *argv[] )
                 case 't':
                         if( !strcasecmp( optarg, "remote" ) ) {
                             setenv( "axi_ttype", optarg, 1 );
-                            glob.test_type = TEST_REMOTE ;
+                            cfg.test_type = TEST_REMOTE ;
                         }
                         if( !strcasecmp( optarg, "local" ) )  {
                             setenv( "axi_ttype", optarg, 1 );
-                            glob.test_type = TEST_LOCAL ;
+                            cfg.test_type = TEST_LOCAL ;
                         }
                         break;
                 case 'H':
                         setenv( "axi_host", optarg, 1 );
-                        glob.hostname = optarg ;
+                        cfg.hostname = optarg ;
                         break;
                 case 'P':
                         setenv( "axi_port", optarg, 1 );
-                        glob.port = atoi(optarg);
+                        cfg.port = atoi(optarg);
                         break;
                 case 'h':
                         rc_usage(  );
                 case 'v':
-                        glob.verbose = TRUE;
+                        cfg.verbose = TRUE;
                         break;
                 }
         }
