@@ -18,7 +18,7 @@ main( int argc, char *argv[] )
 {
         char *tc;               // conexion type
         char *host;
-        int port;
+        int port, test_type;
 
         if( argc < 2 )          // trebuie sa am sursa si destinatie
         {
@@ -34,19 +34,13 @@ main( int argc, char *argv[] )
                 return 1;
         }
 
-        if( !strcmp( tc, "local" ) ) {
-                char cmd[PATH_MAX+10] = { 0 } ;
-                sprintf(cmd, "/bin/rm -rf %s", argv[optind] ) ;
-                return system( cmd );
-        } else if( !strcmp( tc, "remote" ) ) {
-                str_isEnv( 1, SUT_HOST );
-                str_isEnv( 1, SUT_PORT );
-                host = getenv( SUT_HOST );
-                port = atoi( getenv( SUT_PORT ) );
-                return util_rmRemote( host, port, argv[optind] );
-
-        } else
+        if( !strcmp( tc, "local" ) )
+                test_type = TEST_LOCAL ;
+        else if( !strcmp( tc, "remote" ) )
+                test_type = TEST_REMOTE ;
+        else
                 printf( "Invalid $axi_ttype\n" );
+        fop_rm( test_type, argv[optind], host, port);
         return 1;
 }
 
