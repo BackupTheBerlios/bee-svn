@@ -5,7 +5,7 @@
  *
  *   Copyright (c) Gecad Technologies
  */
-#include "util.h"
+#include "sut.h"
 #include "socket.h"
 #include <libgen.h>
 

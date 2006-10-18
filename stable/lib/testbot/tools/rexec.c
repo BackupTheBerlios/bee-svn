@@ -11,7 +11,7 @@
 #include <wait.h>
 
 static int aa_parseArgs( int argc, char *argv[] );
-
+struct config_s cfg ;
 static int
 cli_main( char *host, int port, char *c )
 {
