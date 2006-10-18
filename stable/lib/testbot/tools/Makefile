@@ -1,5 +1,5 @@
 CC  = gcc -g -I../ #-Wall
-LIB = ../sut.c ../strop.c ../socket.c
+LIB = ../sut.c ../fileop.c ../strop.c ../socket.c
 BIN = ./bin
 TARGETS=rexec cp mkdir rm refresh start stop
 

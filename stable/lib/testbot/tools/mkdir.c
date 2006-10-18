@@ -6,10 +6,11 @@
  *
  *   Copyright (c) Gecad Technologies
  */
-#include "util.h"
+#include "sut.h"
+#include "config.h"
 #include "socket.h"
 
-struct config_ss glob;
+struct config_s cfg;
 static int md_parseArgs( int argc, char *argv[] );
 
 static int

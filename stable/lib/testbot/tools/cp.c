@@ -6,12 +6,13 @@
  *   Copyright (c) Gecad Technologies
  */
 #include "sut.h"
+#include "fileop.h"
 #include "socket.h"
 #include <libgen.h>
 
 struct config_s cfg;
 static int cp_parseArgs( int argc, char *argv[] );
-
+#define DIM_BUFF 8192     // todo get rid of this
 static int
 sendfile( int sock, char *src_file )
 {
@@ -52,7 +53,7 @@ copy_remote( char *host, int port, char *src_file, char *dest_dir )
 
         sockfd = sock_connectTo( host, port );
 
-        int l = util_fileSize( src_file );
+        int l = fop_fileSize( src_file );
         if( l == -1 ) {
                 fprintf( stderr, "cp: ERR: '%s' in not a regular file\n",
                          src_file );
