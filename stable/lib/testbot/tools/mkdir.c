@@ -49,7 +49,7 @@ main( int argc, char *argv[] )
                 return 1;
         }
         md_parseArgs( argc, argv );
-        util_isEnv( SUT_TTYPE );
+        str_isEnv( 1, SUT_TTYPE );
         tc = getenv( SUT_TTYPE );
 
         if( !strcmp( tc, "local" ) ) {
@@ -57,8 +57,8 @@ main( int argc, char *argv[] )
                 sprintf( cmd, "mkdir %s", argv[optind] ) ;
                 return system( cmd );
         } else if( !strcmp( tc, "remote" ) ) {
-                util_isEnv( SUT_HOST );
-                util_isEnv( SUT_PORT );
+                str_isEnv( 1, SUT_HOST );
+                str_isEnv( 1, SUT_PORT );
                 host = getenv( SUT_HOST );
                 port = atoi( getenv( SUT_PORT ) );
                 return client_mkdir( host, port, argv[optind] );

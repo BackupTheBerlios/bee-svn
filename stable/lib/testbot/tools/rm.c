@@ -7,10 +7,10 @@
  *   Copyright (c) Gecad Technologies
  */
 
-#include "util.h"
+#include "sut.h"
 #include "socket.h"
 
-struct config_ss glob;
+struct config_s cfg;
 static int rm_parseArgs( int argc, char *argv[] );
 
 int
@@ -27,7 +27,7 @@ main( int argc, char *argv[] )
                 return 1;
         }
         rm_parseArgs( argc, argv );
-        util_isEnv( SUT_TTYPE );
+        str_isEnv( 1, SUT_TTYPE );
         tc = getenv( SUT_TTYPE );
         if( argc < 2 ) {
                 fprintf( stderr, "ERR: no valid sintax" );
@@ -39,8 +39,8 @@ main( int argc, char *argv[] )
                 sprintf(cmd, "/bin/rm -rf %s", argv[optind] ) ;
                 return system( cmd );
         } else if( !strcmp( tc, "remote" ) ) {
-                util_isEnv( SUT_HOST );
-                util_isEnv( SUT_PORT );
+                str_isEnv( 1, SUT_HOST );
+                str_isEnv( 1, SUT_PORT );
                 host = getenv( SUT_HOST );
                 port = atoi( getenv( SUT_PORT ) );
                 return util_rmRemote( host, port, argv[optind] );
@@ -89,7 +89,6 @@ rm_parseArgs( int argc, char *argv[] )
                 case 'h':
                         rm_usage(  );
                 case 'v':
-                        glob.verbose = TRUE;
                         break;
                 }
         }

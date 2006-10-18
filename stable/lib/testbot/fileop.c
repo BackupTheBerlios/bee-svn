@@ -15,7 +15,7 @@ static int sut_axiStopLocal( int timeout, char* stop );
 
 
 int
-sut_fileSize( char *name )
+fop_fileSize( char *name )
 {
         struct stat inf;
 
@@ -28,13 +28,6 @@ sut_fileSize( char *name )
 }
 
 
-
-void
-sut_terminare(  )
-{
-        printf( "Bailing out\n" );
-        exit( 1 );
-}
 
 /*-------------*/
 
