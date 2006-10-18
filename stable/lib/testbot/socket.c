@@ -17,6 +17,10 @@ sock_connectTo( char *host, int port )
         struct hostent *server;
 
 
+        if( !host || ! port ) {
+            printf("Cant connect to null host/port\n");
+            return -1;
+        }
         // socket create
         sockfd = socket( AF_INET, SOCK_STREAM, 0 );
         if( sockfd == -1 ) {

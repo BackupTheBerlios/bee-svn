@@ -4,7 +4,7 @@
  *   \date      Thu Aug 17 17:38:13 2006
  *
  *   Copyright (c) Gecad Technologies
- **/
+ */
 #include "util.h"
 #include "socket.h"
 #include <libgen.h>
@@ -94,8 +94,8 @@ main( int argc, char *argv[] )
                 return 1;
         }
         cp_parseArgs( argc, argv );
-        util_isEnv( PT_TTYPE );
-        type = getenv( PT_TTYPE );
+        util_isEnv( AXI_TTYPE );
+        type = getenv( AXI_TTYPE );
 
         if( !strcmp( type, "local" ) ) {
                 str = ( char * )malloc( strlen( argv[1] ) + strlen( argv[2] ) +
@@ -106,13 +106,13 @@ main( int argc, char *argv[] )
                 char *host;
                 int port;
 
-                util_isEnv( PT_HOST );
-                util_isEnv( PT_PORT );
-                host = getenv( PT_HOST );
-                port = atoi( getenv( PT_PORT ) );
-                return copy_remote( host, port, argv[1], argv[2] );
+                util_isEnv( AXI_HOST );
+                util_isEnv( AXI_PORT );
+                host = getenv( AXI_HOST );
+                port = atoi( getenv( AXI_PORT ) );
+                return copy_remote( host, port, argv[optind], argv[optind+1] );
         } else
-                printf( "cp: ERR: Invalid $pt_ttype\n" );
+                printf( "cp: ERR: Invalid $axi_ttype\n" );
         return 1;
 }
 
@@ -125,6 +125,9 @@ cp_usage( void )
         printf( "\n" );
         printf( "  -v, --verbose     print a message for each action executed\n" );
         printf( "  -h, --help        display this help and exit\n" );
+        printf( "  -H hostname\n");
+        printf( "  -P port\n");
+        printf( "  -t testType\n");
         exit( 0 );
 }
 
@@ -136,23 +139,15 @@ cp_parseArgs( int argc, char *argv[] )
         while( ( c = getopt( argc, argv, "t:H:P:hv" ) ) != -1 ) {
                 switch ( c ) {
                 case 't':
-                        if( !strcasecmp( optarg, "remote" ) )
-                                //glob.test_type = TEST_REMOTE;
-                                if( !strcasecmp( optarg, "local" ) )
-                                        //glob.test_type = TEST_LOCAL;
-                                        /*if (!glob.test_type) {
-                                           printf("* testbot: ERR: Give valid context local/remote.\n");
-                                           tb_usage();
-                                           } */
-                                        setenv( "pt_ttype", optarg, 1 );
+                        if( !strcasecmp( optarg, "remote" )
+                        ||( !strcasecmp( optarg, "local" ) ))
+                            setenv( "axi_ttype", optarg, 1 );
                         break;
                 case 'H':
-                        //glob.hostname = optarg;
-                        setenv( "pt_host", optarg, 1 );
+                        setenv( "axi_host", optarg, 1 );
                         break;
                 case 'P':
-                        //glob.port = atoi(optarg);   // fixme
-                        setenv( "pt_port", optarg, 1 );
+                        setenv( "axi_port", optarg, 1 );
                         break;
                 case 'h':
                         cp_usage(  );

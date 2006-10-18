@@ -1,4 +1,3 @@
-#include "util.h"
 
 int sock_connectTo( char* host, int port ) ;
 int sock_sendStatus(int sock, int cod);

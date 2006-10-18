@@ -1,5 +1,4 @@
 
-
 Testing Framework.
 =========================
     The Testing Framework is composed of two modules:
@@ -78,3 +77,54 @@ Note:
     either run testbot as root( not recomended ) or you can replace the umask
     in the syslog init script ( /etc/init.d/syslog ) from 077 to 0604, which would create
     maillog with read permission for others.
+
+4. Environment Variables:
+------------------------
+Scripts could read environent variables using getenv
+or using autils.pm(for perl)
+The standard variable names are:
+
+axi_host        the machine where axigen resides
+axi_errorlog    full path where to place testbot errorlog
+axi_imap        IMAP            port
+axi_imaps       IMAP     [SSL]  port
+axi_pop         POP3            port
+axi_pops        POP3     [SSL]  port
+axi_smtp        SMTP            port
+axi_smtps       SMTP     [SSL]  port
+axi_webmail     WebMail         port
+axi_webmails    WebMail  [SSL]  port
+axi_webadmin    WebAdmin        port
+axi_webadmins   WebAdmin [SSL]  port
+axi_cli         CLI             port
+axi_clis        CLI      [SSL]  port
+axi_user        Default user used in tests( user1 )
+axi_pass        Password of the default user
+axi_defdom      Default domain
+axi_start       Command that STARTs axigen in a syncronous way
+axi_stop        Command that STOPs axigen in a syncronous way
+axi_reload      Command that RELOADs axigen in a syncronous way
+axi_tool        Directory holding the framework( Perl modules and start/stop tools)
+axi_workdir     Axigen Workdir
+axi_sendmail    Sendmail binary
+axi_adminpass   admin pass, used with CLI
+axi_users_no    Number of users ?
+axi_provisioner OBSOLETE ??
+axi_ddb_path    OBSOLETE ??
+axi_bin         ??? where is this used ?
+axi_base_user   ???
+axi_base_pass   ???
+axi_fresh       ???
+axi_cfg_file    ??? -> Turn it into axi_cfgfile
+axi_core_dir    ??? -> Turn it into axi_coredir
+axi_dbg_dir     ??? -> Turn it into axi_dbgdir
+axi_core        ??? -> Was this axi_coredir ??
+axi_config      ??? -> was this axi_cfgfile ?
+axi_configpath  ???
+refresh_client  ??? -> Turn it into axi_refresh?
+axi_syslog      ??? -> Turn it into axi_maillog ??
+axi_debuglog    ??? -> see axi_dbgfile
+axi_debugfolder ??? -> see axi_dbgdir
+axi_template    ???
+axi_linelen     ???
+axi_domlen      ???

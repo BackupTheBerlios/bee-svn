@@ -5,7 +5,7 @@
  *   \date     Thu Aug 17 17:38:13 2006
  *
  *   Copyright (c) Gecad Technologies
- **/
+ */
 
 #include "util.h"
 #include "socket.h"
@@ -17,7 +17,7 @@ int
 main( int argc, char *argv[] )
 {
         char *tc;               // conexion type
-        char comand[MAX_LIN], *host;
+        char *host;
         int port;
 
         if( argc < 2 )          // trebuie sa am sursa si destinatie
@@ -27,30 +27,26 @@ main( int argc, char *argv[] )
                 return 1;
         }
         rm_parseArgs( argc, argv );
-        util_isEnv( PT_TTYPE );
-        tc = getenv( PT_TTYPE );
+        util_isEnv( AXI_TTYPE );
+        tc = getenv( AXI_TTYPE );
         if( argc < 2 ) {
                 fprintf( stderr, "ERR: no valid sintax" );
                 return 1;
         }
 
         if( !strcmp( tc, "local" ) ) {
-                strcpy( comand, "/bin/rm -rf " );
-                strcat( comand, argv[1] );
-                return system( comand );
+                char cmd[PATH_MAX+10] = { 0 } ;
+                sprintf(cmd, "/bin/rm -rf %s", argv[optind] ) ;
+                return system( cmd );
         } else if( !strcmp( tc, "remote" ) ) {
-                util_isEnv( PT_HOST );
-                util_isEnv( PT_PORT );
-                host = getenv( PT_HOST );
-                port = atoi( getenv( PT_PORT ) );
-                if( !strcmp( argv[1], "-R" ) || !strcmp( argv[1], "-r" ) ) {
-                        return client_rm( host, port, argv[2] );
-                } else {
-                        return client_rm( host, port, argv[1] );
-                }
+                util_isEnv( AXI_HOST );
+                util_isEnv( AXI_PORT );
+                host = getenv( AXI_HOST );
+                port = atoi( getenv( AXI_PORT ) );
+                return util_rmRemote( host, port, argv[optind] );
 
         } else
-                printf( "Invalid $pt_ttype\n" );
+                printf( "Invalid $axi_ttype\n" );
         return 1;
 }
 
@@ -65,6 +61,9 @@ rm_usage( void )
         printf( "\n" );
         printf( "  -v, --verbose     print a message for each action executed\n" );
         printf( "  -h, --help        display this help and exit\n" );
+        printf( "  -H hostname\n");
+        printf( "  -P port\n");
+        printf( "  -t testType\n");
         exit( 0 );
 }
 
@@ -77,23 +76,15 @@ rm_parseArgs( int argc, char *argv[] )
         while( ( c = getopt( argc, argv, "t:H:P:hv" ) ) != -1 ) {
                 switch ( c ) {
                 case 't':
-                        if( !strcasecmp( optarg, "remote" ) )
-                                //glob.test_type = TEST_REMOTE;
-                                if( !strcasecmp( optarg, "local" ) )
-                                        //glob.test_type = TEST_LOCAL;
-                                        /*if (!glob.test_type) {
-                                           printf("* testbot: ERR: Give valid context local/remote.\n");
-                                           tb_usage();
-                                           } */
-                                        setenv( "pt_ttype", optarg, 1 );
+                        if( !strcasecmp( optarg, "remote" ) 
+                        ||( !strcasecmp( optarg, "local" ) ))
+                            setenv( "axi_ttype", optarg, 1 );
                         break;
                 case 'H':
-                        //glob.hostname = optarg;
-                        setenv( "pt_host", optarg, 1 );
+                        setenv( "axi_host", optarg, 1 );
                         break;
                 case 'P':
-                        //glob.port = atoi(optarg);   // fixme
-                        setenv( "pt_port", optarg, 1 );
+                        setenv( "axi_port", optarg, 1 );
                         break;
                 case 'h':
                         rm_usage(  );

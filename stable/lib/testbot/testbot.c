@@ -7,118 +7,118 @@
  *   Copyright (c) Gecad Technologies
  */
 #include <libgen.h>
-
-#include "util.h"
 #include "testbot.h"
+#include "config.h"
 #include "rshd.h"
 #include "socket.h"
+#include "strop.h"
 
 
-
-struct globals_s glob;          /* used to pass parameters around */
-int recursiveFlag = 1;
-int forceFlag = TRUE;
 
 int
 main( int argc, char *argv[] )
 {
-        extern char *optarg;
-        extern int optind, optopt;
+        extern char         *optarg;
+        extern int          optind, optopt;
+        struct config_s    cfg;          /* used to pass parameters around */
 
+        if( argc == 1 ) tb_usage(  );
         tb_globalsInit( argc, argv );
-        if( argc == 1 )
-                tb_usage(  );
-        tb_parseArgs( argc, argv );
+        tb_parseArgs( cfg, argc, argv );
 
-        if( glob.act_as_daemon ) {
-                if( glob.port == 0 ) {
+        if( cfg.act_as_daemon ) {
+                if( cfg.port == 0 ) {
                         fprintf( stderr, "You have to specify -P option\n" );
                         exit( -2 );
                 }
-                rshDaemon( glob.port );
+                rsh_main( cfg.port );
                 return 0;
         }
 
         tb_parseConf(  );
-        tb_envInit(  );
-        tb_checkTools( getenv( PT_TOOL ) );
+        tb_envInit( cfg  );
+        tb_checkTools( getenv( SUT_TOOL ) );
 
-        if( !glob.test_dir ) {
+        if( !cfg.test_dir ) {
                 printf( "* testbot: Provide the test directory.\n" );
                 tb_usage(  );
         }
 
-        if( glob.test_type == TEST_LOCAL && glob.verbose == TRUE ){
+        if( cfg.test_type == TEST_LOCAL && cfg.verbose == TRUE ){
                         printf( "* testbot: Tests will be done LOCALLY.\n" );
         }
-        if( glob.test_type == TEST_REMOTE ) {
-                util_isEnv( PT_HOST );
-                util_isEnv( PT_PORT );
-                if( glob.verbose == TRUE )
+        if( cfg.test_type == TEST_REMOTE ) {
+                str_isEnv( cfg.verbose, SUT_HOST );
+                str_isEnv( cfg.verbose, SUT_PORT );
+                if( cfg.verbose == TRUE )
                         printf( "* testbot: Tests will be done REMOTE.\n" );
         }
-        tb_runTests( glob.test_dir );
+        tb_runTests( cfg.test_dir );
         return 0;
 }
 
 
+
+
+
 static int
-tb_parseArgs( int argc, char *argv[] )
+tb_parseArgs( struct config_s cfg, int argc, char *argv[] )
 {
         int c;
         while( ( c = getopt( argc, argv, "Dt:T:H:P:d:o:r:vVk" ) ) != -1 ) {
                 switch ( c ) {
                 case 'T':
-                        glob.script_tout = atoi( optarg );
+                        cfg.script_tout = atoi( optarg );
+                        break ;
                 case 't':
                         if( !strcasecmp( optarg, "remote" ) )
-                                glob.test_type = TEST_REMOTE;
+                                cfg.test_type = TEST_REMOTE;
                         if( !strcasecmp( optarg, "local" ) )
-                                glob.test_type = TEST_LOCAL;
-                        if( !glob.test_type ) {
+                                cfg.test_type = TEST_LOCAL;
+                        if( !cfg.test_type ) {
                                 printf( "* testbot: ERR: Give valid context local/remote.\n" );
                                 tb_usage(  );
                         }
-                        setenv( PT_TTYPE, optarg, 1 );
+                        setenv( SUT_TTYPE, optarg, 1 );
                         break;
                 case 'H':
-                        glob.hostname = optarg;
-                        setenv( PT_HOST, optarg, 1 );
+                        cfg.hostname = optarg;
+                        setenv( SUT_HOST, optarg, 1 );
                         break;
                 case 'o':
                         if( !strcasecmp( optarg, "linux" ) ) {
-                                glob.config_file = "_linux";
+                                cfg.config_file = "_linux";
                                 break;
                         }
                         if( !strcasecmp( optarg, "bsd" ) ) {
-                                glob.config_file = "_bsd";
+                                cfg.config_file = "_bsd";
                                 break;
                         }
                         if( !strcasecmp( optarg, "windows" ) ) {
-                                glob.config_file = "_windows";
+                                cfg.config_file = "_windows";
                                 break;
                         }
                         fprintf( stderr,
                                  "* testbot: ERR: Provide a valid platform!\n" );
                         tb_usage(  );
                 case 'P':
-                        glob.port = atoi( optarg );     // fixme
-                        setenv( PT_PORT, optarg, 1 );
+                        cfg.port = atoi( optarg );     // fixme
+                        setenv( SUT_PORT, optarg, 1 );
                         break;
                 case 'd':
-                        glob.test_dir = optarg;
+                        cfg.test_dir = optarg;
                         break;
                 case 'r':
                         if( !strcasecmp( optarg, "y" ) ) {
-                                glob.refresh = OPT_YES;
+                                cfg.refresh = OPT_YES;
                                 break;
                         }
                         if( !strcasecmp( optarg, "n" ) ) {
-                                glob.refresh = OPT_NO;
+                                cfg.refresh = OPT_NO;
                                 break;
                         }
                         if( !strcasecmp( optarg, "a" ) ) {
-                                glob.refresh = OPT_ASK;
+                                cfg.refresh = OPT_ASK;
                                 break;
                         }
                         fprintf( stderr,
@@ -129,10 +129,11 @@ tb_parseArgs( int argc, char *argv[] )
                         printf( "TestBot version %s\n", VER );
                         exit( 0 );
                 case 'V':
-                        glob.verbose = TRUE;
+                        cfg.verbose = TRUE;
                         break;
                 case 'D':
-                        glob.act_as_daemon = TRUE;
+                        cfg.act_as_daemon = TRUE;
+                        break;
                 }
         }
         return TRUE;
@@ -160,24 +161,24 @@ tb_usage( void )
 }
 
 int
-tb_globalsInit( int argc, char *argv[] )
+tb_initConfig( struct config_s cfg, int argc, char *argv[] )
 {
-        glob.port = 0;
-        glob.test_type = TEST_UNSET;    // 0:not set. 1:local 2:remote
-        glob.test_dir = NULL;
-        glob.hostname = NULL;
-        glob.argv = argv;
-        glob.argc = argc;
-        glob.platf[0] = "linux";
-        glob.platf[1] = "bsd";
-        glob.platf[2] = "windows";
-        glob.config_file = "_linux";
-        glob.refresh = OPT_YES;
-        glob.verbose = FALSE;
-        glob.act_as_daemon = FALSE;
-        glob.script_tout = 20;
-        getcwd( glob.testbot_path, PATH_MAX );
-        if( !getcwd( glob.tmp_dir, PATH_MAX ) ) {
+        cfg.port = 0;
+        cfg.test_type   = TEST_UNSET;    // 0:not set. 1:local 2:remote
+        cfg.test_dir    = NULL;
+        cfg.hostname    = NULL;
+        cfg.argv        = argv;
+        cfg.argc        = argc;
+        cfg.platf[0]    = "linux";
+        cfg.platf[1]    = "bsd";
+        cfg.platf[2]    = "windows";
+        cfg.config_file = "_linux";
+        cfg.refresh     = OPT_YES;
+        cfg.verbose     = FALSE;
+        cfg.script_tout = 20;
+        cfg.act_as_daemon = FALSE;
+        getcwd( cfg.testbot_path, PATH_MAX );
+        if( !getcwd( cfg.tmp_dir, PATH_MAX ) ) {
                 perror( "Cant get current dir" );
         }
         return 0;
@@ -185,27 +186,27 @@ tb_globalsInit( int argc, char *argv[] )
 
 
 int
-tb_envInit( void )
+tb_envInit( struct config_s cfg )
 {
         /* build the PATH like /home/tools/bin:$PATH */
-        util_isEnv( PT_TOOL );
-        strcpy( glob.cur_path, getenv( PT_TOOL ) );
-        strcat( glob.cur_path, ":" );
-        strcat( glob.cur_path, getenv( "PATH" ) );
-        setenv( "PATH", glob.cur_path, 1 );
+        str_isEnv( cfg.verbose, SUT_TOOL );
+        strcpy( cfg.cur_path, getenv( SUT_TOOL ) );
+        strcat( cfg.cur_path, ":" );
+        strcat( cfg.cur_path, getenv( "PATH" ) );
+        setenv( "PATH", cfg.cur_path, 1 );
 
-        util_isEnv( PT_WORKDIR );
-        util_isEnv( PT_TTYPE );
-        util_isEnv( PT_START );
-        util_isEnv( PT_TOOL );
-        util_isEnv( PT_COREDIR );
-        util_isEnv( PT_DBGDIR );
-        util_isEnv( PT_CFGFILE );
-        glob.pt_workDir = getenv( PT_WORKDIR );
-        glob.pt_cfgFile = getenv( PT_CFGFILE );
-        glob.pt_coreDir = getenv( PT_COREDIR );
-        glob.pt_dbgDir = getenv( PT_DBGDIR );
-        setenv( "PERLLIB", getenv( PT_TOOL ), 1 );
+        str_isEnv( cfg.verbose, SUT_WORKDIR );
+        str_isEnv( cfg.verbose, SUT_TTYPE );
+        str_isEnv( cfg.verbose, SUT_START );
+        str_isEnv( cfg.verbose, SUT_TOOL );
+        str_isEnv( cfg.verbose, SUT_COREDIR );
+        str_isEnv( cfg.verbose, SUT_DBGDIR );
+        str_isEnv( cfg.verbose, SUT_CFGFILE );
+        cfg.axi_workDir = getenv( SUT_WORKDIR );
+        cfg.axi_cfgFile = getenv( SUT_CFGFILE );
+        cfg.axi_coreDir = getenv( SUT_COREDIR );
+        cfg.axi_dbgDir = getenv( SUT_DBGDIR );
+        setenv( "PERLLIB", getenv( SUT_TOOL ), 1 );
         tb_setErrorlog(  );
         return 0;
 }
@@ -214,8 +215,8 @@ static int
 tb_checkTools( const char *tools_path )
 {
         char buf[PATH_MAX] = { 0 };
-#define NB_TOOLS 5
-        char *tools[NB_TOOLS] = { "rexec", "cp", "mkdir", "refresh", "rm" };
+        #define NB_TOOLS 7
+        char *tools[NB_TOOLS] = { "rexec", "cp", "mkdir", "refresh", "rm",  "start", "stop" };
         struct stat s;
         int i, rc;
 
@@ -263,7 +264,7 @@ tb_runBat( const char *bat_name )
 
         printf( "\n\n" );
         printf( "*-------------------------.\n" );
-        printf( "* testbot: Running script : %s/%s\n", glob.tmp_dir, bat_name );
+        printf( "* testbot: Running script : %s/%s\n", cfg.tmp_dir, bat_name );
         printf( "*-------------------------'\n" );
 
         act.sa_handler = sig_handler;
@@ -276,7 +277,7 @@ tb_runBat( const char *bat_name )
                 exit( rc );
         } else if( pid > 0 ) {
                 while( 1 ) {
-                        sleep( glob.script_tout );
+                        sleep( cfg.script_tout );
                         if( waitpid( -1, &hasAlarm, WNOHANG ) )
                                 break;
                         do {
@@ -306,16 +307,15 @@ tb_fileAction( const char *fileName, struct stat *statbuf, void *junk )
         if( !util_endsWith( fileName, ".bat" ) )
                 return TRUE;
         tb_ptRefresh( fileName );
-//    ptStart();
-        getcwd( glob.cur_dir, PATH_MAX );
+        getcwd( cfg.cur_dir, PATH_MAX );
         tb_setupTmp( fileName );
-        chdir( glob.tmp_dir );
+        chdir( cfg.tmp_dir );
         tb_runBat( basename( ( char * )fileName ) );
-        tb_checkCore( glob.pt_coreDir, glob.pt_dbgDir, glob.pt_workDir,
-                      glob.pt_cfgFile, glob.dest_coreDir );
+        tb_checkCore( cfg.axi_coreDir, cfg.axi_dbgDir, cfg.axi_workDir,
+                      cfg.axi_cfgFile, cfg.dest_coreDir );
         tb_cleanupTmp(  );
         sleep( 2 );
-        chdir( glob.cur_dir );
+        chdir( cfg.cur_dir );
 
         return ( TRUE );
 }
@@ -354,7 +354,7 @@ tb_runTests( const char *dir )
                         dir );
                 return 0;
         }
-        getcwd( glob.cur_dir, PATH_MAX );
+        getcwd( cfg.cur_dir, PATH_MAX );
         rc = chdir( dir );
         if( rc ) {
                 fprintf( stderr, "! testbot: Can't change to '%s' : %s\n", dir,
@@ -362,7 +362,7 @@ tb_runTests( const char *dir )
                 exit( -2 );
         }
         //! @todo tb sa verific daca tests este local sau global path
-        sprintf( fullPath, "%s/%s", glob.cur_dir, dir );
+        sprintf( fullPath, "%s/%s", cfg.cur_dir, dir );
         tb_runRecursive( fullPath );
         return TRUE;
 }
@@ -385,27 +385,27 @@ tb_setupTmp( const char *source_bat )
         int cod;
         char *p;
 
-        sprintf( glob.tmp_dir, "/tmp/%d", getpid(  ) );
-        cod = mkdir( glob.tmp_dir, 0755 );
+        sprintf( cfg.tmp_dir, "/tmp/%d", getpid(  ) );
+        cod = mkdir( cfg.tmp_dir, 0755 );
         if( cod ) {
                 fprintf( stderr,
                          "! testbot: ERR: Cannot make directory %s: %s\n",
-                         glob.tmp_dir, strerror( errno ) );
+                         cfg.tmp_dir, strerror( errno ) );
                 exit( -1 );
         }
 
-        if( glob.verbose == TRUE )
+        if( cfg.verbose == TRUE )
                 printf( "# testbot: Copying %s to '%s'\n", source_bat,
-                        glob.tmp_dir );
-        sprintf( cmd, "/bin/cp -R %s %s/", source_bat, glob.tmp_dir );
+                        cfg.tmp_dir );
+        sprintf( cmd, "/bin/cp -R %s %s/", source_bat, cfg.tmp_dir );
         system( cmd );          // TODO: replace this with a function
 
         //Find the dir coresponding to this bat
         strcpy( cpstr, source_bat );
         p = strrchr( cpstr, '.' );
         *p = '\0';
-        sprintf( cmd, "/bin/cp -R %s %s/", cpstr, glob.tmp_dir );
-        if( glob.verbose == TRUE )
+        sprintf( cmd, "/bin/cp -R %s %s/", cpstr, cfg.tmp_dir );
+        if( cfg.verbose == TRUE )
                 printf( "* testbot: Running '%s'\n", cmd );
         system( cmd );          // TODO: replace this with a functionpt_fresh
 
@@ -417,15 +417,15 @@ tb_setupTmp( const char *source_bat )
 static int
 tb_cleanupTmp( void )
 {
-        printf( "# testbot: Removing '%s'\n", glob.tmp_dir );
-        my_rm( glob.tmp_dir );
-        chdir( glob.cur_dir );  // cine e cur_dir
+        printf( "# testbot: Removing '%s'\n", cfg.tmp_dir );
+        my_rm( cfg.tmp_dir );
+        chdir( cfg.cur_dir );  // cine e cur_dir
         return 0;
 }
 
 
 
-/** Search a file for pt_fi=y or pt_fi=n . */
+/** Search a file for axi_fi=y or axi_fi=n . */
 static int
 tb_parseBat( const char *filename )
 {
@@ -437,7 +437,7 @@ tb_parseBat( const char *filename )
         int matches;
         const char *error = NULL;
         struct stat inf;
-        re = pcre_compile( "#.*pt_fi\\s*=\\s*\"?([y|Y|n|N])\"?\\s+",
+        re = pcre_compile( "#.*axi_fi\\s*=\\s*\"?([y|Y|n|N])\"?\\s+",
                            0, &error, &erroffset, NULL );
         if( !re ) {
                 fprintf( stderr, "Can't compile regular expression\n" );
@@ -481,45 +481,22 @@ tb_parseBat( const char *filename )
 
 int
 tb_checkCore( const char *core_srcDir, const char *dbg_srcDir,
-              const char *pt_workDir, const char *pt_cfgFile,
+              const char *axi_workDir, const char *axi_cfgFile,
               const char *crash_destDir )
 {
         int rc = FALSE;
 
-        if( glob.test_type == TEST_LOCAL )
-                rc = util_checkCoreLocal( core_srcDir, dbg_srcDir, pt_workDir,
-                                          pt_cfgFile, core_srcDir );
+        if( cfg.test_type == TEST_LOCAL )
+                rc = util_checkCoreLocal( core_srcDir, dbg_srcDir, axi_workDir,
+                                          axi_cfgFile, core_srcDir );
 
-        if( glob.test_type == TEST_REMOTE )
-                rc = tb_checkCoreRemote( core_srcDir, dbg_srcDir, pt_workDir,
-                                         pt_cfgFile, core_srcDir );
+        if( cfg.test_type == TEST_REMOTE )
+                rc = tb_checkCoreRemote( core_srcDir, dbg_srcDir, axi_workDir,
+                                         axi_cfgFile, core_srcDir );
 
-        if( rc && !glob.act_as_daemon )
+        if( rc && !cfg.act_as_daemon )
                 system( "echo -e 'Tested Product droped CORE!'|wall" );
         return rc;
-}
-
-
-static int
-tb_checkCoreRemote( const char *core_srcDir, const char *dbg_srcDir,
-                    const char *pt_workDir, const char *pt_cfgFile,
-                    const char *crash_destDir )
-{
-        char cmd[MAX_LIN] = { 0 };      // Max line should therefore be 3 times the length of PATH_MAX
-        int rc = 0;
-        int sock;
-
-        sock = sock_connectTo( glob.hostname, glob.port );
-        sprintf( cmd, "CHECKCORE %s %s %s %s %s",
-                 core_srcDir, dbg_srcDir, pt_workDir, pt_cfgFile,
-                 crash_destDir );
-        sock_sendLine( sock, cmd );
-        rc = sock_getStatus( sock );
-        close( sock );
-        if( rc ) {
-                return TRUE;
-        }
-        return FALSE;
 }
 
 
@@ -531,10 +508,10 @@ tb_ptRefresh( const char *bat_file )
         int cod;
         int rc = 0;
 
-        if( glob.refresh == OPT_NO )
+        if( cfg.refresh == OPT_NO )
                 return 0;
 
-        if( glob.refresh == OPT_ASK ) {
+        if( cfg.refresh == OPT_ASK ) {
                 char r = 0;
 
                 do {
@@ -567,19 +544,6 @@ tb_ptRefresh( const char *bat_file )
 
 
 
-int
-tb_isNumber( char *nr )
-{
-        int i;
-
-        for( i = 0; i < strlen( nr ); ++i ) {
-                if( !isdigit( nr[i] ) )
-                        return 0;
-        }
-        return 1;
-}
-
-
 
 static int
 tb_parseConf(  )
@@ -595,10 +559,10 @@ tb_parseConf(  )
         int len;
         char result[5000] = { 0 };
 
-        FILE *f = fopen( glob.config_file, "r" );
+        FILE *f = fopen( cfg.config_file, "r" );
 
         if( !f ) {
-                printf( "! testbot: ERR: Could not find config file: %s: %s!\n", glob.config_file, strerror( errno ) );
+                printf( "! testbot: ERR: Could not find config file: %s: %s!\n", cfg.config_file, strerror( errno ) );
                 exit( 1 );
         }
         re = pcre_compile( "(\\w+)\\s*=\\s*\"(.+)\"", 0, &error, &erroffset,
@@ -658,7 +622,7 @@ expand_env( char *str, char *varName, int maxLen )
         matches = pcre_exec( re, NULL, str, strlen( str ), 0, 0, offsetv, 30 );
         if( matches < 2 ) {
                 setenv( varName, str, 1 );
-                if( glob.verbose == TRUE )
+                if( cfg.verbose == TRUE )
                         printf( "export $%s=%s\n", varName, str );
 
                 return FALSE;
@@ -669,7 +633,7 @@ expand_env( char *str, char *varName, int maxLen )
         strcat( tmp2, str + offsetv[1] );
         //printf("[%s]--[%s]\n", tmp1, tmp2);
         setenv( varName, tmp2, 1 );
-        if( glob.verbose == TRUE )
+        if( cfg.verbose == TRUE )
                 printf( "export $%s=%s\n", varName, tmp2 );
 
         return TRUE;
@@ -684,7 +648,7 @@ tb_setErrorlog(  )
         char *host;
         char *defhost = "localhost";
 
-        host = getenv( PT_HOST );
+        host = getenv( SUT_HOST );
         if( !host )
                 host = defhost;
 
@@ -695,5 +659,5 @@ tb_setErrorlog(  )
 
         sprintf( rez, "%s/errors/error.log.%s-%d", pathname, host, getpid(  ) );
         printf( "# testbot: log is: %s\n", rez );
-        return setenv( "pt_errorlog", rez, 1 );
+        return setenv( "axi_errorlog", rez, 1 );
 }

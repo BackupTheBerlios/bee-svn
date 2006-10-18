@@ -1,11 +1,11 @@
 /**
- *   \brief    Wraps around mkdir command.
+ *   \brief    Wraps around mkdir cmd.
  *   \see      cp.c 
  *   \author   Cristina Balan, Andrei Paduraru 
  *   \date     Thu Aug 17 17:38:13 2006
  *
  *   Copyright (c) Gecad Technologies
- **/
+ */
 #include "util.h"
 #include "socket.h"
 
@@ -15,12 +15,12 @@ static int md_parseArgs( int argc, char *argv[] );
 static int
 client_mkdir( char *host, int port, char *path )
 {
-        char command[MAX_LIN] = "";
+        char cmd[MAX_LIN] = "";
         int cod = 0, sockfd = -1;
 
         sockfd = sock_connectTo( host, port );
-        sprintf( command, "MKDIR %s", path );
-        sock_sendLine( sockfd, command );
+        sprintf( cmd, "MKDIR %s", path );
+        sock_sendLine( sockfd, cmd );
         cod = sock_getStatus( sockfd );
         if( cod ) {
                 fprintf( stderr,
@@ -38,7 +38,7 @@ int
 main( int argc, char *argv[] )
 {
         char *tc;               // conexion type
-        char *command, *host;
+        char *host;
         int port;
 
         if( argc < 2 )          // trebuie sa am sursa si destinatie
@@ -48,22 +48,21 @@ main( int argc, char *argv[] )
                 return 1;
         }
         md_parseArgs( argc, argv );
-        util_isEnv( PT_TTYPE );
-        tc = getenv( PT_TTYPE );
+        util_isEnv( AXI_TTYPE );
+        tc = getenv( AXI_TTYPE );
 
         if( !strcmp( tc, "local" ) ) {
-                command = ( char * )malloc( strlen( argv[1] ) + 8 );
-                strcpy( command, "mkdir " );
-                strcat( command, argv[1] );
-                return system( command );
+                char cmd[PATH_MAX+10] = {0} ; //!fix bof
+                sprintf( cmd, "mkdir %s", argv[optind] ) ;
+                return system( cmd );
         } else if( !strcmp( tc, "remote" ) ) {
-                util_isEnv( PT_HOST );
-                util_isEnv( PT_PORT );
-                host = getenv( PT_HOST );
-                port = atoi( getenv( PT_PORT ) );
-                return client_mkdir( host, port, argv[1] );
+                util_isEnv( AXI_HOST );
+                util_isEnv( AXI_PORT );
+                host = getenv( AXI_HOST );
+                port = atoi( getenv( AXI_PORT ) );
+                return client_mkdir( host, port, argv[optind] );
         } else
-                printf( "mkdir: ERR: Invalid $pt_ttype\n" );
+                printf( "mkdir: ERR: Invalid $axi_ttype\n" );
         return 1;
 }
 
@@ -76,6 +75,9 @@ md_usage( void )
         printf( "\n" );
         printf( "  -v, --verbose     print a message for each action executed\n" );
         printf( "  -h, --help        display this help and exit\n" );
+        printf( "  -H hostname\n");
+        printf( "  -P port\n");
+        printf( "  -t testType\n");
         exit( 0 );
 }
 static int
@@ -85,23 +87,15 @@ md_parseArgs( int argc, char *argv[] )
         while( ( c = getopt( argc, argv, "t:H:P:hv" ) ) != -1 ) {
                 switch ( c ) {
                 case 't':
-                        if( !strcasecmp( optarg, "remote" ) )
-                                //glob.test_type = TEST_REMOTE;
-                                if( !strcasecmp( optarg, "local" ) )
-                                        //glob.test_type = TEST_LOCAL;
-                                        /*if (!glob.test_type) {
-                                           printf("* testbot: ERR: Give valid context local/remote.\n");
-                                           tb_usage();
-                                           } */
-                                        setenv( "pt_ttype", optarg, 1 );
+                        if( !strcasecmp( optarg, "remote" )
+                        ||( !strcasecmp( optarg, "local" ) ) )
+                            setenv( "axi_ttype", optarg, 1 );
                         break;
                 case 'H':
-                        //glob.hostname = optarg;
-                        setenv( "pt_host", optarg, 1 );
+                        setenv( "axi_host", optarg, 1 );
                         break;
                 case 'P':
-                        //glob.port = atoi(optarg);   // fixme
-                        setenv( "pt_port", optarg, 1 );
+                        setenv( "axi_port", optarg, 1 );
                         break;
                 case 'h':
                         md_usage(  );

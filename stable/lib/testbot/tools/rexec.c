@@ -19,22 +19,22 @@ cli_main( char *host, int port, char *c )
         char cmd[MAX_LIN] = { 0 };
         int cod, sockfd;
 
-         /*REMOTE*/ sockfd = sock_connectTo( host, port );
+         /*REMOTE*/
+        sockfd = sock_connectTo( host, port );
 
         sprintf( cmd, "EXECUTE %s", c );
-        printf( "EXECUTE [%s]\n", cmd );
+        printf( "[%s]\n", cmd );
         sock_sendLine( sockfd, cmd );
         cod = sock_getStatus( sockfd );
         if( cod < 0 ) {
-                fprintf( stderr,
-                         "* ptgen_action: ERR: No remote host confirmation!\n" );
+                fputs( "* rexec: ERR: No remote confirmation!\n", stderr );
                 return errno;
         }
         if( cod > 0 ) {
-                fprintf( stderr, "* ptgen_action: ERR: '%s'\n",
+                fprintf( stderr, "* rexec: ERR: '%s'\n",
                          strerror( cod ) );
                 fprintf( stderr,
-                         "* ptgen_action: ERR: Can't execute : '%s'\n", c );
+                         "* rexec: ERR: Can't execute : '%s'\n", c );
                 close( sockfd );
                 return 1;
         }
@@ -51,30 +51,33 @@ main( int argc, char *argv[] )
         int cod = -1;
         glob.verbose = 1;
         if( argc < 2 ) {
-                printf( "ptgen_action: missing operand\n" );
-                printf( "Try `ptgen_action -h` for more information.\n" );
+                printf( "rexec: missing operand\n" );
+                printf( "Try `rexec -h` for more information.\n" );
                 return EXIT_FAILURE;
         }
         aa_parseArgs( argc, argv );
         if( signal( SIGINT, util_terminare ) == SIG_ERR ) {
-                perror( "* ptgen_action: Signal error!" );
+                perror( "* rexec: Signal error!" );
                 return EXIT_FAILURE;
         }
 
-        util_isEnv( PT_TTYPE );
-        ttype = getenv( PT_TTYPE );
+        util_isEnv( AXI_TTYPE );
+        ttype = getenv( AXI_TTYPE );
 
-         /*LOCAL*/ if( !strcasecmp( ttype, "local" ) ) {
-                cod = system( argv[1] );
+         /*LOCAL*/
+        if( !strcasecmp( ttype, "local" ) ) {
+                cod = system( argv[optind] );
                 exit( WEXITSTATUS( cod ) );
         } else if( !strcasecmp( ttype, "remote" ) ) {
-                util_isEnv( PT_HOST );
-                util_isEnv( PT_PORT );
-                hostname = getenv( PT_HOST );
-                port = atoi( getenv( PT_PORT ) );
-                cod = cli_main( hostname, port, argv[1] );
+//                char cmd[PATH_MAX]={0};
+//                int i=0;
+                util_isEnv( AXI_HOST );
+                util_isEnv( AXI_PORT );
+                hostname = getenv( AXI_HOST );
+                port = atoi( getenv( AXI_PORT ) );
+                cod = cli_main( hostname, port, argv[optind] );
         } else
-                printf( "* ptgen_action: Invalid test type\n" );
+                printf( "* rexec: Invalid test type\n" );
 
         return -2;
 }
@@ -83,11 +86,14 @@ void
 aa_usage( void )
 {
 
-        printf( "Usage: ptgen_action [OPTION] COMMAND...\n" );
+        printf( "Usage: rexec [OPTION] COMMAND...\n" );
         printf( "Send a COMMAND to the testbot daemon\n" );
         printf( "\n" );
         printf( "  -v, --verbose     print a message for each action executed\n" );
         printf( "  -h, --help        display this help and exit\n" );
+        printf( "  -H hostname       Host to connect to\n");
+        printf( "  -P port           Port\n");
+        printf( "  -t testType\n");
         exit( 0 );
 }
 static int
@@ -97,23 +103,15 @@ aa_parseArgs( int argc, char *argv[] )
         while( ( c = getopt( argc, argv, "t:H:P:hv" ) ) != -1 ) {
                 switch ( c ) {
                 case 't':
-                        if( !strcasecmp( optarg, "remote" ) )
-                                //glob.test_type = TEST_REMOTE;
-                                if( !strcasecmp( optarg, "local" ) )
-                                        //glob.test_type = TEST_LOCAL;
-                                        /*if (!glob.test_type) {
-                                           printf("* testbot: ERR: Give valid context local/remote.\n");
-                                           tb_usage();
-                                           } */
-                                        setenv( "pt_ttype", optarg, 1 );
+                        if( !strcasecmp( optarg, "remote" )
+                        ||( !strcasecmp( optarg, "local" ) ) )
+                            setenv( "axi_ttype", optarg, 1 );
                         break;
                 case 'H':
-                        //glob.hostname = optarg;
-                        setenv( "pt_host", optarg, 1 );
+                        setenv( "axi_host", optarg, 1 );
                         break;
                 case 'P':
-                        //glob.port = atoi(optarg);   // fixme
-                        setenv( "pt_port", optarg, 1 );
+                        setenv( "axi_port", optarg, 1 );
                         break;
                 case 'h':
                         aa_usage(  );
