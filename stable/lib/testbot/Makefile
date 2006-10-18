@@ -1,4 +1,4 @@
-CC = gcc -g -Wall
+CC = gcc -g
 LIB= strop.c fileop.c sut.c socket.c
 TARGETS=testbot #testhost
 

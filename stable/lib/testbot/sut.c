@@ -1,8 +1,10 @@
-
+#include "config.h"
+#include "sut.h"
 /*
- * Dont use any GETENV, or global variables in this file
+ * Dont use any GETENV, or cfgal variables in this file
  */
 
+extern struct config_s  cfg ;
 
 /*  Start SUT   */
 int
@@ -16,7 +18,7 @@ sut_start( int test_type,
         printf( "* sutStart ...\n" );
 
         if( test_type == TEST_LOCAL ) {
-                sut_startLocal( timeout, start );
+                sut_startLocal( timeout, "/var/log/maillog", start );
                 sleep( 1 );
                 return TRUE ;
         }
@@ -193,7 +195,11 @@ sut_stopLocal( int timeout, char* maillog, char* stop )
 
 /*  REFRESH */
 int
-sut_refresh( int test_type, char *source, char *dest, char *host, int port )
+sut_refresh( int test_type,
+             char *source,
+             char *dest,
+             char *host,
+             int port )
 {
         struct stat buf;
         int cod = 0;
@@ -220,6 +226,8 @@ static int
 sut_refreshLocal( char* source, char* dest )
 {
         char cmd[8192] = { 0 } ;
+        int cod ;
+        struct stat buf ;
         printf( "* refresh: Removing %s\n", dest );
         sprintf( cmd, "/bin/rm -rf %s", dest );
         if( system( cmd ) ) {
@@ -246,7 +254,7 @@ sut_refreshLocal( char* source, char* dest )
 static int
 sut_refreshRemote( char *host, int port, char *sursa, char *dest )
 {
-        char command[MAX_LIN] = { 0 };
+        char command[LINE_MAX] = { 0 };
         int cod, sockfd;
 
         sockfd = sock_connectTo( host, port );
@@ -267,7 +275,7 @@ sut_refreshRemote( char *host, int port, char *sursa, char *dest )
 
 
 int
-tb_checkCore( int test_type,
+sut_checkCore( int test_type,
               const char *core_srcDir, const char *dbg_srcDir,
               const char *axi_workDir, const char *axi_cfgFile,
               const char *crash_destDir )
@@ -282,22 +290,22 @@ tb_checkCore( int test_type,
                 rc = tb_checkCoreRemote( core_srcDir, dbg_srcDir, axi_workDir,
                                          axi_cfgFile, core_srcDir );
 
-        if( rc && !glob.act_as_daemon )
+        if( rc && !cfg.act_as_daemon )
                 system( "echo -e 'Tested Product droped CORE!'|wall" );
         return rc;
 }
 
 
 static int
-tb_checkCoreRemote( const char *core_srcDir, const char *dbg_srcDir,
+sut_checkCoreRemote( const char *core_srcDir, const char *dbg_srcDir,
                     const char *axi_workDir, const char *axi_cfgFile,
                     const char *crash_destDir )
 {
-        char cmd[MAX_LIN] = { 0 };      // Max line should therefore be 3 times the length of PATH_MAX
+        char cmd[LINE_MAX] = { 0 };      // Max line should therefore be 3 times the length of PATH_MAX
         int rc = 0;
         int sock;
 
-        sock = sock_connectTo( glob.hostname, glob.port );
+        sock = sock_connectTo( cfg.hostname, cfg.port );
         sprintf( cmd, "CHECKCORE %s %s %s %s %s",
                  core_srcDir, dbg_srcDir, axi_workDir, axi_cfgFile,
                  crash_destDir );
@@ -346,10 +354,10 @@ sut_checkCoreLocal( const char *core_srcDir, const char *dbg_srcDir,
                         if( rc == -1 ) {
                                 fprintf( stderr,
                                          "Can't create core folder %s/data/crash-%s\n",
-                                         glob.testbot_path, core->d_name );
+                                         cfg.testbot_path, core->d_name );
                                 return TRUE;
                         }
-                        sprintf( src, "%s/%s", glob.axi_coreDir, core->d_name );
+                        sprintf( src, "%s/%s", cfg.axi_coreDir, core->d_name );
 
                         // 1. Move CORE
                         sprintf( cmd, "/bin/mv %s %s", src, dst );
@@ -360,14 +368,14 @@ sut_checkCoreLocal( const char *core_srcDir, const char *dbg_srcDir,
                         dir = opendir( dbg_srcDir );
                         if( !dir ) {
                                 fprintf( stderr, "Can't open %s : %s\n",
-                                         glob.axi_dbgDir, strerror( errno ) );
+                                         cfg.axi_dbgDir, strerror( errno ) );
                                 exit( -1 );
                         }
                         while( ( entry = readdir( dir ) ) ) {
                                 if( !strcmp( entry->d_name, "." )
                                     || !strcmp( entry->d_name, ".." ) )
                                         continue;
-                                sprintf( src, "%s/%s", glob.axi_dbgDir,
+                                sprintf( src, "%s/%s", cfg.axi_dbgDir,
                                          entry->d_name );
                                 sprintf( cmd, "/bin/mv %s %s", src, dst );
                                 system( cmd );

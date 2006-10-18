@@ -2,7 +2,7 @@
 #define UTIL_H
 
 #include <wait.h>
-#include "global.h"
+#include "config.h"
 
 int   util_rmRemote(char* host, int port, char* path);
 int   util_axiStart(int test_type, int timeout, char *start, char* host, int port) ;

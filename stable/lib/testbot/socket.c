@@ -57,7 +57,7 @@ sock_connectTo( char *host, int port )
 int
 sock_sendStatus( int sock, int cod )
 {
-        char str[MAX_LIN] = { 0 };
+        char str[LINE_MAX] = { 0 };
         if( !cod ) {
                 sprintf( str, "O:\r\n" );
                 write( sock, str, strlen( str ) );
@@ -70,9 +70,9 @@ sock_sendStatus( int sock, int cod )
 int
 sock_getStatus( int sock )
 {
-        char buf[MAX_LIN + 1] = { 0 };
+        char buf[LINE_MAX + 1] = { 0 };
         int status = 0;
-        read( sock, buf, MAX_LIN );
+        read( sock, buf, LINE_MAX );
         if( buf[0] == 'O' )
                 return 0;
         if( buf[0] == 'E' )
@@ -84,7 +84,7 @@ int
 sock_sendLine( int sock, char *line )
 {
         int t;
-        char tr[MAX_LIN] = { 0 };
+        char tr[LINE_MAX] = { 0 };
 
         sprintf( tr, "%s\r\n", line );
         t = write( sock, tr, strlen( tr ) );

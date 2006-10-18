@@ -1,8 +1,8 @@
-#include    "util.h"
+#include    "strop.h"
 #include    "socket.h"
 
 extern int sockfd;
-extern struct globals_s glob;
+extern struct cfgals_s cfg;
 #define LINE_SIZE 8191
 
 static int recursiveFlag = 0;

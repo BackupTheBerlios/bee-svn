@@ -1,4 +1,4 @@
-CC  = gcc -g -I../ -Wall
+CC  = gcc -g -I../ #-Wall
 LIB = ../util.c ../socket.c
 BIN = ./bin
 TARGETS=rexec cp mkdir rm refresh start stop

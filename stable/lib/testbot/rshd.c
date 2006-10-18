@@ -6,7 +6,7 @@
  *
  *   Copyright (c) Gecad Technologies
  */
-#include "util.h"
+#include "strop.h"
 #include "socket.h"
 #include "rshd.h"
 #include "callbacks.h"
@@ -50,12 +50,12 @@ rsh_main( int port )
                 perror( "rsh: Can't change to /" );
                 exit( EXIT_FAILURE );
         }
-        if( signal( SIGINT, util_terminare ) == SIG_ERR ) {
+        if( signal( SIGINT, sut_sigint ) == SIG_ERR ) {
                 perror( "signal() error!" );
                 return 1;
         }
 
-        if( signal( SIGPIPE, intercept ) == SIG_ERR ) {
+        if( signal( SIGPIPE, sut_sigpipe ) == SIG_ERR ) {
                 perror( "signal() error!" );
                 return 1;
         }
@@ -78,7 +78,7 @@ callback_socket( int portno )
 {
         unsigned int clilen;
         struct sockaddr_in serv_addr, cli_addr;
-        int cod;
+        int cod, sockfd;
 
 
         printf( "Running on port:%d\n", portno );
@@ -105,6 +105,7 @@ callback_socket( int portno )
         clilen = sizeof( cli_addr );
 
         while( 1 ) {
+                int newsockfd ;
                 newsockfd =
                         accept( sockfd, ( struct sockaddr * )&cli_addr,
                                 &clilen );
@@ -138,6 +139,7 @@ callback_command( int socket )
                 /* Client closed socket */
                 if( n == 0 ) {
                         ok = 0;
+                        close( socket );
                         break;
                 }
                 buf[n] = '\0';

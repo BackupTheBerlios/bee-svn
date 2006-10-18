@@ -1,4 +1,4 @@
-#include "util.h"
+#include "strop.h"
 #include "socket.h"
 
 /**
@@ -48,10 +48,10 @@ callback_stop( int sock, char *buf )
 int
 callback_refresh( int sock, char *buf )
 {
-        char com[MAX_LIN] = { 0 };
+        char com[LINE_MAX] = { 0 };
         struct stat stats;
-        char cale_s[MAX_LIN] = { 0 };
-        char cale_d[MAX_LIN] = { 0 };
+        char cale_s[LINE_MAX] = { 0 };
+        char cale_d[LINE_MAX] = { 0 };
         int cod = 0, rb = 0;
 
         rb = sscanf( buf, "%s %s", cale_s, cale_d );
@@ -83,7 +83,7 @@ int
 callback_copy( int sock, char *buf )
 {
         int f, bw, len, rb;     // bytes written to disk
-        char buff[BSIZE] = { 0 };
+        char buff[LINE_MAX] = { 0 };
         char dest_file[PATH_MAX] = { 0 };
         char src_file[PATH_MAX] = { 0 } ;
         char dest_dir[PATH_MAX] = { 0 } ;
@@ -101,7 +101,7 @@ callback_copy( int sock, char *buf )
                 sock_sendStatus( sock, errno );
                 return errno;
         }
-        while( len > 0 && ( bw = read( sock, buff, BSIZE ) ) ) {
+        while( len > 0 && ( bw = read( sock, buff, LINE_MAX ) ) ) {
                 int ret = write( f, buff, bw < len ? bw : len );
                 if( bw < 0 ) {
                         perror( "Transmission error" );
@@ -125,9 +125,9 @@ callback_copy( int sock, char *buf )
 int
 callback_rm( int sock, char *buf )
 {
-        char cmd[MAX_LIN] = { 0 };
+        char cmd[LINE_MAX] = { 0 };
         int rb;
-        char path[MAX_LIN] = { 0 };
+        char path[LINE_MAX] = { 0 };
 
         rb = sscanf( buf, "%s", path );
 
@@ -147,7 +147,7 @@ int
 callback_mkdir( int sock, char *buf )
 {
         int rb;
-        char path[MAX_LIN] = { 0 };
+        char path[LINE_MAX] = { 0 };
 
         rb = sscanf( buf, "%s", path );
 

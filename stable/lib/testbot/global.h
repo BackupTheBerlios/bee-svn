@@ -43,7 +43,7 @@
 #define VER "0.9.1"
 
 #define DIM_BUFF 1024
-#define MAX_LIN  750
+#define LINE_MAX  750
 #define BSIZE 1024
 #define TEST_UNSET  0
 #define TEST_LOCAL  1
@@ -55,7 +55,7 @@
 #define FALSE 0
 
 
-struct globals_s {
+struct cfgals_s {
     int    port ;
     int    test_type ;
     char*  test_dir ;

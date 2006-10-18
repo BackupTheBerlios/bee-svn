@@ -7,13 +7,15 @@
  *   Copyright (c) Gecad Technologies
  */
 #include <libgen.h>
+#include <wait.h>
 #include "testbot.h"
 #include "config.h"
 #include "rshd.h"
 #include "socket.h"
 #include "strop.h"
+#include "fileop.h"
 
-
+struct config_s cfg ;
 
 int
 main( int argc, char *argv[] )
@@ -23,7 +25,7 @@ main( int argc, char *argv[] )
         struct config_s    cfg;          /* used to pass parameters around */
 
         if( argc == 1 ) tb_usage(  );
-        tb_globalsInit( argc, argv );
+        tb_cfgalsInit( argc, argv );
         tb_parseArgs( cfg, argc, argv );
 
         if( cfg.act_as_daemon ) {
@@ -304,7 +306,7 @@ tb_runBat( const char *bat_name )
 static int
 tb_fileAction( const char *fileName, struct stat *statbuf, void *junk )
 {
-        if( !util_endsWith( fileName, ".bat" ) )
+        if( !str_endsWith( fileName, ".bat" ) )
                 return TRUE;
         tb_ptRefresh( fileName );
         getcwd( cfg.cur_dir, PATH_MAX );
@@ -331,9 +333,7 @@ tb_dirAction( const char *fileName, struct stat *statbuf, void *junk )
 int
 tb_runRecursive( const char *srcName )
 {
-        recursiveFlag = 1;
-        forceFlag = TRUE;
-        if( recursiveAction( srcName, recursiveFlag, FALSE,
+        if( recursiveAction( srcName, 1, FALSE,
                              TRUE, tb_fileAction, tb_dirAction,
                              NULL ) == FALSE ) {
                 exit( FALSE );
@@ -361,7 +361,7 @@ tb_runTests( const char *dir )
                          strerror( errno ) );
                 exit( -2 );
         }
-        //! @todo tb sa verific daca tests este local sau global path
+        //! @todo tb sa verific daca tests este local sau cfgal path
         sprintf( fullPath, "%s/%s", cfg.cur_dir, dir );
         tb_runRecursive( fullPath );
         return TRUE;
@@ -429,7 +429,7 @@ tb_cleanupTmp( void )
 static int
 tb_parseBat( const char *filename )
 {
-        char line[MAX_LIN] = { 0 };
+        char line[LINE_MAX] = { 0 };
         char *str = 0;
         pcre *re = NULL;
         int erroffset;
@@ -456,7 +456,7 @@ tb_parseBat( const char *filename )
                 exit( -2 );
         }
         printf( "# testbot: Scanning %s\n", filename );
-        while( ( str = fgets( line, MAX_LIN - 1, f ) ) ) {
+        while( ( str = fgets( line, LINE_MAX - 1, f ) ) ) {
                 ;
                 matches =
                         pcre_exec( re, NULL, str, strlen( str ), 0, 0, ovector,
@@ -548,14 +548,14 @@ tb_ptRefresh( const char *bat_file )
 static int
 tb_parseConf(  )
 {
-        char buf[MAX_LIN];
+        char buf[LINE_MAX];
         pcre *re = NULL;
         int erroffset;
         int offsetv[30];        //! offset vector, pointing to the found matches
         int matches;
         const char *error = NULL, *line = NULL;
-        char varName[MAX_LIN];
-        char varVal[MAX_LIN];
+        char varName[LINE_MAX];
+        char varVal[LINE_MAX];
         int len;
         char result[5000] = { 0 };
 
@@ -569,7 +569,7 @@ tb_parseConf(  )
                            NULL );
 
 
-        while( ( line = fgets( buf, MAX_LIN, f ) ) ) {
+        while( ( line = fgets( buf, LINE_MAX, f ) ) ) {
                 char *c = strchr( line, '#' );
                 if( c )
                         continue;
@@ -644,7 +644,7 @@ expand_env( char *str, char *varName, int maxLen )
 static int
 tb_setErrorlog(  )
 {
-        char rez[MAX_LIN] = "", pathname[PATH_MAX] = "";
+        char rez[LINE_MAX] = "", pathname[PATH_MAX] = "";
         char *host;
         char *defhost = "localhost";
 

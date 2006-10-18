@@ -1,3 +1,6 @@
+#include "config.h"
+
+extern struct config_s cfg ;
 
 int
 str_search( const char *hay_stack, int hay_size, const char *needle,
@@ -26,7 +29,7 @@ str_isEnv( char *var_name )
                 fprintf( stderr, "$%s not exported.\n", var_name );
                 exit( -1 );
         }
-        if( glob.verbose == TRUE )
+        if( cfg.verbose == TRUE )
                 printf( "$%s=%s\n", var_name, getenv( var_name ) );
         return 0;
 }
@@ -88,7 +91,7 @@ str_getCode( char *str )
                 ++i;
         if( i == 1 )
                 return 0;
-        char cod[MAX_LIN];
+        char cod[LINE_MAX];
 
         memcpy( cod, b + 1, i - 1 );
         cod[i - 1] = '\0';

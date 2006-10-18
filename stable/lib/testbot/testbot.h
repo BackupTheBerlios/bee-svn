@@ -8,13 +8,10 @@
 static int  tb_ptRefresh(const char *filename);
 static int  tb_checkCore(const char* core_srcDir, const char* dbg_srcDir, const char* axi_workDir,
                          const char* axi_cfgFile, const char* crash_destDir ) ;
-static int  tb_checkCoreRemote(const char* core_srcDir, const char* dbg_srcDir, const char* axi_workDir,
-                               const char* axi_cfgFile, const char* crash_destDir ) ;
 static int  tb_checkTools(const char* tools_path) ;
 static int  tb_cleanupTmp(void) ;
 static int  tb_setupTmp( const char *source_bat) ;
 static int  tb_envInit(struct config_s) ;
-static int  tb_globalsInit(int argc, char* argv[]) ;
 static int  tb_parseArgs( struct config_s cfg, int argc, char* args[]);
 static int  tb_parseBat(const char *filename) ;
 static int  tb_parseConf(void) ;
