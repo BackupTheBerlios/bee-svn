@@ -76,13 +76,21 @@ sut_startLocal(
                 int timeout, char* maillog, char* start )
 {
         int fd = 0, rc = 0 ;
+        ino_t     st_ino ;
+        struct stat buf;
         char buf[512] = { 0 };
         char *supRdyStr = "SUCCESS: supervise ready";
         char *rdyStr = "INFO: ready";
         bool supRdy = false ;
 
-        printf( "* LOG++++++++++\n" );
+        printf( "==> %s <==\n", maillog );
         fd = open( maillog, O_RDONLY );
+        if(fd < 0 ) {
+            printf("! SUT: Unable to open %s for reading\n", maillog);
+            return false ;
+        }
+        fstat( fd, &buf);
+        st_ino = buf.st_ino ;
         lseek(fd, 0, SEEK_END);
         rc = system( start );
         if( rc == -1 ) {
@@ -94,6 +102,15 @@ sut_startLocal(
         for( ;; ) {
                 int i=0;
                 memset( buf, '\0', 512 );
+                fstat( fd, &buf);
+                if( buf.st_ino != st_ino ) {
+                        printf("[%s] has been replaced;  following end of new file", maillog);
+                        close(fd);
+                        fd = open( maillog, O_RDONLY );
+                        fstat( fd, &buf);
+                        st_ino = buf.st_ino ;
+                        lseek(fd, 0, SEEK_END);
+                }
                 i = read( fd, buf, sizeof( buf ) - 1 );
                 if( i < 0 ) {
                         fprintf( stderr, "! testbot: Cant read syslog '%s'\n", maillog );
@@ -110,8 +127,10 @@ sut_startLocal(
                         if( !supRdy ) {
                                 rc = str_search( buf, i, supRdyStr, strlen(supRdyStr) );
                                 supRdy = rc;
-                                if( rc )
+                                if( rc ) {
                                         printf( "~~~~~~supervise ready~~~~~~\n" );
+                                        continue ;
+                                }
                         } else {
                                 rc = str_search( buf, i, rdyStr, strlen(rdyStr) );
                                 if( rc ) {
