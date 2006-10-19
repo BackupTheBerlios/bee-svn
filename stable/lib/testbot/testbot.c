@@ -16,11 +16,11 @@
 #include "fileop.h"
 
 extern struct config_s cfg ;
-
+/*  TODO use bool and false/true */
 
 
 void
-tb_usage( void )
+tb_usage( int status )
 {
         printf( "TestBot version %s\n", VER );
         printf( "USAGE: testbot [options...]\n" );
@@ -35,8 +35,9 @@ tb_usage( void )
         printf( "\t-T timeout              The timeout until trying to kill the child script\n" );
         printf( "\t-k                      Allways kill the child after timeout\n" );
         printf( "\t-v                      Print version and exit\n" );
+        printf( "\t-h                      Print this text and exit\n");
         printf( "\t-V                      Verbose.\n" );
-        exit( -1 );
+        exit( status );
 }
 
 
@@ -45,8 +46,11 @@ int
 tb_parseArgs( struct config_s* cfg, int argc, char *argv[] )
 {
         int c;
-        while( ( c = getopt( argc, argv, "Dt:T:H:P:d:o:r:vVk" ) ) != -1 ) {
+        while( ( c = getopt( argc, argv, "Dt:T:H:P:d:o:r:hvVk" ) ) != -1 ) {
                 switch ( c ) {
+                case 'h':
+                        tb_usage( EXIT_SUCCESS ) ;
+                        break ;
                 case 'T':
                         cfg->script_tout = atoi( optarg );
                         break ;
@@ -56,8 +60,8 @@ tb_parseArgs( struct config_s* cfg, int argc, char *argv[] )
                         if( !strcasecmp( optarg, "local" ) )
                                 cfg->test_type = TEST_LOCAL;
                         if( !cfg->test_type ) {
-                                printf( "* testbot: ERR: Give valid context local/remote.\n" );
-                                tb_usage(  );
+                                printf( "! testbot: Give valid context local/remote.\n" );
+                                tb_usage( EXIT_FAILURE );
                         }
                         setenv( SUT_TTYPE, optarg, 1 );
                         break;
@@ -83,7 +87,7 @@ tb_parseArgs( struct config_s* cfg, int argc, char *argv[] )
                         }
                         fprintf( stderr, "! testbot: Invalid -o param [%s]\n",
                                  optarg);
-                        tb_usage(  );
+                        tb_usage( EXIT_FAILURE );
                 case 'P':
                         cfg->port = atoi( optarg );     // fixme
                         setenv( SUT_PORT, optarg, 1 );
@@ -106,10 +110,10 @@ tb_parseArgs( struct config_s* cfg, int argc, char *argv[] )
                         }
                         fprintf( stderr, "! testbot: Invalid -r param [%s]\n",
                                  optarg );
-                        tb_usage(  );
+                        tb_usage( EXIT_FAILURE );
                 case 'v':
                         printf( "TestBot version %s\n", VER );
-                        exit( 0 );
+                        exit( EXIT_SUCCESS );
                 case 'V':
                         cfg->verbose = TRUE;
                         break;
@@ -168,15 +172,15 @@ tb_cfgInit( struct config_s* cfg, int argc, char *argv[] )
         cfg->platf[2]    = "windows";
         cfg->config_file = "_linux";
         cfg->refresh     = OPT_YES;
-        cfg->verbose     = FALSE;
+        cfg->verbose     = false ;
         cfg->script_tout = 20;
-        cfg->allways_kill= FALSE;
+        cfg->allways_kill= false ;
         cfg->axi_workDir = getenv( SUT_WORKDIR );
         cfg->axi_cfgFile = getenv( SUT_CFGFILE );
         cfg->axi_coreDir = getenv( SUT_COREDIR );
         cfg->axi_dbgDir  = getenv( SUT_DBGDIR );
         cfg->axi_syslog  = getenv( SUT_SYSLOG ) ;
-        cfg->act_as_daemon = FALSE;
+        cfg->act_as_daemon = false ;
 
         getcwd( cfg->testbot_path, PATH_MAX );
         if( !getcwd( cfg->tmp_dir, PATH_MAX ) ) {
@@ -203,7 +207,7 @@ tb_cfgParse( char* config_file )
         if( !f ) {
                 printf( "! testbot: Can't open config [%s]: %s\n",
                         config_file, strerror( errno ) );
-                exit( 1 );
+                exit( EXIT_FAILURE );
         }
         re = pcre_compile( "(\\w+)\\s*=\\s*\"(.+)\"", 0, &error, &erroffset,
                            NULL );
@@ -249,7 +253,7 @@ tb_checkTools( const char *tools_path )
                 if( rc == -1 ) {
                         fprintf( stderr, "! testbot: Can't find tool [%s/%s] : %s\n",
                                  tools_path, tools[i], strerror( errno ) );
-                        exit( -2 );
+                        exit( EXIT_FAILURE );
                 }
         }
         return 0;
@@ -275,7 +279,7 @@ tb_runTests( const char *dir )
         if( rc ) {
                 fprintf( stderr, "! testbot: Can't change to [%s] : %s\n", dir,
                          strerror( errno ) );
-                exit( -2 );
+                exit( EXIT_FAILURE );
         }
         //! @todo verific daca tests este local sau global path
         sprintf( fullPath, "%s/%s", curDir, dir );
@@ -393,19 +397,19 @@ tb_runRecursive( const char *srcName )
         if( recursiveAction( srcName, 1, FALSE,
                              TRUE, tb_fileAction, tb_dirAction,
                              NULL ) == FALSE ) {
-                exit( FALSE );
+                exit( EXIT_FAILURE );
         }
         return TRUE;
 }
 
 
 
-/*------------------------------------------------------------------*/
-/** Copies source in /tmp/pid, to create a sandbox for the test
-    \param source_file[in] An absolute path pointing to a bat file.
-                           The existence of a directory with the same name is assumed.
+/*
+ * Copies source_bat in /tmp/PID, to create a sandbox for the test.
+ * \param source_file[in] An absolute path pointing to a bat file.
+ * \warn  The existence of a directory with the same name is assumed.
+ * \todo  Implement a sut_refresh function
  */
-
 static int
 tb_setupTmp( const char *source_bat, char* tmpDir )
 {
@@ -419,14 +423,14 @@ tb_setupTmp( const char *source_bat, char* tmpDir )
         if( cod ) {
                 fprintf( stderr, "! testbot: Cant make directory [%s]: %s\n",
                          tmpDir, strerror( errno ) );
-                exit( -1 );
+                exit( EXIT_FAILURE );
         }
 
         if( cfg.verbose == TRUE )
                 printf( "# testbot: Copying %s to '%s'\n", source_bat,
                         tmpDir );
         sprintf( cmd, "/bin/cp -R %s %s/", source_bat, tmpDir );
-        system( cmd );          // TODO: replace this with a function
+        system( cmd );
 
         //Find the dir coresponding to this bat
         strcpy( cpstr, source_bat );
@@ -436,7 +440,7 @@ tb_setupTmp( const char *source_bat, char* tmpDir )
         sprintf( cmd, "/bin/cp -R %s %s/", cpstr, tmpDir );
         if( cfg.verbose == TRUE )
                 printf( "* testbot: Running '%s'\n", cmd );
-        system( cmd );          // TODO: replace this with a functionpt_fresh
+        system( cmd );
 
         return 0;
 }
@@ -469,19 +473,19 @@ tb_parseBat( const char *filename )
                            0, &error, &erroffset, NULL );
         if( !re ) {
                 fprintf( stderr, "Can't compile regular expression\n" );
-                exit( -2 );
+                exit( EXIT_FAILURE );
         }
         stat( filename, &inf );
         if( ( inf.st_mode & S_IFMT ) == S_IFDIR ) {
                 printf( "! testbot: [%s] is a directory\n", filename );
-                exit( -2 );
+                exit( EXIT_FAILURE );
         }
 
         FILE *f = fopen( filename, "r" );
         if( !f ) {
                 fprintf( stderr, "! testbot: %d Can't open file [%s] : %s\n", __LINE__,
                          filename, strerror( errno ) );
-                exit( -2 );
+                exit( EXIT_FAILURE );
         }
         printf( "# testbot: Scanning [%s]\n", filename );
         while( ( str = fgets( line, LINE_MAX - 1, f ) ) ) {
@@ -514,17 +518,19 @@ tb_checkCore( int test_type,
               const char *axi_workDir, const char *axi_cfgFile,
               const char *crash_destDir )
 {
-        int rc = FALSE;
+        bool rc = false ;
         rc = sut_checkCore( test_type, core_srcDir, dbg_srcDir, axi_workDir,
                                           axi_cfgFile, core_srcDir );
-        if( rc )
+        if( rc && !cfg.act_as_daemon)
                 wall( "****  SUT dropped CORE ****\r\n", 0, 0 ) ;
         return rc;
 }
 
 
 
-/** Restore the default `Product under test`(PT) state. */
+/*
+ * Restore the default configuration of the SUT.
+ * SUT = server under test */
 int
 tb_ptRefresh( int refresh, const char *bat_file )
 {
@@ -556,7 +562,7 @@ tb_ptRefresh( int refresh, const char *bat_file )
         printf( "# testbot: refresh %d\n", rc );
         if( rc == -1 || WEXITSTATUS( rc ) != 0 ) {
                 printf( "! testbot: Can't make refresh!\n" );
-                exit( 1 );
+                exit( EXIT_FAILURE );
         }
 
         return 0;
@@ -607,23 +613,16 @@ expand_env( char *str, char *varName, int maxLen )
 
 
 
+/*
+ * Export axi_errorlog=$CWD/errors/$HOST-$PID
+ */
 static int
 tb_setErrorlog(  )
 {
         char rez[LINE_MAX] = "", pathname[PATH_MAX] = "";
-        char *host;
-        char *defhost = "localhost";
 
-        host = getenv( SUT_HOST );
-        if( !host )
-                host = defhost;
-
-        if( getcwd( pathname, PATH_MAX ) == NULL ) {
-                perror( "! testbot: getcwd failed" );
-                return 1;
-        }
-
-        sprintf( rez, "%s/errors/%s-%d", pathname, host, getpid(  ) );
+        sprintf( rez, "%s/errors/%s-%d",
+                 cfg.testbot_path, cfg.hostname, getpid(  ) );
         printf( "# testbot: Log is: %s\n", rez );
         return setenv( "axi_errorlog", rez, 1 );
 }

@@ -10,7 +10,7 @@
 
 
 struct config_s cfg;
-char* axi_param;
+char* axi_param = NULL ;
 static int rc_parseArgs( int argc, char *argv[] );
 
 
@@ -19,36 +19,38 @@ main( int argc, char *argv[] )
 {
         char *tc;
         char *path;
+        int test_type ;
 
         rc_parseArgs( argc, argv );
         str_isEnv( cfg.verbose, SUT_TTYPE );
         tc = getenv( SUT_TTYPE );
 
+        if( ! axi_param ) {
+            fprintf(stderr, "! stop: -c flag is mandatory\n");
+            rc_usage( EXIT_FAILURE ) ;
+        }
+        //! @todo replace 5
         if( !strcasecmp( tc, "local" ) ) {
                 printf( "* stop: Working Local\n" );
-                //! @todo replace 5
-                sut_stop( TEST_LOCAL, 5, getenv(SUT_SYSLOG),axi_param ,0,0);
+                test_type = TEST_LOCAL ;
         } else if( !strcasecmp( tc, "remote" ) ) {
                 printf( "* stop: Working remote\n" );
                 str_isEnv( cfg.verbose, SUT_HOST );
                 str_isEnv( cfg.verbose, SUT_PORT );
 
                 cfg.hostname = getenv( SUT_HOST );
-                cfg.port = atoi( getenv( SUT_PORT ) );
-                path = getenv( SUT_WORKDIR );
-
-                //! @todo replace 5
-                sut_stop( TEST_REMOTE, 5, getenv(SUT_SYSLOG), axi_param ,
-                                cfg.hostname, cfg.port );
+                cfg.port     = atoi( getenv( SUT_PORT ) );
+                test_type    = TEST_REMOTE ;
         } else {
-                printf( "* stop : Invalid $axi_ttype\n" );
-                return 1;
+                printf( "! stop : Invalid $axi_ttype\n" );
+                return EXIT_FAILURE;
         }
+        sut_stop( test_type, 5, getenv(SUT_SYSLOG),axi_param ,0,0);
         return EXIT_SUCCESS;
 }
 
 void
-rc_usage( void )
+rc_usage( int status )
 {
 
         printf( "Usage: start [OPTION] COMMAND...\n" );
@@ -61,7 +63,7 @@ rc_usage( void )
         printf( "  -c params\n");
         printf( "  -t testType\n");
 
-        exit( 0 );
+        exit( status );
 }
 
 
@@ -94,7 +96,7 @@ rc_parseArgs( int argc, char *argv[] )
                         axi_param = optarg ;
                         break;
                 case 'h':
-                        rc_usage(  );
+                        rc_usage( EXIT_SUCCESS );
                 case 'v':
                         cfg.verbose = TRUE;
                         break;

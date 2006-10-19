@@ -1,4 +1,4 @@
-CC = gcc -g
+CC = gcc -g -std=c99
 LIB= strop.c fileop.c sut.c socket.c
 TARGETS=testbot #testhost
 

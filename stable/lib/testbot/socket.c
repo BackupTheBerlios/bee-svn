@@ -7,6 +7,7 @@
  *   Copyright (c) Gecad Technologies
  */
 #include "socket.h"
+#include <limits.h>
 
 
 int

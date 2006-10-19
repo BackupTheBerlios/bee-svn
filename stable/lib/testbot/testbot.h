@@ -5,7 +5,7 @@
 #include "config.h"
 
 
-void tb_usage(void) ;
+void tb_usage( int status ) ;
 int  tb_parseArgs( struct config_s* cfg, int argc, char* args[]);
 int  tb_cfgInit( struct config_s* cfg, int argc, char* argv[]);
 int  tb_cfgParse(char* config_file) ;

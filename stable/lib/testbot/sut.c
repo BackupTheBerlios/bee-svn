@@ -8,7 +8,7 @@
 extern struct config_s cfg ;
 
 /*  Start SUT   */
-int
+bool
 sut_start( int test_type,
            int timeout, char* maillog,
            char *start, char* hostname, int port
@@ -19,18 +19,21 @@ sut_start( int test_type,
         if( test_type == TEST_LOCAL ) {
                 sut_startLocal( timeout, maillog, start );
                 sleep( 1 );
-                return TRUE ;
+                return true ;
         }
 
         if( test_type == TEST_REMOTE ) {
                 sut_startRemote( timeout, maillog, start, hostname, port ) ;
                 sleep( 1 );
-                return TRUE;
+                return true ;
         }
-        return TRUE;
+        return true;
 }
 
-static int
+
+/*
+ * \todo Test for failure */
+static bool
 sut_startRemote(
                 int timeout, char* maillog,
                 char* start, char* hostname, int port)
@@ -42,7 +45,7 @@ sut_startRemote(
         sprintf(cmd, "START %d %s %s", timeout, maillog, start );
         sock_sendLine( sockfd, cmd );
         close(sockfd);
-        return TRUE;
+        return true;
 }
 
 
@@ -51,7 +54,7 @@ sut_startRemote(
  * Will read from maillog file, in a manner simmilar to
  * tail -f, looks for SUCCESS: supervise ready, and INFO: ready
  */
-static int
+static bool
 sut_startLocal(
                 int timeout, char* maillog, char* start )
 {
@@ -59,7 +62,7 @@ sut_startLocal(
         char buf[512] = { 0 };
         char *supRdyStr = "SUCCESS: supervise ready";
         char *rdyStr = "INFO: ready";
-        int supRdy = FALSE;
+        bool supRdy = false ;
 
         printf( "* LOG++++++++++\n" );
         fd = open( maillog, O_RDONLY );
@@ -69,14 +72,14 @@ sut_startLocal(
                 printf( "Failed\n" );
                 exit( EXIT_FAILURE );
                 // ask for options
-                return FALSE;
+                return false ;
         }
         for( ;; ) {
                 int i=0;
                 memset( buf, '\0', 512 );
                 i = read( fd, buf, sizeof( buf ) - 1 );
                 if( i < 0 ) {
-                        fprintf( stderr, "ERR: Cant read syslog '%s'\n", maillog );
+                        fprintf( stderr, "! testbot: Cant read syslog '%s'\n", maillog );
                         break;
                 }
                 if( i == 0 ) {
@@ -87,30 +90,30 @@ sut_startLocal(
                         /* Looking for a SUCCESS: supervise ready */
                         /* a possible bug might be if SUPERVISER text gets in the same
                          * buffer with INFO: ready. Then we get a false status*/
-                        if( supRdy == FALSE ) {
+                        if( !supRdy ) {
                                 rc = str_search( buf, i, supRdyStr, strlen(supRdyStr) );
                                 supRdy = rc;
                                 if( rc )
-                                        printf( "~~~~~~~Found SUPERVISER~~~~~~~\n" );
+                                        printf( "~~~~~~supervise ready~~~~~~\n" );
                         } else {
                                 rc = str_search( buf, i, rdyStr, strlen(rdyStr) );
                                 if( rc ) {
-                                        printf( "~~~~~~~\n" );
+                                        printf( "~~~~~~server started~~~~~~\n" );
                                         close( fd );
-                                        return TRUE;
+                                        return true ;
                                 }
                         }
                 }
         }
         close( fd );
-        return TRUE;
+        return true ;
 }
 
 
 
 /*-------------------------------*/
 /*     STOP   */
-int
+bool
 sut_stop( int test_type,
           int timeout, char* maillog, char *stop,
           char* hostname, int port )
@@ -119,15 +122,20 @@ sut_stop( int test_type,
         if( test_type == TEST_LOCAL ) {
                 sut_stopLocal( timeout, maillog, stop );
                 sleep(1);
+                return true ;
         }
         if( test_type == TEST_REMOTE ) {
                 sut_stopRemote( timeout, maillog, stop, hostname, port );
                 sleep(1);
+                return true ;
         }
-        return 0;
+        return true ;
 }
 
-static int
+
+/*
+ * \todo Test for failure */
+static bool
 sut_stopRemote( int timeout,
                 char* maillog, char* stop,
                 char* hostname, int port)
@@ -139,11 +147,11 @@ sut_stopRemote( int timeout,
         sprintf(cmd, "STOP %d %s %s", timeout, maillog, stop );
         sock_sendLine( sockfd, cmd );
         close(sockfd);
-        return TRUE ;
+        return true ;
 }
 
 
-static int
+static bool
 sut_stopLocal( int timeout,
                char* maillog, char* stop )
 {
@@ -151,7 +159,7 @@ sut_stopLocal( int timeout,
         char buf[512] = { 0 };
         char *supRdyStr = "INFO: supervise: caught signal";
         char *rdyStr = "INFO: supervise: finished";
-        int supRdy = FALSE;
+        bool supRdy = false ;
 
         printf( "* LOG\n++++++++++\n" );
         fd = open( maillog, O_RDONLY );
@@ -161,11 +169,11 @@ sut_stopLocal( int timeout,
                 printf( "Failed\n" );
                 exit( EXIT_FAILURE );
                 // ask for options
-                return FALSE;
+                return false ;
         }
         if( WEXITSTATUS(rc) == 1 ) {
-                printf("No process killed: returning true\n");
-                return TRUE ;
+                printf("No process killed\n");
+                return true ;
         }
         for( ;; ) {
                 int i =0 ;
@@ -184,28 +192,28 @@ sut_stopLocal( int timeout,
                         /* Looking for a SUCCESS: supervise ready */
                         /* a possible bug might be if SUPERVISER text gets in the same
                          * buffer with INFO: ready. Then we get a false status*/
-                        if( supRdy == FALSE ) {
+                        if( !supRdy ) {
                                 rc = str_search( buf, i, supRdyStr, strlen(supRdyStr) );
                                 supRdy = rc;
                                 if( rc )
-                                        printf( "////////Found SUPERVISER/////\n" );
+                                        printf( "~~~~~~supervise caugth signal~~~~~~\n" );
                         } else {
                                 rc = str_search( buf, i, rdyStr, strlen(rdyStr) );
                                 if( rc ) {
-                                        printf( "----------\n" );
+                                        printf( "~~~~~~supervise finished~~~~~~\n" );
                                         close( fd );
-                                        return TRUE;
+                                        return true ;
                                 }
                         }
                 }
         }
-        return 1;
+        return true ;
 }
 
 
 
 /*  REFRESH */
-int
+bool
 sut_refresh( int test_type,
              char *source, char *dest,
              char *host, int port )
@@ -218,20 +226,20 @@ sut_refresh( int test_type,
         }
 
         if( test_type == TEST_REMOTE ) {
-                if( sut_refreshRemote( host, port, source, dest ) ) {
+                if( !sut_refreshRemote( host, port, source, dest ) ) {
                         printf( "* refresh: ERR: Could not make refresh!!!\n" );
-                        return EXIT_FAILURE;
+                        return false ;
                 }
-                return 0;
+                return true ;
         }
-        return 0;
+        return true ;
 }
 
 
 
 
 
-static int
+static bool
 sut_refreshLocal( char* source, char* dest )
 {
         char cmd[8192] = { 0 } ;
@@ -240,14 +248,14 @@ sut_refreshLocal( char* source, char* dest )
         printf( "* refresh: Removing %s\n", dest );
         sprintf( cmd, "/bin/rm -rf %s", dest );
         if( system( cmd ) ) {
-                printf( "* refresh: ERR: %s not deleted\n", dest );
-                return FALSE;
+                printf( "! refresh: [%s] not deleted\n", dest );
+                return false ;
         }
         cod = stat( source, &buf );
         if( cod != 0 ) {
                 fprintf( stderr, "* refresh: ERR: %s: %s\n", source,
                             strerror( errno ) );
-                exit( -1 );
+                exit( EXIT_FAILURE );
         }
         printf( "* refresh: copying %s to %s\n", source, dest );
         if( dest[strlen( dest ) - 1] == '/' )
@@ -255,12 +263,12 @@ sut_refreshLocal( char* source, char* dest )
         sprintf( cmd, "/bin/cp -R %s %s", source, dest );
         if( system( cmd ) ) {
                 printf( "* refresh: ERR: File not copied\n" );
-                return FALSE;
+                return false;
         }
-        return TRUE;
+        return true;
 }
 
-static int
+static bool
 sut_refreshRemote( char *host, int port, char *sursa, char *dest )
 {
         char command[LINE_MAX] = { 0 };
@@ -278,36 +286,29 @@ sut_refreshRemote( char *host, int port, char *sursa, char *dest )
         }
 
         close( sockfd );
-        return TRUE;
+        return true;
 }
 
 
 
-int
+bool
 sut_checkCore( int test_type,
               const char *core_srcDir, const char *dbg_srcDir,
               const char *axi_workDir, const char *axi_cfgFile,
               const char *crash_destDir )
 {
-        int rc = FALSE;
-
-        if( test_type == TEST_LOCAL ) {
-                rc = sut_checkCoreLocal( core_srcDir, dbg_srcDir, axi_workDir,
+        if( test_type == TEST_LOCAL )
+                return sut_checkCoreLocal( core_srcDir, dbg_srcDir, axi_workDir,
                                           axi_cfgFile, crash_destDir );
-            }
 
-        if( test_type == TEST_REMOTE ) {
-                rc = sut_checkCoreRemote( core_srcDir, dbg_srcDir, axi_workDir,
+        if( test_type == TEST_REMOTE )
+                return sut_checkCoreRemote( core_srcDir, dbg_srcDir, axi_workDir,
                                          axi_cfgFile, crash_destDir );
-            }
-
-        if( rc && !cfg.act_as_daemon )
-                system( "echo -e 'Tested Product droped CORE!'|wall" );
-        return rc;
+        return false ;
 }
 
 
-static int
+static bool
 sut_checkCoreRemote( const char *core_srcDir, const char *dbg_srcDir,
                     const char *axi_workDir, const char *axi_cfgFile,
                     const char *crash_destDir )
@@ -324,25 +325,27 @@ sut_checkCoreRemote( const char *core_srcDir, const char *dbg_srcDir,
         rc = sock_getStatus( sock );
         close( sock );
         if( rc ) {
-                return TRUE;
+                return true;
         }
-        return FALSE;
+        return false;
 }
 
 
 /*---------------*/
-static int
-sut_setupDstDir( char* dst, char* coreName, const char* core_srcDir, const char* core_dstDir) {
+static bool
+sut_setupDstDir( char* dst, char* coreName,
+                 const char* core_srcDir, const char* core_dstDir)
+{
     sprintf( dst, "%s/dumps/%s-%s" , core_dstDir, cfg.cur_test, coreName );
     if( mkdir( dst, 0777 ) == -1 ) {
-        fprintf( stderr, "Can't create core folder %s : %s\n",
+        fprintf( stderr, "! testbot: Can't create coreDstDir %s : %s\n",
                 dst, strerror(errno) );
-        return FALSE;
+        return false;
     }
-    return TRUE ;
+    return true ;
 }
 
-static int
+static bool
 sut_moveCore( char* src, char* dst )
 {
     char cmd[2 * PATH_MAX + 32] = { 0 };
@@ -350,7 +353,7 @@ sut_moveCore( char* src, char* dst )
     system( cmd );
 }
 
-static int
+static bool
 sut_moveDebugs( const char* srcDir, char* dst )
 {
     DIR *dir;
@@ -359,9 +362,9 @@ sut_moveDebugs( const char* srcDir, char* dst )
     struct dirent *entry, *core;
 
     if( !(dir = opendir( srcDir )) ) {
-        fprintf( stderr, "2: Can't open %s : %s\n",
+        fprintf( stderr, "! testbot: Can't open dbgSrcDir [%s] : %s\n",
                 srcDir, strerror( errno ) );
-        return FALSE;
+        return false;
     }
     while( ( entry = readdir( dir ) ) ) {
         if( !strcmp( entry->d_name, "." )
@@ -372,10 +375,10 @@ sut_moveDebugs( const char* srcDir, char* dst )
         system( cmd );
     }
     closedir( dir );
-    return TRUE ;
+    return true ;
 }
 
-static int
+static bool
 sut_moveLog( const char* workDir, char* dst )
 {
     char src[PATH_MAX] = { 0 };
@@ -384,7 +387,7 @@ sut_moveLog( const char* workDir, char* dst )
     sprintf( cmd, "/bin/mv %s %s", src, dst );
     system( cmd );
 }
-static int
+static bool
 sut_copyCfg( const char* cfgFile, char* dst )
 {
     char cmd[2 * PATH_MAX + 32] = { 0 };
@@ -393,17 +396,16 @@ sut_copyCfg( const char* cfgFile, char* dst )
 }
 /**
  * \brief Check to see if a core was droped.
- * \return FALSE if core not dropped.
+ * \return false if core not dropped.
  * For the moment, this works local only.
  * Have to implement the same function in host.c*/
-int
+bool
 sut_checkCoreLocal( const char *core_srcDir, const char *dbg_srcDir,
-                     const char *workDir, const char *cfgFile,
-                     const char *core_dstDir )
+                    const char *workDir, const char *cfgFile,
+                    const char *core_dstDir )
 {
         DIR *dir;
         struct dirent *entry, *core;
-        int rc = 0;
         char src[PATH_MAX] = { 0 };
         char dst[PATH_MAX] = { 0 };
         char cmd[2 * PATH_MAX + 32] = { 0 };
@@ -411,26 +413,27 @@ sut_checkCoreLocal( const char *core_srcDir, const char *dbg_srcDir,
         if( !(dir = opendir( core_srcDir )) ) {
                 fprintf( stderr, "1: Can't open core_srcDir [%s] : %s\n", core_srcDir,
                          strerror( errno ) );
-                exit( -1 );
+                exit( EXIT_FAILURE );
         }
 
         while( ( core = readdir( dir ) ) ) {
                 if( strstr( core->d_name, "core" ) ) {
+                        bool rc = false ;
                         sprintf( src, "%s/%s" , core_srcDir, core->d_name );
 
                         rc = sut_setupDstDir( dst, core->d_name, core_srcDir, core_dstDir);
-                        if( !rc ) return TRUE;
+                        if( !rc ) return false ;
 
                         sut_moveCore( src, dst ) ;
                         sut_moveDebugs( dbg_srcDir, dst );
                         sut_moveLog( workDir, dst ) ;
                         sut_copyCfg( cfgFile, dst ) ;
 
-                        return TRUE;
+                        return true;
                 }
         }
         closedir( dir );
-        return FALSE;
+        return false;
 }
 
 
@@ -439,12 +442,12 @@ void
 sut_sigpipe(  )
 {
         printf( "Bailing out\n" );
-        exit( 1 );
+        exit( EXIT_SUCCESS );
 }
 
 void
 sut_sigint()
 {
         printf( "Bailing out\n" );
-        exit( 1 );
+        exit( EXIT_SUCCESS );
 }

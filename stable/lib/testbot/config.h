@@ -24,6 +24,8 @@
 #include <signal.h>
 #include <pcre.h>
 #include <ctype.h>
+#include <limits.h>
+#include <stdbool.h>
 
 #define SUT_TTYPE   "axi_ttype"
 #define SUT_HOST    "axi_host"
@@ -60,7 +62,6 @@ struct config_s {
     char**  argv ;
     int     argc ;
     int     refresh ;
-    int     act_as_daemon;
     char*   config_file;
     char    cur_path[PATH_MAX];      //! retine variabila PATH inainte de rescriere
     char    cur_dir[PATH_MAX];       //! retine directorul curent, inainte k sa il schimb in /tmp/pid
@@ -75,9 +76,10 @@ struct config_s {
     char*   axi_dbgDir ;
     char*   axi_syslog ;
     char*   dest_coreDir ;
-    int     verbose ;
     int     script_tout ;            //! script timeout in seconds. after this expires, the script is killed
-    int     allways_kill;
+    bool    act_as_daemon;
+    bool    verbose ;
+    bool    allways_kill;
     char*   platf[] ;                /*= { {"linux"}, {"bsd"}, {"windows"} }; */
 } ;
 

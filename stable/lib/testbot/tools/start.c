@@ -10,7 +10,7 @@
 
 //! @todo use axi_binpath to look for axigen
 struct config_s cfg ;
-char* axi_param;
+char* axi_param = NULL ;
 static int rc_parseArgs( int argc, char *argv[] );
 
 
@@ -24,6 +24,11 @@ main( int argc, char *argv[] )
         rc_parseArgs( argc, argv );
         str_isEnv( cfg.verbose , SUT_TTYPE );
         tc = getenv( SUT_TTYPE );
+
+        if( !axi_param ) {
+            fprintf( stderr, "! start: -c flag is mandatory\n") ;
+            rc_usage(EXIT_FAILURE );
+        }
 
         if( !strcasecmp( tc, "local" ) ) {
                 printf( "* start: Working Local\n" );
@@ -46,7 +51,7 @@ main( int argc, char *argv[] )
 }
 
 void
-rc_usage( void )
+rc_usage( int status )
 {
 
         printf( "Usage: start [OPTION] COMMAND...\n" );
@@ -59,7 +64,7 @@ rc_usage( void )
         printf( "  -c params\n");
         printf( "  -t testType\n");
 
-        exit( 0 );
+        exit( status );
 }
 
 
@@ -92,7 +97,7 @@ rc_parseArgs( int argc, char *argv[] )
                         axi_param = optarg ;
                         break;
                 case 'h':
-                        rc_usage(  );
+                        rc_usage( EXIT_SUCCESS );
                 case 'v':
                         cfg.verbose = TRUE;
                         break;

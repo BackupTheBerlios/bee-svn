@@ -91,7 +91,7 @@ void wall(char *text, int fromshutdown, int remote)
             date);
     } else {
         snprintf(line, sizeof(line),
-            "\007\r\nBroadcast %s %s(%s):\r\n\r\n",
+            "\007\r\nCORE notification from %s %s(%s):\r\n\r\n",
             user, ttynm, date);
     }
 
