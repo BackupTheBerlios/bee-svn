@@ -1,0 +1,10 @@
+*   the core/debug/config should be moved in the directory cores/DIR
+    dir will be named after the name of the script that was running at the moment the
+    server crashed.
+*   Implement -F option for logWatch
+*   Implement list of runned scripts, and an option if
+    testbot should continue from the last script runned
+*   Use cfg.verbose
+*   Sanitize the use of cfg
+
+*   Add fop_cp fop_mkdir
