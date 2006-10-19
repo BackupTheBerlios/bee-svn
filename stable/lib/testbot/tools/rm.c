@@ -27,7 +27,7 @@ main( int argc, char *argv[] )
                 return 1;
         }
         rm_parseArgs( argc, argv );
-        str_isEnv( 1, SUT_TTYPE );
+        str_isEnv( cfg.verbose , SUT_TTYPE );
         tc = getenv( SUT_TTYPE );
         if( argc < 2 ) {
                 fprintf( stderr, "ERR: no valid sintax" );
@@ -83,6 +83,7 @@ rm_parseArgs( int argc, char *argv[] )
                 case 'h':
                         rm_usage(  );
                 case 'v':
+                        cfg.verbose = TRUE ;
                         break;
                 }
         }

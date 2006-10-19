@@ -20,17 +20,19 @@ main( int argc, char *argv[] )
         char *tc;
         char *path;
         int test_type =TEST_LOCAL;
-        
+
         rc_parseArgs( argc, argv );
-        str_isEnv(1, SUT_TTYPE );
+        str_isEnv( cfg.verbose , SUT_TTYPE );
         tc = getenv( SUT_TTYPE );
 
         if( !strcasecmp( tc, "local" ) )
+                printf( "* start: Working Local\n" );
                 test_type = TEST_LOCAL ;
         else if( !strcasecmp( tc, "remote" ) ) {
-                printf( "* start: Working remote\n" );
-                str_isEnv(1, SUT_HOST );
-                str_isEnv(1, SUT_PORT );
+                printf( "* start: Working Remote\n" );
+                str_isEnv( cfg.verbose, SUT_HOST );
+                str_isEnv( cfg.verbose, SUT_PORT );
+
                 test_type = TEST_REMOTE ;
                 cfg.hostname = getenv( SUT_HOST );
                 cfg.port = atoi( getenv( SUT_PORT ) );

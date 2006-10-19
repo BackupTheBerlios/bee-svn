@@ -21,17 +21,17 @@ main( int argc, char *argv[] )
         char *path;
 
         rc_parseArgs( argc, argv );
-        str_isEnv(1, SUT_TTYPE );
+        str_isEnv( cfg.verbose, SUT_TTYPE );
         tc = getenv( SUT_TTYPE );
 
         if( !strcasecmp( tc, "local" ) ) {
-                printf( "* stop: Working local\n" );
+                printf( "* stop: Working Local\n" );
                 //! @todo replace 5
                 sut_stop( TEST_LOCAL, 5, getenv(SUT_SYSLOG),axi_param ,0,0);
         } else if( !strcasecmp( tc, "remote" ) ) {
                 printf( "* stop: Working remote\n" );
-                str_isEnv(1, SUT_HOST );
-                str_isEnv(1, SUT_PORT );
+                str_isEnv( cfg.verbose, SUT_HOST );
+                str_isEnv( cfg.verbose, SUT_PORT );
 
                 cfg.hostname = getenv( SUT_HOST );
                 cfg.port = atoi( getenv( SUT_PORT ) );
