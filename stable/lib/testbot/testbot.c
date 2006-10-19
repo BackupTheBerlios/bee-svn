@@ -518,7 +518,7 @@ tb_checkCore( int test_type,
         rc = sut_checkCore( test_type, core_srcDir, dbg_srcDir, axi_workDir,
                                           axi_cfgFile, core_srcDir );
         if( rc )
-                wall( "****  SUT dropped CORE ****", 0, 0 ) ;
+                wall( "****  SUT dropped CORE ****\r\n", 0, 0 ) ;
         return rc;
 }
 

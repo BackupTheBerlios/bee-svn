@@ -45,7 +45,7 @@ void feputs(char *line, FILE *fp)
 void wall(char *text, int fromshutdown, int remote)
 {
     FILE *tp;
-    char line[81];
+    char line[81]={0};
     char term[UT_LINESIZE+6];
     static char *user, ttynm[32], *date;
     char uidbuf[32];
