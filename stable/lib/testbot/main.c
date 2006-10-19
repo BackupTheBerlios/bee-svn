@@ -1,0 +1,46 @@
+
+#include "testbot.h"
+
+struct config_s cfg ;
+
+int
+main( int argc, char *argv[] )
+{
+        extern char         *optarg;
+        extern int          optind, optopt;
+
+        if( argc == 1 ) tb_usage(  );
+        tb_cfgInit( &cfg, argc, argv );
+        tb_parseArgs( &cfg, argc, argv );
+
+        if( cfg.act_as_daemon ) {
+                if( cfg.port == 0 ) {
+                        fprintf( stderr, "You have to specify -P option\n" );
+                        exit( -2 );
+                }
+                rsh_main( cfg.port );
+                return 0;
+        }
+
+        tb_cfgParse( cfg.config_file );
+        tb_envInit( &cfg  );
+        tb_checkTools( getenv( SUT_TOOL ) );
+
+        if( !cfg.test_dir ) {
+                printf( "* testbot: Provide the test directory.\n" );
+                tb_usage(  );
+        }
+
+        if( cfg.test_type == TEST_LOCAL && cfg.verbose == TRUE ){
+                        printf( "* testbot: Tests will be done LOCALLY.\n" );
+        }
+        if( cfg.test_type == TEST_REMOTE ) {
+                str_isEnv( cfg.verbose, SUT_HOST );
+                str_isEnv( cfg.verbose, SUT_PORT );
+                if( cfg.verbose == TRUE )
+                        printf( "* testbot: Tests will be done REMOTE.\n" );
+        }
+        tb_runTests( cfg.test_dir );
+        return 0;
+}
+
