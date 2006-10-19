@@ -25,10 +25,10 @@ main( int argc, char *argv[] )
         str_isEnv( cfg.verbose , SUT_TTYPE );
         tc = getenv( SUT_TTYPE );
 
-        if( !strcasecmp( tc, "local" ) )
+        if( !strcasecmp( tc, "local" ) ) {
                 printf( "* start: Working Local\n" );
                 test_type = TEST_LOCAL ;
-        else if( !strcasecmp( tc, "remote" ) ) {
+        } else if( !strcasecmp( tc, "remote" ) ) {
                 printf( "* start: Working Remote\n" );
                 str_isEnv( cfg.verbose, SUT_HOST );
                 str_isEnv( cfg.verbose, SUT_PORT );

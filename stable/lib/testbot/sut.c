@@ -332,8 +332,8 @@ sut_checkCoreRemote( const char *core_srcDir, const char *dbg_srcDir,
 
 /*---------------*/
 static int
-sut_setupDstDir( char* dst, char* coreName, char* core_srcDir, char* core_dstDir) {
-    sprintf( dst, "%s/dumps/%s-%s" , core_dstDir, cfg.cur_test, core->d_name );
+sut_setupDstDir( char* dst, char* coreName, const char* core_srcDir, const char* core_dstDir) {
+    sprintf( dst, "%s/dumps/%s-%s" , core_dstDir, cfg.cur_test, coreName );
     if( mkdir( dst, 0777 ) == -1 ) {
         fprintf( stderr, "Can't create core folder %s : %s\n",
                 dst, strerror(errno) );
@@ -351,20 +351,23 @@ sut_moveCore( char* src, char* dst )
 }
 
 static int
-sut_moveDebugs( char* src, char* dst )
+sut_moveDebugs( const char* srcDir, char* dst )
 {
     DIR *dir;
+    char src[PATH_MAX] = { 0 };
+    char cmd[2 * PATH_MAX + 32] = { 0 };
+    struct dirent *entry, *core;
 
-    if( !(dir = opendir( src )) ) {
+    if( !(dir = opendir( srcDir )) ) {
         fprintf( stderr, "2: Can't open %s : %s\n",
-                dbg_srcDir, strerror( errno ) );
+                srcDir, strerror( errno ) );
         return FALSE;
     }
     while( ( entry = readdir( dir ) ) ) {
         if( !strcmp( entry->d_name, "." )
                 || !strcmp( entry->d_name, ".." ) )
             continue;
-        sprintf( src, "%s/%s", dbg_srcDir, entry->d_name );
+        sprintf( src, "%s/%s", srcDir, entry->d_name );
         sprintf( cmd, "/bin/mv %s %s", src, dst );
         system( cmd );
     }
@@ -373,7 +376,7 @@ sut_moveDebugs( char* src, char* dst )
 }
 
 static int
-sut_moveLog( char* workDir, char* dst )
+sut_moveLog( const char* workDir, char* dst )
 {
     char src[PATH_MAX] = { 0 };
     char cmd[2 * PATH_MAX + 32] = { 0 };
@@ -382,7 +385,7 @@ sut_moveLog( char* workDir, char* dst )
     system( cmd );
 }
 static int
-sut_copyCfg( char* cfgFile, char* dst )
+sut_copyCfg( const char* cfgFile, char* dst )
 {
     char cmd[2 * PATH_MAX + 32] = { 0 };
     sprintf( cmd, "/bin/cp %s %s", cfgFile, dst );
@@ -415,7 +418,7 @@ sut_checkCoreLocal( const char *core_srcDir, const char *dbg_srcDir,
                 if( strstr( core->d_name, "core" ) ) {
                         sprintf( src, "%s/%s" , core_srcDir, core->d_name );
 
-                        rc = sut_setuptDstDir( dst, core->d_name, core_srcDir, core_dstDir);
+                        rc = sut_setupDstDir( dst, core->d_name, core_srcDir, core_dstDir);
                         if( !rc ) return TRUE;
 
                         sut_moveCore( src, dst ) ;
