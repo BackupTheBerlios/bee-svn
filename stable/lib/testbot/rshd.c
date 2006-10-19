@@ -166,5 +166,6 @@ callback_command( int socket )
                         }
         }/*while*/
         close( socket ) ;
+        return 0;
 }
 

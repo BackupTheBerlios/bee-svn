@@ -15,6 +15,7 @@
 #include "socket.h"
 #include "strop.h"
 #include "fileop.h"
+#include "sut.h"
 
 extern struct config_s cfg ;
 extern char *optarg;

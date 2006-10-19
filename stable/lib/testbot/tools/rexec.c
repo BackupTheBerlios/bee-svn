@@ -9,6 +9,8 @@
 #include <wait.h>
 #include "socket.h"
 #include "sut.h"
+#include "strop.h"
+#include "fileop.h"
 
 static int aa_parseArgs( int argc, char *argv[] );
 struct config_s cfg ;
