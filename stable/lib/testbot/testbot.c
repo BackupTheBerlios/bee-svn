@@ -292,7 +292,7 @@ sig_handler( int sig )
         switch ( sig ) {
         case SIGCHLD:
                 while( waitpid( -1, &status, WNOHANG ) > 0 )
-                        if( WIFEXITED( status ) && WEXITSTATUS( status ) == 69 )
+                        if( WEXITSTATUS( status ) == 69 )
                                 printf( "* testbot: PASS\n" );
                         else
                                 printf( "* testbot: FAIL\n" );
@@ -417,8 +417,7 @@ tb_setupTmp( const char *source_bat, char* tmpDir )
         sprintf( tmpDir, "/tmp/%d", getpid(  ) );
         cod = mkdir( tmpDir, 0755 );
         if( cod ) {
-                fprintf( stderr,
-                         "! testbot: Cannot make directory [%s]: %s\n",
+                fprintf( stderr, "! testbot: Cant make directory [%s]: %s\n",
                          tmpDir, strerror( errno ) );
                 exit( -1 );
         }
@@ -519,7 +518,7 @@ tb_checkCore( int test_type,
         rc = sut_checkCore( test_type, core_srcDir, dbg_srcDir, axi_workDir,
                                           axi_cfgFile, core_srcDir );
         if( rc )
-                system( "echo -e '******  SUT droped CORE ******'|wall" );
+                wall( "****  SUT dropped CORE ****", 0, 0 ) ;
         return rc;
 }
 

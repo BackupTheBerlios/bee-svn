@@ -5,7 +5,7 @@ TARGETS=testbot #testhost
 all: $(TARGETS)
 
 testbot:
-	$(CC) main.c testbot.c rshd.c callbacks.c $(LIB) /usr/lib/libpcre.a -o testbot
+	$(CC) main.c wall.c testbot.c rshd.c callbacks.c $(LIB) /usr/lib/libpcre.a -o testbot
 	make -C ./tools
 
 clean:
