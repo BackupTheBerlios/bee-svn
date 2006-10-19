@@ -49,6 +49,41 @@ fop_rm( char *srcName )
         return 1;
 }
 
+/*
+int
+fop_rm( int test_type, char* path, char* host, int port )
+{
+    if(test_type == TEST_LOCAL)
+        return fop_rmLocal( path );
+    if(test_type == TEST_REMOTE)
+        return fop_rmRemote( path, host, port );
+    return FALSE ;
+}
+*/
+static int
+fop_rmRemote( char* path, char* host, int port )
+{
+}
+
+static int
+fop_rmLocal( char *path )
+{
+        struct stat statbuf;
+        recursiveFlag = 1;
+        forceFlag = TRUE;
+        if( forceFlag == TRUE && lstat( path, &statbuf ) != 0
+            && errno == ENOENT ) {
+                /* do not reports errors for non-existent files if -f, just skip them */
+        } else {
+                if( recursiveAction( path, recursiveFlag, FALSE,
+                                     TRUE, rm_fileAction, rm_dirAction,
+                                     NULL ) == FALSE ) {
+                        exit( FALSE );
+                }
+        }
+        return 1;
+}
+
 
 
 
@@ -196,45 +231,3 @@ rm_dirAction( const char *fileName, struct stat *statbuf, void *junk )
         }
         return ( TRUE );
 }
-
-<<<<<<< .mine
-int
-fop_rm( int test_type, char* path, char* host, int port )
-{
-    if(test_type == TEST_LOCAL)
-        return fop_rmLocal( path );
-    if(test_type == TEST_REMOTE)
-        return fop_rmRemote( path, host, port );
-    return FALSE ;
-}
-
-static int
-fop_rmRemote( char* path, char* host, int port )
-{
-}
-
-static int
-fop_rmLocal( char *path )
-{
-        struct stat statbuf;
-=======
->>>>>>> .r209
-
-<<<<<<< .mine
-        recursiveFlag = 1;
-        forceFlag = TRUE;
-        if( forceFlag == TRUE && lstat( path, &statbuf ) != 0
-            && errno == ENOENT ) {
-                /* do not reports errors for non-existent files if -f, just skip them */
-        } else {
-                if( recursiveAction( path, recursiveFlag, FALSE,
-                                     TRUE, rm_fileAction, rm_dirAction,
-                                     NULL ) == FALSE ) {
-                        exit( FALSE );
-                }
-        }
-        return 1;
-}
-=======
->>>>>>> .r209
-
