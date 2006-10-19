@@ -426,8 +426,9 @@ tb_setupTmp( const char *source_bat, char* tmpDir )
         strcpy( cpstr, source_bat );
         p = strrchr( cpstr, '.' );
         *p = '\0';
+        strcpy(cfg.cur_test, cpstr );
         sprintf( cmd, "/bin/cp -R %s %s/", cpstr, tmpDir );
-        if( 1 == TRUE )
+        if( cfg.verbose == TRUE )
                 printf( "* testbot: Running '%s'\n", cmd );
         system( cmd );          // TODO: replace this with a functionpt_fresh
 

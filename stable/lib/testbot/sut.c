@@ -330,8 +330,64 @@ sut_checkCoreRemote( const char *core_srcDir, const char *dbg_srcDir,
 }
 
 
+/*---------------*/
+static int
+sut_setupDstDir( char* dst, char* coreName, char* core_srcDir, char* core_dstDir) {
+    sprintf( dst, "%s/dumps/%s-%s" , core_dstDir, cfg.cur_test, core->d_name );
+    if( mkdir( dst, 0777 ) == -1 ) {
+        fprintf( stderr, "Can't create core folder %s : %s\n",
+                dst, strerror(errno) );
+        return FALSE;
+    }
+    return TRUE ;
+}
 
+static int
+sut_moveCore( char* src, char* dst )
+{
+    char cmd[2 * PATH_MAX + 32] = { 0 };
+    sprintf( cmd, "/bin/mv %s %s", src, dst );
+    system( cmd );
+}
 
+static int
+sut_moveDebugs( char* src, char* dst )
+{
+    DIR *dir;
+
+    if( !(dir = opendir( src )) ) {
+        fprintf( stderr, "2: Can't open %s : %s\n",
+                dbg_srcDir, strerror( errno ) );
+        return FALSE;
+    }
+    while( ( entry = readdir( dir ) ) ) {
+        if( !strcmp( entry->d_name, "." )
+                || !strcmp( entry->d_name, ".." ) )
+            continue;
+        sprintf( src, "%s/%s", dbg_srcDir, entry->d_name );
+        sprintf( cmd, "/bin/mv %s %s", src, dst );
+        system( cmd );
+    }
+    closedir( dir );
+    return TRUE ;
+}
+
+static int
+sut_moveLog( char* workDir, char* dst )
+{
+    char src[PATH_MAX] = { 0 };
+    char cmd[2 * PATH_MAX + 32] = { 0 };
+    sprintf( src, "%s/log/default.txt", workDir );
+    sprintf( cmd, "/bin/mv %s %s", src, dst );
+    system( cmd );
+}
+static int
+sut_copyCfg( char* cfgFile, char* dst )
+{
+    char cmd[2 * PATH_MAX + 32] = { 0 };
+    sprintf( cmd, "/bin/cp %s %s", cfgFile, dst );
+    system( cmd );
+}
 /**
  * \brief Check to see if a core was droped.
  * \return FALSE if core not dropped.
@@ -357,47 +413,20 @@ sut_checkCoreLocal( const char *core_srcDir, const char *dbg_srcDir,
 
         while( ( core = readdir( dir ) ) ) {
                 if( strstr( core->d_name, "core" ) ) {
-                        sprintf( src, "%s/%s"       , core_srcDir, core->d_name );
-                        sprintf( dst, "%s/dumps/%s" , core_dstDir, core->d_name );
-                        if( mkdir( dst, 0777 ) == -1 ) {
-                                fprintf( stderr, "Can't create core folder %s : %s\n",
-                                         dst, strerror(errno) );
-                                return TRUE;
-                        }
+                        sprintf( src, "%s/%s" , core_srcDir, core->d_name );
 
-                        // 1. Move CORE
-                        sprintf( cmd, "/bin/mv %s %s", src, dst );
-                        system( cmd );
-                        closedir( dir );
+                        rc = sut_setuptDstDir( dst, core->d_name, core_srcDir, core_dstDir);
+                        if( !rc ) return TRUE;
 
-                        // 2. Move DEBUGLOGS
-                        ;
-                        if( !(dir = opendir( dbg_srcDir )) ) {
-                                fprintf( stderr, "2: Can't open %s : %s\n",
-                                         dbg_srcDir, strerror( errno ) );
-                                return TRUE;
-                        }
-                        while( ( entry = readdir( dir ) ) ) {
-                                if( !strcmp( entry->d_name, "." )
-                                    || !strcmp( entry->d_name, ".." ) )
-                                        continue;
-                                sprintf( src, "%s/%s", dbg_srcDir, entry->d_name );
-                                sprintf( cmd, "/bin/mv %s %s", src, dst );
-                                system( cmd );
-                        }
-                        closedir( dir );
+                        sut_moveCore( src, dst ) ;
+                        sut_moveDebugs( dbg_srcDir, dst );
+                        sut_moveLog( workDir, dst ) ;
+                        sut_copyCfg( cfgFile, dst ) ;
 
-                        // 3. Move LOG
-                        sprintf( src, "%s/log/default.txt", workDir );
-                        sprintf( cmd, "/bin/mv %s %s", src, dst );
-                        system( cmd );
-
-                        // 4. copy  CONFIG
-                        sprintf( cmd, "/bin/cp %s %s", cfgFile, dst );
-                        system( cmd );
                         return TRUE;
                 }
         }
+        closedir( dir );
         return FALSE;
 }
 

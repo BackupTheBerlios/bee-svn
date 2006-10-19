@@ -64,6 +64,7 @@ struct config_s {
     char*   config_file;
     char    cur_path[PATH_MAX];      //! retine variabila PATH inainte de rescriere
     char    cur_dir[PATH_MAX];       //! retine directorul curent, inainte k sa il schimb in /tmp/pid
+    char    cur_test[PATH_MAX];
     char    testbot_path[PATH_MAX] ; //! Path to testbot dir
     char*   hostname;
     int     port ;
