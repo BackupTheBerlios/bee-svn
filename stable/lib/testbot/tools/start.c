@@ -19,31 +19,27 @@ main( int argc, char *argv[] )
 {
         char *tc;
         char *path;
-
+        int test_type =TEST_LOCAL;
+        
         rc_parseArgs( argc, argv );
         str_isEnv(1, SUT_TTYPE );
         tc = getenv( SUT_TTYPE );
 
-        if( !strcasecmp( tc, "local" ) ) {
-                printf( "* start: Working local\n" );
-                //! @todo replace 5
-                sut_start( TEST_LOCAL, 5, axi_param ,0,0);
-        } else if( !strcasecmp( tc, "remote" ) ) {
+        if( !strcasecmp( tc, "local" ) )
+                test_type = TEST_LOCAL ;
+        else if( !strcasecmp( tc, "remote" ) ) {
                 printf( "* start: Working remote\n" );
                 str_isEnv(1, SUT_HOST );
                 str_isEnv(1, SUT_PORT );
-
+                test_type = TEST_REMOTE ;
                 cfg.hostname = getenv( SUT_HOST );
                 cfg.port = atoi( getenv( SUT_PORT ) );
-                path = getenv( SUT_WORKDIR );
-
-                //! @todo replace 5
-                sut_start( TEST_REMOTE, 5, axi_param ,
-                                cfg.hostname, cfg.port );
         } else {
                 printf( "* start : Invalid $axi_ttype\n" );
                 return 1;
         }
+        sut_start( test_type, 5, getenv(SUT_SYSLOG), axi_param ,
+                                cfg.hostname, cfg.port );
         return EXIT_SUCCESS;
 }
 

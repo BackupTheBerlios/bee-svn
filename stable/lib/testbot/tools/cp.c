@@ -12,8 +12,10 @@
 
 struct config_s cfg;
 static int cp_parseArgs( int argc, char *argv[] );
+
 #define DIM_BUFF 8192     // todo get rid of this
-static int
+
+    static int
 sendfile( int sock, char *src_file )
 {
         int f = open( src_file, O_RDONLY );
@@ -63,16 +65,13 @@ copy_remote( char *host, int port, char *src_file, char *dest_dir )
         sprintf( cmd, "COPY %s %s %d", bname, dest_dir, l );
         sock_sendLine( sockfd, cmd );
         cod = sendfile( sockfd, src_file );
-        if( cod ) {
-                close( sockfd );
-                return 1;
-        }
 
         cod = sock_getStatus( sockfd );
 
-        if( cod < 0 ) {
+        if( cod != TRUE ) {
                 fprintf( stderr,
                          "cp: ERR: Receiving command confirmation!\n" );
+                close( sockfd );
                 exit( -1 );
                 return 1;
         }

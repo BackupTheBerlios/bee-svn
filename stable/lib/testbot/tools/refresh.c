@@ -13,7 +13,7 @@
 struct config_s cfg ;
 static int rc_parseArgs( int argc, char *argv[] );
 
-
+#if 0
 static int
 refresh_local( char* source, char* dest )
 {
@@ -84,13 +84,14 @@ axi_refresh( int test_type, char *source, char *dest, char *host, int port )    
         }
         return 0;
 }
-
+#endif
 
 int
 main( int argc, char *argv[] )
 {
         char *tc;
         char *path;
+        int test_type=TEST_LOCAL;
 
         rc_parseArgs( argc, argv );
         str_isEnv(1, SUT_TTYPE );
@@ -100,30 +101,23 @@ main( int argc, char *argv[] )
         str_isEnv(1, SUT_WORKDIR );
         tc = getenv( SUT_TTYPE );
 
-        if( !strcasecmp( tc, "local" ) ) {
-                printf( "* refresh: Working local\n" );
-                sut_stop( TEST_LOCAL, 5, getenv( SUT_STOP ),0,0 );       //! @todo replace 5 with a proper timeout
-                sut_refresh( TEST_LOCAL, getenv( SUT_DEFDOM ),
-                            getenv( SUT_WORKDIR ), 0, 0 );
-                sut_start( TEST_LOCAL, 5, getenv( SUT_START ) ,0,0);     //! @todo replace 5
-        } else if( !strcasecmp( tc, "remote" ) ) {
-                printf( "* refresh: Working remote\n" );
+        if( !strcasecmp( tc, "local" ) )
+                test_type = TEST_LOCAL;
+        else if( !strcasecmp( tc, "remote" ) ) {
                 str_isEnv(1, SUT_HOST );
                 str_isEnv(1, SUT_PORT );
-
-                cfg.hostname = getenv( SUT_HOST );
-                cfg.port = atoi( getenv( SUT_PORT ) );
-                path = getenv( SUT_WORKDIR );
-                sut_stop( TEST_REMOTE, 5, getenv( SUT_STOP ),
-                                cfg.hostname, cfg.port );
-                axi_refresh( TEST_REMOTE, getenv( SUT_DEFDOM ),
-                            getenv( SUT_WORKDIR ), cfg.hostname, cfg.port );
-                sut_start( TEST_REMOTE, 5, getenv( SUT_START ) ,
-                               cfg.hostname, cfg.port );    //! @todo replace 5
-        } else {
+                test_type = TEST_REMOTE;
+                cfg.hostname = getenv(SUT_HOST);
+                cfg.port = atoi(getenv(SUT_PORT));
+        }else {
                 printf( "* refresh : Invalid $axi_ttype\n" );
                 return 1;
         }
+
+        system( getenv(SUT_STOP));
+        sut_refresh( test_type, getenv( SUT_DEFDOM ),
+                     getenv( SUT_WORKDIR ), cfg.hostname, cfg.port );
+        system( getenv(SUT_START) );
         return EXIT_SUCCESS;
 }
 

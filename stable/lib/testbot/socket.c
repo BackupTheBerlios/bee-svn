@@ -18,7 +18,7 @@ sock_connectTo( char *host, int port )
 
 
         if( !host || ! port ) {
-            printf("Cant connect to null host/port\n");
+            printf("SOCKET:Cant connect to null host/port\n");
             return -1;
         }
         // socket create

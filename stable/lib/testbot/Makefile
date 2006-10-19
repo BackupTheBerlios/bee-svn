@@ -5,7 +5,7 @@ TARGETS=testbot #testhost
 all: $(TARGETS)
 
 testbot:
-	$(CC) testbot.c rshd.c callbacks.c $(LIB) /usr/lib/libpcre.a -o testbot
+	$(CC) main.c testbot.c rshd.c callbacks.c $(LIB) /usr/lib/libpcre.a -o testbot
 	make -C ./tools
 
 clean:
@@ -18,6 +18,6 @@ indent:
 	indent -br -brs -cdw -ce -l80 -nut -ncs -prs -nsai -npcs -nsaf -nsaw -i8 *.c
 
 install:
-	scp ./testbot testbot@gigi:/home/testbot/current/testbot
+	scp ./testbot root@gigi:/home/testbot 
 	cp ./testbot ..
 	make -C ./tools install

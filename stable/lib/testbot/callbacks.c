@@ -10,15 +10,19 @@ callback_start( int sock, char *buf )
 {
         int timeout = 0, rb;
         char *startCmd = NULL;
+        char maillog[LINE_MAX] = { 0 } ;
 
-        rb = sscanf( buf, "%d", &timeout );
-        startCmd = strchr( buf, ' ' );
-        if( rb != 1 || !startCmd ) {
+        rb = sscanf( buf, "%d %s", &timeout, maillog );
+
+        buf = strchr( buf, ' ' );
+        startCmd = strchr( buf+1, ' ' );
+        if( rb != 2 || !startCmd ) {
                 printf( "Invalid syntax for START\n" );
                 return FALSE;
         }
 
-        sut_start( TEST_LOCAL, timeout, startCmd,0,0 );
+        printf("START %d [%s][%s]\n", timeout, maillog, startCmd );
+        sut_start( TEST_LOCAL, timeout, maillog, startCmd,0,0 );
         sock_sendStatus( sock, 0 );
         return TRUE;            //! @todo pls return a proper value(sendStatus)
 }
@@ -29,15 +33,18 @@ callback_stop( int sock, char *buf )
 {
         int timeout = 0, rb;
         char *stopCmd = NULL;
+        char maillog[LINE_MAX] = { 0 } ;
 
-        rb = sscanf( buf, "%d", &timeout );
-        stopCmd = strchr( buf, ' ' );
-        if( rb != 1 || !stopCmd ) {
+        rb = sscanf( buf, "%d %s", &timeout, maillog );
+
+        buf = strchr( buf, ' ' );
+        stopCmd = strchr( buf+1, ' ' );
+        if( rb != 2 || !stopCmd ) {
                 printf( "Invalid syntax for STOP\n" );
                 return FALSE;
         }
-        printf("STOP %d [%s]\n", timeout, stopCmd );
-        sut_stop( TEST_LOCAL, timeout, stopCmd,0,0 );
+        printf("STOP %d [%s][%s]\n", timeout, maillog, stopCmd );
+        sut_stop( TEST_LOCAL, timeout, maillog, stopCmd,0,0 );
         sock_sendStatus( sock, 0 );
         return TRUE;
 }
@@ -101,7 +108,7 @@ callback_copy( int sock, char *buf )
                 sock_sendStatus( sock, errno );
                 return errno;
         }
-        while( len > 0 && ( bw = read( sock, buff, LINE_MAX ) ) ) {
+        while( len > 0 && ( bw = read( sock, buff, LINE_MAX-1 ) ) ) {
                 int ret = write( f, buff, bw < len ? bw : len );
                 if( bw < 0 ) {
                         perror( "Transmission error" );
@@ -196,10 +203,15 @@ callback_checkCore( int sock, char *buf )
         char crash_destDir[PATH_MAX] = { 0 };
         int rc = FALSE;
 
-        sscanf( buf, "%s %s %s %s %s", core_srcDir, dbg_srcDir, axi_workDir,
+        sscanf( buf, "%s %s %s %s %s",
+                core_srcDir, dbg_srcDir, axi_workDir,
                 axi_cfgFile, crash_destDir );
-        rc = sut_checkCore( TEST_LOCAL, core_srcDir, dbg_srcDir, axi_workDir,
-                                  axi_cfgFile, crash_destDir );
+        printf("CORE %s %s %s %s %s",
+                core_srcDir, dbg_srcDir, axi_workDir,
+                axi_cfgFile, crash_destDir );
+        rc = sut_checkCore( TEST_LOCAL,
+                            core_srcDir, dbg_srcDir, axi_workDir,
+                            axi_cfgFile, crash_destDir );
         sock_sendStatus( sock, rc );    //! @todo figure out what status i should send
         return FALSE;           // means no core was found
 }

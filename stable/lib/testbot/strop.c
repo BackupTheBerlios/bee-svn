@@ -1,4 +1,5 @@
 #include "config.h"
+#include "strop.h"
 
 extern struct config_s cfg ;
 
@@ -23,13 +24,14 @@ str_search( const char *hay_stack, int hay_size, const char *needle,
 
 
 int
-str_isEnv( char *var_name )
+str_isEnv( int verbose, char *var_name )
 {
+        if( !var_name ) return FALSE ;
         if( !getenv( var_name ) ) {
                 fprintf( stderr, "$%s not exported.\n", var_name );
                 exit( -1 );
         }
-        if( cfg.verbose == TRUE )
+        if( verbose == TRUE )
                 printf( "$%s=%s\n", var_name, getenv( var_name ) );
         return 0;
 }

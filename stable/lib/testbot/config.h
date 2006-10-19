@@ -37,6 +37,7 @@
 #define SUT_COREDIR "axi_coredir"
 #define SUT_DBGDIR  "axi_dbgdir"
 #define SUT_CFGFILE "axi_cfgfile"
+#define SUT_SYSLOG  "axi_syslog"
 #define EXT_EXEC    ".bat"
 #define PLATFORMS 3
 
@@ -53,28 +54,30 @@
 
 
 struct config_s {
-    int    port ;
-    int    test_type ;
-    char*  test_dir ;
-    char   tmp_dir[PATH_MAX];
-    char*  hostname;
-    char** argv ;
-    int    argc ;
-    int    refresh ;
-    int    act_as_daemon;
-    char*  config_file;
-    char   cur_path[PATH_MAX];      //! retine variabila PATH inainte de rescriere
-    char   cur_dir[PATH_MAX];       //! retine directorul curent, inainte k sa il schimb in /tmp/pid
-    char   testbot_path[PATH_MAX] ; //! Path to testbot dir
-    char*  axi_coreDir ;            //! Path to core dir
-    char*  axi_workDir ;
-    char   axi_bin[PATH_MAX] ;
-    char*  axi_cfgFile;
-    char*  axi_dbgDir ;
-    char*  dest_coreDir ;
-    int    verbose ;
-    int    script_tout ;            //! script timeout in seconds. after this expires, the script is killed
-    char*  platf[] ;                /*= { {"linux"}, {"bsd"}, {"windows"} }; */
+    int     test_type ;
+    char*   test_dir ;
+    char    tmp_dir[PATH_MAX];
+    char**  argv ;
+    int     argc ;
+    int     refresh ;
+    int     act_as_daemon;
+    char*   config_file;
+    char    cur_path[PATH_MAX];      //! retine variabila PATH inainte de rescriere
+    char    cur_dir[PATH_MAX];       //! retine directorul curent, inainte k sa il schimb in /tmp/pid
+    char    testbot_path[PATH_MAX] ; //! Path to testbot dir
+    char*   hostname;
+    int     port ;
+    char*   axi_coreDir ;            //! Path to core dir
+    char*   axi_workDir ;
+    char    axi_bin[PATH_MAX] ;
+    char*   axi_cfgFile;
+    char*   axi_dbgDir ;
+    char*   axi_syslog ;
+    char*   dest_coreDir ;
+    int     verbose ;
+    int     script_tout ;            //! script timeout in seconds. after this expires, the script is killed
+    int     allways_kill;
+    char*   platf[] ;                /*= { {"linux"}, {"bsd"}, {"windows"} }; */
 } ;
 
 #endif

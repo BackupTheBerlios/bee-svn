@@ -27,7 +27,7 @@ main( int argc, char *argv[] )
         if( !strcasecmp( tc, "local" ) ) {
                 printf( "* stop: Working local\n" );
                 //! @todo replace 5
-                sut_stop( TEST_LOCAL, 5, axi_param ,0,0);
+                sut_stop( TEST_LOCAL, 5, getenv(SUT_SYSLOG),axi_param ,0,0);
         } else if( !strcasecmp( tc, "remote" ) ) {
                 printf( "* stop: Working remote\n" );
                 str_isEnv(1, SUT_HOST );
@@ -38,7 +38,7 @@ main( int argc, char *argv[] )
                 path = getenv( SUT_WORKDIR );
 
                 //! @todo replace 5
-                sut_stop( TEST_REMOTE, 5, axi_param ,
+                sut_stop( TEST_REMOTE, 5, getenv(SUT_SYSLOG), axi_param ,
                                 cfg.hostname, cfg.port );
         } else {
                 printf( "* stop : Invalid $axi_ttype\n" );

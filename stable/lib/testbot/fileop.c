@@ -28,6 +28,31 @@ fop_fileSize( char *name )
 }
 
 
+int
+fop_rm( char *srcName )
+{
+        struct stat statbuf;
+
+        recursiveFlag = 1;
+        forceFlag = TRUE;
+        if( forceFlag == TRUE && lstat( srcName, &statbuf ) != 0
+            && errno == ENOENT ) {
+                /* do not reports errors for non-existent files if -f, just skip them */
+        } else {
+                if( recursiveAction( srcName, recursiveFlag, FALSE,
+                                     TRUE, rm_fileAction, rm_dirAction,
+                                     NULL ) == FALSE ) {
+                        exit( FALSE );
+                }
+        }
+        return 1;
+}
+
+
+
+
+
+
 
 /*-------------*/
 
@@ -170,28 +195,6 @@ rm_dirAction( const char *fileName, struct stat *statbuf, void *junk )
         }
         return ( TRUE );
 }
-
-
-int
-fop_rm( char *srcName )
-{
-        struct stat statbuf;
-
-        recursiveFlag = 1;
-        forceFlag = TRUE;
-        if( forceFlag == TRUE && lstat( srcName, &statbuf ) != 0
-            && errno == ENOENT ) {
-                /* do not reports errors for non-existent files if -f, just skip them */
-        } else {
-                if( recursiveAction( srcName, recursiveFlag, FALSE,
-                                     TRUE, rm_fileAction, rm_dirAction,
-                                     NULL ) == FALSE ) {
-                        exit( FALSE );
-                }
-        }
-        return 1;
-}
-
 
 
 

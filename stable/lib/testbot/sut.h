@@ -1,9 +1,9 @@
-int sut_start( int test_type, int timeout, char* start, char* host, int port);
-static int sut_startRemote( int timeout, char* start, char* host, int port);
+int sut_start( int test_type, int timeout, char* maillog, char* start, char* host, int port);
+static int sut_startRemote( int timeout, char* maillog, char* start, char* host, int port);
 static int sut_startLocal( int timeout, char* maillog, char* start);
 
-int sut_stop( int test_type, int timeout, char* stop, char* host, int port);
-static int sut_stopRemote( int timeout, char* stop, char* host, int port);
+int sut_stop( int test_type, int timeout, char* maillog, char* stop, char* host, int port);
+static int sut_stopRemote( int timeout, char* maillog, char* stop, char* host, int port);
 static int sut_stopLocal( int timeout, char* maillog, char* stop);
 
 int sut_refresh( int test_type,

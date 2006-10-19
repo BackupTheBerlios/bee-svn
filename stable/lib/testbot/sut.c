@@ -1,30 +1,29 @@
 #include "config.h"
 #include "sut.h"
+#include <wait.h>
 /*
  * Dont use any GETENV, or cfgal variables in this file
  */
 
-extern struct config_s  cfg ;
+extern struct config_s cfg ;
 
 /*  Start SUT   */
 int
 sut_start( int test_type,
-           int timeout,
-           char *start,
-           char* hostname,
-           int port
+           int timeout, char* maillog,
+           char *start, char* hostname, int port
           )
 {
         printf( "* sutStart ...\n" );
 
         if( test_type == TEST_LOCAL ) {
-                sut_startLocal( timeout, "/var/log/maillog", start );
+                sut_startLocal( timeout, maillog, start );
                 sleep( 1 );
                 return TRUE ;
         }
 
         if( test_type == TEST_REMOTE ) {
-                sut_startRemote( timeout, start, hostname, port ) ;
+                sut_startRemote( timeout, maillog, start, hostname, port ) ;
                 sleep( 1 );
                 return TRUE;
         }
@@ -32,13 +31,15 @@ sut_start( int test_type,
 }
 
 static int
-sut_startRemote( int timeout, char* start, char* hostname, int port)
+sut_startRemote(
+                int timeout, char* maillog,
+                char* start, char* hostname, int port)
 {
         int sockfd = -1;
         char cmd[PATH_MAX] = { 0 } ;
 
         sockfd = sock_connectTo( hostname, port );
-        sprintf(cmd, "START %d %s", timeout, start );
+        sprintf(cmd, "START %d %s %s", timeout, maillog, start );
         sock_sendLine( sockfd, cmd );
         close(sockfd);
         return TRUE;
@@ -51,7 +52,8 @@ sut_startRemote( int timeout, char* start, char* hostname, int port)
  * tail -f, looks for SUCCESS: supervise ready, and INFO: ready
  */
 static int
-sut_startLocal( int timeout, char* maillog, char* start )
+sut_startLocal(
+                int timeout, char* maillog, char* start )
 {
         int fd = 0, rc = 0 ;
         char buf[512] = { 0 };
@@ -74,7 +76,7 @@ sut_startLocal( int timeout, char* maillog, char* start )
                 memset( buf, '\0', 512 );
                 i = read( fd, buf, sizeof( buf ) - 1 );
                 if( i < 0 ) {
-                        fprintf( stderr, "ERR: Cant read maillog\n" );
+                        fprintf( stderr, "ERR: Cant read syslog '%s'\n", maillog );
                         break;
                 }
                 if( i == 0 ) {
@@ -109,28 +111,32 @@ sut_startLocal( int timeout, char* maillog, char* start )
 /*-------------------------------*/
 /*     STOP   */
 int
-sut_stop( int test_type, int timeout, char *stop, char* hostname, int port )
+sut_stop( int test_type,
+          int timeout, char* maillog, char *stop,
+          char* hostname, int port )
 {
         printf( "* axiStop ...\n" );
         if( test_type == TEST_LOCAL ) {
-                sut_stopLocal( timeout, "/var/log/maillog", stop );
+                sut_stopLocal( timeout, maillog, stop );
                 sleep(1);
         }
         if( test_type == TEST_REMOTE ) {
-                sut_stopRemote( timeout, stop, hostname, port );
+                sut_stopRemote( timeout, maillog, stop, hostname, port );
                 sleep(1);
         }
         return 0;
 }
 
 static int
-sut_stopRemote( int timeout, char* stop, char* hostname, int port)
+sut_stopRemote( int timeout,
+                char* maillog, char* stop,
+                char* hostname, int port)
 {
 
         int sockfd = -1;
         char cmd[PATH_MAX] = { 0 } ;
         sockfd = sock_connectTo( hostname, port );
-        sprintf(cmd, "STOP %d %s", timeout, stop );
+        sprintf(cmd, "STOP %d %s %s", timeout, maillog, stop );
         sock_sendLine( sockfd, cmd );
         close(sockfd);
         return TRUE ;
@@ -138,7 +144,8 @@ sut_stopRemote( int timeout, char* stop, char* hostname, int port)
 
 
 static int
-sut_stopLocal( int timeout, char* maillog, char* stop )
+sut_stopLocal( int timeout,
+               char* maillog, char* stop )
 {
         int fd = 0, rc = 0;
         char buf[512] = { 0 };
@@ -156,12 +163,16 @@ sut_stopLocal( int timeout, char* maillog, char* stop )
                 // ask for options
                 return FALSE;
         }
+        if( WEXITSTATUS(rc) == 1 ) {
+                printf("No process killed: returning true\n");
+                return TRUE ;
+        }
         for( ;; ) {
                 int i =0 ;
                 memset( buf, '\0', 512 );
                 i = read( fd, buf, sizeof( buf ) - 1 );
                 if( i < 0 ) {
-                        fprintf( stderr, "Cant read maillog\n" );
+                        fprintf( stderr, "Cant read syslog '%s'\n", maillog );
                         break;
                 }
                 if( i == 0 ) {
@@ -196,10 +207,8 @@ sut_stopLocal( int timeout, char* maillog, char* stop )
 /*  REFRESH */
 int
 sut_refresh( int test_type,
-             char *source,
-             char *dest,
-             char *host,
-             int port )
+             char *source, char *dest,
+             char *host, int port )
 {
         struct stat buf;
         int cod = 0;
@@ -282,13 +291,15 @@ sut_checkCore( int test_type,
 {
         int rc = FALSE;
 
-        if( test_type == TEST_LOCAL )
+        if( test_type == TEST_LOCAL ) {
                 rc = sut_checkCoreLocal( core_srcDir, dbg_srcDir, axi_workDir,
-                                          axi_cfgFile, core_srcDir );
+                                          axi_cfgFile, crash_destDir );
+            }
 
-        if( test_type == TEST_REMOTE )
+        if( test_type == TEST_REMOTE ) {
                 rc = sut_checkCoreRemote( core_srcDir, dbg_srcDir, axi_workDir,
-                                         axi_cfgFile, core_srcDir );
+                                         axi_cfgFile, crash_destDir );
+            }
 
         if( rc && !cfg.act_as_daemon )
                 system( "echo -e 'Tested Product droped CORE!'|wall" );
@@ -307,8 +318,8 @@ sut_checkCoreRemote( const char *core_srcDir, const char *dbg_srcDir,
 
         sock = sock_connectTo( cfg.hostname, cfg.port );
         sprintf( cmd, "CHECKCORE %s %s %s %s %s",
-                 core_srcDir, dbg_srcDir, axi_workDir, axi_cfgFile,
-                 crash_destDir );
+                 core_srcDir, dbg_srcDir, axi_workDir,
+                 axi_cfgFile, crash_destDir );
         sock_sendLine( sock, cmd );
         rc = sock_getStatus( sock );
         close( sock );
@@ -329,7 +340,7 @@ sut_checkCoreRemote( const char *core_srcDir, const char *dbg_srcDir,
 int
 sut_checkCoreLocal( const char *core_srcDir, const char *dbg_srcDir,
                      const char *workDir, const char *cfgFile,
-                     const char *crash_destDir )
+                     const char *core_dstDir )
 {
         DIR *dir;
         struct dirent *entry, *core;
@@ -338,26 +349,21 @@ sut_checkCoreLocal( const char *core_srcDir, const char *dbg_srcDir,
         char dst[PATH_MAX] = { 0 };
         char cmd[2 * PATH_MAX + 32] = { 0 };
 
-
-        dir = opendir( core_srcDir );
-        if( !dir ) {
-                fprintf( stderr, "Can't open %s : %s\n", core_srcDir,
+        if( !(dir = opendir( core_srcDir )) ) {
+                fprintf( stderr, "1: Can't open core_srcDir [%s] : %s\n", core_srcDir,
                          strerror( errno ) );
                 exit( -1 );
         }
 
         while( ( core = readdir( dir ) ) ) {
                 if( strstr( core->d_name, "core" ) ) {
-                        sprintf( dst, "%s/data/crash-%s", crash_destDir,
-                                 core->d_name );
-                        rc = mkdir( dst, 0777 );
-                        if( rc == -1 ) {
-                                fprintf( stderr,
-                                         "Can't create core folder %s/data/crash-%s\n",
-                                         cfg.testbot_path, core->d_name );
+                        sprintf( src, "%s/%s"       , core_srcDir, core->d_name );
+                        sprintf( dst, "%s/dumps/%s" , core_dstDir, core->d_name );
+                        if( mkdir( dst, 0777 ) == -1 ) {
+                                fprintf( stderr, "Can't create core folder %s : %s\n",
+                                         dst, strerror(errno) );
                                 return TRUE;
                         }
-                        sprintf( src, "%s/%s", cfg.axi_coreDir, core->d_name );
 
                         // 1. Move CORE
                         sprintf( cmd, "/bin/mv %s %s", src, dst );
@@ -365,18 +371,17 @@ sut_checkCoreLocal( const char *core_srcDir, const char *dbg_srcDir,
                         closedir( dir );
 
                         // 2. Move DEBUGLOGS
-                        dir = opendir( dbg_srcDir );
-                        if( !dir ) {
-                                fprintf( stderr, "Can't open %s : %s\n",
-                                         cfg.axi_dbgDir, strerror( errno ) );
-                                exit( -1 );
+                        ;
+                        if( !(dir = opendir( dbg_srcDir )) ) {
+                                fprintf( stderr, "2: Can't open %s : %s\n",
+                                         dbg_srcDir, strerror( errno ) );
+                                return TRUE;
                         }
                         while( ( entry = readdir( dir ) ) ) {
                                 if( !strcmp( entry->d_name, "." )
                                     || !strcmp( entry->d_name, ".." ) )
                                         continue;
-                                sprintf( src, "%s/%s", cfg.axi_dbgDir,
-                                         entry->d_name );
+                                sprintf( src, "%s/%s", dbg_srcDir, entry->d_name );
                                 sprintf( cmd, "/bin/mv %s %s", src, dst );
                                 system( cmd );
                         }
