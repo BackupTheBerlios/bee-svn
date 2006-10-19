@@ -5,11 +5,11 @@
  *
  *   Copyright (c) Gecad Technologies
  */
-#include "util.h"
+#include "sut.h"
 #include "socket.h"
 
 
-struct globals_s glob;
+struct config_s cfg;
 char* axi_param;
 static int rc_parseArgs( int argc, char *argv[] );
 
@@ -21,25 +21,25 @@ main( int argc, char *argv[] )
         char *path;
 
         rc_parseArgs( argc, argv );
-        util_isEnv( AXI_TTYPE );
-        tc = getenv( AXI_TTYPE );
+        str_isEnv(1, SUT_TTYPE );
+        tc = getenv( SUT_TTYPE );
 
         if( !strcasecmp( tc, "local" ) ) {
                 printf( "* stop: Working local\n" );
                 //! @todo replace 5
-                util_axiStop( TEST_LOCAL, 5, axi_param ,0,0);
+                sut_stop( TEST_LOCAL, 5, axi_param ,0,0);
         } else if( !strcasecmp( tc, "remote" ) ) {
                 printf( "* stop: Working remote\n" );
-                util_isEnv( AXI_HOST );
-                util_isEnv( AXI_PORT );
+                str_isEnv(1, SUT_HOST );
+                str_isEnv(1, SUT_PORT );
 
-                glob.hostname = getenv( AXI_HOST );
-                glob.port = atoi( getenv( AXI_PORT ) );
-                path = getenv( AXI_WORKDIR );
+                cfg.hostname = getenv( SUT_HOST );
+                cfg.port = atoi( getenv( SUT_PORT ) );
+                path = getenv( SUT_WORKDIR );
 
                 //! @todo replace 5
-                util_axiStop( TEST_REMOTE, 5, axi_param ,
-                                glob.hostname, glob.port );
+                sut_stop( TEST_REMOTE, 5, axi_param ,
+                                cfg.hostname, cfg.port );
         } else {
                 printf( "* stop : Invalid $axi_ttype\n" );
                 return 1;
@@ -75,20 +75,20 @@ rc_parseArgs( int argc, char *argv[] )
                 case 't':
                         if( !strcasecmp( optarg, "remote" ) ) {
                             setenv( "axi_ttype", optarg, 1 );
-                            glob.test_type = TEST_REMOTE ;
+                            cfg.test_type = TEST_REMOTE ;
                         }
                         if( !strcasecmp( optarg, "local" ) )  {
                             setenv( "axi_ttype", optarg, 1 );
-                            glob.test_type = TEST_LOCAL ;
+                            cfg.test_type = TEST_LOCAL ;
                         }
                         break;
                 case 'H':
                         setenv( "axi_host", optarg, 1 );
-                        glob.hostname = optarg ;
+                        cfg.hostname = optarg ;
                         break;
                 case 'P':
                         setenv( "axi_port", optarg, 1 );
-                        glob.port = atoi(optarg);
+                        cfg.port = atoi(optarg);
                         break;
                 case 'c':
                         axi_param = optarg ;
@@ -96,7 +96,7 @@ rc_parseArgs( int argc, char *argv[] )
                 case 'h':
                         rc_usage(  );
                 case 'v':
-                        glob.verbose = TRUE;
+                        cfg.verbose = TRUE;
                         break;
                 }
         }
