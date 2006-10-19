@@ -7,8 +7,8 @@
  *   Copyright (c) Gecad Technologies
  */
 
-#include "sut.h"
 #include "socket.h"
+#include "sut.h"
 
 struct config_s cfg;
 static int rm_parseArgs( int argc, char *argv[] );

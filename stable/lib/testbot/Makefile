@@ -1,11 +1,23 @@
-CC = gcc -g -std=c99
+#CFLAGS = -g -Wall -Werror -ansi -std=c99 -Wbad-function-cast  -Wmissing-declarations -Wmissing-prototypes \
+           -Wnested-externs  -Wold-style-definition -Wstrict-prototypes \
+		   -Wdeclaration-after-statement
+
+CFLAGS = -g -Wall
+
+CC = gcc -I/usr/include
 LIB= strop.c fileop.c sut.c socket.c
-TARGETS=testbot #testhost
+TARGETS=testbot
 
 all: $(TARGETS)
 
-testbot:
-	$(CC) main.c wall.c testbot.c rshd.c callbacks.c $(LIB) /usr/lib/libpcre.a -o testbot
+
+files = strop.o fileop.o sut.o socket.o
+
+$(filter %.o,$(files)): %.o: %.c
+	$(CC) -c $(CFLAGS) $< -o $@
+
+testbot: $(files)
+	$(CC) $(CFLAGS) $(files) main.c wall.c testbot.c rshd.c callbacks.c /usr/lib/libpcre.a -o testbot
 	make -C ./tools
 
 clean:

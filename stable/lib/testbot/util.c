@@ -511,9 +511,9 @@ sut_checkCoreLocal( const char *core_srcDir, const char *dbg_srcDir,
         DIR *dir;
         struct dirent *entry, *core;
         int rc = 0;
-        char src[PATH_MAX] = { 0 };
-        char dst[PATH_MAX] = { 0 };
-        char cmd[2 * PATH_MAX + 32] = { 0 };
+        char src[FILENAME_MAX] = { 0 };
+        char dst[FILENAME_MAX] = { 0 };
+        char cmd[2 * FILENAME_MAX + 32] = { 0 };
 
 
         dir = opendir( core_srcDir );

@@ -5,10 +5,10 @@
  *
  *   Copyright (c) Gecad Technologies
  */
-#include "sut.h"
+#include <libgen.h>
 #include "fileop.h"
 #include "socket.h"
-#include <libgen.h>
+#include "sut.h"
 
 struct config_s cfg;
 static int cp_parseArgs( int argc, char *argv[] );

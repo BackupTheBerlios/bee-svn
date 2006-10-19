@@ -5,14 +5,16 @@
  *
  *   Copyright (c) Gecad Technologies
  */
-#include "sut.h"
 #include "socket.h"
+#include "sut.h"
 
 //! @todo use axi_binpath to look for axigen
 struct config_s cfg ;
 char* axi_param = NULL ;
 static int rc_parseArgs( int argc, char *argv[] );
 
+static void
+start_usage( int status );
 
 int
 main( int argc, char *argv[] )
@@ -27,7 +29,7 @@ main( int argc, char *argv[] )
 
         if( !axi_param ) {
             fprintf( stderr, "! start: -c flag is mandatory\n") ;
-            rc_usage(EXIT_FAILURE );
+            start_usage(EXIT_FAILURE );
         }
 
         if( !strcasecmp( tc, "local" ) ) {
@@ -50,8 +52,8 @@ main( int argc, char *argv[] )
         return EXIT_SUCCESS;
 }
 
-void
-rc_usage( int status )
+static void
+start_usage( int status )
 {
 
         printf( "Usage: start [OPTION] COMMAND...\n" );
@@ -97,7 +99,7 @@ rc_parseArgs( int argc, char *argv[] )
                         axi_param = optarg ;
                         break;
                 case 'h':
-                        rc_usage( EXIT_SUCCESS );
+                        start_usage( EXIT_SUCCESS );
                 case 'v':
                         cfg.verbose = TRUE;
                         break;

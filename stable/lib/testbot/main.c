@@ -1,15 +1,14 @@
-
 #include "testbot.h"
+#include "rshd.h"
+#include "strop.h"
 
 struct config_s cfg ;
 
 int
 main( int argc, char *argv[] )
 {
-        extern char         *optarg;
-        extern int          optind, optopt;
 
-        if( argc == 1 ) tb_usage(  );
+        if( argc == 1 ) tb_usage( EXIT_FAILURE );
         tb_cfgInit( &cfg, argc, argv );
         tb_parseArgs( &cfg, argc, argv );
 
@@ -27,8 +26,8 @@ main( int argc, char *argv[] )
         tb_checkTools( getenv( SUT_TOOL ) );
 
         if( !cfg.test_dir ) {
-                printf( "* testbot: Provide the test directory.\n" );
-                tb_usage(  );
+                printf( "! testbot: Provide the test directory.\n" );
+                tb_usage( EXIT_FAILURE );
         }
 
         if( cfg.test_type == TEST_LOCAL && cfg.verbose == TRUE ){

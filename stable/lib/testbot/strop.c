@@ -1,5 +1,6 @@
 #include "config.h"
 #include "strop.h"
+#include <strings.h>
 
 extern struct config_s cfg ;
 
@@ -78,6 +79,10 @@ str_endsWith( const char *str, const char *model )
 int
 str_getCode( char *str )
 {
+        int i =1;
+        char* b=NULL ;
+        char cod[LINE_MAX];
+
         if( !str_startsWith( str, "OK:" )
             && !str_startsWith( str, "ERR:" ) ) {
                 fprintf( stderr, "The string received from host is '%s'\n",
@@ -86,14 +91,12 @@ str_getCode( char *str )
                 exit( 1 );
         }
         printf( "* Received : `%s`\n", str );
-        char *b = strchr( str, ':' );
-        int i = 1;
+        b = strchr( str, ':' );
 
         while( isdigit( b[i] ) )
                 ++i;
         if( i == 1 )
                 return 0;
-        char cod[LINE_MAX];
 
         memcpy( cod, b + 1, i - 1 );
         cod[i - 1] = '\0';

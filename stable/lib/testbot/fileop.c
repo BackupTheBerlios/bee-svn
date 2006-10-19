@@ -1,3 +1,7 @@
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <wait.h>
 #include    "strop.h"
 #include    "fileop.h"
 #include    "socket.h"
@@ -9,9 +13,12 @@ extern struct cfgals_s cfg;
 static int recursiveFlag = 0;
 static int forceFlag = 0;
 
-static int sut_axiStartLocal( int timeout, char* start );
-static int sut_axiStopLocal( int timeout, char* stop );
-
+static int   fop_rmRemote( char* path, char* host, int port);
+static int   fop_rmLocal( char* path);
+static int
+rm_fileAction( const char *fileName, struct stat *statbuf, void *junk ) ;
+static int
+rm_dirAction( const char *fileName, struct stat *statbuf, void *junk );
 
 
 
@@ -63,6 +70,7 @@ fop_rm( int test_type, char* path, char* host, int port )
 static int
 fop_rmRemote( char* path, char* host, int port )
 {
+    return 0 ;
 }
 
 static int

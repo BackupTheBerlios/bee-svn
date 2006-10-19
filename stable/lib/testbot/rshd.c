@@ -24,6 +24,9 @@ Callbacks callbacks[] = {
         {NULL, NULL}
 };
 
+static int callback_socket(int portno)  ;
+static int callback_command(int socket );
+
 int
 rsh_main( int port )
 {

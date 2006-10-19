@@ -59,19 +59,19 @@ struct cfgals_s {
     int    port ;
     int    test_type ;
     char*  test_dir ;
-    char   tmp_dir[PATH_MAX];
+    char   tmp_dir[FILENAME_MAX];
     char*  hostname;
     char** argv ;
     int    argc ;
     int    refresh ;
     int    act_as_daemon;
     char*  config_file;
-    char   cur_path[PATH_MAX];      //! retine variabila PATH inainte de rescriere
-    char   cur_dir[PATH_MAX];       //! retine directorul curent, inainte k sa il schimb in /tmp/pid
-    char   testbot_path[PATH_MAX] ; //! Path to testbot dir
+    char   cur_path[FILENAME_MAX];      //! retine variabila PATH inainte de rescriere
+    char   cur_dir[FILENAME_MAX];       //! retine directorul curent, inainte k sa il schimb in /tmp/pid
+    char   testbot_path[FILENAME_MAX] ; //! Path to testbot dir
     char*  pt_coreDir ;            //! Path to core dir
     char*  pt_workDir ;
-    char   pt_bin[PATH_MAX] ;
+    char   pt_bin[FILENAME_MAX] ;
     char*  pt_cfgFile;
     char*  pt_dbgDir ;
     char*  dest_coreDir ;

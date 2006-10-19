@@ -13,8 +13,8 @@
 int
 sock_connectTo( char *host, int port )
 {
-        struct sockaddr_in serv_addr;   // structure used for connection
-        int sockfd;             // socket descriptor
+        struct sockaddr_in serv_addr;   /* structure used for connection*/
+        int sockfd;                     /* socket descriptor*/
         struct hostent *server;
 
 
@@ -22,20 +22,20 @@ sock_connectTo( char *host, int port )
             printf("SOCKET:Cant connect to null host/port\n");
             return -1;
         }
-        // socket create
+        /* socket create*/
         sockfd = socket( AF_INET, SOCK_STREAM, 0 );
         if( sockfd == -1 ) {
-                perror( "ERR: can't create socket" ); /* No \n ; see man perror */
+                perror( "ERR: can't create socket" );
                 return -1;
         }
-        // connected with server
+        /* connected with server */
         server = gethostbyname( host );
         if( server == NULL ) {
                 fprintf( stderr, "Error, no such host\n" );
                 return -1;
         }
 
-        bzero( ( char * )&serv_addr, sizeof( serv_addr ) );
+        memset( ( char * )&serv_addr,0, sizeof( serv_addr ) );
         serv_addr.sin_family = AF_INET;
         bcopy( ( char * )server->h_addr, ( char * )&serv_addr.sin_addr.s_addr,
                server->h_length );

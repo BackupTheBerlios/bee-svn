@@ -6,12 +6,13 @@
  *
  *   Copyright (c) Gecad Technologies
  */
-#include "sut.h"
-#include "socket.h"
 #include <wait.h>
+#include "socket.h"
+#include "sut.h"
 
 static int aa_parseArgs( int argc, char *argv[] );
 struct config_s cfg ;
+
 static int
 cli_main( char *host, int port, char *c )
 {
@@ -68,7 +69,7 @@ main( int argc, char *argv[] )
                 cod = system( argv[optind] );
                 exit( WEXITSTATUS( cod ) );
         } else if( !strcasecmp( ttype, "remote" ) ) {
-//                char cmd[PATH_MAX]={0};
+//                char cmd[FILENAME_MAX]={0};
 //                int i=0;
                 str_isEnv( verbose, SUT_HOST );
                 str_isEnv( verbose, SUT_PORT );

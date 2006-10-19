@@ -1,11 +1,28 @@
 #include "config.h"
 #include "sut.h"
+#include "socket.h"
+#include "strop.h"
 #include <wait.h>
+#include <limits.h>
 /*
  * Dont use any GETENV, or cfgal variables in this file
  */
 
 extern struct config_s cfg ;
+static bool sut_startRemote( int timeout, char* maillog, char* start, char* host, int port);
+static bool sut_startLocal( int timeout, char* maillog, char* start);
+static bool sut_stopRemote( int timeout, char* maillog, char* stop, char* host, int port);
+static bool sut_stopLocal( int timeout, char* maillog, char* stop);
+static bool sut_refreshRemote( char* host, int port, char* source, char* dest);
+static bool sut_refreshLocal( char* source, char* dest);
+static bool
+sut_checkCoreRemote( const char *core_srcDir, const char *dbg_srcDir,
+                    const char *axi_workDir, const char *axi_cfgFile,
+                    const char *crash_destDir );
+static bool
+sut_checkCoreLocal( const char *core_srcDir, const char *dbg_srcDir,
+                     const char *workDir, const char *cfgFile,
+                     const char *crash_destDir );
 
 /*  Start SUT   */
 bool
@@ -39,7 +56,7 @@ sut_startRemote(
                 char* start, char* hostname, int port)
 {
         int sockfd = -1;
-        char cmd[PATH_MAX] = { 0 } ;
+        char cmd[FILENAME_MAX] = { 0 } ;
 
         sockfd = sock_connectTo( hostname, port );
         sprintf(cmd, "START %d %s %s", timeout, maillog, start );
@@ -71,7 +88,7 @@ sut_startLocal(
         if( rc == -1 ) {
                 printf( "Failed\n" );
                 exit( EXIT_FAILURE );
-                // ask for options
+                /* ask for options */
                 return false ;
         }
         for( ;; ) {
@@ -142,7 +159,7 @@ sut_stopRemote( int timeout,
 {
 
         int sockfd = -1;
-        char cmd[PATH_MAX] = { 0 } ;
+        char cmd[FILENAME_MAX] = { 0 } ;
         sockfd = sock_connectTo( hostname, port );
         sprintf(cmd, "STOP %d %s %s", timeout, maillog, stop );
         sock_sendLine( sockfd, cmd );
@@ -168,7 +185,7 @@ sut_stopLocal( int timeout,
         if( rc == -1 ) {
                 printf( "Failed\n" );
                 exit( EXIT_FAILURE );
-                // ask for options
+                /* ask for options */
                 return false ;
         }
         if( WEXITSTATUS(rc) == 1 ) {
@@ -184,7 +201,7 @@ sut_stopLocal( int timeout,
                         break;
                 }
                 if( i == 0 ) {
-                        //sleep(1);
+                        /* sleep(1); */
                         continue;
                 } else {
                         buf[i] = '\0';
@@ -218,9 +235,6 @@ sut_refresh( int test_type,
              char *source, char *dest,
              char *host, int port )
 {
-        struct stat buf;
-        int cod = 0;
-
         if( test_type == TEST_LOCAL ) {
                 return sut_refreshLocal( source, dest );
         }
@@ -313,7 +327,7 @@ sut_checkCoreRemote( const char *core_srcDir, const char *dbg_srcDir,
                     const char *axi_workDir, const char *axi_cfgFile,
                     const char *crash_destDir )
 {
-        char cmd[LINE_MAX] = { 0 };      // Max line should therefore be 3 times the length of PATH_MAX
+        char cmd[LINE_MAX] = { 0 };      /* Max line should therefore be 3 times the length of FILENAME_MAX */
         int rc = 0;
         int sock;
 
@@ -348,18 +362,19 @@ sut_setupDstDir( char* dst, char* coreName,
 static bool
 sut_moveCore( char* src, char* dst )
 {
-    char cmd[2 * PATH_MAX + 32] = { 0 };
+    char cmd[2 * FILENAME_MAX + 32] = { 0 };
     sprintf( cmd, "/bin/mv %s %s", src, dst );
     system( cmd );
+    return true ;
 }
 
 static bool
 sut_moveDebugs( const char* srcDir, char* dst )
 {
     DIR *dir;
-    char src[PATH_MAX] = { 0 };
-    char cmd[2 * PATH_MAX + 32] = { 0 };
-    struct dirent *entry, *core;
+    char src[FILENAME_MAX] = { 0 };
+    char cmd[2 * FILENAME_MAX + 32] = { 0 };
+    struct dirent *entry;
 
     if( !(dir = opendir( srcDir )) ) {
         fprintf( stderr, "! testbot: Can't open dbgSrcDir [%s] : %s\n",
@@ -381,18 +396,20 @@ sut_moveDebugs( const char* srcDir, char* dst )
 static bool
 sut_moveLog( const char* workDir, char* dst )
 {
-    char src[PATH_MAX] = { 0 };
-    char cmd[2 * PATH_MAX + 32] = { 0 };
+    char src[FILENAME_MAX] = { 0 };
+    char cmd[2 * FILENAME_MAX + 32] = { 0 };
     sprintf( src, "%s/log/default.txt", workDir );
     sprintf( cmd, "/bin/mv %s %s", src, dst );
     system( cmd );
+    return true ;
 }
 static bool
 sut_copyCfg( const char* cfgFile, char* dst )
 {
-    char cmd[2 * PATH_MAX + 32] = { 0 };
+    char cmd[2 * FILENAME_MAX + 32] = { 0 };
     sprintf( cmd, "/bin/cp %s %s", cfgFile, dst );
     system( cmd );
+    return true ;
 }
 /**
  * \brief Check to see if a core was droped.
@@ -405,10 +422,9 @@ sut_checkCoreLocal( const char *core_srcDir, const char *dbg_srcDir,
                     const char *core_dstDir )
 {
         DIR *dir;
-        struct dirent *entry, *core;
-        char src[PATH_MAX] = { 0 };
-        char dst[PATH_MAX] = { 0 };
-        char cmd[2 * PATH_MAX + 32] = { 0 };
+        struct dirent *core;
+        char src[FILENAME_MAX] = { 0 };
+        char dst[FILENAME_MAX] = { 0 };
 
         if( !(dir = opendir( core_srcDir )) ) {
                 fprintf( stderr, "1: Can't open core_srcDir [%s] : %s\n", core_srcDir,

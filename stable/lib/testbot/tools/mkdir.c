@@ -6,9 +6,9 @@
  *
  *   Copyright (c) Gecad Technologies
  */
-#include "sut.h"
 #include "config.h"
 #include "socket.h"
+#include "sut.h"
 
 struct config_s cfg;
 static int md_parseArgs( int argc, char *argv[] );
@@ -53,7 +53,7 @@ main( int argc, char *argv[] )
         tc = getenv( SUT_TTYPE );
 
         if( !strcmp( tc, "local" ) ) {
-                char cmd[PATH_MAX+10] = {0} ; //!fix bof
+                char cmd[FILENAME_MAX+10] = {0} ; //!fix bof
                 sprintf( cmd, "mkdir %s", argv[optind] ) ;
                 return system( cmd );
         } else if( !strcmp( tc, "remote" ) ) {

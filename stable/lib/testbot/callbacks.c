@@ -24,7 +24,7 @@ callback_start( int sock, char *buf )
         printf("START %d [%s][%s]\n", timeout, maillog, startCmd );
         sut_start( TEST_LOCAL, timeout, maillog, startCmd,0,0 );
         sock_sendStatus( sock, 0 );
-        return TRUE;            //! @todo pls return a proper value(sendStatus)
+        return TRUE;            /* @todo pls return a proper value(sendStatus) */
 }
 
 
@@ -89,11 +89,11 @@ callback_refresh( int sock, char *buf )
 int
 callback_copy( int sock, char *buf )
 {
-        int f, bw, len, rb;     // bytes written to disk
+        int f, bw, len, rb;     /* bytes written to disk */
         char buff[LINE_MAX] = { 0 };
-        char dest_file[PATH_MAX] = { 0 };
-        char src_file[PATH_MAX] = { 0 } ;
-        char dest_dir[PATH_MAX] = { 0 } ;
+        char dest_file[FILENAME_MAX] = { 0 };
+        char src_file[FILENAME_MAX] = { 0 } ;
+        char dest_dir[FILENAME_MAX] = { 0 } ;
 
        rb = sscanf( buf, "%s %s %d", src_file, dest_dir, &len );
 
@@ -144,7 +144,7 @@ callback_rm( int sock, char *buf )
         }
 
         sprintf( cmd, "/bin/rm -rf %s", path );
-        sock_sendStatus( sock, 0 );     // fix this pls
+        sock_sendStatus( sock, 0 );     /* fix this pls*/
         return system( cmd );
 }
 
@@ -196,11 +196,11 @@ callback_execute( int sock, char *buf )
 int
 callback_checkCore( int sock, char *buf )
 {
-        char core_srcDir[PATH_MAX] = { 0 } ;
-        char dbg_srcDir[PATH_MAX] = { 0 } ;
-        char axi_workDir[PATH_MAX] = { 0 } ;
-        char axi_cfgFile[PATH_MAX] = { 0 } ;
-        char crash_destDir[PATH_MAX] = { 0 };
+        char core_srcDir[FILENAME_MAX] = { 0 } ;
+        char dbg_srcDir[FILENAME_MAX] = { 0 } ;
+        char axi_workDir[FILENAME_MAX] = { 0 } ;
+        char axi_cfgFile[FILENAME_MAX] = { 0 } ;
+        char crash_destDir[FILENAME_MAX] = { 0 };
         int rc = FALSE;
 
         sscanf( buf, "%s %s %s %s %s",
@@ -212,8 +212,8 @@ callback_checkCore( int sock, char *buf )
         rc = sut_checkCore( TEST_LOCAL,
                             core_srcDir, dbg_srcDir, axi_workDir,
                             axi_cfgFile, crash_destDir );
-        sock_sendStatus( sock, rc );    //! @todo figure out what status i should send
-        return FALSE;           // means no core was found
+        sock_sendStatus( sock, rc );    /*! @todo figure out what status i should send*/
+        return FALSE;           /* means no core was found */
 }
 
 
