@@ -173,7 +173,7 @@ rm_dirAction( const char *fileName, struct stat *statbuf, void *junk )
 
 
 int
-my_rm( char *srcName )
+fop_rm( char *srcName )
 {
         struct stat statbuf;
 
