@@ -8,6 +8,7 @@
 #include <libgen.h>
 #include "fileop.h"
 #include "socket.h"
+#include "strop.h"
 #include "sut.h"
 
 struct config_s cfg;

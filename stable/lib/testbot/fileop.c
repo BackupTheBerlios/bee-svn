@@ -13,8 +13,10 @@ extern struct cfgals_s cfg;
 static int recursiveFlag = 0;
 static int forceFlag = 0;
 
+/*
 static int   fop_rmRemote( char* path, char* host, int port);
 static int   fop_rmLocal( char* path);
+*/
 static int
 rm_fileAction( const char *fileName, struct stat *statbuf, void *junk ) ;
 static int
@@ -56,7 +58,8 @@ fop_rm( char *srcName )
         return 1;
 }
 
-/*
+#if 0
+/* To be implemented*/
 int
 fop_rm( int test_type, char* path, char* host, int port )
 {
@@ -66,7 +69,6 @@ fop_rm( int test_type, char* path, char* host, int port )
         return fop_rmRemote( path, host, port );
     return FALSE ;
 }
-*/
 static int
 fop_rmRemote( char* path, char* host, int port )
 {
@@ -91,7 +93,7 @@ fop_rmLocal( char *path )
         }
         return 1;
 }
-
+#endif
 
 
 

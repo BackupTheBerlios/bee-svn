@@ -6,6 +6,7 @@
  *   Copyright (c) Gecad Technologies
  */
 #include "socket.h"
+#include "strop.h"
 #include "sut.h"
 
 
