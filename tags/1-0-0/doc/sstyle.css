@@ -1,0 +1,27 @@
+i {
+    background-color : #FFAA00 ;
+    text-decoration: line-through;
+}
+
+u {
+    background-color : #20EE20 ;
+    color : black ;
+}
+
+h4 {
+    background-color : #EE2020 ;
+}
+h3 {
+    background-color : #EE2020 ;
+}
+
+h2 {
+    background-color : #EE2020 ;
+}
+
+
+strong {
+    background-color : #2020EE ;
+    color : yellow ;
+}
+
