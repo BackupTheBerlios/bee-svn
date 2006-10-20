@@ -41,13 +41,13 @@ Symbol getsym(void)
         case '/': return TK_OR ;
         case '=':
             ch = read_ch();
-            return (ch == '/' ) ? incremental : becomes ;
+            return (ch == '/' ) ? TK_INCR : TK_EQUAL ;
         default:
             if( isdigit(ch)) {
                 num = 0;
                 do {
                     num = 10*num + ch - '0' ;
-                }while( ch = read_ch() != EOF && isdigit(ch) ) ;
+                }while( (ch = read_ch()) != EOF && isdigit(ch) ) ;
                 put_back(ch);
                 return number;
             }
@@ -61,10 +61,10 @@ Symbol getsym(void)
                 }while( ch = read_ch() != EOF && isalnum(ch) );
                 id[id_len] = '\0' ;
                 put_back(ch);
-                entry = find_htab( keywords, id );
-                return entry ? (Symbol) get_htab_data(entry) : ident ;
+                //entry = find_htab( keywords, id );
+                //return entry ? (Symbol) get_htab_data(entry) : ident ;
             }
-            error("invalid char %c\n", ch );
+            error("Invalid character %c at line: %d col: %d\n", ch, cur_line, cur_col );
             return nul;
         }
 }

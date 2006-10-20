@@ -7,9 +7,11 @@
 LoadGen::Smtp::Smtp( )
 {
     smtpDistr = new Distribute::Smtp("./data/rcpt.csv","./data/msgsz.csv") ;
+    /*
     xsubi_[0] = (unsigned short)(0x1234 ^ 12);
     xsubi_[1] = (unsigned short)(0x5678 ^ (12 << 8));
     xsubi_[2] = (unsigned short)(0x9abc ^ ~12);
+    */
 }
 
 
@@ -84,9 +86,9 @@ LoadGen::Smtp::worker( void* a )
         {
             smtp.timeout(5) ; //6,000
             smtp.latency(modem) ;
-            smtp.open( "hawaii", 2501 ) ;
-            smtp.greet("ehlo cucu");
-            smtp.mailFrom("<>"); // TODO does specmail says smth abt this ?
+            smtp.open( "gigi", 25 ) ;   // TODO: hardcoded host/port
+            smtp.greet("ehlo cucu");    // TODO: hardcoded ehlo param
+            smtp.mailFrom("<>");        // TODO does specmail says smth abt this ?
             smtp.rcptTo( rcpts, rcptList ) ; // TODO add domain parameter
             float sec_tout  = 5 + ((0.1*msg_sz) / 3000  ) ;
             int sec = (int)floor(sec_tout) ;
@@ -119,10 +121,12 @@ LoadGen::Smtp::stop()
 //-----------------Pop3 Load Generator-----------------------------
 LoadGen::Pop3::Pop3( )
 {
-    // will have to implement Distribute::pop3
-    //xsubi_[0] = (unsigned short)(0x1234 ^ 12);
-    //xsubi_[1] = (unsigned short)(0x5678 ^ (12 << 8));
-    //xsubi_[2] = (unsigned short)(0x9abc ^ ~12);
+    // TODO: Implement Distribute::pop3
+    /*
+    xsubi_[0] = (unsigned short)(0x1234 ^ 12);
+    xsubi_[1] = (unsigned short)(0x5678 ^ (12 << 8));
+    xsubi_[2] = (unsigned short)(0x9abc ^ ~12);
+    */
 }
 
 
@@ -194,12 +198,12 @@ LoadGen::Pop3::worker( void* a )
 
         try {
             debug("host:%s port:%i\n", p->smtp_server, p->smtp_port );
-            pop3.open( "hawaii", 1101 ) ;
+            pop3.open( "gigi", 110 ) ;
             pop3.user( p->user_prefix, user ) ;
             pop3.pass( p->user_prefix, user ) ;
             pop3.stat(&m, &s) ;
             debug("MESSAGES:%i %i\n", m,s ) ;
-	    pop3.timeout(671); 	
+	    pop3.timeout(671);
             while(m--) {
                 pop3.retr(m) ;
                 pop3.dele(m) ;

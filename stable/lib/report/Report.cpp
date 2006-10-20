@@ -11,7 +11,7 @@ Report::Smtp::Smtp()
 {
     out = ::open("timesmtp.csv", O_APPEND | O_CREAT );
     if( -1 == out ){
-        fprintf(stderr, "cannot open timesmtp.csv\n");
+        fprintf(stderr, "Cannot open timesmtp.csv\n");
         exit(2);
     }
 }
@@ -25,7 +25,7 @@ Report::Smtp::Smtp(const char* host)
 {
     // still to be implemented
     out = ::open("timesmtp.csv", O_APPEND | O_CREAT);
-    if(-1 == out) { fprintf(stderr, "cannot open timesmtp.csv. Exit\n");exit(2); }
+    if(-1 == out) { fprintf(stderr, "Cannot open timesmtp.csv. Exit\n");exit(2); }
 }
 
 

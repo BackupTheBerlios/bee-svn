@@ -21,7 +21,6 @@ int
 main( int argc, char *argv[] )
 {
         char *tc;
-        char *path;
         int test_type ;
 
         rc_parseArgs( argc, argv );

@@ -15,7 +15,7 @@ Distribute::Smtp::Smtp( const char rcpt_dat[], const char msgsz_dat[] )
 	float pct=0,s=0 ;
 	while(!feof(f))
 	{
-		fscanf(f, "%i,%f", &size, &pct ) ; // for now, i wont use size
+		fscanf(f, "%i,%f", &size, &pct ) ; // TODO: for now, i wont use size
 		rcpt_d_.push_back( pct/100 ) ;
 	}
 	fclose(f);
@@ -127,7 +127,7 @@ Distribute::Pop3::~Pop3()
 int
 Distribute::Pop3::retry_user( )
 {
-	int i = (int)(random()*(1.0*7500)/RAND_MAX) + 1 ;
+	int i = (int)(random()*(1.0*7500)/RAND_MAX) + 1 ; // TODO: hardcoded 7500
 	return retry_pool[ i ]; // FMR, UMR, ABR
 }
 
@@ -137,7 +137,7 @@ Distribute::Pop3::retry_user( )
 int
 Distribute::Pop3::random_user()
 {
-	int i = (int)(random()*(1.0*100000)/RAND_MAX) + 1 ;
+	int i = (int)(random()*(1.0*100000)/RAND_MAX) + 1 ; //TODO: hardcoded 100000
 	if( isRetry(i) ) random_user() ;	// try again
 	return i ;
 }
@@ -150,7 +150,7 @@ Distribute::Pop3::random_user()
 int
 Distribute::Pop3::search( const int p, int left, int right )
 {
-    for( int i=1; i<7500; ++i)
+    for( int i=1; i<7500; ++i) //TODO: HARDCODED 7500
     {
         if( p == retry_pool[i] ) return 0 ; //UMR
         if( p > retry_pool[i] ) return -1 ;

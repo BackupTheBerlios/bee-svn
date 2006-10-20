@@ -91,7 +91,6 @@ int
 main( int argc, char *argv[] )
 {
         char *tc;
-        char *path;
         int test_type=TEST_LOCAL;
 
         rc_parseArgs( argc, argv );
