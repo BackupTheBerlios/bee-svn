@@ -1,5 +1,0 @@
-SPECmail2001    related user       SMTP sessions      SMTP sessions from    (initial (!))    (repeated)
-messages per        count          from local users   remote mail servers   POP checks       POP checks
-minute                             per second         per second            per second       per second 
- 
-   500             100,000           8.33                  7.50                 4.17            12.50 
