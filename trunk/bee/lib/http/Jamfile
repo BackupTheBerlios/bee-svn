@@ -1,0 +1,12 @@
+TOP ?= $(DOTDOT)/$(DOTDOT) ;
+
+SubDir TOP lib http ;
+
+T_HTTP_SRC =  t_http.cpp ;
+
+Main t_http : $(T_HTTP_SRC) ;
+LinkLibraries t_http : libhttp libsocket ;
+Library libhttp : Protocol.cpp ;
+SubInclude TOP lib socket ;
+
+# vim:ft=jam

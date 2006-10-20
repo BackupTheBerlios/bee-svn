@@ -1,0 +1,25 @@
+#!/bin/sh
+#echo 100000 > /proc/sys/kernel/threads-max
+#ulimit -s 32
+#ulimit -n 100000
+#ulimit -a
+
+INIT="./main -threads 5 -span 3600 -users 100000 -smtpport 25 -pop3port 110 -smtpserver gigi -pop3server gigi -initonly"
+RUN="./main -threads 100 -span 3600 -users 100000 -smtpport 25 -pop3port 110 -smtpserver gigi -pop3server gigi"
+
+touch beelog
+echo "Expunge started at: `date`" >> beelog
+#./expunge.sh
+echo "Expunge ended at: `date`" >> beelog
+#sleep 5
+
+echo "Init started at: `date`" >> beelog
+#$INIT
+echo "Init ended at: `date`" >> beelog
+
+#./mailsink 25 &
+#sleep 5
+
+echo "Test started at: `date`" >> beelog
+$RUN
+echo "Test ended at: `date`" >> beelog
