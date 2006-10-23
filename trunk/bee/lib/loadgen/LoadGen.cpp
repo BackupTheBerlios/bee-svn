@@ -7,11 +7,6 @@
 LoadGen::Smtp::Smtp( )
 {
     smtpDistr = new Distribute::Smtp("./data/rcpt.csv","./data/msgsz.csv") ;
-    /*
-    xsubi_[0] = (unsigned short)(0x1234 ^ 12);
-    xsubi_[1] = (unsigned short)(0x5678 ^ (12 << 8));
-    xsubi_[2] = (unsigned short)(0x9abc ^ ~12);
-    */
 }
 
 
@@ -27,7 +22,7 @@ void
 LoadGen::Smtp::init( config* cfg )
 {
     cfg_    = cfg ;
-    sem_    = cron.semaphore() ; // Cron will init his semaphore by itself
+    sem_    = sched.semaphore() ; // Cron will init his semaphore by itself
     cfg_->ths = this ;
 }
 
@@ -49,9 +44,9 @@ LoadGen::Smtp::run()
 
     timeval tv ;
     gettimeofday(&tv,0);
-    while( cron.elapsed() <= tv.tv_sec+cfg_->span )
+    while( sched.elapsed() <= tv.tv_sec+cfg_->span )
     {
-        cron.run();
+        sched.run();
     }
     // if Pop3 exits before Smtp, it will destroy the
     // shared semaphore, resulting in a core.
@@ -121,12 +116,6 @@ LoadGen::Smtp::stop()
 //-----------------Pop3 Load Generator-----------------------------
 LoadGen::Pop3::Pop3( )
 {
-    // TODO: Implement Distribute::pop3
-    /*
-    xsubi_[0] = (unsigned short)(0x1234 ^ 12);
-    xsubi_[1] = (unsigned short)(0x5678 ^ (12 << 8));
-    xsubi_[2] = (unsigned short)(0x9abc ^ ~12);
-    */
 }
 
 
@@ -142,7 +131,7 @@ void
 LoadGen::Pop3::init( config_t* cfg )
 {
     cfg_    = cfg ;
-    sem_    = cron.semaphore() ;
+    sem_    = sched.semaphore() ;
     cfg_->pths = this ;
     pop3Distr = new Distribute::Pop3(cfg_) ;
 }
@@ -166,9 +155,9 @@ LoadGen::Pop3::run()
     }
     timeval tv ;
     gettimeofday(&tv,0);
-    while( cron.elapsed() <= tv.tv_sec+cfg_->span )
+    while( sched.elapsed() <= tv.tv_sec+cfg_->span )
     {
-        cron.run();
+        sched.run();
     }
 }
 

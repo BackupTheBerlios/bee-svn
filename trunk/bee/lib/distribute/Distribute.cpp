@@ -10,7 +10,7 @@ Distribute::Smtp::Smtp( const char rcpt_dat[], const char msgsz_dat[] )
 	FILE* f ;
 
 	f = fopen( rcpt_dat, "r" ) ;
-	if(!f){printf("cannot open file %s\n", rcpt_dat ); exit(2); }
+	if(!f){printf("SMTP: Cant open file %s\n", rcpt_dat ); exit(2); }
 	int size ;
 	float pct=0,s=0 ;
 	while(!feof(f))

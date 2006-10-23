@@ -14,7 +14,7 @@ namespace LoadGen {
             Smtp() ;
             ~Smtp() ;
             void   init( config_t* cfg ) ;
-            void   semaphore(sem_t* sem ) { sem_ = sem  ; } ;
+            //void   semaphore(sem_t* sem ) { sem_ = sem  ; } ;
             void   stop() ;
             void   run() ;
             static void* worker(void*) ;
@@ -22,7 +22,7 @@ namespace LoadGen {
             config_t*   cfg_ ;
             sem_t*      sem_ ;
             Distribute::Smtp* smtpDistr;
-            Scheduler   cron ;
+            Scheduler   sched ;
             unsigned short   xsubi_[3] ;
     } ;
 
@@ -31,7 +31,7 @@ namespace LoadGen {
             Pop3() ;
             ~Pop3() ;
             void   init( config_t* cfg ) ;
-            void   semaphore(sem_t* sem ) { sem_ = sem  ; } ;
+            //void   semaphore(sem_t* sem ) { sem_ = sem  ; } ;
             void   stop() ;
             void   run() ;
             static void* worker(void*) ;
@@ -39,7 +39,7 @@ namespace LoadGen {
             config_t*   cfg_ ;
             sem_t*      sem_ ;
             Distribute::Pop3* pop3Distr;
-            Scheduler   cron ;
+            Scheduler   sched ;
             unsigned short   xsubi_[3] ;
     } ;
 };
