@@ -238,7 +238,7 @@ Smtp::Protocol::rcptTo( int rcptsz, rcpt_t rcptList[] )
     char fmt[1024] = {0};
     for(int i=0; i<rcptsz; ++i)
     {
-        sprintf(fmt,"user%i@%s", rcptList[i].idx,(rcptList[i].local==true?"localdomain":"remotedomain")) ;// HARDCODED
+        sprintf(fmt,"user%i@%s", rcptList[i].idx,(rcptList[i].local==true?"localdomain":"localdomain")) ;// HARDCODED
         rcptTo( fmt ) ;
     }
 }

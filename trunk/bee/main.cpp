@@ -67,7 +67,6 @@ DBG ;
     int prc = 0, src = 0 ;
     pid_t spid, ppid;
     spid = fork();
-    
 
     if (spid >= 0 ) /* fork succeeded */
     {
@@ -75,7 +74,7 @@ DBG ;
         {
             printf("SMTP: %d: parent[%d]\n", getpid(), getppid());
             runSmtp(&cfg);
-            printf("SMTP: Exited!\n");    
+            printf("SMTP: Exited!\n");
             exit(EXIT_SUCCESS); /* child exits with user-provided return code */
         }
         else    /* parent */
@@ -84,14 +83,15 @@ DBG ;
             if(ppid==0) {
                 printf("POP3: %d: parent[%d]\n", getpid(), getppid());
                 runPop3(&cfg);
-                printf("POP3: Exited!\n");    
+                printf("POP3: Exited!\n");
                 exit(EXIT_SUCCESS);
             }
             printf("PARENT: %d\n", getpid());
             waitpid( spid, &src, 0);
             waitpid( ppid, &prc, 0);
             printf("PARENT: SMTP exit code is: %d\n", WEXITSTATUS(src));
-            exit(0);  /* parent exits */       
+            printf("PARENT: POP3 exit code is: %d\n", WEXITSTATUS(prc));
+            exit(0);  /* parent exits */
         }
     }
     else
@@ -99,7 +99,7 @@ DBG ;
         perror("fork");
         exit(0); 
     }
-    
+
     return 0;
 }
 

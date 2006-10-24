@@ -4,22 +4,32 @@
 #ulimit -n 100000
 #ulimit -a
 
-INIT="./main -threads 5 -span 3600 -users 100000 -smtpport 25 -pop3port 110 -smtpserver gigi -pop3server gigi -initonly"
-RUN="./main -threads 100 -span 3600 -users 100000 -smtpport 25 -pop3port 110 -smtpserver gigi -pop3server gigi"
 
 touch beelog
-echo "Expunge started at: `date`" >> beelog
-#./expunge.sh
-echo "Expunge ended at: `date`" >> beelog
-#sleep 5
+export DISPLAY=mariusn:0.0
+function mboxinit {
+    INIT="./main -threads 5 -span 3600 -users 100000 -smtpport 25 -pop3port 110 -smtpserver gigi -pop3server gigi -initonly"
+    echo "Init started at: `date`" >> beelog
+    $INIT
+    echo "Init ended at: `date`" >> beelog
+}
 
-echo "Init started at: `date`" >> beelog
-#$INIT
-echo "Init ended at: `date`" >> beelog
+function expunge {
+
+    echo "Expunge started at: `date`" >> beelog
+    ./tools/expunge.sh
+    echo "Expunge ended at: `date`" >> beelog
+    sleep 15
+}
+
 
 #./mailsink 25 &
 #sleep 5
+function runtest {
+    RUN="./main -threads 100 -span 3600 -users 100000 -smtpport 25 -pop3port 110 -smtpserver gigi -pop3server gigi"
+    echo "Test started at: `date`" >> beelog
+    $RUN
+    echo "Test ended at: `date`" >> beelog
+}
 
-echo "Test started at: `date`" >> beelog
-$RUN
-echo "Test ended at: `date`" >> beelog
+runtest

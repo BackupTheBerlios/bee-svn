@@ -70,7 +70,7 @@ typedef struct config {
        sink_server  = "localhost" ;
        sink_port    = 25 ;
        local_domain = "localdomain" ;
-       remote_domain= "remotedomain" ;
+       remote_domain= "localdomain" ;// replace this with remotedomain
        user_prefix  = "user" ;
        user_passwd  = "user" ;
        user_start   = 1 ;

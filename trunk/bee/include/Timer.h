@@ -6,7 +6,7 @@
 
 class Timer {
     public:
-        Timer() {};
+        Timer() :elapsed_(0.0) {};
         ~Timer() {};
         void start( ) { gettimeofday( &tv_start_, (struct timezone *)0 ) ; elapsed_ = 0.0 ; } ;
         void stop( )  { gettimeofday( &tv_stop_, (struct timezone *)0 ) ; } ;
