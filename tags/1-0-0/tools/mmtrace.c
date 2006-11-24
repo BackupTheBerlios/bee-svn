@@ -105,7 +105,6 @@ mtrace(const char* const fname )
             p = map + 9 ;
 
             parseLine( p, &nod, &type );
-#if 0
             switch(type)
             {
                 case IS_NEW:
@@ -139,7 +138,6 @@ mtrace(const char* const fname )
                     break;
             }
             /**/
-#endif
         }
         close(fd);
 }
@@ -173,7 +171,6 @@ parseLine(const char*const text, nod_t * res, int * type) {
                 sscanf( text+16, "%s", file );
         }
 
-#if 0
         p = strchr( file, '(');
         if(!p) return 0;
         *p = 0;
@@ -181,7 +178,6 @@ parseLine(const char*const text, nod_t * res, int * type) {
         dprintf(("OP=%s HEX=%x SZ=%d FILE=%s LINE=%d\n", op, ptr, sz, file, line ));
 
         res->line = line ;
-#endif
         return ptr ;
 }
 
