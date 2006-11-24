@@ -38,6 +38,22 @@ typedef struct {
 inline int
 parseLine(const char text[], nod_t* res, int * type) ;
 
+inline void
+mtrace(const char* const fname );
+
+
+/* This gets called verry often
+ */
+
+inline void
+mgets(char* map, char** end) {
+    for( ; *map != '\n'; ++map) {
+        ;
+    }
+    *end = map ;
+    *(*end) = '\0';
+}
+
 int main( int argc, char* argv[]){
 
         if(argc < 2 ) {
@@ -47,21 +63,21 @@ int main( int argc, char* argv[]){
         mtrace(argv[1]);
         return 0;
 }
-#if 0
-inline int
-mmtrace(const char* const fname )
+
+
+inline void
+mtrace(const char* const fname )
 {
         nod_t   nod ;
-        char    line[LINE_LENGTH] = {0}, *p=NULL;
+        char    *line, *p=NULL;
         int     no_bits, fd = -1, type=0 ;
-        char *  map=0;
-        struct stat statbuf;
-        FILE* f=0;
-
+        struct  stat statbuf;
+        size_t  i;
+        char* map, * end;
         fd = open( fname , O_RDWR);
 
         if( fd < 0 ) {
-                printf("Unable to open '%s'\n", argv[1]);
+                printf("Unable to open '%s'\n", fname);
                 exit(EXIT_FAILURE);
         }
 
@@ -71,74 +87,59 @@ mmtrace(const char* const fname )
                 printf("mmap error for input\n");
                 exit(EXIT_FAILURE);
         }
+        for( i=0; i< statbuf.st_size; ) {
+            mgets( map, &end );
+
+            line = map ;
+            if( line[0] != 'M' && line[6] != 'O' ) {
+                *end = '\n';
+                i+= end - map +1;
+                map = end+1  ;
+                continue;
+            }
+
+            p = line + 9 ;
+
+            parseLine( p, &nod, &type );
+
+            switch(type)
+            {
+                case IS_NEW:
+                    dprintf(("---new()--\n"));
+                    /* Insert in Hash */
+                    break;
+
+                case IS_NEWA:
+                    dprintf(("---new[]--\n"));
+                    /* Insert in Hash */
+                    break;
+
+                case IS_DEL:
+                    dprintf(("---delete()--\n"));
+                    /* Find in Hash
+                     * if( found )
+                     *      if( !typesMatch )
+                     *              //printf("Mismatch operator");
+                     *      HashDel( new );
+                     * else
+                     *      //printf("double free\n");
+                     */
+                    break;
+
+                case IS_DELA:
+                    dprintf(("---delete[]--\n"));
+                    /* Find in Hash */
+                    break;
+                default:
+                    dprintf(("Unknown operator\n"));
+                    break;
+            }
+            /**/
+            *end = '\n';
+            i+= end - map +1;
+            map = end+1  ;
+        }
         close(fd);
-}
-#endif
-
-
-inline int
-mtrace(const char* const fname )
-{
-        nod_t   nod ;
-        char    line[LINE_LENGTH] = {0}, *p=NULL;
-        int     no_bits, fd = -1, type=0 ;
-        struct stat statbuf;
-        FILE* f=0;
-
-        f = fopen( fname, "r");
-        if( !f) {
-            printf("err open\n");
-            exit(-1);
-        }
-        while( !feof(f) ) {
-                if( !fgets(line, LINE_LENGTH-1, f ) ) {
-                        dprintf(("Error or EOF encountered while reading file\n"));
-                        exit(EXIT_FAILURE);
-                }
-
-                if( line[0] != 'M' && line[6] != 'O' ) continue;
-
-                p = line + 9 ;
-
-                parseLine( p, &nod, &type );
-
-                switch(type)
-                {
-                        case IS_NEW:
-                                dprintf(("---new()--\n"));
-                                /* Insert in Hash */
-                                break;
-
-                        case IS_NEWA:
-                                dprintf(("---new[]--\n"));
-                                /* Insert in Hash */
-                                break;
-
-                        case IS_DEL:
-                                dprintf(("---delete()--\n"));
-                                /* Find in Hash
-                                * if( found )
-                                *      if( !typesMatch )
-                                *              //printf("Mismatch operator");
-                                *      HashDel( new );
-                                * else
-                                *      //printf("double free\n");
-                                */
-                                break;
-
-                        case IS_DELA:
-                                dprintf(("---delete[]--\n"));
-                                /* Find in Hash */
-                                break;
-                        default:
-                                dprintf(("Unknown operator\n"));
-                                break;
-                }
-        }
-
-        fclose(f);
-        /* dump memleaks */
-        return 0;
 }
 
 inline int
