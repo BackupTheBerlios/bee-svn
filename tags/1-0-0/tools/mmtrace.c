@@ -1,5 +1,6 @@
 /*
- * gcc -mpentium -O2 -mmmx -minline-all-stringops mtrace.c */
+ * gcc -march=i686 -O3 -mmmx -minline-all-stringops mmtrace.c -o mtrace */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -93,17 +94,18 @@ mtrace(const char* const fname )
             map != line+ statbuf.st_size;
             *end = '\n',
             map = end+1 ) {
+
             mgets( map, &end );
 
-            line = map ;
-            if( line[0] != 'M' && line[6] != 'O' ) {
+            //line = map ;
+            if( map[0] != 'M' && map[6] != 'O' ) {
                 continue;
             }
 
-            p = line + 9 ;
+            p = map + 9 ;
 
             parseLine( p, &nod, &type );
-
+#if 0
             switch(type)
             {
                 case IS_NEW:
@@ -137,6 +139,7 @@ mtrace(const char* const fname )
                     break;
             }
             /**/
+#endif
         }
         close(fd);
 }
@@ -150,7 +153,6 @@ parseLine(const char*const text, nod_t * res, int * type) {
         short int sz =0, line=0;
 
         sscanf( text, "%s %x", op, &ptr );
-
         if ( op[0] == 'n' && op[4] == ')' ) {
                 dprintf(("+++new()++\n"));
                 res->is_new = 1;
@@ -171,6 +173,7 @@ parseLine(const char*const text, nod_t * res, int * type) {
                 sscanf( text+16, "%s", file );
         }
 
+#if 0
         p = strchr( file, '(');
         if(!p) return 0;
         *p = 0;
@@ -178,6 +181,7 @@ parseLine(const char*const text, nod_t * res, int * type) {
         dprintf(("OP=%s HEX=%x SZ=%d FILE=%s LINE=%d\n", op, ptr, sz, file, line ));
 
         res->line = line ;
+#endif
         return ptr ;
 }
 
