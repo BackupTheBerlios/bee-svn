@@ -47,9 +47,9 @@ mtrace(const char* const fname );
 
 inline void
 mgets(char* map, char** end) {
-    for( ; *map != '\n'; ++map) {
+    for( ; *map != '\n'; ++map) 
         ;
-    }
+
     *end = map ;
     *(*end) = '\0';
 }
@@ -87,14 +87,16 @@ mtrace(const char* const fname )
                 printf("mmap error for input\n");
                 exit(EXIT_FAILURE);
         }
-        for( i=0; i< statbuf.st_size; ) {
+
+        line = map;
+        for( end=map;
+            map != line+ statbuf.st_size;
+            *end = '\n',
+            map = end+1 ) {
             mgets( map, &end );
 
             line = map ;
             if( line[0] != 'M' && line[6] != 'O' ) {
-                *end = '\n';
-                i+= end - map +1;
-                map = end+1  ;
                 continue;
             }
 
@@ -135,9 +137,6 @@ mtrace(const char* const fname )
                     break;
             }
             /**/
-            *end = '\n';
-            i+= end - map +1;
-            map = end+1  ;
         }
         close(fd);
 }
