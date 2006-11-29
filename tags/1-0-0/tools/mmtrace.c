@@ -13,10 +13,6 @@
 #include <sys/mman.h>
 #include <errno.h>
 
-#define LINE_LEN 1024
-#define BUF_SZ   10240
-#define FNAME_LEN 256
-
 #define IS_NEW  1
 #define IS_NEWA 2
 
@@ -47,40 +43,39 @@
 /* Test if BITWISE operation is faster
  * than bitfields */
 typedef struct {
-        unsigned short int line:15;     /* Line where was allocated */
-        unsigned short int is_new:1;    /* new() operator */
-        unsigned short int fid:15;      /* file id */
-        unsigned short int is_newa:1;   /* new[] operator */
+    unsigned short int line:15;     /* Line where was allocated */
+    unsigned short int is_new:1;    /* new() operator */
+    unsigned short int fid:15;      /* file id */
+    unsigned short int is_newa:1;   /* new[] operator */
 } nod_t;
 
 
 inline static int
-  parseLine( const char text[], nod_t * res, int *type );
+parseLine( const char text[], nod_t * res, int *type );
 
 
 inline static void
-  mtrace( const char *const fname );
+mtrace( const char *const fname );
 
 
 /* The most called function */
-inline static size_t
-  mgets( char *map, char **end );
+inline static size_t mgets( char *line );
 
 inline static void
-  readSzFile( const char *text, int *sz, char *file, int fileLen );
+readSzFile( const char *text, int *sz, char *file, int fileLen );
 
 inline static void
-  readInt( const char *text, int *res );
+readInt( const char *text, int *res );
 
-int
+    int
 main( int argc, char *argv[] )
 {
-        if( argc < 2 ) {
-                fprintf( stderr, "Usage: mleak debug.log\n" );
-                exit( EXIT_FAILURE );
-        }
-        mtrace( argv[1] );
-        return 0;
+    if( argc < 2 ) {
+        fprintf( stderr, "Usage: mleak debug.log\n" );
+        exit( EXIT_FAILURE );
+    }
+    mtrace( argv[1] );
+    return 0;
 }
 
 
@@ -88,134 +83,120 @@ main( int argc, char *argv[] )
 /**************************************************************************/
 
 
-inline static size_t
-mgets( char *map, char **end )
+    inline static size_t
+mgets( char *line )
 {
-        char *m=map;
-        size_t r=0;
-        for( ; *map != '\n' && *map != 0; ++map );      /* 0.07% cache miss */
+    char *s = line;
+    for( ; *line != '\n' && *line != 0; ++line )    /* 0.07% cache miss */
+        ;
 
-        r = map - m;
-        *end = map;
-        *( *end ) = '\0';
-        return r;
+    *line = 0;
+    return line - s;
 }
 
-inline static void
+    inline static void
 readInt( const char *text, int *sz )
 {
-        for( *sz = 0; *text != '\0' && *text != ' '; ++text )
-                *sz = ( *sz ) * 10 + *text - '0';
+    for( *sz = 0; *text != '\0' && *text != ' '; ++text )
+        *sz = ( *sz ) * 10 + *text - '0';
 }
 
-inline static void
+    inline static void
 readSzFile( const char *text, int *sz, char *file, int fileLen )
 {
-        int i = 0;
-        for( *sz = 0; *text != '\0' && *text != ' '; ++text )
-                *sz = ( *sz ) * 10 + *text - '0';
+    int i = 0;
+    for( *sz = 0; *text != '\0' && *text != ' '; ++text )
+        *sz = ( *sz ) * 10 + *text - '0';
 
-        if( *text == '\0' ) {
-                file[0] = '\0';
-                return;
-        }
+    if( *text == '\0' ) {
+        file[0] = '\0';
+        return;
+    }
 
-        for( i = 0; *text != '\0'; ++i, ++text );
+    for( i = 0; *text != '\0'; ++i, ++text );
 
-        memcpy( file, text + 1, i );    /* 0.1 % cache misses */
+    memcpy( file, text + 1, i );    /* 0.1 % cache misses */
 }
 
+#define LINE_LEN 1024
+#define BUF_SZ   256
+#define PAGE_SZ  4096
+#define FNAME_LEN 256
 
-inline static void
+
+    inline static void
 mtrace( const char *const fname )
 {
-        nod_t nod;
-        char *line, *p = NULL, *map, *end;
-        int fd = -1, type = 0;
-        struct stat statbuf;
-        unsigned int chars_left = BUF_SZ;
-        off_t  chars_read = 0;
+    nod_t nod;
+    char *line, *p = NULL, *map, *end;
+    int fd = -1, type = 0;
+    int offset;
+    struct stat statbuf;
+    unsigned int chars_left = BUF_SZ;
+    off_t file_ofst = 0, line_ofst=0;
 
-        fd = open( fname, O_RDWR );
+    fd = open( fname, O_RDWR );
 
-        if( fd < 0 ) {
-                printf( "Unable to open '%s'\n", fname );
-                exit( EXIT_FAILURE );
+    if( fd < 0 ) {
+        printf( "Unable to open '%s'\n", fname );
+        exit( EXIT_FAILURE );
+    }
+
+    fstat( fd, &statbuf );
+    map = mmap( 0, BUF_SZ * PAGE_SZ, PROT_READ | PROT_WRITE, MAP_PRIVATE,
+            fd, 0 );
+    if( map == MAP_FAILED ) {
+        printf( "mmap error for input\n" );
+        exit( EXIT_FAILURE );
+    }
+
+    for( ; file_ofst < statbuf.st_size; ) {
+        /* No more lines to read, then mmap some more */
+        if( chars_left < LINE_LEN ) {
+            file_ofst += BUF_SZ * 4096 - chars_left;
+            munmap( map, BUF_SZ * 4096 );
+            offset = file_ofst - ( file_ofst % PAGE_SZ );
+            map = mmap( 0, BUF_SZ * PAGE_SZ, PROT_READ | PROT_WRITE,
+                    MAP_PRIVATE, fd, offset );
         }
+        mgets( map + line_ofst );
 
-        fstat( fd, &statbuf );
-        map = mmap( 0, statbuf.st_size, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd,
-                    0 );
-        if( map == MAP_FAILED ) {
-                printf( "mmap error for input\n" );
-                exit( EXIT_FAILURE );
-        }
+        line = map + line_ofst ;
 
-        line = map;
-        for( end = map;
-                chars_read != statbuf.st_size; map = end + 1 )
-        {
-            if( chars_left < LINE_LEN ) {
-                chars_read += (BUF_SZ - chars_left) ;
-                munmap( map, BUF_SZ );
-                dprintf( ( "chars read:%d\n", chars_read ) );
-
-                map = mmap( 0, BUF_SZ,
-                        PROT_READ | PROT_WRITE,
-                        MAP_PRIVATE, fd, (off_t)8192 );
-                if( map == MAP_FAILED ) {
-                    printf( "mmap error for input:%s\n", 
-                        strerror(errno));
-                    exit( EXIT_FAILURE );
-                }
-                chars_left = BUF_SZ ;
-                continue;
-            }
-
-        chars_left -= mgets( map, &end );
+        chars_left -= mgets( line );
         dprintf( ( "left to read:%d\n", chars_left ) );
 
-        dprintf( ( "%s\n", map ) );
+        dprintf( ( "%s\n", line ) );
 
-        if( map[0] != 'M' && map[6] != 'O' )
+        if( line[0] != 'M' && line[6] != 'O' )
             continue;
 
-        p = map + 9;    /* Advance over 'MEMINFO: ' */
+        p = line + 9;    /* Advance over 'MEMINFO: ' */
 
         parseLine( p, &nod, &type );
+
         switch ( type ) {
             case IS_NEW:
                 dprintf( ( "---new()--\n" ) );
-                /* Insert in Hash */
                 break;
 
             case IS_NEWA:
                 dprintf( ( "---new[]--\n" ) );
-                /* Insert in Hash */
                 break;
 
             case IS_DEL:
                 dprintf( ( "---delete()--\n" ) );
-                /* Find in Hash
-                 * if( found )
-                 *      if( !typesMatch )
-                 *              //printf("Mismatch operator");
-                 *      HashDel( new );
-                 * else
-                 *      //printf("double free\n");
-                 */
                 break;
 
             case IS_DELA:
                 dprintf( ( "---delete[]--\n" ) );
-                /* Find in Hash */
                 break;
             default:
                 dprintf( ( "Unknown operator\n" ) );
                 break;
         }
-}
-close( fd );
+    }
+    close( fd );
 }
 
 
