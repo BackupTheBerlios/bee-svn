@@ -1,5 +1,5 @@
 /*
- * gcc -march=i686 -mtune=i686 -O2 -mno-push-args -fomit-frame-pointer -m3dnow -mmmx -minline-all-stringops mmtrace.c -o mtrace
+ * gcc -march=i686 -mtune=i686 -O9 -finline-functions -funroll-loops -mno-push-args -fomit-frame-pointer -m3dnow -mmmx -minline-all-stringops mmtrace.c -o mtrace
  *
  */
 
@@ -135,7 +135,7 @@ mtrace( const char *const fname )
         }
 
         fstat( fd, &statbuf );
-        map = mmap( 0, statbuf.st_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd,
+        map = mmap( 0, statbuf.st_size, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd,
                     0 );
         if( map == MAP_FAILED ) {
                 printf( "mmap error for input\n" );
@@ -144,7 +144,7 @@ mtrace( const char *const fname )
 
         line = map;
         for( end = map;
-             map != line + statbuf.st_size; *end = '\n', map = end + 1 ) {
+             map != line + statbuf.st_size; map = end + 1 ) {
 
                 mgets( map, &end );
                 dprintf( ("%s\n", map) );
