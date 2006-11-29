@@ -3,7 +3,6 @@
  *
  */
 
-//#define DEBUG 1
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,9 +11,11 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <sys/mman.h>
+#include <errno.h>
 
-#define LINE_LENGTH 2048
-#define FILE_LEN 256
+#define LINE_LEN 1024
+#define BUF_SZ   10240
+#define FNAME_LEN 256
 
 #define IS_NEW  1
 #define IS_NEWA 2
@@ -62,14 +63,14 @@ inline static void
 
 
 /* The most called function */
-inline static void
+inline static size_t
   mgets( char *map, char **end );
 
 inline static void
-readSzFile( const char *text, int *sz, char *file, int fileLen );
+  readSzFile( const char *text, int *sz, char *file, int fileLen );
 
 inline static void
-readInt( const char *text, int *res);
+  readInt( const char *text, int *res );
 
 int
 main( int argc, char *argv[] )
@@ -87,13 +88,17 @@ main( int argc, char *argv[] )
 /**************************************************************************/
 
 
-inline static void
+inline static size_t
 mgets( char *map, char **end )
 {
-        for( ; *map != '\n' && *map != 0; ++map );/* 0.07% cache miss */
+        char *m=map;
+        size_t r=0;
+        for( ; *map != '\n' && *map != 0; ++map );      /* 0.07% cache miss */
 
+        r = map - m;
         *end = map;
         *( *end ) = '\0';
+        return r;
 }
 
 inline static void
@@ -106,14 +111,16 @@ readInt( const char *text, int *sz )
 inline static void
 readSzFile( const char *text, int *sz, char *file, int fileLen )
 {
-        int i=0;
+        int i = 0;
         for( *sz = 0; *text != '\0' && *text != ' '; ++text )
                 *sz = ( *sz ) * 10 + *text - '0';
 
-        if( *text == '\0' ) { file[0] = '\0'; return; }
+        if( *text == '\0' ) {
+                file[0] = '\0';
+                return;
+        }
 
-        for( i = 0; *text != '\0' ; ++i, ++text )
-            ;
+        for( i = 0; *text != '\0'; ++i, ++text );
 
         memcpy( file, text + 1, i );    /* 0.1 % cache misses */
 }
@@ -123,9 +130,11 @@ inline static void
 mtrace( const char *const fname )
 {
         nod_t nod;
-        char *line, *p = NULL, *map , *end;
+        char *line, *p = NULL, *map, *end;
         int fd = -1, type = 0;
         struct stat statbuf;
+        unsigned int chars_left = BUF_SZ;
+        off_t  chars_read = 0;
 
         fd = open( fname, O_RDWR );
 
@@ -144,96 +153,115 @@ mtrace( const char *const fname )
 
         line = map;
         for( end = map;
-             map != line + statbuf.st_size; map = end + 1 ) {
+                chars_read != statbuf.st_size; map = end + 1 )
+        {
+            if( chars_left < LINE_LEN ) {
+                chars_read += (BUF_SZ - chars_left) ;
+                munmap( map, BUF_SZ );
+                dprintf( ( "chars read:%d\n", chars_read ) );
 
-                mgets( map, &end );
-                dprintf( ("%s\n", map) );
-
-                if( map[0] != 'M' && map[6] != 'O' )
-                        continue;
-
-                p = map + 9;/* Advance over 'MEMINFO: ' */
-
-                parseLine( p, &nod, &type );
-                switch ( type ) {
-                case IS_NEW:
-                        dprintf( ( "---new()--\n" ) );
-                        /* Insert in Hash */
-                        break;
-
-                case IS_NEWA:
-                        dprintf( ( "---new[]--\n" ) );
-                        /* Insert in Hash */
-                        break;
-
-                case IS_DEL:
-                        dprintf( ( "---delete()--\n" ) );
-                        /* Find in Hash
-                         * if( found )
-                         *      if( !typesMatch )
-                         *              //printf("Mismatch operator");
-                         *      HashDel( new );
-                         * else
-                         *      //printf("double free\n");
-                         */
-                        break;
-
-                case IS_DELA:
-                        dprintf( ( "---delete[]--\n" ) );
-                        /* Find in Hash */
-                        break;
-                default:
-                        dprintf( ( "Unknown operator\n" ) );
-                        break;
+                map = mmap( 0, BUF_SZ,
+                        PROT_READ | PROT_WRITE,
+                        MAP_PRIVATE, fd, (off_t)8192 );
+                if( map == MAP_FAILED ) {
+                    printf( "mmap error for input:%s\n", 
+                        strerror(errno));
+                    exit( EXIT_FAILURE );
                 }
+                chars_left = BUF_SZ ;
+                continue;
+            }
+
+        chars_left -= mgets( map, &end );
+        dprintf( ( "left to read:%d\n", chars_left ) );
+
+        dprintf( ( "%s\n", map ) );
+
+        if( map[0] != 'M' && map[6] != 'O' )
+            continue;
+
+        p = map + 9;    /* Advance over 'MEMINFO: ' */
+
+        parseLine( p, &nod, &type );
+        switch ( type ) {
+            case IS_NEW:
+                dprintf( ( "---new()--\n" ) );
+                /* Insert in Hash */
+                break;
+
+            case IS_NEWA:
+                dprintf( ( "---new[]--\n" ) );
+                /* Insert in Hash */
+                break;
+
+            case IS_DEL:
+                dprintf( ( "---delete()--\n" ) );
+                /* Find in Hash
+                 * if( found )
+                 *      if( !typesMatch )
+                 *              //printf("Mismatch operator");
+                 *      HashDel( new );
+                 * else
+                 *      //printf("double free\n");
+                 */
+                break;
+
+            case IS_DELA:
+                dprintf( ( "---delete[]--\n" ) );
+                /* Find in Hash */
+                break;
+            default:
+                dprintf( ( "Unknown operator\n" ) );
+                break;
         }
-        close( fd );
+}
+close( fd );
 }
 
 
 
-inline static int
+    inline static int
 parseLine( const char *const text, nod_t * res, int *type )
 {
-        char op[8];             /* operator ( new or delete ) */
-        char *p;                /* used to find line Number */
-        int sz = 0, line = 0, ptr ;
-        char file[FILE_LEN] = { 0 };    /* file */
+    char op[8];             /* operator ( new or delete ) */
+    char *p;                /* used to find line Number */
+    int sz = 0, line = 0, ptr;
+    char file[FNAME_LEN] = { 0 };   /* file */
 
-        sscanf( text, "%s %x", op, &ptr );
+    sscanf( text, "%s %x", op, &ptr );
 
-        if( op[0] == 'n' && op[4] == ')' ) {
-                dprintf( ( "+++new()++\n" ) );
-                res->is_new = 1;
-                *type = IS_NEW;
-                readSzFile( text + 16, &sz, file, FILE_LEN );
-        } else if( op[0] == 'n' && op[4] == ']' ) {
-                dprintf( ( "+++new[]++\n" ) );
-                res->is_newa = 1;
-                *type = IS_NEWA;
-                readSzFile( text + 16, &sz, file, FILE_LEN );
-        } else if( op[0] == 'd' && op[4] == ')' ) {
-                dprintf( ( "+++delete()++\n" ) );
-                *type = IS_DEL;
-                memcpy( file, text + 16, FILE_LEN );
-        } else if( op[0] == 'd' && op[4] == ']' ) {
-                dprintf( ( "+++delete[]++\n" ) );
-                *type = IS_DELA;
-                memcpy( file, text + 16, FILE_LEN );
-        }
+    if( op[0] == 'n' && op[4] == ')' ) {
+        dprintf( ( "+++new()++\n" ) );
+        res->is_new = 1;
+        *type = IS_NEW;
+        readSzFile( text + 16, &sz, file, FNAME_LEN );
+    } else if( op[0] == 'n' && op[4] == ']' ) {
+        dprintf( ( "+++new[]++\n" ) );
+        res->is_newa = 1;
+        *type = IS_NEWA;
+        readSzFile( text + 16, &sz, file, FNAME_LEN );
+    } else if( op[0] == 'd' && op[4] == ')' ) {
+        dprintf( ( "+++delete()++\n" ) );
+        *type = IS_DEL;
+        memcpy( file, text + 16, FNAME_LEN );
+    } else if( op[0] == 'd' && op[4] == ']' ) {
+        dprintf( ( "+++delete[]++\n" ) );
+        *type = IS_DELA;
+        memcpy( file, text + 16, FNAME_LEN );
+    }
 
-        p = memchr( file, '(', FILE_LEN );
+    p = memchr( file, '(', FNAME_LEN );
 
-        if( !p )
-                return 0;
-        *p = 0;
-        //sscanf( p + 1, "%d", &line );
-        readInt( p+1, &line );
-        dprintf( ( "OP=%s HEX=%x SZ=%d FILE=%s LINE=%d\n", op, ptr, sz, file,
-                   line ) );
+    if( !p )
+        return 0;
+    *p = 0;
+    //sscanf( p + 1, "%d", &line );
+    readInt( p + 1, &line );
+    dprintf( ( "OP=%s HEX=%x SZ=%d FILE=%s LINE=%d\n", op, ptr, sz, file,
+                line ) );
 
-        res->line = line;
-        return ptr;
+    res->line = line;
+    return ptr;
 }
 
 
