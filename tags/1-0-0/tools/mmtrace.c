@@ -90,12 +90,12 @@ main( int argc, char *argv[] )
 mgets( char *start, char** end )
 {
         char *s = start;
-        for( ; *start != '\n' && *start != 0; ++start )    /* 0.07% cache miss */
+        for( ; *start != '\n' ; ++start )    /* 0.07% cache miss */
                 ;
 
         *start = 0;
         *end = start+1 ;
-        return start - s ;
+        return start - s +1;
 }
 
 
@@ -145,7 +145,7 @@ mtrace( const char *const fname )
         fstat( fd, &statbuf );
 
         for( ; fileOffset < statbuf.st_size ; line = end ) {
-                /* No more lines to read, then mmap some more */
+                /* buffer has less than a line */
                 if( charsInBuf < LINE_LEN ) {
                         fileOffset += BUF_SZ * PAGE_SZ - charsInBuf;
                         munmap( map, BUF_SZ * PAGE_SZ );
@@ -161,10 +161,11 @@ mtrace( const char *const fname )
                         }
                         line = map + lineOffset ;
                         charsInBuf = PAGE_SZ*BUF_SZ ;
+                        printf("REMAAAPP\n");
                 }
                 dprintf(( "pageOffset=%d lineOffset=%d fileOffset=%d charsInBuf=%d\n", pageOffset, lineOffset, fileOffset, charsInBuf));
                 charsInBuf -= mgets( line, &end );
-                dprintf( ( "[%s]\n", line ) );
+                dprintf( ( "[%d][%s]\n", line[0],line ) );
 #if 0
                 if( line[0] != 'M' && line[6] != 'O' )
                         continue;
