@@ -55,6 +55,7 @@ inline static void   readSzFile( const char *text, int *sz, char *file, int file
 inline static void   readInt( const char *text, int *res );
 
 void test_mgets(void);
+void test_readInt(void);
 
 int init_suite1(void){return 0;}
 int clean_suite1(void){return 0;}
@@ -67,7 +68,8 @@ int main( int argc, char *argv[] )
                 fprintf( stderr, "Usage: mleak debug.log\n" );
                 exit( EXIT_FAILURE );
         }
-        //mtrace( argv[1] );
+        mtrace( argv[1] );
+#if 0
         CU_pSuite pSuite = NULL;
 
         /* initialize the CUnit test registry */
@@ -83,8 +85,11 @@ int main( int argc, char *argv[] )
 
         /* add the tests to the suite */
         /* NOTE - ORDER IS IMPORTANT - MUST TEST fread() AFTER fprintf() */
-        if ((NULL == CU_add_test(pSuite, "test of maxi()", test_mgets)) )
+        if ((NULL == CU_add_test(pSuite, "test of mgets()", test_mgets)) ||
+            (NULL == CU_add_test(pSuite, "test of readInt()", test_readInt))
+           )
         {
+            printf("Error\n");
             CU_cleanup_registry();
             return CU_get_error();
         }
@@ -94,6 +99,8 @@ int main( int argc, char *argv[] )
         CU_basic_run_tests();
         CU_cleanup_registry();
         return CU_get_error();
+#endif
+        return 0;
 }
 
 
@@ -135,8 +142,44 @@ void test_mgets(void)
 inline static void
 readInt( const char *text, int *sz )
 {
-        for( *sz = 0; *text != '\0' && *text != ' '; ++text )
+        for( *sz = 0;
+            *text != '\0' && *text != ' ' &&
+            *text >= '0' && *text <='9';
+            ++text )
                 *sz = ( *sz ) * 10 + *text - '0';
+}
+
+void test_readInt(){
+    int end=0;
+    char text[1024]={0};
+
+    strcpy(text, "127");
+    readInt(text, &end) ;
+    CU_ASSERT( end == 127);
+
+    strcpy(text, "abc");
+    readInt(text, &end) ;
+    CU_ASSERT( end == 0);
+    
+    strcpy(text, "\0");
+    readInt(text, &end) ;
+    CU_ASSERT( end == 0);
+    
+    strcpy(text, "10");
+    readInt(text, &end) ;
+    CU_ASSERT( end == 10);
+    
+    strcpy(text, "99");
+    readInt(text, &end) ;
+    CU_ASSERT( end == 99);
+    
+    strcpy(text, "99\n");
+    readInt(text, &end) ;
+    CU_ASSERT( end == 99);
+    
+    strcpy(text, "99 ");
+    readInt(text, &end) ;
+    CU_ASSERT( end == 99);
 }
 
 
@@ -195,12 +238,15 @@ mtrace( const char *const fname )
                         }
                         line = map + lineOffset;
                         charsInBuf = PAGE_SZ * BUF_SZ;
-                        printf( "REMAAAPP\n" );
+                        dprintf(( "REMAAAPP\n" ));
                 }
-                dprintf( ( "pageOffset=%d lineOffset=%d fileOffset=%d charsInBuf=%d\n", pageOffset, lineOffset, fileOffset, charsInBuf ) );
+
+                dprintf( ( "pageOffset=%d lineOffset=%d fileOffset=%d fileSz=%d charsInBuf=%d\n",
+                    pageOffset, lineOffset, fileOffset, statbuf.st_size, charsInBuf ) );
                 charsInBuf -= mgets( line, &end );
+
                 dprintf( ( "[%d][%s]\n", line[0], line ) );
-#if 0
+                printf("%s\n", line);
                 if( line[0] != 'M' && line[6] != 'O' )
                         continue;
                 p = line + 9;   /* Advance over 'MEMINFO: ' */
@@ -227,7 +273,6 @@ mtrace( const char *const fname )
                         dprintf( ( "Unknown operator\n" ) );
                         break;
                 }
-#endif
         }
         close( fd );
 }
@@ -245,21 +290,21 @@ parseLine( const char *const text, nod_t * res, int *type )
         sscanf( text, "%s %x", op, &ptr );
 
         if( op[0] == 'n' && op[4] == ')' ) {
-                dprintf( ( "+++new()++\n" ) );
+                //dprintf( ( "+++new()++\n" ) );
                 res->is_new = 1;
                 *type = IS_NEW;
                 readSzFile( text + 16, &sz, file, FNAME_LEN );
         } else if( op[0] == 'n' && op[4] == ']' ) {
-                dprintf( ( "+++new[]++\n" ) );
+                //dprintf( ( "+++new[]++\n" ) );
                 res->is_newa = 1;
                 *type = IS_NEWA;
                 readSzFile( text + 16, &sz, file, FNAME_LEN );
         } else if( op[0] == 'd' && op[4] == ')' ) {
-                dprintf( ( "+++delete()++\n" ) );
+                //dprintf( ( "+++delete()++\n" ) );
                 *type = IS_DEL;
                 memcpy( file, text + 16, FNAME_LEN );
         } else if( op[0] == 'd' && op[4] == ']' ) {
-                dprintf( ( "+++delete[]++\n" ) );
+                //dprintf( ( "+++delete[]++\n" ) );
                 *type = IS_DELA;
                 memcpy( file, text + 16, FNAME_LEN );
         }
@@ -270,8 +315,8 @@ parseLine( const char *const text, nod_t * res, int *type )
                 return 0;
         *p = 0;
         readInt( p + 1, &line );
-        dprintf( ( "OP=%s HEX=%x SZ=%d FILE=%s LINE=%d\n", op, ptr, sz, file,
-                   line ) );
+        /*dprintf( ( "OP=%s HEX=%x SZ=%d FILE=%s LINE=%d\n", op, ptr, sz, file,
+                   line ) );*/
 
         res->line = line;
         return ptr;
