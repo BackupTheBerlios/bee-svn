@@ -124,6 +124,8 @@ mtrace( const char *const fname )
         }
 
         fstat( fd, &statbuf );
+        line_offset = mgets( map + line_ofst );
+        chars_left -= r;
 
         for( ; fileOffset < statbuf.st_size; line = end ) {
                 /* buffer has less than a line */
@@ -151,7 +153,6 @@ mtrace( const char *const fname )
 #if 0
                 if( line[0] != 'M' && line[6] != 'O' )
                         continue;
-
                 p = line + 9;   /* Advance over 'MEMINFO: ' */
 
                 parseLine( p, &nod, &type );
