@@ -19,7 +19,10 @@
 #define IS_DEL  3
 #define IS_DELA 4
 
-
+#define LINE_LEN 1024
+#define BUF_SZ   256
+#define PAGE_SZ  4096
+#define FNAME_LEN 256
 
 #ifdef DEBUG
 #define dprintf(a) printf a
@@ -95,12 +98,14 @@ mgets( char *start, char** end )
         return start - s ;
 }
 
+
         inline static void
 readInt( const char *text, int *sz )
 {
         for( *sz = 0; *text != '\0' && *text != ' '; ++text )
                 *sz = ( *sz ) * 10 + *text - '0';
 }
+
 
         inline static void
 readSzFile( const char *text, int *sz, char *file, int fileLen )
@@ -119,10 +124,6 @@ readSzFile( const char *text, int *sz, char *file, int fileLen )
         memcpy( file, text + 1, i );    /* 0.1 % cache misses */
 }
 
-#define LINE_LEN 1024
-#define BUF_SZ   256
-#define PAGE_SZ  4096
-#define FNAME_LEN 256
 
 
         inline static void
@@ -164,8 +165,7 @@ mtrace( const char *const fname )
                 dprintf(( "pageOffset=%d lineOffset=%d fileOffset=%d charsInBuf=%d\n", pageOffset, lineOffset, fileOffset, charsInBuf));
                 charsInBuf -= mgets( line, &end );
                 dprintf( ( "[%s]\n", line ) );
-
-
+#if 0
                 if( line[0] != 'M' && line[6] != 'O' )
                         continue;
 
@@ -193,6 +193,7 @@ mtrace( const char *const fname )
                                 dprintf( ( "Unknown operator\n" ) );
                                 break;
                 }
+#endif
         }
         close( fd );
 }
@@ -234,7 +235,6 @@ parseLine( const char *const text, nod_t * res, int *type )
         if( !p )
                 return 0;
         *p = 0;
-        //sscanf( p + 1, "%d", &line );
         readInt( p + 1, &line );
         dprintf( ( "OP=%s HEX=%x SZ=%d FILE=%s LINE=%d\n", op, ptr, sz, file,
                                 line ) );
