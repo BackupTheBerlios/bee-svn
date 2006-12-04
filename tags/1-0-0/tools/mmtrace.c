@@ -3,7 +3,6 @@
  *
  */
 
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -30,17 +29,6 @@
 #define dprintf(a) ;
 #endif
 
-
-/**********************************
- * Format for new:
- * MEMINFO(("new() " PTR_FORMAT " %d %s(%d){%d, %d}", p, sz, dd.file, dd.line, getpid(), Thread::getCurrentThreadId()));
- *
- * Reading dataTypes from a char* with sscanf is highly inefficient
- * for two reasons :
- *  1. adds cache misses
- *  2. call chain that goes like: sscanf -> vsscanf -> vfscanf
- */
-
 /* Keeps meta-data one new().
  * Uses only 4 bytes to fit in one %movsw */
 /* Test if BITWISE operation is faster
@@ -53,25 +41,19 @@ typedef struct {
 } nod_t;
 
 
-inline static int
-parseLine( const char text[], nod_t * res, int *type );
+inline static int    parseLine( const char text[], nod_t * res, int *type );
+
+inline static void   mtrace( const char *const fname );
+
+inline static size_t mgets( char *start, char **end );
+
+inline static void   readSzFile( const char *text, int *sz, char *file, int fileLen );
+
+inline static void   readInt( const char *text, int *res );
 
 
-inline static void
-mtrace( const char *const fname );
 
-
-/* The most called function */
-inline static size_t mgets( char *start, char** end );
-
-inline static void
-readSzFile( const char *text, int *sz, char *file, int fileLen );
-
-inline static void
-readInt( const char *text, int *res );
-
-        int
-main( int argc, char *argv[] )
+int main( int argc, char *argv[] )
 {
         if( argc < 2 ) {
                 fprintf( stderr, "Usage: mleak debug.log\n" );
@@ -86,20 +68,19 @@ main( int argc, char *argv[] )
 /*------------------------------------------------------------------------*/
 
 
-        inline static size_t
-mgets( char *start, char** end )
+inline static size_t mgets( char *start, char **end )
 {
         char *s = start;
-        for( ; *start != '\n' ; ++start )    /* 0.07% cache miss */
+        for( ; *start != '\n'; ++start )        /* 0.07% cache miss */
                 ;
 
         *start = 0;
-        *end = start+1 ;
-        return start - s +1;
+        *end = start + 1;
+        return start - s + 1;
 }
 
 
-        inline static void
+inline static void
 readInt( const char *text, int *sz )
 {
         for( *sz = 0; *text != '\0' && *text != ' '; ++text )
@@ -107,7 +88,7 @@ readInt( const char *text, int *sz )
 }
 
 
-        inline static void
+inline static void
 readSzFile( const char *text, int *sz, char *file, int fileLen )
 {
         int i = 0;
@@ -126,73 +107,74 @@ readSzFile( const char *text, int *sz, char *file, int fileLen )
 
 
 
-        inline static void
+inline static void
 mtrace( const char *const fname )
 {
         nod_t nod;
-        char *line=0, *p = NULL, *map=0, *end=0;
+        char *line = 0, *p = NULL, *map = 0, *end = 0;
         int fd = -1, type = 0;
-        int pageOffset=0;
+        int pageOffset = 0;
         struct stat statbuf;
-        unsigned int charsInBuf=0,r=0;
-        off_t fileOffset = 0, lineOffset=0;
+        unsigned int charsInBuf = 0, r = 0;
+        off_t fileOffset = 0, lineOffset = 0;
 
-        if( (fd = open( fname, O_RDWR )) <0 ) {
+        if( ( fd = open( fname, O_RDWR ) ) < 0 ) {
                 printf( "Unable to open '%s'\n", fname );
                 exit( EXIT_FAILURE );
         }
 
         fstat( fd, &statbuf );
 
-        for( ; fileOffset < statbuf.st_size ; line = end ) {
+        for( ; fileOffset < statbuf.st_size; line = end ) {
                 /* buffer has less than a line */
                 if( charsInBuf < LINE_LEN ) {
                         fileOffset += BUF_SZ * PAGE_SZ - charsInBuf;
                         munmap( map, BUF_SZ * PAGE_SZ );
                         map = mmap( 0, BUF_SZ * PAGE_SZ, PROT_READ | PROT_WRITE,
-                                        MAP_PRIVATE, fd, pageOffset );
+                                    MAP_PRIVATE, fd, pageOffset );
                         if( map == MAP_FAILED ) {
                                 printf( "mmap error for input\n" );
                                 exit( EXIT_FAILURE );
                         }
-                        if(charsInBuf) {
-                                pageOffset = fileOffset - ( fileOffset % PAGE_SZ );
-                                lineOffset = 4096 - charsInBuf ;
+                        if( charsInBuf ) {
+                                pageOffset =
+                                    fileOffset - ( fileOffset % PAGE_SZ );
+                                lineOffset = 4096 - charsInBuf;
                         }
-                        line = map + lineOffset ;
-                        charsInBuf = PAGE_SZ*BUF_SZ ;
-                        printf("REMAAAPP\n");
+                        line = map + lineOffset;
+                        charsInBuf = PAGE_SZ * BUF_SZ;
+                        printf( "REMAAAPP\n" );
                 }
-                dprintf(( "pageOffset=%d lineOffset=%d fileOffset=%d charsInBuf=%d\n", pageOffset, lineOffset, fileOffset, charsInBuf));
+                dprintf( ( "pageOffset=%d lineOffset=%d fileOffset=%d charsInBuf=%d\n", pageOffset, lineOffset, fileOffset, charsInBuf ) );
                 charsInBuf -= mgets( line, &end );
-                dprintf( ( "[%d][%s]\n", line[0],line ) );
+                dprintf( ( "[%d][%s]\n", line[0], line ) );
 #if 0
                 if( line[0] != 'M' && line[6] != 'O' )
                         continue;
 
-                p = line + 9;    /* Advance over 'MEMINFO: ' */
+                p = line + 9;   /* Advance over 'MEMINFO: ' */
 
                 parseLine( p, &nod, &type );
 
                 switch ( type ) {
-                        case IS_NEW:
-                                dprintf( ( "---new()--\n" ) );
-                                break;
+                case IS_NEW:
+                        dprintf( ( "---new()--\n" ) );
+                        break;
 
-                        case IS_NEWA:
-                                dprintf( ( "---new[]--\n" ) );
-                                break;
+                case IS_NEWA:
+                        dprintf( ( "---new[]--\n" ) );
+                        break;
 
-                        case IS_DEL:
-                                dprintf( ( "---delete()--\n" ) );
-                                break;
+                case IS_DEL:
+                        dprintf( ( "---delete()--\n" ) );
+                        break;
 
-                        case IS_DELA:
-                                dprintf( ( "---delete[]--\n" ) );
-                                break;
-                        default:
-                                dprintf( ( "Unknown operator\n" ) );
-                                break;
+                case IS_DELA:
+                        dprintf( ( "---delete[]--\n" ) );
+                        break;
+                default:
+                        dprintf( ( "Unknown operator\n" ) );
+                        break;
                 }
 #endif
         }
@@ -201,7 +183,7 @@ mtrace( const char *const fname )
 
 
 
-        inline static int
+inline static int
 parseLine( const char *const text, nod_t * res, int *type )
 {
         char op[8];             /* operator ( new or delete ) */
@@ -238,7 +220,7 @@ parseLine( const char *const text, nod_t * res, int *type )
         *p = 0;
         readInt( p + 1, &line );
         dprintf( ( "OP=%s HEX=%x SZ=%d FILE=%s LINE=%d\n", op, ptr, sz, file,
-                                line ) );
+                   line ) );
 
         res->line = line;
         return ptr;
@@ -281,4 +263,14 @@ parseLine( const char *const text, nod_t * res, int *type )
  * ==5556== L2 refs:           18,762  (    18,413 rd +        349 wr)
  * ==5556== L2 misses:         17,292  (    17,128 rd +        164 wr)
  * ==5556== L2 miss rate:         0.0% (       0.0%   +        0.0%  )
+ */
+
+/**********************************
+ * Format for new:
+ * MEMINFO(("new() " PTR_FORMAT " %d %s(%d){%d, %d}", p, sz, dd.file, dd.line, getpid(), Thread::getCurrentThreadId()));
+ *
+ * Reading dataTypes from a char* with sscanf is highly inefficient
+ * for two reasons :
+ *  1. adds cache misses
+ *  2. call chain that goes like: sscanf -> vsscanf -> vfscanf
  */

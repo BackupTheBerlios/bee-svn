@@ -35,11 +35,9 @@ typedef struct {
 #define dprintf(a) ;
 #endif
 
-inline int
-  parseLine( const char text[], nod_t * res, int *type );
+inline int parseLine( const char text[], nod_t * res, int *type );
 
-int
-main( int argc, char *argv[] )
+int main( int argc, char *argv[] )
 {
 
         if( argc < 2 ) {
@@ -51,8 +49,7 @@ main( int argc, char *argv[] )
 }
 
 #if 0
-inline int
-mmtrace( const char *const fname )
+inline int mmtrace( const char *const fname )
 {
         nod_t nod;
         char line[LINE_LENGTH] = { 0 }, *p = NULL;
@@ -80,8 +77,7 @@ mmtrace( const char *const fname )
 #endif
 
 
-inline int
-mtrace( const char *const fname )
+inline int mtrace( const char *const fname )
 {
         nod_t nod;
         char line[LINE_LENGTH] = { 0 }, *p = NULL;
@@ -147,8 +143,7 @@ mtrace( const char *const fname )
 
 
 #define FILE_LEN 128
-inline int
-parseLine( const char *const text, nod_t * res, int *type )
+inline int parseLine( const char *const text, nod_t * res, int *type )
 {
         char op[8];             /* operator ( new or delete ) */
         char file[FILE_LEN];    /* file */
