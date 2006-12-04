@@ -59,7 +59,7 @@ mtrace( const char *const fname );
 
 
 /* The most called function */
-inline static size_t mgets( char *line );
+inline static size_t mgets( char *start, char** end );
 
 inline static void
 readSzFile( const char *text, int *sz, char *file, int fileLen );
@@ -84,14 +84,15 @@ main( int argc, char *argv[] )
 
 
         inline static size_t
-mgets( char *line )
+mgets( char *start, char** end )
 {
-        char *s = line;
-        for( ; *line != '\n' && *line != 0; ++line )    /* 0.07% cache miss */
+        char *s = start;
+        for( ; *start != '\n' && *start != 0; ++start )    /* 0.07% cache miss */
                 ;
 
-        *line = 0;
-        return line - s;
+        *start = 0;
+        *end = start+1 ;
+        return start - s ;
 }
 
         inline static void
@@ -132,7 +133,7 @@ mtrace( const char *const fname )
         int fd = -1, type = 0;
         int pageOffset=0;
         struct stat statbuf;
-        unsigned int charsInBuf=0;
+        unsigned int charsInBuf=0,r=0;
         off_t fileOffset = 0, lineOffset=0;
 
         if( (fd = open( fname, O_RDWR )) <0 ) {
@@ -142,7 +143,7 @@ mtrace( const char *const fname )
 
         fstat( fd, &statbuf );
 
-        for( ; fileOffset < statbuf.st_size; ) {
+        for( ; fileOffset < statbuf.st_size ; line = end ) {
                 /* No more lines to read, then mmap some more */
                 if( charsInBuf < LINE_LEN ) {
                         fileOffset += BUF_SZ * PAGE_SZ - charsInBuf;
@@ -157,12 +158,12 @@ mtrace( const char *const fname )
                                 pageOffset = fileOffset - ( fileOffset % PAGE_SZ );
                                 lineOffset = 4096 - charsInBuf ;
                         }
+                        line = map + lineOffset ;
                         charsInBuf = PAGE_SZ*BUF_SZ ;
                 }
                 dprintf(( "pageOffset=%d lineOffset=%d fileOffset=%d charsInBuf=%d\n", pageOffset, lineOffset, fileOffset, charsInBuf));
-                line = map + lineOffset ;
-                charsInBuf -= mgets( line );
-                dprintf( ( "%s\n", map ) );
+                charsInBuf -= mgets( line, &end );
+                dprintf( ( "[%s]\n", line ) );
 
 
                 if( line[0] != 'M' && line[6] != 'O' )
