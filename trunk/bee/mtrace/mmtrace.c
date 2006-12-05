@@ -48,7 +48,7 @@ typedef struct {
 } nod_t;
 
 
-inline static int    parseLine( const char text[], nod_t * res, int *type );
+inline static int    parseLine( dict_ptr dict, const char text[], nod_t * res, int *type );
 
 inline static void   mtrace( const char *const fname );
 
@@ -263,7 +263,7 @@ mtrace( const char *const fname )
                         continue;
                 p = line + 9;   /* Advance over 'MEMINFO: ' */
 
-                parseLine( p, &nod, &type );
+                parseLine( dictionary, p, &nod, &type );
 
                 switch ( type ) {
                 case IS_NEW:
@@ -293,7 +293,7 @@ mtrace( const char *const fname )
 
 
 inline static int
-parseLine( const char *const text, nod_t * res, int *type )
+parseLine( dict_ptr dict, const char *const text, nod_t * res, int *type )
 {
         char op[8];             /* operator ( new or delete ) */
         char *p;                /* used to find line Number */
