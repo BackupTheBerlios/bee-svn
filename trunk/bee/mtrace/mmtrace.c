@@ -11,6 +11,10 @@
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <errno.h>
+#include "cuckoo.h"
+
+#define DETAIL 0
+
 #include <CUnit/CUnit.h>
 #include <CUnit/Basic.h>
 
@@ -212,6 +216,14 @@ mtrace( const char *const fname )
         struct stat statbuf;
         unsigned int charsInBuf = 0, r = 0;
         off_t fileOffset = 0, lineOffset = 0;
+        
+        dict_ptr  dictionary;
+        int key, tmp;
+        boolean found;
+        char index;
+        int i, min_size=1024;
+
+        dictionary = construct_dict(min_size);
 
         if( ( fd = open( fname, O_RDWR ) ) < 0 ) {
                 printf( "Unable to open '%s'\n", fname );
@@ -275,6 +287,7 @@ mtrace( const char *const fname )
                 }
         }
         close( fd );
+        destruct_dict(dictionary);
 }
 
 
@@ -294,11 +307,13 @@ parseLine( const char *const text, nod_t * res, int *type )
                 res->is_new = 1;
                 *type = IS_NEW;
                 readSzFile( text + 16, &sz, file, FNAME_LEN );
+                insert( dict, ptr);
         } else if( op[0] == 'n' && op[4] == ']' ) {
                 //dprintf( ( stderr, "+++new[]++\n" ) );
                 res->is_newa = 1;
                 *type = IS_NEWA;
                 readSzFile( text + 16, &sz, file, FNAME_LEN );
+                insert( dict, ptr);
         } else if( op[0] == 'd' && op[4] == ')' ) {
                 //dprintf( ( stderr, "+++delete()++\n" ) );
                 *type = IS_DEL;
