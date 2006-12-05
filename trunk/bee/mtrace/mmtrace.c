@@ -27,7 +27,7 @@
 #define FNAME_LEN 256
 
 #ifdef DEBUG
-#define dprintf(a) printf a
+#define dprintf(a) fprintf a
 #else
 #define dprintf(a) ;
 #endif
@@ -238,14 +238,14 @@ mtrace( const char *const fname )
                         }
                         line = map + lineOffset;
                         charsInBuf = PAGE_SZ * BUF_SZ;
-                        dprintf(( "REMAAAPP\n" ));
+                        dprintf(( stderr, "REMAAAPP\n" ));
                 }
 
-                dprintf( ( "pageOffset=%d lineOffset=%d fileOffset=%d fileSz=%d charsInBuf=%d\n",
+                dprintf( ( stderr, "pageOffset=%d lineOffset=%d fileOffset=%d fileSz=%d charsInBuf=%d\n",
                     pageOffset, lineOffset, fileOffset, statbuf.st_size, charsInBuf ) );
                 charsInBuf -= mgets( line, &end );
 
-                dprintf( ( "[%d][%s]\n", line[0], line ) );
+                dprintf( ( stderr, "[%d][%s]\n", line[0], line ) );
                 printf("%s\n", line);
                 if( line[0] != 'M' && line[6] != 'O' )
                         continue;
@@ -255,22 +255,22 @@ mtrace( const char *const fname )
 
                 switch ( type ) {
                 case IS_NEW:
-                        dprintf( ( "---new()--\n" ) );
+                        dprintf( ( stderr, "---new()--\n" ) );
                         break;
 
                 case IS_NEWA:
-                        dprintf( ( "---new[]--\n" ) );
+                        dprintf( ( stderr, "---new[]--\n" ) );
                         break;
 
                 case IS_DEL:
-                        dprintf( ( "---delete()--\n" ) );
+                        dprintf( ( stderr, "---delete()--\n" ) );
                         break;
 
                 case IS_DELA:
-                        dprintf( ( "---delete[]--\n" ) );
+                        dprintf( ( stderr, "---delete[]--\n" ) );
                         break;
                 default:
-                        dprintf( ( "Unknown operator\n" ) );
+                        dprintf( ( stderr, "Unknown operator\n" ) );
                         break;
                 }
         }
@@ -290,21 +290,21 @@ parseLine( const char *const text, nod_t * res, int *type )
         sscanf( text, "%s %x", op, &ptr );
 
         if( op[0] == 'n' && op[4] == ')' ) {
-                //dprintf( ( "+++new()++\n" ) );
+                //dprintf( ( stderr, "+++new()++\n" ) );
                 res->is_new = 1;
                 *type = IS_NEW;
                 readSzFile( text + 16, &sz, file, FNAME_LEN );
         } else if( op[0] == 'n' && op[4] == ']' ) {
-                //dprintf( ( "+++new[]++\n" ) );
+                //dprintf( ( stderr, "+++new[]++\n" ) );
                 res->is_newa = 1;
                 *type = IS_NEWA;
                 readSzFile( text + 16, &sz, file, FNAME_LEN );
         } else if( op[0] == 'd' && op[4] == ')' ) {
-                //dprintf( ( "+++delete()++\n" ) );
+                //dprintf( ( stderr, "+++delete()++\n" ) );
                 *type = IS_DEL;
                 memcpy( file, text + 16, FNAME_LEN );
         } else if( op[0] == 'd' && op[4] == ']' ) {
-                //dprintf( ( "+++delete[]++\n" ) );
+                //dprintf( ( stderr, "+++delete[]++\n" ) );
                 *type = IS_DELA;
                 memcpy( file, text + 16, FNAME_LEN );
         }
@@ -315,7 +315,7 @@ parseLine( const char *const text, nod_t * res, int *type )
                 return 0;
         *p = 0;
         readInt( p + 1, &line );
-        /*dprintf( ( "OP=%s HEX=%x SZ=%d FILE=%s LINE=%d\n", op, ptr, sz, file,
+        /*dprintf( ( stderr, "OP=%s HEX=%x SZ=%d FILE=%s LINE=%d\n", op, ptr, sz, file,
                    line ) );*/
 
         res->line = line;
