@@ -267,18 +267,18 @@ checkAddress( int type , int ptr, nod_t nod, dict_ptr dict )
         case IS_DEL:
                 dprintf( ( stderr, "---delete()--\n" ) );
                 found = lookup( dict, ptr );
-                if( found )
+                if( found );
                         //delete();
                 break;
 
         case IS_DELA:
                 dprintf( ( stderr, "---delete[]--\n" ) );
+                if( found );
+                        //delete();
                 break;
         default:
                 dprintf( ( stderr, "Unknown operator\n" ) );
                 found = lookup( dict, ptr );
-                if( found )
-                        //delete();
                 break;
         }
 }
