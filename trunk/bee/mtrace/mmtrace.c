@@ -25,8 +25,6 @@ int main( int argc, char *argv[] )
 
 
 /*------------------------------------------------------------------------*/
-
-
 int runTestSuite( void )
 {
         CU_pSuite pSuite = NULL;
@@ -61,7 +59,8 @@ int runTestSuite( void )
 
 
 /*------------------------------------------------------------------------*/
-inline static size_t mgets( char *start, char **end )
+inline static size_t
+mgets( char *start, char **end )
 {
         char *s = start;
         size_t r = 0;
@@ -80,7 +79,8 @@ inline static size_t mgets( char *start, char **end )
 }
 
 
-void test_mgets( void )
+void
+test_mgets( void )
 {
         char *end;
         char text[1024] = "abc\n";
@@ -96,7 +96,8 @@ void test_mgets( void )
 
 
 /*------------------------------------------------------------------------*/
-inline static void readInt( const char *text, int *sz )
+inline static void
+readInt( const char *text, int *sz )
 {
         for( *sz = 0;
              *text != '\0' && *text != ' ' &&
@@ -104,7 +105,8 @@ inline static void readInt( const char *text, int *sz )
                 *sz = ( *sz ) * 10 + *text - '0';
 }
 
-void test_readInt(  )
+void
+test_readInt(  )
 {
         int end = 0;
         char text[1024] = { 0 };
@@ -160,7 +162,8 @@ readSzFile( const char *text, int *sz, char *file, int fileLen )
 
 
 /*------------------------------------------------------------------------*/
-inline static void mtrace( const char *const fname )
+inline static void
+mtrace( const char *const fname )
 {
         nod_t nod;
         char *line = 0, *p = NULL, *map = 0, *end = 0;
@@ -236,7 +239,8 @@ inline static void mtrace( const char *const fname )
 
 
 /*------------------------------------------------------------------------*/
-inline void handleType( int type )
+inline void
+handleType( int type )
 {
         switch ( type ) {
         case IS_NEW:
