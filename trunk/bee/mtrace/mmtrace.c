@@ -2,108 +2,23 @@
  * gcc -march=i686 -mtune=i686 -O9 -finline-functions -funroll-loops -mno-push-args -fomit-frame-pointer -m3dnow -mmmx -minline-all-stringops mmtrace.c -o mtrace
  *
  */
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <sys/mman.h>
-#include <errno.h>
-#include "cuckoo.h"
-
-#define DETAIL 0
-
-#include <CUnit/CUnit.h>
-#include <CUnit/Basic.h>
-
-
-#define IS_NEW  1
-#define IS_NEWA 2
-
-#define IS_DEL  3
-#define IS_DELA 4
-
-#define LINE_LEN 1024
-#define BUF_SZ   256
-#define PAGE_SZ  4096
-#define FNAME_LEN 256
-
-#ifdef DEBUG
-#define dprintf(a) fprintf a
-#else
-#define dprintf(a) ;
-#endif
-
-/* Keeps meta-data one new().
- * Uses only 4 bytes to fit in one %movsw */
-/* Test if BITWISE operation is faster
- * than bitfields */
-typedef struct {
-        unsigned short int line:15;     /* Line where was allocated */
-        unsigned short int is_new:1;    /* new() operator */
-        unsigned short int fid:15;      /* file id */
-        unsigned short int is_newa:1;   /* new[] operator */
-} nod_t;
-
-
-inline static int    parseLine( dict_ptr dict, const char text[], nod_t * res, int *type );
-
-inline static void   mtrace( const char *const fname );
-
-inline static size_t mgets( char *start, char **end );
-
-inline static void   readSzFile( const char *text, int *sz, char *file, int fileLen );
-
-inline static void   readInt( const char *text, int *res );
-
-void test_mgets(void);
-void test_readInt(void);
-
-int init_suite1(void){return 0;}
-int clean_suite1(void){return 0;}
+#include "mmtrace.h"
+#include <stdint.h>
+#include <unistd.h>
 
 
 
 int main( int argc, char *argv[] )
 {
-        if( argc < 2 ) {
-                fprintf( stderr, "Usage: mleak debug.log\n" );
+        if( argc < 3 ) {
+                fprintf( stderr, "Usage: mleak debug.log test?\n" );
                 exit( EXIT_FAILURE );
         }
-        mtrace( argv[1] );
-#if 0
-        CU_pSuite pSuite = NULL;
-
-        /* initialize the CUnit test registry */
-        if (CUE_SUCCESS != CU_initialize_registry())
-            return CU_get_error();
-
-        /* add a suite to the registry */
-        pSuite = CU_add_suite("Suite_1", init_suite1, clean_suite1);
-        if (NULL == pSuite) {
-            CU_cleanup_registry();
-            return CU_get_error();
+        if( argv[2][0] != 't' ) {
+                mtrace( argv[1] );
+                return 0;
         }
-
-        /* add the tests to the suite */
-        /* NOTE - ORDER IS IMPORTANT - MUST TEST fread() AFTER fprintf() */
-        if ((NULL == CU_add_test(pSuite, "test of mgets()", test_mgets)) ||
-            (NULL == CU_add_test(pSuite, "test of readInt()", test_readInt))
-           )
-        {
-            printf("Error\n");
-            CU_cleanup_registry();
-            return CU_get_error();
-        }
-
-        /* Run all tests using the CUnit Basic interface */
-        CU_basic_set_mode(CU_BRM_VERBOSE);
-        CU_basic_run_tests();
-        CU_cleanup_registry();
-        return CU_get_error();
-#endif
+        runTestSuite(  );
         return 0;
 }
 
@@ -112,81 +27,119 @@ int main( int argc, char *argv[] )
 /*------------------------------------------------------------------------*/
 
 
-inline static size_t
-mgets( char *start, char **end )
+int runTestSuite( void )
+{
+        CU_pSuite pSuite = NULL;
+
+        /* initialize the CUnit test registry */
+        if( CUE_SUCCESS != CU_initialize_registry(  ) )
+                return CU_get_error(  );
+
+        /* add a suite to the registry */
+        pSuite = CU_add_suite( "Suite_1", init_suite1, clean_suite1 );
+        if( NULL == pSuite ) {
+                CU_cleanup_registry(  );
+                return CU_get_error(  );
+        }
+
+        /* add the tests to the suite */
+        /* NOTE - ORDER IS IMPORTANT - MUST TEST fread() AFTER fprintf() */
+        if( ( NULL == CU_add_test( pSuite, "test of mgets()", test_mgets ) ) ||
+            ( NULL == CU_add_test( pSuite, "test of readInt()", test_readInt ) )
+             ) {
+                printf( "Error\n" );
+                CU_cleanup_registry(  );
+                return CU_get_error(  );
+        }
+
+        /* Run all tests using the CUnit Basic interface */
+        CU_basic_set_mode( CU_BRM_VERBOSE );
+        CU_basic_run_tests(  );
+        CU_cleanup_registry(  );
+        return CU_get_error(  );
+}
+
+
+/*------------------------------------------------------------------------*/
+inline static size_t mgets( char *start, char **end )
 {
         char *s = start;
-        size_t r=0;
+        size_t r = 0;
 
-        if( !start || !*start) return 0;
+        if( !start || !*start ) {
+                printf( "RET 0\n" );
+                return 0;
+        }
 
-        for( ; *start != '\n' && *start !=0; ++start )        /* 0.07% cache miss */
+        for( ; *start != '\n' && *start != 0; ++start ) /* 0.07% cache miss */
                 ;
-        r = (*start==0)? start - s : start-s+1;
+        r = ( *start == 0 ) ? start - s : start - s + 1;
         *start = 0;
         *end = start + 1;
         return r;
 }
 
 
-void test_mgets(void)
+void test_mgets( void )
 {
-    char* end;
-    char text[1024]="abc\n";
-    CU_ASSERT(mgets(text, &end) == 4);
-    strcpy(text, "\n");
-    CU_ASSERT(mgets(text, &end) == 1);
-    strcpy(text, "\0\n");
-    CU_ASSERT(mgets(text, &end) == 0);
-    memset(text, 'a', 1023 );
-    text[1023]= 0;
-    CU_ASSERT(mgets(text, &end) == 1023);
+        char *end;
+        char text[1024] = "abc\n";
+        CU_ASSERT( mgets( text, &end ) == 4 );
+        strcpy( text, "\n" );
+        CU_ASSERT( mgets( text, &end ) == 1 );
+        strcpy( text, "\0\n" );
+        CU_ASSERT( mgets( text, &end ) == 0 );
+        memset( text, 'a', 1023 );
+        text[1023] = 0;
+        CU_ASSERT( mgets( text, &end ) == 1023 );
 }
 
-inline static void
-readInt( const char *text, int *sz )
+
+/*------------------------------------------------------------------------*/
+inline static void readInt( const char *text, int *sz )
 {
         for( *sz = 0;
-            *text != '\0' && *text != ' ' &&
-            *text >= '0' && *text <='9';
-            ++text )
+             *text != '\0' && *text != ' ' &&
+             *text >= '0' && *text <= '9'; ++text )
                 *sz = ( *sz ) * 10 + *text - '0';
 }
 
-void test_readInt(){
-    int end=0;
-    char text[1024]={0};
+void test_readInt(  )
+{
+        int end = 0;
+        char text[1024] = { 0 };
 
-    strcpy(text, "127");
-    readInt(text, &end) ;
-    CU_ASSERT( end == 127);
+        strcpy( text, "127" );
+        readInt( text, &end );
+        CU_ASSERT( end == 127 );
 
-    strcpy(text, "abc");
-    readInt(text, &end) ;
-    CU_ASSERT( end == 0);
-    
-    strcpy(text, "\0");
-    readInt(text, &end) ;
-    CU_ASSERT( end == 0);
-    
-    strcpy(text, "10");
-    readInt(text, &end) ;
-    CU_ASSERT( end == 10);
-    
-    strcpy(text, "99");
-    readInt(text, &end) ;
-    CU_ASSERT( end == 99);
-    
-    strcpy(text, "99\n");
-    readInt(text, &end) ;
-    CU_ASSERT( end == 99);
-    
-    strcpy(text, "99 ");
-    readInt(text, &end) ;
-    CU_ASSERT( end == 99);
+        strcpy( text, "abc" );
+        readInt( text, &end );
+        CU_ASSERT( end == 0 );
+
+        strcpy( text, "\0" );
+        readInt( text, &end );
+        CU_ASSERT( end == 0 );
+
+        strcpy( text, "10" );
+        readInt( text, &end );
+        CU_ASSERT( end == 10 );
+
+        strcpy( text, "99" );
+        readInt( text, &end );
+        CU_ASSERT( end == 99 );
+
+        strcpy( text, "99\n" );
+        readInt( text, &end );
+        CU_ASSERT( end == 99 );
+
+        strcpy( text, "99 " );
+        readInt( text, &end );
+        CU_ASSERT( end == 99 );
 }
 
 
+/*------------------------------------------------------------------------*/
 inline static void
 readSzFile( const char *text, int *sz, char *file, int fileLen )
 {
@@ -206,120 +159,139 @@ readSzFile( const char *text, int *sz, char *file, int fileLen )
 
 
 
-inline static void
-mtrace( const char *const fname )
+/*------------------------------------------------------------------------*/
+inline static void mtrace( const char *const fname )
 {
         nod_t nod;
         char *line = 0, *p = NULL, *map = 0, *end = 0;
         int fd = -1, type = 0;
         int pageOffset = 0;
         struct stat statbuf;
-        unsigned int charsInBuf = 0, r = 0;
-        off_t fileOffset = 0, lineOffset = 0;
-        
-        dict_ptr  dictionary;
-        int key, tmp;
-        boolean found;
-        char index;
-        int i, min_size=1024;
+        off_t filePos = 0, lastPageOffset = 0;
+        unsigned int charsInBuf = 0;
+        dict_ptr dictionary;
+        int tmp;
+        int min_size = 1024;
 
-        dictionary = construct_dict(min_size);
 
         if( ( fd = open( fname, O_RDWR ) ) < 0 ) {
                 printf( "Unable to open '%s'\n", fname );
                 exit( EXIT_FAILURE );
         }
 
+        dictionary = construct_dict( min_size );
         fstat( fd, &statbuf );
 
-        for( ; fileOffset < statbuf.st_size; line = end ) {
+        map = mmap( 0, BUF_SZ * PAGE_SZ, PROT_READ | PROT_WRITE,
+                    MAP_PRIVATE, fd, 0 );
+        if( map == MAP_FAILED ) {
+                printf( "mmap error for input\n" );
+                exit( EXIT_FAILURE );
+        }
+        filePos = BUF_SZ * PAGE_SZ;
+        pageOffset = filePos - ( filePos % PAGE_SZ );
+        charsInBuf = PAGE_SZ * BUF_SZ;
+        line = map;
+
+        for( ; filePos <= statbuf.st_size; line = end ) {
                 /* buffer has less than a line */
                 if( charsInBuf < LINE_LEN ) {
-                        fileOffset += BUF_SZ * PAGE_SZ - charsInBuf;
+                        dprintf( ( stderr, "REMAP\n" ) );
                         munmap( map, BUF_SZ * PAGE_SZ );
+
                         map = mmap( 0, BUF_SZ * PAGE_SZ, PROT_READ | PROT_WRITE,
                                     MAP_PRIVATE, fd, pageOffset );
                         if( map == MAP_FAILED ) {
                                 printf( "mmap error for input\n" );
                                 exit( EXIT_FAILURE );
                         }
-                        if( charsInBuf ) {
-                                pageOffset =
-                                    fileOffset - ( fileOffset % PAGE_SZ );
-                                lineOffset = 4096 - charsInBuf;
-                        }
-                        line = map + lineOffset;
-                        charsInBuf = PAGE_SZ * BUF_SZ;
-                        dprintf(( stderr, "REMAAAPP\n" ));
+                        filePos += BUF_SZ * PAGE_SZ - charsInBuf;
+                        pageOffset = filePos - ( filePos % PAGE_SZ );
+                        line = map + lastPageOffset;
+                        charsInBuf = PAGE_SZ * BUF_SZ - charsInBuf;
                 }
+                tmp = mgets( line, &end );
+                if( !tmp )
+                        continue;
+                charsInBuf -= tmp;
 
-                dprintf( ( stderr, "pageOffset=%d lineOffset=%d fileOffset=%d fileSz=%d charsInBuf=%d\n",
-                    pageOffset, lineOffset, fileOffset, statbuf.st_size, charsInBuf ) );
-                charsInBuf -= mgets( line, &end );
+                dprintf( ( stderr,
+                           "pageOffset=%d lastPageOffset=%jd filePos=%jd fileSz=%jd charsInBuf=%d\n",
+                           pageOffset, ( intmax_t ) lastPageOffset,
+                           ( intmax_t ) filePos, ( intmax_t ) statbuf.st_size,
+                           charsInBuf ) );
 
                 dprintf( ( stderr, "[%d][%s]\n", line[0], line ) );
-                printf("%s\n", line);
+                printf( "%s\n", line );
                 if( line[0] != 'M' && line[6] != 'O' )
                         continue;
                 p = line + 9;   /* Advance over 'MEMINFO: ' */
 
                 parseLine( dictionary, p, &nod, &type );
-
-                switch ( type ) {
-                case IS_NEW:
-                        dprintf( ( stderr, "---new()--\n" ) );
-                        break;
-
-                case IS_NEWA:
-                        dprintf( ( stderr, "---new[]--\n" ) );
-                        break;
-
-                case IS_DEL:
-                        dprintf( ( stderr, "---delete()--\n" ) );
-                        break;
-
-                case IS_DELA:
-                        dprintf( ( stderr, "---delete[]--\n" ) );
-                        break;
-                default:
-                        dprintf( ( stderr, "Unknown operator\n" ) );
-                        break;
-                }
+                handleType( type );
         }
         close( fd );
-        destruct_dict(dictionary);
+        destruct_dict( dictionary );
 }
 
 
+/*------------------------------------------------------------------------*/
+inline void handleType( int type )
+{
+        switch ( type ) {
+        case IS_NEW:
+                dprintf( ( stderr, "---new()--\n" ) );
+                break;
 
+        case IS_NEWA:
+                dprintf( ( stderr, "---new[]--\n" ) );
+                break;
+
+        case IS_DEL:
+                dprintf( ( stderr, "---delete()--\n" ) );
+                break;
+
+        case IS_DELA:
+                dprintf( ( stderr, "---delete[]--\n" ) );
+                break;
+        default:
+                dprintf( ( stderr, "Unknown operator\n" ) );
+                break;
+        }
+}
+
+/*------------------------------------------------------------------------*/
 inline static int
 parseLine( dict_ptr dict, const char *const text, nod_t * res, int *type )
 {
         char op[8];             /* operator ( new or delete ) */
-        char *p;                /* used to find line Number */
+        char *p;                /* find line Number */
         int sz = 0, line = 0, ptr;
-        char file[FNAME_LEN] = { 0 };   /* file */
+        char file[FNAME_LEN] = { 0 };
+        nod_t* A = malloc(sizeof(nod_t));
 
         sscanf( text, "%s %x", op, &ptr );
 
         if( op[0] == 'n' && op[4] == ')' ) {
-                //dprintf( ( stderr, "+++new()++\n" ) );
                 res->is_new = 1;
                 *type = IS_NEW;
                 readSzFile( text + 16, &sz, file, FNAME_LEN );
-                insert( dict, ptr);
+                A->line = line;
+                A->fid  = 1 ;
+                A->is_new = 1;
+                insert( dict, ptr, A );
         } else if( op[0] == 'n' && op[4] == ']' ) {
-                //dprintf( ( stderr, "+++new[]++\n" ) );
                 res->is_newa = 1;
                 *type = IS_NEWA;
                 readSzFile( text + 16, &sz, file, FNAME_LEN );
-                insert( dict, ptr);
+                A->line = line;
+                A->fid  = 1 ;
+                A->is_newa =1 ;
+                insert( dict, ptr, A );
         } else if( op[0] == 'd' && op[4] == ')' ) {
-                //dprintf( ( stderr, "+++delete()++\n" ) );
                 *type = IS_DEL;
                 memcpy( file, text + 16, FNAME_LEN );
         } else if( op[0] == 'd' && op[4] == ']' ) {
-                //dprintf( ( stderr, "+++delete[]++\n" ) );
                 *type = IS_DELA;
                 memcpy( file, text + 16, FNAME_LEN );
         }
@@ -330,8 +302,6 @@ parseLine( dict_ptr dict, const char *const text, nod_t * res, int *type )
                 return 0;
         *p = 0;
         readInt( p + 1, &line );
-        /*dprintf( ( stderr, "OP=%s HEX=%x SZ=%d FILE=%s LINE=%d\n", op, ptr, sz, file,
-                   line ) );*/
 
         res->line = line;
         return ptr;

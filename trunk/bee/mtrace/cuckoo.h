@@ -16,7 +16,7 @@
  *     Department of Computer Science
  *     University of Aarhus, Denmark
  *     {pagh,ffr}@brics.dk
- * 
+ * satellite 
  * Date: June 27, 2001.  
 */
 
@@ -24,7 +24,8 @@
 #define CUCKOO_H 
 
 typedef struct cell {       /* hash table cell type */ 
-  int key; 
+  int key;
+  void *satellite ;
 } celltype;
 
 typedef struct {            /* dictionary type */ 
@@ -41,15 +42,13 @@ typedef struct {            /* dictionary type */
 
 typedef dict *dict_ptr;
 
-#define DETAIL 1 /* 0 = no output trace, 1 = output trace */ 
-
 #define TRUE 1
 #define FALSE 0
 
 typedef int boolean;
 
 extern dict_ptr    construct_dict(int min_size); 
-extern boolean     insert       (dict_ptr D, int key);
+extern boolean     insert       (dict_ptr D, int key, void *satellite);
 extern boolean     lookup       (dict_ptr D, int key); 
 extern boolean     delete       (dict_ptr D, int key); 
 extern int         keyval       (dict_ptr D, int key);
