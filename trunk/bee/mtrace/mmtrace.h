@@ -46,7 +46,7 @@ typedef struct {
 } nod_t;
 
 
-inline static int    parseLine( dict_ptr dict, const char text[], nod_t * res, int *type );
+inline static int    parseLine( const char text[], nod_t * res, int *type );
 
 inline static void   mtrace( const char *const fname );
 
@@ -60,7 +60,7 @@ int  runTestSuite(void) ;
 void test_mgets(void);
 void test_readInt(void);
 
-inline void handleType(int type) ;
+inline void checkAddress(int type, int ptr, nod_t nod, dict_ptr dict) ;
 int init_suite1(void){return 0;}
 int clean_suite1(void){return 0;}
 #endif

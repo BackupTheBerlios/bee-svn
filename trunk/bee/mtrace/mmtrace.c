@@ -168,7 +168,7 @@ mtrace( const char *const fname )
         nod_t nod;
         char *line = 0, *p = NULL, *map = 0, *end = 0;
         int fd = -1, type = 0;
-        int pageOffset = 0;
+        int pageOffset = 0, ptr=0 ;
         struct stat statbuf;
         off_t filePos = 0, lastPageOffset = 0;
         unsigned int charsInBuf = 0;
@@ -230,8 +230,8 @@ mtrace( const char *const fname )
                         continue;
                 p = line + 9;   /* Advance over 'MEMINFO: ' */
 
-                parseLine( dictionary, p, &nod, &type );
-                handleType( type );
+                ptr = parseLine( p, &nod, &type );
+                checkAddress( type, ptr, nod, dictionary );
         }
         close( fd );
         destruct_dict( dictionary );
@@ -240,15 +240,27 @@ mtrace( const char *const fname )
 
 /*------------------------------------------------------------------------*/
 inline void
-handleType( int type )
+checkAddress( int type , int ptr, nod_t nod, dict_ptr dict )
 {
+        nod_t* A =0;
+
         switch ( type ) {
         case IS_NEW:
                 dprintf( ( stderr, "---new()--\n" ) );
+                A = malloc(sizeof(nod_t));
+                A->line = nod.line;
+                A->fid  = 1 ;
+                A->is_new = 1;
+                insert( dict, ptr, A );
                 break;
 
         case IS_NEWA:
                 dprintf( ( stderr, "---new[]--\n" ) );
+                A = malloc(sizeof(nod_t));
+                A->line = nod.line;
+                A->fid  = 1 ;
+                A->is_newa =1 ;
+                insert( dict, ptr, A );
                 break;
 
         case IS_DEL:
@@ -266,13 +278,12 @@ handleType( int type )
 
 /*------------------------------------------------------------------------*/
 inline static int
-parseLine( dict_ptr dict, const char *const text, nod_t * res, int *type )
+parseLine( const char *const text, nod_t * res, int *type )
 {
         char op[8];             /* operator ( new or delete ) */
         char *p;                /* find line Number */
         int sz = 0, line = 0, ptr;
         char file[FNAME_LEN] = { 0 };
-        nod_t* A = malloc(sizeof(nod_t));
 
         sscanf( text, "%s %x", op, &ptr );
 
@@ -280,18 +291,10 @@ parseLine( dict_ptr dict, const char *const text, nod_t * res, int *type )
                 res->is_new = 1;
                 *type = IS_NEW;
                 readSzFile( text + 16, &sz, file, FNAME_LEN );
-                A->line = line;
-                A->fid  = 1 ;
-                A->is_new = 1;
-                insert( dict, ptr, A );
         } else if( op[0] == 'n' && op[4] == ']' ) {
                 res->is_newa = 1;
                 *type = IS_NEWA;
                 readSzFile( text + 16, &sz, file, FNAME_LEN );
-                A->line = line;
-                A->fid  = 1 ;
-                A->is_newa =1 ;
-                insert( dict, ptr, A );
         } else if( op[0] == 'd' && op[4] == ')' ) {
                 *type = IS_DEL;
                 memcpy( file, text + 16, FNAME_LEN );
