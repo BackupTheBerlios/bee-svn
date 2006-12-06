@@ -243,6 +243,7 @@ inline void
 checkAddress( int type , int ptr, nod_t nod, dict_ptr dict )
 {
         nod_t* A =0;
+        int found =0;
 
         switch ( type ) {
         case IS_NEW:
@@ -265,6 +266,9 @@ checkAddress( int type , int ptr, nod_t nod, dict_ptr dict )
 
         case IS_DEL:
                 dprintf( ( stderr, "---delete()--\n" ) );
+                found = lookup( dict, ptr );
+                if( found )
+                        //delete();
                 break;
 
         case IS_DELA:
@@ -272,6 +276,9 @@ checkAddress( int type , int ptr, nod_t nod, dict_ptr dict )
                 break;
         default:
                 dprintf( ( stderr, "Unknown operator\n" ) );
+                found = lookup( dict, ptr );
+                if( found )
+                        //delete();
                 break;
         }
 }
