@@ -16,16 +16,26 @@
  *     Department of Computer Science
  *     University of Aarhus, Denmark
  *     {pagh,ffr}@brics.dk
- * satellite 
  * Date: June 27, 2001.  
 */
 
 #ifndef CUCKOO_H
 #define CUCKOO_H 
 
+/* Keeps meta-data one new().
+ * Uses only 4 bytes to fit in one %movsw */
+/* Test if BITWISE operation is faster
+ * than bitfields */
+typedef struct {
+        unsigned short int line:15;     /* Line where was allocated */
+        unsigned short int is_new:1;    /* new() operator */
+        unsigned short int fid:15;      /* file id */
+        unsigned short int is_newa:1;   /* new[] operator */
+} nod_t;
+
 typedef struct cell {       /* hash table cell type */ 
   int key;
-  void *satellite ;
+  nod_t data ;
 } celltype;
 
 typedef struct {            /* dictionary type */ 
@@ -48,7 +58,7 @@ typedef dict *dict_ptr;
 typedef int boolean;
 
 extern dict_ptr    construct_dict(int min_size); 
-extern boolean     insert       (dict_ptr D, int key, void *satellite);
+extern boolean     insert       (dict_ptr D, int key, nod_t nod);
 extern boolean     lookup       (dict_ptr D, int key); 
 extern boolean     delete       (dict_ptr D, int key); 
 extern int         keyval       (dict_ptr D, int key);

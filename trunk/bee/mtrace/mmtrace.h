@@ -34,17 +34,6 @@
 #define dprintf(a) ;
 #endif
 
-/* Keeps meta-data one new().
- * Uses only 4 bytes to fit in one %movsw */
-/* Test if BITWISE operation is faster
- * than bitfields */
-typedef struct {
-        unsigned short int line:15;     /* Line where was allocated */
-        unsigned short int is_new:1;    /* new() operator */
-        unsigned short int fid:15;      /* file id */
-        unsigned short int is_newa:1;   /* new[] operator */
-} nod_t;
-
 
 inline static int    parseLine( const char text[], nod_t * res, int *type );
 
@@ -60,7 +49,7 @@ int  runTestSuite(void) ;
 void test_mgets(void);
 void test_readInt(void);
 
-inline void checkAddress(int type, int ptr, nod_t nod, dict_ptr dict) ;
+inline void checkAddress(int type, int ptr, nod_t node, dict_ptr dict) ;
 int init_suite1(void){return 0;}
 int clean_suite1(void){return 0;}
 #endif

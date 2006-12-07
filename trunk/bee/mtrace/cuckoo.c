@@ -18,7 +18,7 @@
  *     {pagh,ffr}@brics.dk
  * 
  * Date: June 27, 2001.  
-*/
+ */
 
 
 #include<stdio.h>
@@ -29,10 +29,12 @@
 #include "cuckoo.h"
 
 
-dict_ptr alloc_dict( int tablesize )
+
+dict_ptr
+alloc_dict( int tablesize )
 {
 
-        dict_ptr D;
+        dict_ptr        D;
 
         D = ( dict_ptr ) calloc( 1, sizeof( dict ) );
         D->size = 0;
@@ -42,14 +44,14 @@ dict_ptr alloc_dict( int tablesize )
         D->shift = 32 - ( int )( log( tablesize ) / log( 2 ) + 0.5 );
         D->maxchain = 4 + ( int )( 4 * log( tablesize ) / log( 2 ) + 0.5 );
         if( ( D->T1 =
-              ( celltype * ) calloc( tablesize,
-                                     sizeof( celltype ) ) ) == NULL ) {
+              ( celltype * ) calloc( tablesize, sizeof( celltype ) ) ) == NULL )
+        {
                 fprintf( stderr, "Error while allocating mem for T1\n" );
                 exit( 0 );
         }
         if( ( D->T2 =
-              ( celltype * ) calloc( tablesize,
-                                     sizeof( celltype ) ) ) == NULL ) {
+              ( celltype * ) calloc( tablesize, sizeof( celltype ) ) ) == NULL )
+        {
                 fprintf( stderr, "Error while allocating mem for T2\n" );
                 exit( 0 );
         }
@@ -61,15 +63,21 @@ dict_ptr alloc_dict( int tablesize )
 
 
 /*------insert taylored to rehash-------------------------------*/
-boolean rehash_insert( dict_ptr D, int key, void *satellite )
+boolean
+rehash_insert( dict_ptr D, int key, nod_t node)
 {
-        unsigned long hkey;
-        int j;
-        celltype x, temp;
+        unsigned long   hkey;
+        int             j;
+        celltype        x,
+                        temp;
 
         x.key = key;
-        x.satellite = satellite ;
-        for( j = 0; j < D->maxchain; j++ ) {
+        x.data.line = node.line;
+        x.data.is_new = node.is_new;
+        x.data.fid = node.fid;
+        x.data.is_newa = node.is_newa;
+        for( j = 0; j < D->maxchain; j++ )
+        {
                 hashcuckoo( hkey, D->a1, D->shift, x.key );
                 temp = D->T1[hkey];
                 D->T1[hkey] = x;
@@ -92,25 +100,32 @@ boolean rehash_insert( dict_ptr D, int key, void *satellite )
         inithashcuckoo( D->a2 );
 
         return FALSE;
-}                               /*rehash_insert */
+}                               /* rehash_insert */
 
 
 /*------rehash--------------------------------------------*/
-void rehash( dict_ptr D, int new_size )
+void
+rehash( dict_ptr D, int new_size )
 {
-        dict_ptr D_new;
-        int k;
+        dict_ptr        D_new;
+        int             k;
 
         D_new = alloc_dict( new_size );
 
-        for( k = 0; k < D->tablesize; k++ ) {
+        for( k = 0; k < D->tablesize; k++ )
+        {
                 if( ( D->T1[k].key )
-                    && ( !rehash_insert( D_new, D->T1[k].key, D->T1[k].satellite ) ) ) {
+                    &&
+                    ( !rehash_insert
+                      ( D_new, D->T1[k].key, D->T1[k].data ) ) )
+                {
                         k = -1;
                         continue;
                 }
                 if( ( D->T2[k].key )
-                    && ( !rehash_insert( D_new, D->T2[k].key, D->T2[k].satellite ) ) )
+                    &&
+                    ( !rehash_insert
+                      ( D_new, D->T2[k].key, D->T2[k].data ) ) )
                         k = -1;
         }
         free( D->T1 );
@@ -119,44 +134,59 @@ void rehash( dict_ptr D, int new_size )
         D_new->size = D->size;
         *D = *D_new;
         free( D_new );
-}                               /*rehash */
+}                               /* rehash */
 
 
 /*------construct_dict---------------------------------*/
-dict_ptr construct_dict( int min_size )
+dict_ptr
+construct_dict( int min_size )
 {
         srand( time( NULL ) );
         return alloc_dict( min_size );
-}                               /*construct_dict */
+}                               /* construct_dict */
 
 
 /*------insert-----------------------------------------*/
-boolean insert( dict_ptr D, int key , void *satellite)
+boolean
+insert( dict_ptr D, int key, nod_t node )
 {
 
-        unsigned long h1, h2;
-        int j;
-        celltype x, temp;
+        unsigned long   h1,
+                        h2;
+        int             j;
+        celltype        x,
+                        temp;
 
-        /*If element already in D then replace and return */
+        /*
+         * If element already in D then replace and return 
+         */
         hashcuckoo( h1, D->a1, D->shift, key );
-        if( D->T1[h1].key == key ) {
-                D->T1[h1].satellite = satellite ;
+        if( D->T1[h1].key == key )
+        {
+                D->T1[h1].data = node;
                 return FALSE;
         }
         hashcuckoo( h2, D->a2, D->shift, key );
-        if( D->T2[h2].key == key ) {
-                D->T2[h2].satellite = satellite ;
+        if( D->T2[h2].key == key )
+        {
+                D->T2[h2].data = node;
                 return FALSE;
         }
 
-        /*else insert new element in D */
+        /*
+         * else insert new element in D 
+         */
         x.key = key;
-        x.satellite = satellite ;
-        for( j = 0; j < D->maxchain; j++ ) {
+        x.data.line = node.line;
+        x.data.is_new = node.is_new;
+        x.data.fid = node.fid;
+        x.data.is_newa = node.is_newa;
+        for( j = 0; j < D->maxchain; j++ )
+        {
                 temp = D->T1[h1];
                 D->T1[h1] = x;
-                if( !temp.key ) {
+                if( !temp.key )
+                {
                         D->size++;
                         if( D->tablesize < D->size )
                                 rehash( D, 2 * D->tablesize );
@@ -167,7 +197,8 @@ boolean insert( dict_ptr D, int key , void *satellite)
 
                 temp = D->T2[h2];
                 D->T2[h2] = x;
-                if( !temp.key ) {
+                if( !temp.key )
+                {
                         D->size++;
                         if( D->tablesize < D->size )
                                 rehash( D, 2 * D->tablesize );
@@ -177,20 +208,24 @@ boolean insert( dict_ptr D, int key , void *satellite)
                 hashcuckoo( h1, D->a1, D->shift, x.key );
         }
 
-        /* Forced rehash */
+        /*
+         * Forced rehash 
+         */
         if( D->size < D->meansize )
                 rehash( D, D->tablesize );
-        else {
+        else
+        {
                 rehash( D, 2 * D->tablesize );
         }
-        insert( D, x.key, x.satellite );
+        insert( D, x.key, x.data );
         return TRUE;
-}                               /*insert */
+}                               /* insert */
 
 /*-------lookup--------------------------------------*/
-boolean lookup( dict_ptr D, int key )
+boolean
+lookup( dict_ptr D, int key )
 {
-        unsigned long hkey;
+        unsigned long   hkey;
 
         hashcuckoo( hkey, D->a1, D->shift, key );
         if( D->T1[hkey].key == key )
@@ -199,26 +234,36 @@ boolean lookup( dict_ptr D, int key )
         hashcuckoo( hkey, D->a2, D->shift, key );
         return ( D->T2[hkey].key == key );
 
-}                               /*lookup */
+}                               /* lookup */
 
 /*-------delete---------------------------------------*/
-boolean delete( dict_ptr D, int key )
+boolean
+delete( dict_ptr D, int key )
 {
-        unsigned long hkey;
+        unsigned long   hkey;
 
         hashcuckoo( hkey, D->a1, D->shift, key );
-        if( D->T1[hkey].key == key ) {
+        if( D->T1[hkey].key == key )
+        {
                 D->T1[hkey].key = 0;
-                free( D->T1[hkey].satellite );
+                D->T1[hkey].data.line = 0;
+                D->T1[hkey].data.is_new = 0;
+                D->T1[hkey].data.fid = 0;
+                D->T1[hkey].data.is_newa = 0;
                 D->size--;
                 if( D->size < D->minsize )
                         rehash( D, D->tablesize / 2 );
                 return TRUE;
-        } else {
+        } else
+        {
                 hashcuckoo( hkey, D->a2, D->shift, key );
-                if( D->T2[hkey].key == key ) {
+                if( D->T2[hkey].key == key )
+                {
                         D->T2[hkey].key = 0;
-                        free( D->T2[hkey].satellite );
+                        D->T2[hkey].data.line = 0;
+                        D->T2[hkey].data.is_new = 0;
+                        D->T2[hkey].data.fid = 0;
+                        D->T2[hkey].data.is_newa = 0;
                         D->size--;
                         if( D->size < D->minsize )
                                 rehash( D, D->tablesize / 2 );
@@ -226,37 +271,41 @@ boolean delete( dict_ptr D, int key )
                 }
         }
         return FALSE;
-}                               /*delete */
+}                               /* delete */
 
 
 /*-------size-------------------------------------------*/
-int size( dict_ptr D )
+int
+size( dict_ptr D )
 {
         return ( D->size );
-}                               /*size */
+}                               /* size */
 
 
 /*-------clear------------------------------------------*/
-void clear( dict_ptr D, int min_size )
+void
+clear( dict_ptr D, int min_size )
 {
-        dict_ptr D_new;
+        dict_ptr        D_new;
 
         D_new = construct_dict( min_size );
         free( D->T1 );
         free( D->T2 );
         *D = *D_new;
-}                               /*clear */
+}                               /* clear */
 
 /*--------destruct_dict-----------------------------------*/
-dict_ptr destruct_dict( dict_ptr D )
+dict_ptr
+destruct_dict( dict_ptr D )
 {
-        int i;
-        for( i=0; i<D->tablesize; ++i) {
-                free( D->T1[i].satellite ) ;
-                free( D->T2[i].satellite ) ;
+        int             i;
+        for( i = 0; i < D->tablesize; ++i )
+        {
+                //delete( D->T1[i] );
+                //delete( D->T2[i] );
         }
         free( D->T1 );
         free( D->T2 );
         free( D );
         return ( NULL );
-}                               /*destruct_dict */
+}                               /* destruct_dict */
