@@ -17,11 +17,11 @@
 #include <CUnit/Basic.h>
 
 
-#define IS_NEW  1
-#define IS_NEWA 2
+#define IS_NEW  69               /* op[0]='n', op[4]=')' */
+#define IS_NEWA 93               /* op[0]='n', op[4]=']' */
 
-#define IS_DEL  3
-#define IS_DELA 4
+#define IS_DEL  59               /* op[0]='d', op[4]=')' */
+#define IS_DELA 7                /* op[0]='d', op[4]=']' */
 
 #define LINE_LEN 1024
 #define BUF_SZ   256

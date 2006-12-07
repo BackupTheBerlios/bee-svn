@@ -10,7 +10,7 @@
 #define err(a) {fprintf(stderr, a);\
         exit(EXIT_FAILURE);}
 
-                char buf[1000]={0};
+char            buf[1000] = { 0 };
 int
 main( int argc, char *argv[] )
 {
@@ -18,12 +18,12 @@ main( int argc, char *argv[] )
         if( argc < 3 )
                 err( "Usage: mleak debug.log test?\n" );
 
-                sprintf( buf, "cat /proc/%d/status >>stats", getpid() );
+        sprintf( buf, "cat /proc/%d/status >>stats", getpid(  ) );
         if( argv[2][0] != 't' )
         {
                 mtrace( argv[1] );
-                //mallinfo();
-                system(buf);
+                // mallinfo();
+                system( buf );
                 return 0;
         }
 
@@ -39,11 +39,15 @@ runTestSuite( void )
 {
         CU_pSuite       pSuite = NULL;
 
-         /* initialize the CUnit test registry*/
+        /*
+         * initialize the CUnit test registry
+         */
         if( CUE_SUCCESS != CU_initialize_registry(  ) )
                 return CU_get_error(  );
 
-         /* add a suite to the registry*/
+        /*
+         * add a suite to the registry
+         */
         pSuite = CU_add_suite( "Suite_1", init_suite1, clean_suite1 );
         if( NULL == pSuite )
         {
@@ -51,7 +55,9 @@ runTestSuite( void )
                 return CU_get_error(  );
         }
 
-         /* add the tests to the suite */
+        /*
+         * add the tests to the suite 
+         */
         if( ( NULL == CU_add_test( pSuite, "mgets()", test_mgets ) ) ||
             ( NULL == CU_add_test( pSuite, "readInt()", test_readInt ) ) )
         {
@@ -60,7 +66,9 @@ runTestSuite( void )
                 return CU_get_error(  );
         }
 
-        /* Run all tests using the CUnit Basic interface */
+        /*
+         * Run all tests using the CUnit Basic interface 
+         */
         CU_basic_set_mode( CU_BRM_VERBOSE );
         CU_basic_run_tests(  );
         CU_cleanup_registry(  );
@@ -179,7 +187,6 @@ readSzFile( const char *text, int *sz, char *file, int fileLen )
 inline static void
 mtrace( const char *const fname )
 {
-        nod_t           nod;
         char           *line = 0,
             *p = NULL,
             *map = 0,
@@ -189,22 +196,25 @@ mtrace( const char *const fname )
         int             pageOffset = 0,
             ptr = 0;
         struct stat     statbuf;
-        off_t           filePos = 0,
-            lastPageOffset = 0;
-        unsigned int    charsInBuf = 0;
-        dict_ptr        dictionary;
         int             tmp;
         int             min_size = 1024;
-
+        unsigned int    charsInBuf = 0;
+        nod_t           nod;
+        dict_ptr        dictionary;
+        off_t           filePos = 0,
+            lastPageOffset = 0;
 
         if( ( fd = open( fname, O_RDWR ) ) < 0 )
-                err( "Unable to debug file");
+                err( "Unable to debug file" );
 
         dictionary = construct_dict( min_size );
         fstat( fd, &statbuf );
 
-        map = mmap( 0, BUF_SZ * PAGE_SZ, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0 );
-        if( map == MAP_FAILED ) err( "mmap error for input\n" );
+        map =
+            mmap( 0, BUF_SZ * PAGE_SZ, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd,
+                  0 );
+        if( map == MAP_FAILED )
+                err( "mmap error for input\n" );
 
         filePos = BUF_SZ * PAGE_SZ;
         pageOffset = filePos - ( filePos % PAGE_SZ );
@@ -213,23 +223,28 @@ mtrace( const char *const fname )
 
         for( ; filePos <= statbuf.st_size; line = end )
         {
-                 /* buffer has less than a line */
+                /*
+                 * buffer has less than a line 
+                 */
                 if( charsInBuf < LINE_LEN )
                 {
                         dprintf( ( stderr, "REMAP\n" ) );
                         munmap( map, BUF_SZ * PAGE_SZ );
 
-                        map =
-                            mmap( 0, BUF_SZ * PAGE_SZ,
-                                  PROT_READ | PROT_WRITE, MAP_PRIVATE, fd,
-                                  pageOffset );
+                        map = mmap( 0, BUF_SZ * PAGE_SZ,
+                                    PROT_READ | PROT_WRITE, MAP_PRIVATE, fd,
+                                    pageOffset );
                         if( map == MAP_FAILED )
                                 err( "mmap error for input\n" );
                         filePos += BUF_SZ * PAGE_SZ - charsInBuf;
-                        pageOffset = filePos - ( filePos % PAGE_SZ );
+                        pageOffset = filePos - ( filePos % PAGE_SZ );   /* optimize 
+                                                                         * %
+                                                                         * with 
+                                                                         * bit-twidling 
+                                                                         */
                         line = map + lastPageOffset;
                         charsInBuf = PAGE_SZ * BUF_SZ - charsInBuf;
-                        system(buf);
+                        system( buf );
                 }
 
                 tmp = mgets( line, &end );
@@ -239,11 +254,12 @@ mtrace( const char *const fname )
 
                 dprintf( ( stderr,
                            "pageOffset=%d lastPageOffset=%jd filePos=%jd fileSz=%jd charsInBuf=%d\n",
-                           pageOffset, ( intmax_t ) lastPageOffset,( intmax_t ) filePos,
-                           ( intmax_t ) statbuf.st_size, charsInBuf ) );
+                           pageOffset, ( intmax_t ) lastPageOffset,
+                           ( intmax_t ) filePos, ( intmax_t ) statbuf.st_size,
+                           charsInBuf ) );
 
                 dprintf( ( stderr, "[%d][%s]\n", line[0], line ) );
-                printf( "%s\n", line );
+                dprintf( ( stderr, "%s\n", line ) );
                 if( line[0] != 'M' && line[6] != 'O' )
                         continue;
                 p = line + 9;   /* Advance over 'MEMINFO: ' */
@@ -260,14 +276,13 @@ mtrace( const char *const fname )
 inline void
 checkAddress( int type, int ptr, nod_t nod, dict_ptr dict )
 {
-        nod_t          A ;
+        nod_t           A;
         int             found = 0;
 
         switch ( type )
         {
         case IS_NEW:
                 dprintf( ( stderr, "---new()--\n" ) );
-                //A = malloc( sizeof( nod_t ) );
                 A.line = nod.line;
                 A.fid = 1;
                 A.is_new = 1;
@@ -276,7 +291,6 @@ checkAddress( int type, int ptr, nod_t nod, dict_ptr dict )
 
         case IS_NEWA:
                 dprintf( ( stderr, "---new[]--\n" ) );
-                //A = malloc( sizeof( nod_t ) );
                 A.line = nod.line;
                 A.fid = 1;
                 A.is_newa = 1;
@@ -287,15 +301,15 @@ checkAddress( int type, int ptr, nod_t nod, dict_ptr dict )
                 dprintf( ( stderr, "---delete()--\n" ) );
                 found = lookup( dict, ptr );
                 if( !found )
-                        printf("Double free\n");
-                delete( dict, ptr);
+                        printf( "Double free\n" );
+                delete( dict, ptr );
                 break;
 
         case IS_DELA:
                 dprintf( ( stderr, "---delete[]--\n" ) );
                 if( !found )
-                        printf("Double free\n");
-                delete( dict, ptr);
+                        printf( "Double free\n" );
+                delete( dict, ptr );
                 break;
         default:
                 dprintf( ( stderr, "Unknown operator\n" ) );
@@ -316,26 +330,30 @@ parseLine( const char *const text, nod_t * res, int *type )
 
         sscanf( text, "%s %x", op, &ptr );
 
-        if( op[0] == 'n' && op[4] == ')' )
+        switch ( op[0] - op[4] )
         {
+        case IS_NEW:
                 res->is_new = 1;
                 *type = IS_NEW;
                 readSzFile( text + 16, &sz, file, FNAME_LEN );
-        } else if( op[0] == 'n' && op[4] == ']' )
-        {
+                break;
+        case IS_NEWA:
                 res->is_newa = 1;
                 *type = IS_NEWA;
                 readSzFile( text + 16, &sz, file, FNAME_LEN );
-        } else if( op[0] == 'd' && op[4] == ')' )
-        {
+                break;
+        case IS_DEL:
                 *type = IS_DEL;
                 memcpy( file, text + 16, FNAME_LEN );
-        } else if( op[0] == 'd' && op[4] == ']' )
-        {
+                break;
+        case IS_DELA:
                 *type = IS_DELA;
                 memcpy( file, text + 16, FNAME_LEN );
+                break;
+        default:
+                return 0;
+                break;
         }
-
         p = memchr( file, '(', FNAME_LEN );
 
         if( !p )
@@ -349,6 +367,7 @@ parseLine( const char *const text, nod_t * res, int *type )
 
 
 
+/*------------------------------------------------------------------------*/
 /*
  * Removing one sscanf call reduces the cache misses from:
  * ==5544== I   refs:      68,834,587

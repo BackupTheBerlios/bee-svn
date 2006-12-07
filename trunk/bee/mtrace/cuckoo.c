@@ -64,7 +64,7 @@ alloc_dict( int tablesize )
 
 /*------insert taylored to rehash-------------------------------*/
 boolean
-rehash_insert( dict_ptr D, int key, nod_t node)
+rehash_insert( dict_ptr D, int key, nod_t node )
 {
         unsigned long   hkey;
         int             j;
@@ -116,16 +116,14 @@ rehash( dict_ptr D, int new_size )
         {
                 if( ( D->T1[k].key )
                     &&
-                    ( !rehash_insert
-                      ( D_new, D->T1[k].key, D->T1[k].data ) ) )
+                    ( !rehash_insert( D_new, D->T1[k].key, D->T1[k].data ) ) )
                 {
                         k = -1;
                         continue;
                 }
                 if( ( D->T2[k].key )
                     &&
-                    ( !rehash_insert
-                      ( D_new, D->T2[k].key, D->T2[k].data ) ) )
+                    ( !rehash_insert( D_new, D->T2[k].key, D->T2[k].data ) ) )
                         k = -1;
         }
         free( D->T1 );
@@ -301,8 +299,8 @@ destruct_dict( dict_ptr D )
         int             i;
         for( i = 0; i < D->tablesize; ++i )
         {
-                //delete( D->T1[i] );
-                //delete( D->T2[i] );
+                // delete( D->T1[i] );
+                // delete( D->T2[i] );
         }
         free( D->T1 );
         free( D->T2 );
