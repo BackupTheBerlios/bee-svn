@@ -22,57 +22,12 @@ main( int argc, char *argv[] )
         if( argv[2][0] != 't' )
         {
                 mtrace( argv[1] );
-                // mallinfo();
                 system( buf );
                 return 0;
         }
 
         runTestSuite(  );
         return 0;
-}
-
-
-
-/*------------------------------------------------------------------------*/
-int
-runTestSuite( void )
-{
-        CU_pSuite       pSuite = NULL;
-
-        /*
-         * initialize the CUnit test registry
-         */
-        if( CUE_SUCCESS != CU_initialize_registry(  ) )
-                return CU_get_error(  );
-
-        /*
-         * add a suite to the registry
-         */
-        pSuite = CU_add_suite( "Suite_1", init_suite1, clean_suite1 );
-        if( NULL == pSuite )
-        {
-                CU_cleanup_registry(  );
-                return CU_get_error(  );
-        }
-
-        /*
-         * add the tests to the suite 
-         */
-        if( ( NULL == CU_add_test( pSuite, "mgets()", test_mgets ) ) ||
-            ( NULL == CU_add_test( pSuite, "readInt()", test_readInt ) ) )
-        {
-                printf( "Error\n" );
-                CU_cleanup_registry(  );
-                return CU_get_error(  );
-        }
-
-        /*
-         * Run all tests using the CUnit Basic interface 
-         */
-        CU_basic_set_mode( CU_BRM_VERBOSE );
-        CU_basic_run_tests(  );
-        CU_cleanup_registry(  );
-        return CU_get_error(  );
 }
 
 
@@ -98,23 +53,6 @@ mgets( char *start, char **end )
 }
 
 
-void
-test_mgets( void )
-{
-        char           *end;
-        char            text[1024] = "abc\n";
-
-        CU_ASSERT( mgets( text, &end ) == 4 );
-        strcpy( text, "\n" );
-        CU_ASSERT( mgets( text, &end ) == 1 );
-        strcpy( text, "\0\n" );
-        CU_ASSERT( mgets( text, &end ) == 0 );
-        memset( text, 'a', 1023 );
-        text[1023] = 0;
-        CU_ASSERT( mgets( text, &end ) == 1023 );
-}
-
-
 /*------------------------------------------------------------------------*/
 inline static void
 readInt( const char *text, int *sz )
@@ -124,42 +62,6 @@ readInt( const char *text, int *sz )
              *text >= '0' && *text <= '9'; ++text )
                 *sz = ( *sz ) * 10 + *text - '0';
 }
-
-void
-test_readInt(  )
-{
-        int             end = 0;
-        char            text[1024] = { 0 };
-
-        strcpy( text, "127" );
-        readInt( text, &end );
-        CU_ASSERT( end == 127 );
-
-        strcpy( text, "abc" );
-        readInt( text, &end );
-        CU_ASSERT( end == 0 );
-
-        strcpy( text, "\0" );
-        readInt( text, &end );
-        CU_ASSERT( end == 0 );
-
-        strcpy( text, "10" );
-        readInt( text, &end );
-        CU_ASSERT( end == 10 );
-
-        strcpy( text, "99" );
-        readInt( text, &end );
-        CU_ASSERT( end == 99 );
-
-        strcpy( text, "99\n" );
-        readInt( text, &end );
-        CU_ASSERT( end == 99 );
-
-        strcpy( text, "99 " );
-        readInt( text, &end );
-        CU_ASSERT( end == 99 );
-}
-
 
 /*------------------------------------------------------------------------*/
 inline static void
@@ -237,11 +139,7 @@ mtrace( const char *const fname )
                         if( map == MAP_FAILED )
                                 err( "mmap error for input\n" );
                         filePos += BUF_SZ * PAGE_SZ - charsInBuf;
-                        pageOffset = filePos - ( filePos % PAGE_SZ );   /* optimize 
-                                                                         * %
-                                                                         * with 
-                                                                         * bit-twidling 
-                                                                         */
+                        pageOffset = filePos - ( filePos % PAGE_SZ );
                         line = map + lastPageOffset;
                         charsInBuf = PAGE_SZ * BUF_SZ - charsInBuf;
                         system( buf );
@@ -257,9 +155,7 @@ mtrace( const char *const fname )
                            pageOffset, ( intmax_t ) lastPageOffset,
                            ( intmax_t ) filePos, ( intmax_t ) statbuf.st_size,
                            charsInBuf ) );
-
                 dprintf( ( stderr, "[%d][%s]\n", line[0], line ) );
-                dprintf( ( stderr, "%s\n", line ) );
                 if( line[0] != 'M' && line[6] != 'O' )
                         continue;
                 p = line + 9;   /* Advance over 'MEMINFO: ' */
@@ -365,6 +261,103 @@ parseLine( const char *const text, nod_t * res, int *type )
         return ptr;
 }
 
+
+/*------------------------------------------------------------------------*/
+
+int
+runTestSuite( void )
+{
+        CU_pSuite       pSuite = NULL;
+
+        /*
+         * initialize the CUnit test registry
+         */
+        if( CUE_SUCCESS != CU_initialize_registry(  ) )
+                return CU_get_error(  );
+
+        /*
+         * add a suite to the registry
+         */
+        pSuite = CU_add_suite( "Suite_1", init_suite1, clean_suite1 );
+        if( NULL == pSuite )
+        {
+                CU_cleanup_registry(  );
+                return CU_get_error(  );
+        }
+
+        /*
+         * add the tests to the suite 
+         */
+        if( ( NULL == CU_add_test( pSuite, "mgets()", test_mgets ) ) ||
+            ( NULL == CU_add_test( pSuite, "readInt()", test_readInt ) ) )
+        {
+                printf( "Error\n" );
+                CU_cleanup_registry(  );
+                return CU_get_error(  );
+        }
+
+        /*
+         * Run all tests using the CUnit Basic interface 
+         */
+        CU_basic_set_mode( CU_BRM_VERBOSE );
+        CU_basic_run_tests(  );
+        CU_cleanup_registry(  );
+        return CU_get_error(  );
+}
+
+
+
+void
+test_mgets( void )
+{
+        char           *end;
+        char            text[1024] = "abc\n";
+
+        CU_ASSERT( mgets( text, &end ) == 4 );
+        strcpy( text, "\n" );
+        CU_ASSERT( mgets( text, &end ) == 1 );
+        strcpy( text, "\0\n" );
+        CU_ASSERT( mgets( text, &end ) == 0 );
+        memset( text, 'a', 1023 );
+        text[1023] = 0;
+        CU_ASSERT( mgets( text, &end ) == 1023 );
+}
+
+
+void
+test_readInt(  )
+{
+        int             end = 0;
+        char            text[1024] = { 0 };
+
+        strcpy( text, "127" );
+        readInt( text, &end );
+        CU_ASSERT( end == 127 );
+
+        strcpy( text, "abc" );
+        readInt( text, &end );
+        CU_ASSERT( end == 0 );
+
+        strcpy( text, "\0" );
+        readInt( text, &end );
+        CU_ASSERT( end == 0 );
+
+        strcpy( text, "10" );
+        readInt( text, &end );
+        CU_ASSERT( end == 10 );
+
+        strcpy( text, "99" );
+        readInt( text, &end );
+        CU_ASSERT( end == 99 );
+
+        strcpy( text, "99\n" );
+        readInt( text, &end );
+        CU_ASSERT( end == 99 );
+
+        strcpy( text, "99 " );
+        readInt( text, &end );
+        CU_ASSERT( end == 99 );
+}
 
 
 /*------------------------------------------------------------------------*/
