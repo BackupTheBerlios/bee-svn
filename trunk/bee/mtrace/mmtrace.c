@@ -202,7 +202,7 @@ inline static char *rebuf( int fd, buffer_t* bp)
                     fd, bp->b_pageOffset );
 
         if( bp->b_map == MAP_FAILED )
-                err( "mmap error for input\n" );
+                err( "mmap error for inputF\n" );
 
         bp->b_fileOffset += BUF_SZ * PAGE_SZ - bp->b_chars;
         bp->b_pageOffset = bp->b_fileOffset - ( bp->b_fileOffset % PAGE_SZ );
@@ -219,7 +219,7 @@ inline static void mtrace( const char *const fname )
         int fd = -1 ;
         struct stat statbuf;
         dict_ptr dict;
-        buffer_t bp;
+        buffer_t bp = { .b_line=0, .b_map=0, .b_pageOffset=0, .b_fileOffset=0, .b_chars=0};
 
         if( ( fd = open( fname, O_RDWR ) ) < 0 )
                 err( "Unable to debug file" );
