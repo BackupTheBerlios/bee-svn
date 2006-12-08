@@ -27,6 +27,8 @@
 #define BUF_SZ   256
 #define PAGE_SZ  4096
 #define FNAME_LEN 256
+#define MIN_DICT_SIZE 1024
+
 
 #ifdef DEBUG
 #define dprintf(a) fprintf a
@@ -34,6 +36,7 @@
 #define dprintf(a) ;
 #endif
 
+#define err(a) {fprintf(stderr, a); exit(EXIT_FAILURE);}
 
 inline static int    parseLine( const char text[], nod_t * res, int *type );
 

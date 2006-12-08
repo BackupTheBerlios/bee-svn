@@ -40,14 +40,12 @@ typedef struct {
 #define dprintf(a) ;
 #endif
 
-inline int      parseLine( const char text[], nod_t * res, int *type );
+inline int parseLine( const char text[], nod_t * res, int *type );
 
-int
-main( int argc, char *argv[] )
+int main( int argc, char *argv[] )
 {
 
-        if( argc < 2 )
-        {
+        if( argc < 2 ) {
                 fprintf( stderr, "Usage: mleak debug.log\n" );
                 exit( EXIT_FAILURE );
         }
@@ -56,22 +54,18 @@ main( int argc, char *argv[] )
 }
 
 #if 0
-inline int
-mmtrace( const char *const fname )
+inline int mmtrace( const char *const fname )
 {
-        nod_t           nod;
-        char            line[LINE_LENGTH] = { 0 }, *p = NULL;
-        int             no_bits,
-                        fd = -1,
-            type = 0;
-        char           *map = 0;
-        struct stat     statbuf;
-        FILE           *f = 0;
+        nod_t nod;
+        char line[LINE_LENGTH] = { 0 }, *p = NULL;
+        int no_bits, fd = -1, type = 0;
+        char *map = 0;
+        struct stat statbuf;
+        FILE *f = 0;
 
         fd = open( fname, O_RDWR );
 
-        if( fd < 0 )
-        {
+        if( fd < 0 ) {
                 printf( "Unable to open '%s'\n", argv[1] );
                 exit( EXIT_FAILURE );
         }
@@ -80,8 +74,7 @@ mmtrace( const char *const fname )
         map =
             mmap( 0, statbuf.st_size, PROT_READ | PROT_WRITE, MAP_SHARED,
                   fd, 0 );
-        if( map == MAP_FAILED )
-        {
+        if( map == MAP_FAILED ) {
                 printf( "mmap error for input\n" );
                 exit( EXIT_FAILURE );
         }
@@ -90,27 +83,21 @@ mmtrace( const char *const fname )
 #endif
 
 
-inline int
-mtrace( const char *const fname )
+inline int mtrace( const char *const fname )
 {
-        nod_t           nod;
-        char            line[LINE_LENGTH] = { 0 }, *p = NULL;
-        int             no_bits,
-                        fd = -1,
-            type = 0;
-        struct stat     statbuf;
-        FILE           *f = 0;
+        nod_t nod;
+        char line[LINE_LENGTH] = { 0 }, *p = NULL;
+        int no_bits, fd = -1, type = 0;
+        struct stat statbuf;
+        FILE *f = 0;
 
         f = fopen( fname, "r" );
-        if( !f )
-        {
+        if( !f ) {
                 printf( "err open\n" );
                 exit( -1 );
         }
-        while( !feof( f ) )
-        {
-                if( !fgets( line, LINE_LENGTH - 1, f ) )
-                {
+        while( !feof( f ) ) {
+                if( !fgets( line, LINE_LENGTH - 1, f ) ) {
                         dprintf( ( "Error or EOF encountered while reading file\n" ) );
                         exit( EXIT_FAILURE );
                 }
@@ -122,8 +109,7 @@ mtrace( const char *const fname )
 
                 parseLine( p, &nod, &type );
 
-                switch ( type )
-                {
+                switch ( type ) {
                 case IS_NEW:
                         dprintf( ( "---new()--\n" ) );
                         /*
@@ -168,37 +154,31 @@ mtrace( const char *const fname )
 
 
 #define FILE_LEN 128
-inline int
-parseLine( const char *const text, nod_t * res, int *type )
+inline int parseLine( const char *const text, nod_t * res, int *type )
 {
-        char            op[8];  /* operator ( new or delete ) */
-        char            file[FILE_LEN]; /* file */
-        int             ptr;    /* pointer */
-        char           *p;      /* used to find the line Number */
-        short int       sz = 0,
-            line = 0;
+        char op[8];             /* operator ( new or delete ) */
+        char file[FILE_LEN];    /* file */
+        int ptr;                /* pointer */
+        char *p;                /* used to find the line Number */
+        short int sz = 0, line = 0;
 
         sscanf( text, "%s %x", op, &ptr );
 
-        if( op[0] == 'n' && op[4] == ')' )
-        {
+        if( op[0] == 'n' && op[4] == ')' ) {
                 dprintf( ( "+++new()++\n" ) );
                 res->is_new = 1;
                 *type = IS_NEW;
                 sscanf( text + 16, "%*d %s", &sz, file );
-        } else if( op[0] == 'n' && op[4] == ']' )
-        {
+        } else if( op[0] == 'n' && op[4] == ']' ) {
                 dprintf( ( "+++new[]++\n" ) );
                 res->is_newa = 1;
                 *type = IS_NEWA;
                 sscanf( text + 16, "%*d %s", &sz, file );
-        } else if( op[0] == 'd' && op[4] == ')' )
-        {
+        } else if( op[0] == 'd' && op[4] == ')' ) {
                 dprintf( ( "+++delete()++\n" ) );
                 *type = IS_DEL;
                 sscanf( text + 16, "%s", file );
-        } else if( op[0] == 'd' && op[4] == ']' )
-        {
+        } else if( op[0] == 'd' && op[4] == ']' ) {
                 dprintf( ( "+++delete[]++\n" ) );
                 *type = IS_DELA;
                 sscanf( text + 16, "%s", file );

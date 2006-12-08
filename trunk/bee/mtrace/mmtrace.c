@@ -7,21 +7,30 @@
 #include <unistd.h>
 #include <malloc.h>
 
-#define err(a) {fprintf(stderr, a);\
-        exit(EXIT_FAILURE);}
 
-char            buf[1000] = { 0 };
-int
-main( int argc, char *argv[] )
+#define PRINT_INFO \
+                dprintf( ( stderr,\
+                           "pageOffset=%d lastPageOffset=%jd filePos=%jd fileSz=%jd charsInBuf=%d\n",\
+                           pageOffset, ( intmax_t ) lastPageOffset,\
+                           ( intmax_t ) filePos, ( intmax_t ) statbuf.st_size,\
+                           charsInBuf ) );\
+                dprintf( ( stderr, "[%d][%s]\n", line[0], line ) );
+
+/*
+ * To overcome the memory consumption, the tables T1&T2 can be dumped
+ * to disk.
+ */
+
+char buf[1000] = { 0 };
+
+int main( int argc, char *argv[] )
 {
-        struct mallinfo mi;
         if( argc < 3 )
                 err( "Usage: mleak debug.log test?\n" );
 
         sprintf( buf, "cat /proc/%d/status >>stats", getpid(  ) );
         if( argv[2][0] != 't' )
-        {
-                mtrace( argv[1] );
+        {       mtrace( argv[1] );
                 system( buf );
                 return 0;
         }
@@ -31,20 +40,23 @@ main( int argc, char *argv[] )
 }
 
 
+
+
+
+
 /*------------------------------------------------------------------------*/
-inline static   size_t
-mgets( char *start, char **end )
+inline static size_t mgets( char *start, char **end )
 {
-        char           *s = start;
-        size_t          r = 0;
+        char *s = start;
+        size_t r = 0;
 
         if( !start || !*start )
-        {
-                printf( "RET 0\n" );
+        {       printf( "RET 0\n" );
                 return 0;
         }
 
-        for( ; *start != '\n' && *start != 0; ++start ) /* 0.07% cache * miss */
+        /* 0.07% cache * miss */
+        for( ; *start != '\n' && *start != 0; ++start )
                 ;
         r = ( *start == 0 ) ? start - s : start - s + 1;
         *start = 0;
@@ -54,8 +66,7 @@ mgets( char *start, char **end )
 
 
 /*------------------------------------------------------------------------*/
-inline static void
-readInt( const char *text, int *sz )
+inline static void readInt( const char *text, int *sz )
 {
         for( *sz = 0;
              *text != '\0' && *text != ' ' &&
@@ -63,122 +74,38 @@ readInt( const char *text, int *sz )
                 *sz = ( *sz ) * 10 + *text - '0';
 }
 
+
 /*------------------------------------------------------------------------*/
 inline static void
 readSzFile( const char *text, int *sz, char *file, int fileLen )
 {
-        int             i = 0;
+        int i = 0;
 
         for( *sz = 0; *text != '\0' && *text != ' '; ++text )
                 *sz = ( *sz ) * 10 + *text - '0';
 
         if( *text == '\0' )
-        {
-                file[0] = '\0';
+        {       file[0] = '\0';
                 return;
         }
 
         for( i = 0; *text != '\0'; ++i, ++text );
 
-        memcpy( file, text + 1, i );    /* 0.1 % cache misses */
+        /* 0.1 % cache misses */
+        memcpy( file, text + 1, i );
 }
 
 
 
 /*------------------------------------------------------------------------*/
-inline static void
-mtrace( const char *const fname )
+inline void checkAddress( int type, int ptr, nod_t nod, dict_ptr dict )
 {
-        char           *line = 0,
-            *p = NULL,
-            *map = 0,
-            *end = 0;
-        int             fd = -1,
-            type = 0;
-        int             pageOffset = 0,
-            ptr = 0;
-        struct stat     statbuf;
-        int             tmp;
-        int             min_size = 1024;
-        unsigned int    charsInBuf = 0;
-        nod_t           nod;
-        dict_ptr        dictionary;
-        off_t           filePos = 0,
-            lastPageOffset = 0;
+        nod_t A;
+        int found = 0;
 
-        if( ( fd = open( fname, O_RDWR ) ) < 0 )
-                err( "Unable to debug file" );
-
-        dictionary = construct_dict( min_size );
-        fstat( fd, &statbuf );
-
-        map =
-            mmap( 0, BUF_SZ * PAGE_SZ, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd,
-                  0 );
-        if( map == MAP_FAILED )
-                err( "mmap error for input\n" );
-
-        filePos = BUF_SZ * PAGE_SZ;
-        pageOffset = filePos - ( filePos % PAGE_SZ );
-        charsInBuf = PAGE_SZ * BUF_SZ;
-        line = map;
-
-        for( ; filePos <= statbuf.st_size; line = end )
-        {
-                /*
-                 * buffer has less than a line 
-                 */
-                if( charsInBuf < LINE_LEN )
-                {
-                        dprintf( ( stderr, "REMAP\n" ) );
-                        munmap( map, BUF_SZ * PAGE_SZ );
-
-                        map = mmap( 0, BUF_SZ * PAGE_SZ,
-                                    PROT_READ | PROT_WRITE, MAP_PRIVATE, fd,
-                                    pageOffset );
-                        if( map == MAP_FAILED )
-                                err( "mmap error for input\n" );
-                        filePos += BUF_SZ * PAGE_SZ - charsInBuf;
-                        pageOffset = filePos - ( filePos % PAGE_SZ );
-                        line = map + lastPageOffset;
-                        charsInBuf = PAGE_SZ * BUF_SZ - charsInBuf;
-                        system( buf );
-                }
-
-                tmp = mgets( line, &end );
-                if( !tmp )
-                        continue;
-                charsInBuf -= tmp;
-
-                dprintf( ( stderr,
-                           "pageOffset=%d lastPageOffset=%jd filePos=%jd fileSz=%jd charsInBuf=%d\n",
-                           pageOffset, ( intmax_t ) lastPageOffset,
-                           ( intmax_t ) filePos, ( intmax_t ) statbuf.st_size,
-                           charsInBuf ) );
-                dprintf( ( stderr, "[%d][%s]\n", line[0], line ) );
-                if( line[0] != 'M' && line[6] != 'O' )
-                        continue;
-                p = line + 9;   /* Advance over 'MEMINFO: ' */
-
-                ptr = parseLine( p, &nod, &type );
-                checkAddress( type, ptr, nod, dictionary );
-        }
-        close( fd );
-        destruct_dict( dictionary );
-}
-
-
-/*------------------------------------------------------------------------*/
-inline void
-checkAddress( int type, int ptr, nod_t nod, dict_ptr dict )
-{
-        nod_t           A;
-        int             found = 0;
-
-        switch ( type )
-        {
+        switch ( type ) {
         case IS_NEW:
-                dprintf( ( stderr, "---new()--\n" ) );
+                dprintf( "---new()--\n" ) ;
                 A.line = nod.line;
                 A.fid = 1;
                 A.is_new = 1;
@@ -186,7 +113,7 @@ checkAddress( int type, int ptr, nod_t nod, dict_ptr dict )
                 break;
 
         case IS_NEWA:
-                dprintf( ( stderr, "---new[]--\n" ) );
+                dprintf( "---new[]--\n" ) ;
                 A.line = nod.line;
                 A.fid = 1;
                 A.is_newa = 1;
@@ -194,7 +121,7 @@ checkAddress( int type, int ptr, nod_t nod, dict_ptr dict )
                 break;
 
         case IS_DEL:
-                dprintf( ( stderr, "---delete()--\n" ) );
+                dprintf( "---delete()--\n" ) ;
                 found = lookup( dict, ptr );
                 if( !found )
                         printf( "Double free\n" );
@@ -202,32 +129,30 @@ checkAddress( int type, int ptr, nod_t nod, dict_ptr dict )
                 break;
 
         case IS_DELA:
-                dprintf( ( stderr, "---delete[]--\n" ) );
+                dprintf( "---delete[]--\n" ) ;
                 if( !found )
                         printf( "Double free\n" );
                 delete( dict, ptr );
                 break;
         default:
-                dprintf( ( stderr, "Unknown operator\n" ) );
+                dprintf( "Unknown operator\n" ) ;
                 break;
         }
 }
 
+
+
 /*------------------------------------------------------------------------*/
-inline static int
-parseLine( const char *const text, nod_t * res, int *type )
+inline static int parseLine( const char *const text, nod_t * res, int *type )
 {
-        char            op[8];  /* operator ( new or delete ) */
-        char           *p;      /* find line Number */
-        int             sz = 0,
-            line = 0,
-            ptr;
-        char            file[FNAME_LEN] = { 0 };
+        char op[8];             /* operator ( new or delete ) */
+        char *p;                /* find line Number */
+        int sz = 0, line = 0, ptr;
+        char file[FNAME_LEN] = { 0 };
 
         sscanf( text, "%s %x", op, &ptr );
 
-        switch ( op[0] - op[4] )
-        {
+        switch ( op[0] - op[4] ) {
         case IS_NEW:
                 res->is_new = 1;
                 *type = IS_NEW;
@@ -261,13 +186,78 @@ parseLine( const char *const text, nod_t * res, int *type )
         return ptr;
 }
 
+inline static char *rebuf( int fd, char *m, buffer_t* buf)
+{
+        munmap( buf->map, BUF_SZ * PAGE_SZ );
+        buf->map = mmap( 0, BUF_SZ * PAGE_SZ, PROT_READ | PROT_WRITE, MAP_PRIVATE,
+                    fd, buf->pageOffset );
+
+        if( buf->map == MAP_FAILED )
+                err( "mmap error for input\n" );
+
+        buf->fileOffset += BUF_SZ * PAGE_SZ - buf->charsInBuf;
+        buf->pageOffset = buf->filePos - ( buf->filePos % PAGE_SZ );
+        buf->line = buf->map + ( 4096 - buf->charsInBuf );
+        buf->charsInBuf = PAGE_SZ * BUF_SZ - buf->charsInBuf;
+        return buf->map;
+}
+
+
+struct buffer_t {
+        char*   line;
+        char*   map;
+        int     pageOffset;
+        off_t   fileOffset;
+        unsigned int chars;
+}
+
+/*------------------------------------------------------------------------*/
+inline static void mtrace( const char *const fname )
+{       char *p = NULL, *end = 0;
+        int fd = -1 ;
+        struct stat statbuf;
+        dict_ptr dict;
+        buffer_t buf;
+
+        if( ( fd = open( fname, O_RDWR ) ) < 0 )
+                err( "Unable to debug file" );
+
+        dict = construct_dict( MIN_DICT_SIZE );
+        fstat( fd, &statbuf );
+
+        map = rebuf( fd, map, &buf );
+
+        for( ; buf.fileOffset <= statbuf.st_size; buf.line = end )
+        {       int ptr=0, tmp=0, type=0;
+                nod_t nod;
+
+                if( buf.chars < LINE_LEN )
+                {       dprintf( "REMAP\n" );
+                        rebuf( fd, map, &buf );
+                }
+
+                tmp = mgets( buf.line, &end );
+                if( !tmp )
+                        continue;
+                buf.chars -= tmp;
+                PRINT_INFO;
+
+                if( buf.line[0] != 'M' && buf.line[6] != 'O' )
+                        continue;
+                p = buf.line + 9;   /* Advance over 'MEMINFO: ' */
+
+                ptr = parseLine( p, &nod, &type );
+                checkAddress( type, ptr, nod, dict );
+        }
+        close( fd );
+        destruct_dict( dict );
+}
 
 /*------------------------------------------------------------------------*/
 
-int
-runTestSuite( void )
+int runTestSuite( void )
 {
-        CU_pSuite       pSuite = NULL;
+        CU_pSuite pSuite = NULL;
 
         /*
          * initialize the CUnit test registry
@@ -280,24 +270,22 @@ runTestSuite( void )
          */
         pSuite = CU_add_suite( "Suite_1", init_suite1, clean_suite1 );
         if( NULL == pSuite )
-        {
-                CU_cleanup_registry(  );
+        {       CU_cleanup_registry(  );
                 return CU_get_error(  );
         }
 
         /*
-         * add the tests to the suite 
+         * add the tests to the suite
          */
         if( ( NULL == CU_add_test( pSuite, "mgets()", test_mgets ) ) ||
             ( NULL == CU_add_test( pSuite, "readInt()", test_readInt ) ) )
-        {
-                printf( "Error\n" );
+        {       printf( "Error\n" );
                 CU_cleanup_registry(  );
                 return CU_get_error(  );
         }
 
         /*
-         * Run all tests using the CUnit Basic interface 
+         * Run all tests using the CUnit Basic interface
          */
         CU_basic_set_mode( CU_BRM_VERBOSE );
         CU_basic_run_tests(  );
@@ -307,11 +295,10 @@ runTestSuite( void )
 
 
 
-void
-test_mgets( void )
+void test_mgets( void )
 {
-        char           *end;
-        char            text[1024] = "abc\n";
+        char *end;
+        char text[1024] = "abc\n";
 
         CU_ASSERT( mgets( text, &end ) == 4 );
         strcpy( text, "\n" );
@@ -324,11 +311,10 @@ test_mgets( void )
 }
 
 
-void
-test_readInt(  )
+void test_readInt(  )
 {
-        int             end = 0;
-        char            text[1024] = { 0 };
+        int end = 0;
+        char text[1024] = { 0 };
 
         strcpy( text, "127" );
         readInt( text, &end );

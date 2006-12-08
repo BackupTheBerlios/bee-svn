@@ -23,16 +23,13 @@
 /*
  * Driver reads commands, calls routines, reports 
  */
-int
-main( int argc, char **argv )
+int main( int argc, char **argv )
 {
-        dict_ptr        dictionary;
-        int             key,
-                        tmp;
-        boolean         found;
-        char            index;
-        int             i,
-                        min_size;
+        dict_ptr dictionary;
+        int key, tmp;
+        boolean found;
+        char index;
+        int i, min_size;
 
 
         min_size = 1024;
@@ -45,17 +42,14 @@ main( int argc, char **argv )
          * Perform dictionary operations 
          */
         dictionary = construct_dict( min_size );
-        if( DETAIL > 0 )
-        {
+        if( DETAIL > 0 ) {
                 printf( "dch" );
                 fflush( stdout );
         }
         printf( "\n" );
-        for( i = 0; i < 1200000; ++i )
-        {
+        for( i = 0; i < 1200000; ++i ) {
                 found = insert( dictionary, i );
-                if( DETAIL > 0 )
-                {
+                if( DETAIL > 0 ) {
                         if( found )
                                 printf( "1" );
                         else
@@ -70,10 +64,8 @@ main( int argc, char **argv )
         }
         printf( "\n" );
 #if 0
-        while( fread( &index, 1, 1, stdin ) == 1 )
-        {
-                switch ( index )
-                {
+        while( fread( &index, 1, 1, stdin ) == 1 ) {
+                switch ( index ) {
                 case '1':
                         {       /* Reset counters */
                                 break;
@@ -88,8 +80,7 @@ main( int argc, char **argv )
                                 fread( &key, sizeof( int ), 1, stdin );
                                 found = lookup( dictionary, key );
 
-                                if( DETAIL >= 1 )
-                                {
+                                if( DETAIL >= 1 ) {
                                         if( found )
                                                 printf( "1" );
                                         else
@@ -101,8 +92,7 @@ main( int argc, char **argv )
                         {       /* Delete element */
                                 fread( &key, sizeof( int ), 1, stdin );
                                 found = delete( dictionary, key );
-                                if( DETAIL >= 1 )
-                                {
+                                if( DETAIL >= 1 ) {
                                         if( found )
                                                 printf( "1" );
                                         else
