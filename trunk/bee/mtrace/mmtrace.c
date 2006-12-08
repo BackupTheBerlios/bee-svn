@@ -231,6 +231,7 @@ test_rebuf()
         int fd;
         char *fname="debug";
         char *end;
+        size_t linesRead=0;
         buffer_t bp = {.b_line = 0,.b_map = 0,.b_pageOffset = 0,.b_fileOffset =
                 0,.b_chars = 0
         };
@@ -249,11 +250,15 @@ test_rebuf()
                 }
 
                 tmp = mgets( bp.b_line, &end );
+                ++linesRead ;
                 printf("TMP=%d\n", tmp);
                 printf("%s\n", bp.b_line);
                 PRINT_INFO;
-                if( !tmp )
+                if( !tmp ) {
+                        printf("Lines Read:%d out of 14010\n", linesRead);
+                        CU_ASSERT( linesRead == 14010 );
                         return ; /* Think if this is safe/needed */
+                }
                 bp.b_chars -= tmp;
 
         }
