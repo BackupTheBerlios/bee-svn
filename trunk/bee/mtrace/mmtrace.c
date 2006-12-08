@@ -9,11 +9,11 @@
 
 
 typedef struct {
-        char*   line;
-        char*   map;
-        int     pageOffset;
-        off_t   fileOffset;
-        unsigned int chars;
+        char*   b_line;
+        char*   b_map;
+        int     b_pageOffset;
+        off_t   b_fileOffset;
+        unsigned int b_chars;
 } buffer_t;
 
 #define PRINT_INFO \
@@ -195,20 +195,20 @@ inline static int parseLine( const char *const text, nod_t * res, int *type )
 }
 
 
-inline static char *rebuf( int fd, buffer_t* buf)
+inline static char *rebuf( int fd, buffer_t* bp)
 {
-        munmap( buf->map, BUF_SZ * PAGE_SZ );
-        buf->map = mmap( 0, BUF_SZ * PAGE_SZ, PROT_READ | PROT_WRITE, MAP_PRIVATE,
-                    fd, buf->pageOffset );
+        munmap( bp->b_map, BUF_SZ * PAGE_SZ );
+        bp->b_map = mmap( 0, BUF_SZ * PAGE_SZ, PROT_READ | PROT_WRITE, MAP_PRIVATE,
+                    fd, bp->b_pageOffset );
 
-        if( buf->map == MAP_FAILED )
+        if( bp->b_map == MAP_FAILED )
                 err( "mmap error for input\n" );
 
-        buf->fileOffset += BUF_SZ * PAGE_SZ - buf->chars;
-        buf->pageOffset = buf->fileOffset - ( buf->fileOffset % PAGE_SZ );
-        buf->line = buf->map + ( 4096 - buf->chars );
-        buf->chars = PAGE_SZ * BUF_SZ - buf->chars;
-        return buf->map;
+        bp->b_fileOffset += BUF_SZ * PAGE_SZ - bp->b_chars;
+        bp->b_pageOffset = bp->b_fileOffset - ( bp->b_fileOffset % PAGE_SZ );
+        bp->b_line = bp->b_map + ( 4096 - bp->b_chars );
+        bp->b_chars = PAGE_SZ * BUF_SZ - bp->b_chars;
+        return bp->b_map;
 }
 
 
@@ -219,7 +219,7 @@ inline static void mtrace( const char *const fname )
         int fd = -1 ;
         struct stat statbuf;
         dict_ptr dict;
-        buffer_t buf;
+        buffer_t bp;
 
         if( ( fd = open( fname, O_RDWR ) ) < 0 )
                 err( "Unable to debug file" );
@@ -227,26 +227,26 @@ inline static void mtrace( const char *const fname )
         dict = construct_dict( MIN_DICT_SIZE );
         fstat( fd, &statbuf );
 
-        rebuf( fd, &buf );
+        rebuf( fd, &bp );
 
-        for( ; buf.fileOffset <= statbuf.st_size; buf.line = end )
+        for( ; bp.b_fileOffset <= statbuf.st_size; bp.b_line = end )
         {       int ptr=0, tmp=0, type=0;
                 nod_t nod;
 
-                if( buf.chars < LINE_LEN )
+                if( bp.b_chars < LINE_LEN )
                 {       dprintf( "REMAP\n" );
-                        rebuf( fd,  &buf );
+                        rebuf( fd,  &bp );
                 }
 
-                tmp = mgets( buf.line, &end );
+                tmp = mgets( bp.b_line, &end );
                 if( !tmp )
                         continue;
-                buf.chars -= tmp;
+                bp.b_chars -= tmp;
                 PRINT_INFO;
 
-                if( buf.line[0] != 'M' && buf.line[6] != 'O' )
+                if( bp.b_line[0] != 'M' && bp.b_line[6] != 'O' )
                         continue;
-                p = buf.line + 9;   /* Advance over 'MEMINFO: ' */
+                p = bp.b_line + 9;   /* Advance over 'MEMINFO: ' */
 
                 ptr = parseLine( p, &nod, &type );
                 checkAddress( type, ptr, nod, dict );
@@ -256,29 +256,19 @@ inline static void mtrace( const char *const fname )
 }
 
 /*------------------------------------------------------------------------*/
-
 int runTestSuite( void )
 {
         CU_pSuite pSuite = NULL;
 
-        /*
-         * initialize the CUnit test registry
-         */
         if( CUE_SUCCESS != CU_initialize_registry(  ) )
                 return CU_get_error(  );
 
-        /*
-         * add a suite to the registry
-         */
         pSuite = CU_add_suite( "Suite_1", init_suite1, clean_suite1 );
         if( NULL == pSuite )
         {       CU_cleanup_registry(  );
                 return CU_get_error(  );
         }
 
-        /*
-         * add the tests to the suite
-         */
         if( ( NULL == CU_add_test( pSuite, "mgets()", test_mgets ) ) ||
             ( NULL == CU_add_test( pSuite, "readInt()", test_readInt ) ) )
         {       printf( "Error\n" );
@@ -286,9 +276,6 @@ int runTestSuite( void )
                 return CU_get_error(  );
         }
 
-        /*
-         * Run all tests using the CUnit Basic interface
-         */
         CU_basic_set_mode( CU_BRM_VERBOSE );
         CU_basic_run_tests(  );
         CU_cleanup_registry(  );
