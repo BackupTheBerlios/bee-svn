@@ -18,11 +18,11 @@ typedef struct {
 
 #define PRINT_INFO \
                 dprintf( ( stderr,\
-                           "pageOffset=%d lastPageOffset=%jd filePos=%jd fileSz=%jd charsInBuf=%d\n",\
-                           pageOffset, ( intmax_t ) lastPageOffset,\
-                           ( intmax_t ) filePos, ( intmax_t ) statbuf.st_size,\
-                           charsInBuf ) );\
-                dprintf( ( stderr, "[%d][%s]\n", line[0], line ) );
+                           "pageOffset=%d filePos=%jd fileSz=%jd charsInBuf=%d tmp=%d\n",\
+                           bp.b_pageOffset, \
+                           ( intmax_t ) bp.b_fileOffset, ( intmax_t ) statbuf.st_size,\
+                           bp.b_chars , tmp) );\
+                dprintf( ( stderr, "[%d][%s]\n", bp.b_line[0], bp.b_line ) );
 
 /*
  * To overcome the memory consumption, the tables T1&T2 can be dumped
@@ -30,7 +30,7 @@ typedef struct {
  */
 
 char buf[1000] = { 0 };
-
+void test_rebuf();
 
 /*------------------------------------------------------------------------*/
 int
@@ -120,7 +120,7 @@ checkAddress( int type, int ptr, nod_t nod, dict_ptr dict )
          switch ( type )
          {
          case IS_NEW:
-                  dprintf( "---new()--\n" );
+                  //dprintf( ("---new()--\n") );
                   A.line = nod.line;
                   A.fid = 1;
                   A.is_new = 1;
@@ -128,7 +128,7 @@ checkAddress( int type, int ptr, nod_t nod, dict_ptr dict )
                   break;
 
          case IS_NEWA:
-                  dprintf( "---new[]--\n" );
+                  //dprintf( "---new[]--\n" );
                   A.line = nod.line;
                   A.fid = 1;
                   A.is_newa = 1;
@@ -136,7 +136,7 @@ checkAddress( int type, int ptr, nod_t nod, dict_ptr dict )
                   break;
 
          case IS_DEL:
-                  dprintf( "---delete()--\n" );
+                  //dprintf( "---delete()--\n" );
                   found = lookup( dict, ptr );
                   if( !found )
                            printf( "Double free\n" );
@@ -144,13 +144,13 @@ checkAddress( int type, int ptr, nod_t nod, dict_ptr dict )
                   break;
 
          case IS_DELA:
-                  dprintf( "---delete[]--\n" );
+                  //dprintf( "---delete[]--\n" );
                   if( !found )
                            printf( "Double free\n" );
                   delete( dict, ptr );
                   break;
          default:
-                  dprintf( "Unknown operator\n" );
+                  //dprintf( "Unknown operator\n" );
                   break;
          }
 }
@@ -223,6 +223,41 @@ rebuf( int fd, buffer_t * bp )
          bp->b_chars = PAGE_SZ * BUF_SZ - bp->b_chars;
          return bp->b_map;
 }
+
+void
+test_rebuf()
+{
+        struct stat statbuf;
+        int fd;
+        char *fname="debug";
+        char *end;
+        buffer_t bp = {.b_line = 0,.b_map = 0,.b_pageOffset = 0,.b_fileOffset =
+                0,.b_chars = 0
+        };
+
+        if( ( fd = open( fname, O_RDWR ) ) < 0 )
+                err( "Unable to debug file" );
+
+        fstat( fd, &statbuf );
+        for( ; bp.b_fileOffset <= statbuf.st_size; bp.b_line = end )
+        {       int tmp;
+
+                if( bp.b_chars < LINE_LEN )
+                {       printf( "REMAP\n" );
+                        rebuf( fd, &bp );
+                        CU_ASSERT( bp.b_map[0] == 0 ) ;
+                }
+
+                tmp = mgets( bp.b_line, &end );
+                printf("TMP=%d\n", tmp);
+                printf("%s\n", bp.b_line);
+                PRINT_INFO;
+                if( !tmp )
+                        return ; /* Think if this is safe/needed */
+                bp.b_chars -= tmp;
+
+        }
+}
 /*........................................*/
 
 
@@ -239,7 +274,7 @@ mtrace( const char *const fname )
          };
 
          if( ( fd = open( fname, O_RDWR ) ) < 0 )
-                  err( "Unable to debug file" );
+                  err( "Unable to debug file\n" );
 
          dict = construct_dict( MIN_DICT_SIZE );
          fstat( fd, &statbuf );
@@ -251,7 +286,7 @@ mtrace( const char *const fname )
                   nod_t nod;
 
                   if( bp.b_chars < LINE_LEN )
-                  {        dprintf( "REMAP\n" );
+                  {        printf( "REMAP\n" );
                            rebuf( fd, &bp );
                   }
 
@@ -290,7 +325,9 @@ runTestSuite( void )
          }
 
          if( ( NULL == CU_add_test( pSuite, "mgets()", test_mgets ) ) ||
-             ( NULL == CU_add_test( pSuite, "readInt()", test_readInt ) ) )
+             ( NULL == CU_add_test( pSuite, "readInt()", test_readInt ) ) ||
+             ( NULL == CU_add_test( pSuite, "rebuf()", test_rebuf ) )
+           )
          {        printf( "Error\n" );
                   CU_cleanup_registry(  );
                   return CU_get_error(  );
