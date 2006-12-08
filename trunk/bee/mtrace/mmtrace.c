@@ -8,6 +8,14 @@
 #include <malloc.h>
 
 
+typedef struct {
+        char*   line;
+        char*   map;
+        int     pageOffset;
+        off_t   fileOffset;
+        unsigned int chars;
+} buffer_t;
+
 #define PRINT_INFO \
                 dprintf( ( stderr,\
                            "pageOffset=%d lastPageOffset=%jd filePos=%jd fileSz=%jd charsInBuf=%d\n",\
@@ -186,7 +194,8 @@ inline static int parseLine( const char *const text, nod_t * res, int *type )
         return ptr;
 }
 
-inline static char *rebuf( int fd, char *m, buffer_t* buf)
+
+inline static char *rebuf( int fd, buffer_t* buf)
 {
         munmap( buf->map, BUF_SZ * PAGE_SZ );
         buf->map = mmap( 0, BUF_SZ * PAGE_SZ, PROT_READ | PROT_WRITE, MAP_PRIVATE,
@@ -195,21 +204,14 @@ inline static char *rebuf( int fd, char *m, buffer_t* buf)
         if( buf->map == MAP_FAILED )
                 err( "mmap error for input\n" );
 
-        buf->fileOffset += BUF_SZ * PAGE_SZ - buf->charsInBuf;
-        buf->pageOffset = buf->filePos - ( buf->filePos % PAGE_SZ );
-        buf->line = buf->map + ( 4096 - buf->charsInBuf );
-        buf->charsInBuf = PAGE_SZ * BUF_SZ - buf->charsInBuf;
+        buf->fileOffset += BUF_SZ * PAGE_SZ - buf->chars;
+        buf->pageOffset = buf->fileOffset - ( buf->fileOffset % PAGE_SZ );
+        buf->line = buf->map + ( 4096 - buf->chars );
+        buf->chars = PAGE_SZ * BUF_SZ - buf->chars;
         return buf->map;
 }
 
 
-struct buffer_t {
-        char*   line;
-        char*   map;
-        int     pageOffset;
-        off_t   fileOffset;
-        unsigned int chars;
-}
 
 /*------------------------------------------------------------------------*/
 inline static void mtrace( const char *const fname )
@@ -225,7 +227,7 @@ inline static void mtrace( const char *const fname )
         dict = construct_dict( MIN_DICT_SIZE );
         fstat( fd, &statbuf );
 
-        map = rebuf( fd, map, &buf );
+        rebuf( fd, &buf );
 
         for( ; buf.fileOffset <= statbuf.st_size; buf.line = end )
         {       int ptr=0, tmp=0, type=0;
@@ -233,7 +235,7 @@ inline static void mtrace( const char *const fname )
 
                 if( buf.chars < LINE_LEN )
                 {       dprintf( "REMAP\n" );
-                        rebuf( fd, map, &buf );
+                        rebuf( fd,  &buf );
                 }
 
                 tmp = mgets( buf.line, &end );

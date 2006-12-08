@@ -69,10 +69,7 @@ boolean rehash_insert( dict_ptr D, int key, nod_t node )
         celltype x, temp;
 
         x.key = key;
-        x.data.line = node.line;
-        x.data.is_new = node.is_new;
-        x.data.fid = node.fid;
-        x.data.is_newa = node.is_newa;
+        x.data = node;
         for( j = 0; j < D->maxchain; j++ ) {
                 hashcuckoo( hkey, D->a1, D->shift, x.key );
                 temp = D->T1[hkey];
@@ -145,7 +142,7 @@ boolean insert( dict_ptr D, int key, nod_t node )
         celltype x, temp;
 
         /*
-         * If element already in D then replace and return 
+         * If element already in D then replace and return
          */
         hashcuckoo( h1, D->a1, D->shift, key );
         if( D->T1[h1].key == key ) {
@@ -162,10 +159,7 @@ boolean insert( dict_ptr D, int key, nod_t node )
          * else insert new element in D 
          */
         x.key = key;
-        x.data.line = node.line;
-        x.data.is_new = node.is_new;
-        x.data.fid = node.fid;
-        x.data.is_newa = node.is_newa;
+        x.data = node ;
         for( j = 0; j < D->maxchain; j++ ) {
                 temp = D->T1[h1];
                 D->T1[h1] = x;
@@ -192,6 +186,11 @@ boolean insert( dict_ptr D, int key, nod_t node )
 
         /*
          * Forced rehash 
+         */
+        /*
+         * if( D->size > D->dumplimit)
+         *      dump_tables( D );
+         * realloc_tables(D);
          */
         if( D->size < D->meansize )
                 rehash( D, D->tablesize );
