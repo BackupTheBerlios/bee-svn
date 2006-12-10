@@ -23,9 +23,9 @@
 #define IS_DEL  59               /* op[0]='d', op[4]=')' */
 #define IS_DELA 7                /* op[0]='d', op[4]=']' */
 
-#define LINE_LEN 1024
-#define BUF_SZ   256
 #define PAGE_SZ  4096
+#define BUF_SZ   256
+#define LINE_LEN 1024
 #define FNAME_LEN 256
 #define MIN_DICT_SIZE 1024
 

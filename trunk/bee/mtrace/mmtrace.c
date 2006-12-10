@@ -30,7 +30,7 @@ typedef struct {
  */
 
 char buf[1000] = { 0 };
-void test_rebuf();
+void test_bread();
 
 /*------------------------------------------------------------------------*/
 int
@@ -206,62 +206,137 @@ parseLine( const char *const text, nod_t * res, int *type )
 
 
 /*------------------------------------------------------------------------*/
-inline static char *
-rebuf( int fd, buffer_t * bp )
+
+inline static char*
+binit(int fd, buffer_t * bp, size_t size)
 {
-         munmap( bp->b_map, BUF_SZ * PAGE_SZ );
-         bp->b_map =
-                  mmap( 0, BUF_SZ * PAGE_SZ, PROT_READ | PROT_WRITE,
+    if(size==0) {
+        size = BUF_SZ * PAGE_SZ;
+    }
+    bp->b_fileOffset = 0;
+    bp->b_pageOffset = 0;
+    bp->b_chars = size;
+
+    bp->b_map = mmap( 0, size, PROT_READ | PROT_WRITE,
+            MAP_PRIVATE, fd, bp->b_pageOffset );
+
+    if( bp->b_map == MAP_FAILED )
+        err( "mmap error for inputF\n" );
+
+    bp->b_line = bp->b_map ;
+    return bp->b_map;
+}
+
+#if 0
+inline static char*
+bread_small(int fd, buffer_t * bp , size_t size)
+{
+         munmap( bp->b_map, size );
+         fprintf( stderr, "fileOffset=%jd\n", (intmax_t)bp->b_fileOffset );
+         bp->b_map = mmap( 0, size, PROT_READ | PROT_WRITE,
                         MAP_PRIVATE, fd, bp->b_pageOffset );
 
          if( bp->b_map == MAP_FAILED )
                   err( "mmap error for inputF\n" );
 
-         bp->b_fileOffset += BUF_SZ * PAGE_SZ - bp->b_chars;
+         bp->b_fileOffset += PAGE_SZ * BUF_SZ - bp->b_chars;
+         bp->b_pageOffset = bp->b_fileOffset - ( bp->b_fileOffset % PAGE_SZ );
+         bp->b_line = bp->b_map + ( 4096 - bp->b_chars );
+         if(small) {
+            bp->b_chars = size;
+            return bp->b_map;
+         }
+         bp->b_chars = PAGE_SZ * BUF_SZ - bp->b_chars;
+         return bp->b_map;
+}
+#endif
+inline static char *
+bread( int fd, buffer_t * bp , size_t size)
+{
+        if(!size) 
+            size =BUF_SZ * PAGE_SZ;
+
+         munmap( bp->b_map, size );
+         fprintf( stderr, "fileOffset=%jd\n", (intmax_t)bp->b_fileOffset );
+         bp->b_map = mmap( 0, size, PROT_READ | PROT_WRITE,
+                        MAP_PRIVATE, fd, bp->b_pageOffset );
+
+         if( bp->b_map == MAP_FAILED )
+                  err( "mmap error for inputF\n" );
+
+         bp->b_fileOffset += PAGE_SZ * BUF_SZ - bp->b_chars;
          bp->b_pageOffset = bp->b_fileOffset - ( bp->b_fileOffset % PAGE_SZ );
          bp->b_line = bp->b_map + ( 4096 - bp->b_chars );
          bp->b_chars = PAGE_SZ * BUF_SZ - bp->b_chars;
          return bp->b_map;
 }
 
-void
-test_rebuf()
+void test_bread_file(char* fname, int lines)
 {
         struct stat statbuf;
         int fd;
-        char *fname="debug";
         char *end;
         size_t linesRead=0;
-        buffer_t bp = {.b_line = 0,.b_map = 0,.b_pageOffset = 0,.b_fileOffset =
-                0,.b_chars = 0
-        };
+        size_t size =0;
+        buffer_t bp ;
 
         if( ( fd = open( fname, O_RDWR ) ) < 0 )
                 err( "Unable to debug file" );
 
         fstat( fd, &statbuf );
-        for( ; bp.b_fileOffset <= statbuf.st_size; bp.b_line = end )
-        {       int tmp;
+        size = statbuf.st_size ;
+        /* In case st_size < 1Mb */
+        if( size >= PAGE_SZ* BUF_SZ )
+            size = 0;
+        binit(fd, &bp, size);
+        while( bp.b_fileOffset <= statbuf.st_size )
+        { int tmp=0;
 
-                if( bp.b_chars < LINE_LEN )
-                {       printf( "REMAP\n" );
-                        rebuf( fd, &bp );
-                        CU_ASSERT( bp.b_map[0] == 0 ) ;
+                do {
+                    /*-------------------*/
+                    tmp = mgets( bp.b_line, &end );
+                    ++linesRead ;
+                    bp.b_chars -= tmp;
+                    printf("%s\n", bp.b_line);
+                    bp.b_line = end;
+                    /*-------------------*/
+                    printf("Tmp=%d, LinesRead=%jd: Size=%jd\n", tmp, (intmax_t)linesRead, (intmax_t)statbuf.st_size);
+                    printf("pageOffset=%d filePos=%jd fileSz=%jd charsInBuf=%d tmp=%d\n",
+                           bp.b_pageOffset, 
+                           ( intmax_t ) bp.b_fileOffset, ( intmax_t ) statbuf.st_size,
+                           bp.b_chars , tmp) ;
+                }while(bp.b_chars > LINE_LEN && tmp);
+
+                printf( "REMAP\n" );
+                printf("Tmp=%d, LinesRead=%jd: Size=%jd\n", tmp, (intmax_t)linesRead, (intmax_t)statbuf.st_size);
+                printf("pageOffset=%d filePos=%jd fileSz=%jd charsInBuf=%d tmp=%d\n",
+                           bp.b_pageOffset, 
+                           ( intmax_t ) bp.b_fileOffset, ( intmax_t ) statbuf.st_size,
+                           bp.b_chars , tmp) ;
+                /*-------------------*/
+                bread( fd, &bp, size );
+                /*-------------------*/
+                printf("Tmp=%d, LinesRead=%jd: Size=%jd\n", tmp, (intmax_t)linesRead, (intmax_t)statbuf.st_size);
+                printf("pageOffset=%d filePos=%jd fileSz=%jd charsInBuf=%d tmp=%d\n",
+                           bp.b_pageOffset, 
+                           ( intmax_t ) bp.b_fileOffset, ( intmax_t ) statbuf.st_size,
+                           bp.b_chars , tmp) ;
+
+
+                if(!tmp) {
+                    CU_ASSERT( linesRead == lines );
+                    return;
                 }
-
-                tmp = mgets( bp.b_line, &end );
-                ++linesRead ;
-                printf("TMP=%d\n", tmp);
-                printf("%s\n", bp.b_line);
-                PRINT_INFO;
-                if( !tmp ) {
-                        printf("Lines Read:%d out of 14010\n", linesRead);
-                        CU_ASSERT( linesRead == 14010 );
-                        return ; /* Think if this is safe/needed */
-                }
-                bp.b_chars -= tmp;
-
         }
+        /*-----------*/
+}
+
+
+void
+test_bread()
+{
+    test_bread_file("d1", 30+1);
+    test_bread_file("d2", 14010+1);
 }
 /*........................................*/
 
@@ -284,7 +359,7 @@ mtrace( const char *const fname )
          dict = construct_dict( MIN_DICT_SIZE );
          fstat( fd, &statbuf );
 
-         rebuf( fd, &bp );
+         bread( fd, &bp,0);
 
          for( ; bp.b_fileOffset <= statbuf.st_size; bp.b_line = end )
          {        int ptr = 0, tmp = 0, type = 0;
@@ -292,7 +367,7 @@ mtrace( const char *const fname )
 
                   if( bp.b_chars < LINE_LEN )
                   {        printf( "REMAP\n" );
-                           rebuf( fd, &bp );
+                           bread( fd, &bp,0 );
                   }
 
                   tmp = mgets( bp.b_line, &end );
@@ -331,7 +406,7 @@ runTestSuite( void )
 
          if( ( NULL == CU_add_test( pSuite, "mgets()", test_mgets ) ) ||
              ( NULL == CU_add_test( pSuite, "readInt()", test_readInt ) ) ||
-             ( NULL == CU_add_test( pSuite, "rebuf()", test_rebuf ) )
+             ( NULL == CU_add_test( pSuite, "rebuf()", test_bread ) )
            )
          {        printf( "Error\n" );
                   CU_cleanup_registry(  );
