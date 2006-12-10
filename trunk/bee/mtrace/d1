@@ -1,0 +1,30 @@
+begin information from superviser
+
+Opening log...debug level=0x0000001F (31)
+MEMINFO: new() 0x9d2cfb0 40 unix/thread.cpp(204){26826, -1211291984}
+MEMINFO: new[] 0x9d2cfe0 12 unix/thread.cpp(207){26826, -1211291984}
+MEMINFO: new() 0x9d2cff8 40 objectSync.cpp(83){26826, -1211291984}
+MEMINFO: new() 0x9d2d028 40 unix/thread.cpp(212){26826, -1211291984}
+MEMINFO: new[] 0x9d2d058 12 unix/cs.cpp(112){26826, -1211291984}
+MEMINFO: new() 0x9d2d070 12 unix/cs.cpp(114){26826, -1211291984}
+MEMINFO: new() 0x9d2d088 12 unix/cs.cpp(114){26826, -1211291984}
+begin information from superviser
+
+Opening log...debug level=0x0000001F (31)
+MEMINFO: new() 0x9d2cfb0 40 unix/thread.cpp(204){26826, -1211291984}
+MEMINFO: new[] 0x9d2cfe0 12 unix/thread.cpp(207){26826, -1211291984}
+MEMINFO: new() 0x9d2cff8 40 objectSync.cpp(83){26826, -1211291984}
+MEMINFO: new() 0x9d2d028 40 unix/thread.cpp(212){26826, -1211291984}
+MEMINFO: new[] 0x9d2d058 12 unix/cs.cpp(112){26826, -1211291984}
+MEMINFO: new() 0x9d2d070 12 unix/cs.cpp(114){26826, -1211291984}
+MEMINFO: new() 0x9d2d088 12 unix/cs.cpp(114){26826, -1211291984}
+begin information from superviser
+
+Opening log...debug level=0x0000001F (31)
+MEMINFO: new() 0x9d2cfb0 40 unix/thread.cpp(204){26826, -1211291984}
+MEMINFO: new[] 0x9d2cfe0 12 unix/thread.cpp(207){26826, -1211291984}
+MEMINFO: new() 0x9d2cff8 40 objectSync.cpp(83){26826, -1211291984}
+MEMINFO: new() 0x9d2d028 40 unix/thread.cpp(212){26826, -1211291984}
+MEMINFO: new[] 0x9d2d058 12 unix/cs.cpp(112){26826, -1211291984}
+MEMINFO: new() 0x9d2d070 12 unix/cs.cpp(114){26826, -1211291984}
+MEMINFO: new() 0x9d2d088 12 unix/cs.cpp(114){26826, -1211291984}
