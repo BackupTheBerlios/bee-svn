@@ -8,6 +8,7 @@ typedef struct {
          char *b_line;
          char *b_map;
          int b_pageOffset;
+         int fd;
          off_t b_fileOffset;
          unsigned int b_chars;
 } buffer_t;
@@ -42,6 +43,7 @@ runTestSuite( void )
          CU_cleanup_registry(  );
          return CU_get_error(  );
 }
+
 /*........................................*/
 int main() {
     runTestSuite(  );
@@ -70,28 +72,27 @@ mgets( char *start, char **end )
 
 /*------------------------------------------------------------------------*/
 
+
+
 inline static char*
-binit(int fd, buffer_t * bp, size_t size)
+bopen(int fd, buffer_t * bp, size_t size)
 {
-    if(size==0) {
-        size = BUF_SZ * PAGE_SZ;
-    }
-    bp->b_chars = size;
 
     bp->b_map = mmap( 0, size, PROT_READ | PROT_WRITE,
             MAP_PRIVATE, fd, 0 );
-
     if( bp->b_map == MAP_FAILED )
         err( "mmap error for inputF\n" );
 
-    bp->b_fileOffset += size - bp->b_chars;
+    bp->b_chars = size;
+
+    bp->b_fileOffset = size;
     bp->b_pageOffset = bp->b_fileOffset - ( bp->b_fileOffset % PAGE_SZ );
     bp->b_line = bp->b_map ;
     return bp->b_map;
 }
 
 inline static char *
-bread( int fd, buffer_t * bp , size_t size)
+bread( buffer_t * bp , size_t size)
 {
         int small=1;
         if(!size) {
@@ -102,14 +103,16 @@ bread( int fd, buffer_t * bp , size_t size)
          munmap( bp->b_map, size );
          fprintf( stderr, "fileOffset=%jd\n", (intmax_t)bp->b_fileOffset );
 
+         bp->b_pageOffset = bp->b_fileOffset - ( (size - bp->b_chars) % PAGE_SZ );
+
          bp->b_map = mmap( 0, size, PROT_READ | PROT_WRITE,
-                        MAP_PRIVATE, fd, bp->b_pageOffset );
+                        MAP_PRIVATE, bp->fd, bp->b_pageOffset );
 
          if( bp->b_map == MAP_FAILED )
                   err( "mmap error for inputF\n" );
 
          bp->b_fileOffset += size - bp->b_chars;
-         bp->b_pageOffset = bp->b_fileOffset - ( bp->b_fileOffset % PAGE_SZ );
+         //bp->b_pageOffset = bp->b_fileOffset - ( bp->b_fileOffset % PAGE_SZ );
          if( bp->b_chars >=4096)
          {
             printf("ERROR\n");
@@ -136,14 +139,14 @@ void test_bread_file(char* fname, int lines)
                 err( "Unable to debug file" );
 
         fstat( fd, &statbuf );
-        size = statbuf.st_size ;
         /* In case st_size < 1Mb */
-        if( size >= PAGE_SZ* BUF_SZ )
+        if( statbuf.st_size >= PAGE_SZ* BUF_SZ )
         {
-            printf("Going big\n");
-            size = 0;
-        }
-        binit(fd, &bp, size);
+            size = PAGE_SZ*BUF_SZ;
+        }else
+            size = statbuf.st_size ;
+
+        bopen(fd, &bp, size);
         while( bp.b_fileOffset <= statbuf.st_size )
         {   int tmp=0;
 
@@ -160,7 +163,7 @@ void test_bread_file(char* fname, int lines)
                     return;
                 }
                 printf( "REMAP\n" );
-                bread( fd, &bp, size );
+                bread( &bp, size );
                 printf("LinesRead=%d should read=%d\n", linesRead, lines);
         }
         /*-----------*/
