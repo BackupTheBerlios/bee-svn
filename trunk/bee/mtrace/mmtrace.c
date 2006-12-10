@@ -213,62 +213,51 @@ binit(int fd, buffer_t * bp, size_t size)
     if(size==0) {
         size = BUF_SZ * PAGE_SZ;
     }
-    bp->b_fileOffset = 0;
-    bp->b_pageOffset = 0;
     bp->b_chars = size;
 
     bp->b_map = mmap( 0, size, PROT_READ | PROT_WRITE,
-            MAP_PRIVATE, fd, bp->b_pageOffset );
+            MAP_PRIVATE, fd, 0 );
 
     if( bp->b_map == MAP_FAILED )
         err( "mmap error for inputF\n" );
 
+    bp->b_fileOffset += size - bp->b_chars;
+    bp->b_pageOffset = bp->b_fileOffset - ( bp->b_fileOffset % PAGE_SZ );
     bp->b_line = bp->b_map ;
     return bp->b_map;
 }
 
-#if 0
-inline static char*
-bread_small(int fd, buffer_t * bp , size_t size)
-{
-         munmap( bp->b_map, size );
-         fprintf( stderr, "fileOffset=%jd\n", (intmax_t)bp->b_fileOffset );
-         bp->b_map = mmap( 0, size, PROT_READ | PROT_WRITE,
-                        MAP_PRIVATE, fd, bp->b_pageOffset );
-
-         if( bp->b_map == MAP_FAILED )
-                  err( "mmap error for inputF\n" );
-
-         bp->b_fileOffset += PAGE_SZ * BUF_SZ - bp->b_chars;
-         bp->b_pageOffset = bp->b_fileOffset - ( bp->b_fileOffset % PAGE_SZ );
-         bp->b_line = bp->b_map + ( 4096 - bp->b_chars );
-         if(small) {
-            bp->b_chars = size;
-            return bp->b_map;
-         }
-         bp->b_chars = PAGE_SZ * BUF_SZ - bp->b_chars;
-         return bp->b_map;
-}
-#endif
 inline static char *
 bread( int fd, buffer_t * bp , size_t size)
 {
-        if(!size) 
+        int small=1;
+        if(!size) {
             size =BUF_SZ * PAGE_SZ;
+            small = 0;
+        }
 
          munmap( bp->b_map, size );
          fprintf( stderr, "fileOffset=%jd\n", (intmax_t)bp->b_fileOffset );
+
          bp->b_map = mmap( 0, size, PROT_READ | PROT_WRITE,
                         MAP_PRIVATE, fd, bp->b_pageOffset );
 
          if( bp->b_map == MAP_FAILED )
                   err( "mmap error for inputF\n" );
 
-         bp->b_fileOffset += PAGE_SZ * BUF_SZ - bp->b_chars;
+         bp->b_fileOffset += size - bp->b_chars;
          bp->b_pageOffset = bp->b_fileOffset - ( bp->b_fileOffset % PAGE_SZ );
-         bp->b_line = bp->b_map + ( 4096 - bp->b_chars );
-         bp->b_chars = PAGE_SZ * BUF_SZ - bp->b_chars;
-         return bp->b_map;
+         if( bp->b_chars >=4096)
+         {
+            printf("ERROR\n");
+            exit(EXIT_FAILURE);
+         }
+        if(small)
+            bp->b_line = bp->b_map ;
+        else
+            bp->b_line = bp->b_map + ( 4096 - bp->b_chars );
+        bp->b_chars = size - bp->b_chars;
+        return bp->b_map;
 }
 
 void test_bread_file(char* fname, int lines)
@@ -287,46 +276,29 @@ void test_bread_file(char* fname, int lines)
         size = statbuf.st_size ;
         /* In case st_size < 1Mb */
         if( size >= PAGE_SZ* BUF_SZ )
+        {
+            printf("Going big\n");
             size = 0;
+        }
         binit(fd, &bp, size);
         while( bp.b_fileOffset <= statbuf.st_size )
-        { int tmp=0;
+        {   int tmp=0;
 
                 do {
-                    /*-------------------*/
                     tmp = mgets( bp.b_line, &end );
                     ++linesRead ;
                     bp.b_chars -= tmp;
                     printf("%s\n", bp.b_line);
                     bp.b_line = end;
-                    /*-------------------*/
-                    printf("Tmp=%d, LinesRead=%jd: Size=%jd\n", tmp, (intmax_t)linesRead, (intmax_t)statbuf.st_size);
-                    printf("pageOffset=%d filePos=%jd fileSz=%jd charsInBuf=%d tmp=%d\n",
-                           bp.b_pageOffset, 
-                           ( intmax_t ) bp.b_fileOffset, ( intmax_t ) statbuf.st_size,
-                           bp.b_chars , tmp) ;
                 }while(bp.b_chars > LINE_LEN && tmp);
-
-                printf( "REMAP\n" );
-                printf("Tmp=%d, LinesRead=%jd: Size=%jd\n", tmp, (intmax_t)linesRead, (intmax_t)statbuf.st_size);
-                printf("pageOffset=%d filePos=%jd fileSz=%jd charsInBuf=%d tmp=%d\n",
-                           bp.b_pageOffset, 
-                           ( intmax_t ) bp.b_fileOffset, ( intmax_t ) statbuf.st_size,
-                           bp.b_chars , tmp) ;
-                /*-------------------*/
-                bread( fd, &bp, size );
-                /*-------------------*/
-                printf("Tmp=%d, LinesRead=%jd: Size=%jd\n", tmp, (intmax_t)linesRead, (intmax_t)statbuf.st_size);
-                printf("pageOffset=%d filePos=%jd fileSz=%jd charsInBuf=%d tmp=%d\n",
-                           bp.b_pageOffset, 
-                           ( intmax_t ) bp.b_fileOffset, ( intmax_t ) statbuf.st_size,
-                           bp.b_chars , tmp) ;
-
 
                 if(!tmp) {
                     CU_ASSERT( linesRead == lines );
                     return;
                 }
+                printf( "REMAP\n" );
+                bread( fd, &bp, size );
+                printf("LinesRead=%d should read=%d\n", linesRead, lines);
         }
         /*-----------*/
 }
@@ -336,7 +308,8 @@ void
 test_bread()
 {
     test_bread_file("d1", 30+1);
-    test_bread_file("d2", 14010+1);
+    test_bread_file("d2", 30+1);
+    test_bread_file("d3", 14007+1);
 }
 /*........................................*/
 
