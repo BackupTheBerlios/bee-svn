@@ -5,33 +5,34 @@
 
 
 typedef struct {
-         char *b_line;
-         char *b_map;
-         char *b_end;
-         int b_pageOffset;
+         char *line;
+         char *map;
+         char *end;
+         int  diff;
+         int pageOffset;
          int fd;
-         unsigned int b_chars;
+         unsigned int chars;
 } buffer_t;
 
 inline static char*
 buf_init(int fd, buffer_t * bp, size_t size)
 {
-    bp->b_line = 0 ;
-    bp->b_map = 0 ;
-    bp->b_pageOffset = 0;
+    bp->line = 0 ;
+    bp->map = 0 ;
+    bp->pageOffset = 0;
     bp->fd = fd ;
-    bp->b_chars = 0 ;
+    bp->chars = 0 ;
     return 0 ;
 }
 
 void buf_show(buffer_t* bp )
 {
     printf("%s %d %d %d %d\n",
-    bp->b_line,
-    bp->b_map,
-    bp->b_pageOffset,
+    bp->line,
+    bp->map,
+    bp->pageOffset,
     bp->fd ,
-    bp->b_chars);
+    bp->chars);
 }
 void
 test_buf_rebuf();
@@ -86,29 +87,31 @@ buf_readline( char *start, char **end )
                   ;
          r = ( *start == 0 ) ? start - s : start - s + 1;
          *start = 0;
-         *end = start ;
+         *end = start +1;
          return r;
 }
 
 /*------------------------------------------------------------------------*/
 
-
-
 inline static char *
 buf_rebuf( buffer_t * bp , size_t size)
 {
-    munmap( bp->b_map, size );
+    int idx ;
+    munmap( bp->map, size );
     /* 0. compute new pageOffset, based on the
      * number of characters consumed from the old mapped */
 
     /* 1. advance pageOffset, so we can map new area */
-    bp->b_map = mmap( bp->b_pageOffset );
-    if( bp->b_map == MAP_FAILED )
+    bp->map = mmap( bp->pageOffset );
+    if( bp->map == MAP_FAILED )
         err( "mmap error for input\n" );
+
     /* 2. update the line */
-    bp->b_line = ;
-    bp->b_end = reverse_search( bp->b_map, mapped_size, "\n");
-    return bp->b_map;
+    bp->line = bp->map + bp->diff;
+    bp->end = memrchr(bp->map+PAGE_SZ*BUF_SZ, '\n', 4096);
+    bp->diff = bp->map - bp->end;
+
+    return bp->map;
 }
 
 void test_buf_rebuf_file(char* fname, int lines)
@@ -132,16 +135,15 @@ void test_buf_rebuf_file(char* fname, int lines)
             size = statbuf.st_size ;
 
         buf_init(fd, &bp, size);
-        while( bp.b_fileOffset <= statbuf.st_size )
+        while( bp.fileOffset <= statbuf.st_size )
         {   int tmp=0;
 
                 do {
-                    tmp = buf_readline( bp.b_line, &end );
+                    tmp = buf_readline( bp.line, &end );
                     ++linesRead ;
-                    bp.b_chars -= tmp;
-                    printf("%s\n", bp.b_line);
-                    bp.b_line = end+1;
-                }while(bp.b_line !=bp.b_end+1 && tmp);
+                    printf("%s\n", bp.line);
+                    bp.line = end;
+                }while(bp.line-1 !=bp.end && tmp);
 
                 if(!tmp) {
                     CU_ASSERT( linesRead == lines );
