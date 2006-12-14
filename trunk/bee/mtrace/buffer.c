@@ -1,8 +1,17 @@
-#include "mmtrace.h"
 #include <stdint.h>
 #include <unistd.h>
 #include <malloc.h>
 #include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <sys/mman.h>
+#include <errno.h>
+#include <CUnit/CUnit.h>
+#include <CUnit/Basic.h>
 
 
 typedef struct buffer_st {
@@ -14,6 +23,12 @@ typedef struct buffer_st {
     char* line;
     void* chunk_end;
 } buffer_t;
+
+extern void *memrchr(const void *s, int c, size_t n);
+int init_suite1(void){return 0;}
+int clean_suite1(void){return 0;}
+#define err(a) {fprintf(stderr, a); exit(EXIT_FAILURE);}
+
 
 inline static char*
 buf_init(int fd, buffer_t * bp, size_t size)
@@ -75,8 +90,6 @@ runTestSuite( void )
 /*........................................*/
 int main() {
     runTestSuite(  );
-
-    //test_buf_rebuf_file("d3", 14007+1);
     return 0;
 }
 
@@ -93,7 +106,6 @@ buf_readline( char *start, char **end )
 
          /* 0.07% cache * miss */
          while( *start != '\n' && *start != 0) {
-            //printf("Searching\n");
             ++start;
          }
 
@@ -108,7 +120,6 @@ buf_readline( char *start, char **end )
 inline static char *
 buf_rebuf( buffer_t * bp , size_t size)
 {
-    int idx ;
     int prot = PROT_WRITE | PROT_READ ;
     int flags= MAP_PRIVATE ;
     printf("rebuffing\n");
@@ -179,7 +190,7 @@ test_buf_rebuf()
 {
 //    test_buf_rebuf_file("d1", 30+1);
 //    test_buf_rebuf_file("d2", 30+1);
-    test_buf_rebuf_file("d3", 14007+1);
+    test_buf_rebuf_file("d3", 14004+1);
 }
 /*........................................*/
 
