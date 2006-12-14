@@ -2,37 +2,44 @@
 #include <stdint.h>
 #include <unistd.h>
 #include <malloc.h>
+#include <string.h>
 
 
-typedef struct {
-         char *line;
-         char *map;
-         char *end;
-         int  diff;
-         int pageOffset;
-         int fd;
-         unsigned int chars;
+typedef struct buffer_st {
+    int pageOffset;
+    int chunk_diff ;
+    int chunk_size ;
+    int fd;
+    char* map;
+    char* line;
+    void* chunk_end;
 } buffer_t;
 
 inline static char*
 buf_init(int fd, buffer_t * bp, size_t size)
 {
-    bp->line = 0 ;
-    bp->map = 0 ;
     bp->pageOffset = 0;
-    bp->fd = fd ;
-    bp->chars = 0 ;
+    bp->chunk_diff = 0;
+    bp->chunk_size = 4096*256;
+    bp->fd = fd;
+    bp->map = 0;
+    bp->line=0;
+    bp->chunk_end =0;
     return 0 ;
 }
 
 void buf_show(buffer_t* bp )
 {
-    printf("%s %d %d %d %d\n",
-    bp->line,
-    bp->map,
+    printf("\npageOffset:%d chunk_diff:%d chunk_size:%d fd:%d map:%p line:%p end:%p\n",
     bp->pageOffset,
-    bp->fd ,
-    bp->chars);
+    bp->chunk_diff,
+    bp->chunk_size,
+    bp->fd,
+    bp->map,
+    bp->line,
+    bp->chunk_end
+    );
+
 }
 void
 test_buf_rebuf();
@@ -68,6 +75,8 @@ runTestSuite( void )
 /*........................................*/
 int main() {
     runTestSuite(  );
+
+    //test_buf_rebuf_file("d3", 14007+1);
     return 0;
 }
 
@@ -83,8 +92,11 @@ buf_readline( char *start, char **end )
          }
 
          /* 0.07% cache * miss */
-         for( ; *start != '\n' && *start != 0; ++start )
-                  ;
+         while( *start != '\n' && *start != 0) {
+            //printf("Searching\n");
+            ++start;
+         }
+
          r = ( *start == 0 ) ? start - s : start - s + 1;
          *start = 0;
          *end = start +1;
@@ -97,20 +109,28 @@ inline static char *
 buf_rebuf( buffer_t * bp , size_t size)
 {
     int idx ;
+    int prot = PROT_WRITE | PROT_READ ;
+    int flags= MAP_PRIVATE ;
+    printf("rebuffing\n");
     munmap( bp->map, size );
     /* 0. compute new pageOffset, based on the
      * number of characters consumed from the old mapped */
 
     /* 1. advance pageOffset, so we can map new area */
-    bp->map = mmap( bp->pageOffset );
+    //buf_show( bp );
+    bp->map = mmap( 0, bp->chunk_size, prot, flags,
+                       bp->fd, bp->pageOffset );
     if( bp->map == MAP_FAILED )
         err( "mmap error for input\n" );
 
     /* 2. update the line */
-    bp->line = bp->map + bp->diff;
-    bp->end = memrchr(bp->map+PAGE_SZ*BUF_SZ, '\n', 4096);
-    bp->diff = bp->map - bp->end;
+    bp->line = bp->map + bp->chunk_diff;
+    bp->pageOffset += bp->chunk_size - 4096;
+    bp->chunk_end = memrchr( bp->map + bp->chunk_size, '\n', bp->chunk_size);
+    bp->chunk_diff = (char*)bp->chunk_end - (bp->map + (bp->chunk_size - 4096)) ;
 
+    //buf_show( bp );
+    printf("exit rebuffing\n");
     return bp->map;
 }
 
@@ -128,30 +148,27 @@ void test_buf_rebuf_file(char* fname, int lines)
 
         fstat( fd, &statbuf );
         /* In case st_size < 1Mb */
-        if( statbuf.st_size >= PAGE_SZ* BUF_SZ )
-        {
-            size = PAGE_SZ*BUF_SZ;
-        }else
-            size = statbuf.st_size ;
+        size = statbuf.st_size ;
 
         buf_init(fd, &bp, size);
-        while( bp.fileOffset <= statbuf.st_size )
-        {   int tmp=0;
+        int tmp=1;
+        while( bp.pageOffset <= (size -size%bp.chunk_size) )
+        {
 
-                do {
+                buf_rebuf( &bp, size );
+
+                while( bp.line != bp.chunk_end+1 && tmp ){
                     tmp = buf_readline( bp.line, &end );
                     ++linesRead ;
                     printf("%s\n", bp.line);
                     bp.line = end;
-                }while(bp.line-1 !=bp.end && tmp);
+                }
 
                 if(!tmp) {
                     CU_ASSERT( linesRead == lines );
+                    printf("LinesRead=%d should read=%d\n", linesRead, lines);
                     return;
                 }
-                printf( "REMAP\n" );
-                buf_rebuf( &bp, size );
-                printf("LinesRead=%d should read=%d\n", linesRead, lines);
         }
         /*-----------*/
 }
@@ -160,8 +177,8 @@ void test_buf_rebuf_file(char* fname, int lines)
 void
 test_buf_rebuf()
 {
-    test_buf_rebuf_file("d1", 30+1);
-    test_buf_rebuf_file("d2", 30+1);
+//    test_buf_rebuf_file("d1", 30+1);
+//    test_buf_rebuf_file("d2", 30+1);
     test_buf_rebuf_file("d3", 14007+1);
 }
 /*........................................*/
