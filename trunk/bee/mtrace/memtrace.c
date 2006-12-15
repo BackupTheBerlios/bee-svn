@@ -130,7 +130,21 @@ static void buf_show( buffer_t * bp )
 
 }
 /*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
-
+void
+checkLeaks(dict_ptr dict)
+{
+    int i=0,key1=0, key2=0;
+    for(i=0; i<dict->tablesize;++i)
+    {
+        key1 = dict->T1[i].key;
+        if(key1)
+            printf("%#.7x\n", key1);
+    
+        key2 = dict->T2[i].key;
+        if(key2)
+            printf("%#.7x\n", key2);
+    }
+}
 
 
 /*----------------------------------------------------------------------------*/
@@ -196,6 +210,7 @@ memtrace( const char *const fname )
                 checkAddress( type, ptr, nod, dict );
                 bp.line = end;
         }
+        checkLeaks(dict);
         close( fd );
         destruct_dict( dict );
 }
