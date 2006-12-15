@@ -94,7 +94,8 @@ buf_rebuf( buffer_t * bp, size_t chunk_size, char isSmall )
 
 
 /*----------------------------------------------------------------------------*/
-inline static size_t buf_readline( char *start, char **end )
+inline static size_t
+buf_readline( char *start, char **end )
 {
         char *s = start;
         size_t r = 0;
@@ -121,7 +122,8 @@ inline static size_t buf_readline( char *start, char **end )
 
 
 /*----------------------------------------------------------------------------*/
-static void buf_show( buffer_t * bp )
+static void
+buf_show( buffer_t * bp )
 {
         printf
             ( "\npageOffset:%d chunk_diff:%d chunk_size:%d fd:%d map:%p line:%p end:%p\n",
