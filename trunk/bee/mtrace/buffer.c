@@ -122,7 +122,6 @@ inline static size_t buf_readline( char *start, char **end )
 }
 
 /*------------------------------------------------------------------------*/
-
 inline static char *buf_rebuf( buffer_t * bp, size_t size )
 {
         int prot = PROT_WRITE | PROT_READ;
@@ -153,7 +152,9 @@ inline static char *buf_rebuf( buffer_t * bp, size_t size )
         printf( "exit rebuffing\n" );
         return bp->map;
 }
+/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 
+/*------------------------------------------------------------------------*/
 void test_buf_rebuf_file( char *fname, int lines )
 {
         struct stat statbuf;
@@ -188,7 +189,6 @@ void test_buf_rebuf_file( char *fname, int lines )
                                 ++linesRead;
                                 printf( "%d:%d:%s\n", linesRead, bp.line[0],
                                         bp.line );
-                                //printf("pageOffset:%d s_mod_chunk:%d\n",bp.pageOffset,(size -size%bp.chunk_size -(size/bp.chunk_size)*4096)  );
                                 bp.line = end;
                         }
 
@@ -211,7 +211,6 @@ void test_buf_rebuf_file( char *fname, int lines )
                 err( "mmap error for input\n" );
 
         /* 2. update the line */
-        //bp.line = bp.map ;
         bp.line = bp.map + bp.chunk_diff + 1;
         bp.chunk_end = bp.map + left_to_read;
         if( bp.chunk_end )
@@ -221,22 +220,20 @@ void test_buf_rebuf_file( char *fname, int lines )
                 tmp = buf_readline( bp.line, &end );
                 ++linesRead;
                 printf( "%d:%d:%s\n", linesRead, bp.line[0], bp.line );
-                //printf("pageOffset:%d s_mod_chunk:%d\n",bp.pageOffset,(size -size%bp.chunk_size -(size/bp.chunk_size)*4096)  );
                 bp.line = end;
         }
 
         CU_ASSERT( linesRead == lines );
         printf( "LinesRead=%d should read=%d\n", linesRead, lines );
-
-        /*-----------*/
 }
+/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 
 
+/*------------------------------------------------------------------------*/
 void test_buf_rebuf(  )
 {
         test_buf_rebuf_file( "d1", 30 );
         test_buf_rebuf_file( "d2", 30 );
         test_buf_rebuf_file( "d3", 14008 );
 }
-
-/*........................................*/
+/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
