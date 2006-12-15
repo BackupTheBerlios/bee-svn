@@ -21,7 +21,7 @@ typedef struct buffer_st {
     int fd;
     char* map;
     char* line;
-    void* chunk_end;
+    char* chunk_end;
 } buffer_t;
 
 extern void *memrchr(const void *s, int c, size_t n);
@@ -123,7 +123,8 @@ buf_rebuf( buffer_t * bp , size_t size)
     int prot = PROT_WRITE | PROT_READ ;
     int flags= MAP_PRIVATE ;
     printf("rebuffing\n");
-    munmap( bp->map, size );
+    if( -1 == munmap( bp->map, bp->chunk_size) )
+        err( "munmap failed\n");
     /* 0. compute new pageOffset, based on the
      * number of characters consumed from the old mapped */
 
@@ -137,7 +138,9 @@ buf_rebuf( buffer_t * bp , size_t size)
     /* 2. update the line */
     bp->line = bp->map + bp->chunk_diff;
     bp->pageOffset += bp->chunk_size - 4096;
-    bp->chunk_end = memrchr( bp->map + bp->chunk_size, '\n', bp->chunk_size);
+    bp->chunk_end = memrchr( bp->map, '\n', bp->chunk_size);
+    if(bp->chunk_end)
+            *(bp->chunk_end) = '\0';
     bp->chunk_diff = (char*)bp->chunk_end - (bp->map + (bp->chunk_size - 4096)) ;
 
     //buf_show( bp );
@@ -163,15 +166,16 @@ void test_buf_rebuf_file(char* fname, int lines)
 
         buf_init(fd, &bp, size);
         int tmp=1;
-        while( bp.pageOffset <= (size -size%bp.chunk_size) )
+        while( bp.pageOffset < (size -size%bp.chunk_size -(size/bp.chunk_size)*4096) )
         {
 
                 buf_rebuf( &bp, size );
 
-                while( bp.line != bp.chunk_end+1 && tmp ){
+                while( bp.line != bp.chunk_end+1  ){
                     tmp = buf_readline( bp.line, &end );
                     ++linesRead ;
-                    printf("%s\n", bp.line);
+                    printf("[%s]\n", bp.line);
+                    printf("pageOffset:%d s_mod_chunk:%d\n",bp.pageOffset,(size -size%bp.chunk_size -(size/bp.chunk_size)*4096)  );
                     bp.line = end;
                 }
 
