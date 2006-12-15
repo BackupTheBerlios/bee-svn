@@ -121,12 +121,40 @@ inline static size_t buf_readline( char *start, char **end )
         return r;
 }
 
+inline static char *
+buf_rebuf( buffer_t * bp, size_t chunk_size, char small )
+{
+        int prot = PROT_WRITE | PROT_READ;
+        int flags = MAP_PRIVATE;
+
+        if( -1 == munmap( bp->map, chunk_size ) )
+                err( "munmap failed\n" );
+
+        bp->map = mmap( 0, chunk_size,
+                        prot, flags, bp->fd, bp->pageOffset );
+        if( bp->map == MAP_FAILED )
+                err( "mmap error for input\n" );
+
+        bp->line = bp->map + bp->chunk_diff;
+
+        if(small)
+            bp->chunk_end = bp->map + chunk_size;
+        else
+            bp->chunk_end = memrchr( bp->map, '\n', chunk_size );
+
+        bp->pageOffset += chunk_size - 4096;
+        bp->chunk_diff =
+            ( char * )bp->chunk_end - ( bp->map + ( chunk_size - 4096 ) ) ;
+
+        return bp->map;
+}
 /*------------------------------------------------------------------------*/
+#if 0
 inline static char *buf_rebuf( buffer_t * bp, size_t size )
 {
         int prot = PROT_WRITE | PROT_READ;
         int flags = MAP_PRIVATE;
-        printf( "rebuffing\n" );
+        //printf( "rebuffing\n" );
         if( -1 == munmap( bp->map, bp->chunk_size ) )
                 err( "munmap failed\n" );
         /* 0. compute new pageOffset, based on the
@@ -143,15 +171,14 @@ inline static char *buf_rebuf( buffer_t * bp, size_t size )
         bp->line = bp->map + bp->chunk_diff;
         bp->pageOffset += bp->chunk_size - 4096;
         bp->chunk_end = memrchr( bp->map, '\n', bp->chunk_size );
-        //if(bp->chunk_end)
-        //        *(bp->chunk_end) = '\0';
         bp->chunk_diff =
-            ( char * )bp->chunk_end - ( bp->map + ( bp->chunk_size - 4096 ) );
+            ( char * )bp->chunk_end - ( bp->map + ( bp->chunk_size - 4096 ) ) ;
 
         //buf_show( bp );
-        printf( "exit rebuffing\n" );
+        //printf( "exit rebuffing\n" );
         return bp->map;
 }
+#endif
 /*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 
 /*------------------------------------------------------------------------*/
@@ -173,8 +200,8 @@ void test_buf_rebuf_file( char *fname, int lines )
         buf_init( fd, &bp, size );
         int tmp = 1;
         int left_to_read = 0;
-        int prot = PROT_WRITE | PROT_READ;
-        int flags = MAP_PRIVATE;
+//        int prot = PROT_WRITE | PROT_READ;
+//        int flags = MAP_PRIVATE;
 
         /* big file */
         if( statbuf.st_size >= 10240 )
@@ -182,13 +209,12 @@ void test_buf_rebuf_file( char *fname, int lines )
                        ( size - size % bp.chunk_size -
                          ( size / bp.chunk_size ) * 4096 ) )
                 {
-                        buf_rebuf( &bp, bp.chunk_size );
+                        buf_rebuf( &bp, bp.chunk_size,0 );
                         while( bp.line < bp.chunk_end )
                         {
                                 tmp = buf_readline( bp.line, &end );
                                 ++linesRead;
-                                printf( "%d:%d:%s\n", linesRead, bp.line[0],
-                                        bp.line );
+                                printf( "%s\n", bp.line );
                                 bp.line = end;
                         }
 
@@ -202,10 +228,12 @@ void test_buf_rebuf_file( char *fname, int lines )
                 }
 
         /* st_size < 1Mb */
-        printf( "rebuffing:small\n" );
+        //printf( "rebuffing:small\n" );
+        left_to_read = statbuf.st_size - bp.pageOffset;
+        buf_rebuf( &bp, left_to_read, 1);
+#if 0
         if( -1 == munmap( bp.map, bp.chunk_size ) )
                 err( "munmap failed\n" );
-        left_to_read = statbuf.st_size - bp.pageOffset;
         bp.map = mmap( 0, left_to_read, prot, flags, bp.fd, bp.pageOffset );
         if( bp.map == MAP_FAILED )
                 err( "mmap error for input\n" );
@@ -215,11 +243,12 @@ void test_buf_rebuf_file( char *fname, int lines )
         bp.chunk_end = bp.map + left_to_read;
         if( bp.chunk_end )
                 *( bp.chunk_end ) = '\n';
+#endif
         while( bp.line != bp.chunk_end )
         {
                 tmp = buf_readline( bp.line, &end );
                 ++linesRead;
-                printf( "%d:%d:%s\n", linesRead, bp.line[0], bp.line );
+                printf( "%s\n", bp.line );
                 bp.line = end;
         }
 
@@ -234,6 +263,6 @@ void test_buf_rebuf(  )
 {
         test_buf_rebuf_file( "d1", 30 );
         test_buf_rebuf_file( "d2", 30 );
-        test_buf_rebuf_file( "d3", 14008 );
+//        test_buf_rebuf_file( "d3", 28011 );
 }
 /*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/

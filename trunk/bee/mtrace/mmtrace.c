@@ -114,7 +114,7 @@ readSzFile( const char *text, int *sz, char *file, int fileLen )
 
 
 /*------------------------------------------------------------------------*/
-inline void checkAddress( int type, int ptr, nod_t nod, dict_ptr dict )
+inline static void checkAddress( int type, int ptr, nod_t nod, dict_ptr dict )
 {
         nod_t A;
         int found = 0;
