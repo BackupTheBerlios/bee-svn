@@ -1,9 +1,12 @@
 CC=gcc
-CFLAGS=-g -Wall #-DDEBUG 
+CFLAGS=-g -Wall -DDEBUG
 LDFLAGS=-lcunit -lm
 
-all: mmtrace
+all: memtrace
 
+
+memtrace:
+	$(CC) $(CFLAGS) $(LDFLAGS) cuckoo.c memtrace.c -o memtrace
 
 mmtrace:
 	$(CC) $(CFLAGS) $(LDFLAGS) cuckoo.c mmtrace.c -o mmtrace
@@ -15,4 +18,4 @@ buf:
 	$(CC) $(CFLAGS) $(LDFLAGS)  buffer.c -o buf
 
 clean:
-	rm -rf mmtrace mtrace buf
+	rm -rf memtrace mmtrace mtrace buf

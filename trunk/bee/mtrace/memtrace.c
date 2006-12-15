@@ -15,21 +15,24 @@
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <errno.h>
-#include <CUnit/CUnit.h>
-#include <CUnit/Basic.h>
+//#include <CUnit/CUnit.h>
+//#include <CUnit/Basic.h>
+#include "memtrace.h"
 
+char buf[512]={0};
 
 /*----------------------------------------------------------------------------*/
 int main( int argc, char *argv[] )
 {
-        if( argc < 3 )
+        if( argc < 2 )
                 err( "Usage: ./memtrace <debug.log> <run_tests>\n" );
 
         sprintf( buf, "cat /proc/%d/status >>stats", getpid(  ) );
 
-        if( argv[2][0] != 'y' )
+        if( argc >2 && argv[2][0] != 'y' )
         {
-                runTestSuite(  );
+                //runTestSuite(  );
+                printf("should run testSuite\n");
                 return 0;
         }
 
@@ -43,7 +46,7 @@ int main( int argc, char *argv[] )
 
 /*----------------------------------------------------------------------------*/
 inline static char *
-buf_init( int fd, buffer_t * bp, size_t size )
+buf_init( int fd, buffer_t * bp )
 {
         bp->pageOffset = 0;
         bp->chunk_diff = 0;
@@ -91,16 +94,56 @@ buf_rebuf( buffer_t * bp, size_t chunk_size, char isSmall )
 
 
 /*----------------------------------------------------------------------------*/
+inline static size_t buf_readline( char *start, char **end )
+{
+        char *s = start;
+        size_t r = 0;
+
+        if( !start || !*start )
+        {
+                printf( "RET 0\n" );
+                return 0;
+        }
+
+        /* 0.07% cache * miss */
+        while( *start != '\n' && *start != 0 )
+        {
+                ++start;
+        }
+
+        r = ( *start == 0 ) ? start - s : start - s + 1;
+        *start = 0;
+        *end = start + 1;
+        return r;
+}
+/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+
+
+
+/*----------------------------------------------------------------------------*/
+static void buf_show( buffer_t * bp )
+{
+        printf
+            ( "\npageOffset:%d chunk_diff:%d chunk_size:%d fd:%d map:%p line:%p end:%p\n",
+              bp->pageOffset, bp->chunk_diff, bp->chunk_size, bp->fd, bp->map,
+              bp->line, bp->chunk_end );
+
+}
+/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+
+
+
+/*----------------------------------------------------------------------------*/
 static void
 memtrace( const char *const fname )
 {
         char *p = NULL, *end = 0;
-        int fd = -1;
+        unsigned int fd = 0,size=0,left_to_read=0, linesRead=0,tmp=0;
         struct stat statbuf;
+        unsigned int ptr=0, type=0;
+        nod_t nod;
         dict_ptr dict;
-        buffer_t bp = {.b_line = 0,.b_map = 0,.b_pageOffset = 0,.b_fileOffset =
-                    0,.b_chars = 0
-        };
+        buffer_t bp ;
 
         if( ( fd = open( fname, O_RDWR ) ) < 0 )
                 err( "Unable to open debug file\n" );
@@ -108,11 +151,13 @@ memtrace( const char *const fname )
         dict = construct_dict( MIN_DICT_SIZE );
         fstat( fd, &statbuf );
 
-        buf_init( fd, &bp, size );
+        size = statbuf.st_size ;
+        buf_init( fd, &bp );
 
-        if( statbuf.st_size >= 10240 )
+        if( size >= 10240 )
         while( bp.pageOffset < ( size - size % bp.chunk_size - ( size / bp.chunk_size ) * 4096 ) )
         {
+
                 buf_rebuf( &bp, bp.chunk_size, 0 );
                 while( bp.line < bp.chunk_end )
                 {
@@ -120,7 +165,10 @@ memtrace( const char *const fname )
                         ++linesRead;
                         printf( "%s\n", bp.line );
                         if( bp.line[0] != 'M' && bp.line[6] != 'O' )
+                        {
+                            bp.line = end;
                             continue;
+                        }
                         p = bp.line + 9;      /* Advance over 'MEMINFO: ' */
 
                         ptr = parseLine( p, &nod, &type );
@@ -130,7 +178,7 @@ memtrace( const char *const fname )
         }
 
         /* st_size < 1Mb */
-        left_to_read = statbuf.st_size - bp->pageOffset;
+        left_to_read = size - bp.pageOffset;
         buf_rebuf(&bp, left_to_read,1 );
         while( bp.line != bp.chunk_end )
         {
@@ -138,7 +186,10 @@ memtrace( const char *const fname )
                 ++linesRead;
                 printf( "%s\n", bp.line );
                 if( bp.line[0] != 'M' && bp.line[6] != 'O' )
+                {
+                    bp.line = end;
                     continue;
+                }
                 p = bp.line + 9;
 
                 ptr = parseLine( p, &nod, &type );
@@ -240,7 +291,7 @@ checkAddress( int type, int ptr, nod_t nod, dict_ptr dict )
 
 /*----------------------------------------------------------------------------*/
 inline static int
-parseLine( const char *const text, nod_t * res, int *type )
+parseLine( const char *const text, nod_t * res, unsigned int *type )
 {
         char op[8];             /* operator ( new or delete ) */
         char *p;                /* find line Number */

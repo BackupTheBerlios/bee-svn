@@ -1,6 +1,8 @@
 #if !defined( _MEMTRACE_H_ )
 #define _MEMTRACE_H_
 
+#include "cuckoo.h"
+
 #define IS_NEW  69               /* op[0]='n', op[4]=')' */
 #define IS_NEWA 93               /* op[0]='n', op[4]=']' */
 
@@ -25,9 +27,11 @@ typedef struct buffer_st {
         char *chunk_end;
 } buffer_t;
 
-inline static int    parseLine( const char text[], nod_t * res, int *type );
-inline static void   metrace( const char *const fname );
-inline static char * buf_init( int fd, buffer_t * bp, size_t size );
+extern void *memrchr(const void *s, int c, size_t n);
+
+inline static int    parseLine( const char text[], nod_t * res, unsigned int *type );
+inline static void   memtrace( const char *const fname );
+inline static char * buf_init( int fd, buffer_t * bp );
 inline static size_t buf_readline( char *start, char **end );
        static void   buf_show( buffer_t * bp );
 inline static char * buf_rebuf( buffer_t * bp, size_t chunk_size, char isSmall );
