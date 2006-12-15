@@ -168,9 +168,7 @@ void test_buf_rebuf_file(char* fname, int lines)
         int tmp=1;
         while( bp.pageOffset < (size -size%bp.chunk_size -(size/bp.chunk_size)*4096) )
         {
-
-                buf_rebuf( &bp, size );
-
+                buf_rebuf( &bp, bp.chunk_size );
                 while( bp.line != bp.chunk_end+1  ){
                     tmp = buf_readline( bp.line, &end );
                     ++linesRead ;
