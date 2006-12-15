@@ -139,8 +139,8 @@ buf_rebuf( buffer_t * bp , size_t size)
     bp->line = bp->map + bp->chunk_diff;
     bp->pageOffset += bp->chunk_size - 4096;
     bp->chunk_end = memrchr( bp->map, '\n', bp->chunk_size);
-    if(bp->chunk_end)
-            *(bp->chunk_end) = '\0';
+    //if(bp->chunk_end)
+    //        *(bp->chunk_end) = '\0';
     bp->chunk_diff = (char*)bp->chunk_end - (bp->map + (bp->chunk_size - 4096)) ;
 
     //buf_show( bp );
@@ -161,19 +161,24 @@ void test_buf_rebuf_file(char* fname, int lines)
                 err( "Unable to debug file" );
 
         fstat( fd, &statbuf );
-        /* In case st_size < 1Mb */
         size = statbuf.st_size ;
 
         buf_init(fd, &bp, size);
         int tmp=1;
+        int left_to_read=0;
+    int prot = PROT_WRITE | PROT_READ ;
+    int flags= MAP_PRIVATE ;
+
+        /* big file */
+        if( statbuf.st_size >= 10240 )
         while( bp.pageOffset < (size -size%bp.chunk_size -(size/bp.chunk_size)*4096) )
         {
                 buf_rebuf( &bp, bp.chunk_size );
-                while( bp.line != bp.chunk_end+1  ){
+                while( bp.line < bp.chunk_end ){
                     tmp = buf_readline( bp.line, &end );
                     ++linesRead ;
-                    printf("[%s]\n", bp.line);
-                    printf("pageOffset:%d s_mod_chunk:%d\n",bp.pageOffset,(size -size%bp.chunk_size -(size/bp.chunk_size)*4096)  );
+                    printf("%d:%d:%s\n", linesRead, bp.line[0], bp.line);
+                    //printf("pageOffset:%d s_mod_chunk:%d\n",bp.pageOffset,(size -size%bp.chunk_size -(size/bp.chunk_size)*4096)  );
                     bp.line = end;
                 }
 
@@ -183,6 +188,34 @@ void test_buf_rebuf_file(char* fname, int lines)
                     return;
                 }
         }
+
+        /* st_size < 1Mb */
+        printf("rebuffing:small\n");
+        if( -1 == munmap( bp.map, bp.chunk_size) )
+                err( "munmap failed\n");
+        left_to_read = statbuf.st_size - bp.pageOffset ;
+        bp.map = mmap( 0, left_to_read , prot, flags,
+                        bp.fd, bp.pageOffset );
+        if( bp.map == MAP_FAILED )
+                err( "mmap error for input\n" );
+
+        /* 2. update the line */
+        //bp.line = bp.map ;
+        bp.line = bp.map + bp.chunk_diff+1;
+        bp.chunk_end = bp.map + left_to_read;
+        if(bp.chunk_end)
+                *(bp.chunk_end) = '\n';
+        while( bp.line != bp.chunk_end  ){
+                tmp = buf_readline( bp.line, &end );
+                ++linesRead ;
+                printf("%d:%d:%s\n", linesRead, bp.line[0],bp.line);
+                //printf("pageOffset:%d s_mod_chunk:%d\n",bp.pageOffset,(size -size%bp.chunk_size -(size/bp.chunk_size)*4096)  );
+                bp.line = end;
+        }
+
+        CU_ASSERT( linesRead == lines );
+        printf("LinesRead=%d should read=%d\n", linesRead, lines);
+
         /*-----------*/
 }
 
@@ -190,9 +223,9 @@ void test_buf_rebuf_file(char* fname, int lines)
 void
 test_buf_rebuf()
 {
-//    test_buf_rebuf_file("d1", 30+1);
-//    test_buf_rebuf_file("d2", 30+1);
-    test_buf_rebuf_file("d3", 14004+1);
+    test_buf_rebuf_file("d1", 30);
+    test_buf_rebuf_file("d2", 30);
+    test_buf_rebuf_file("d3", 14008);
 }
 /*........................................*/
 
