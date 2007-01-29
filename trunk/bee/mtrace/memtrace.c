@@ -133,15 +133,18 @@ buf_show( buffer_t * bp )
 }
 /*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 void
-checkLeaks(dict_ptr dict)
+findLeaks(dict_ptr dict)
 {
     int i=0,key1=0, key2=0;
+
+    printf("Found the following leaks:\n");
+
     for(i=0; i<dict->tablesize;++i)
     {
         key1 = dict->T1[i].key;
         if(key1)
             printf("%#.7x\n", key1);
-    
+
         key2 = dict->T2[i].key;
         if(key2)
             printf("%#.7x\n", key2);
@@ -188,7 +191,7 @@ memtrace( const char *const fname )
                         p = bp.line + 9;      /* Advance over 'MEMINFO: ' */
 
                         ptr = parseLine( p, &nod, &type );
-                        checkAddress( type, ptr, nod, dict );
+                        judgeAdress( type, ptr, nod, dict );
                         bp.line = end;
                 }
         }
@@ -209,10 +212,10 @@ memtrace( const char *const fname )
                 p = bp.line + 9;
 
                 ptr = parseLine( p, &nod, &type );
-                checkAddress( type, ptr, nod, dict );
+                judgeAdress( type, ptr, nod, dict );
                 bp.line = end;
         }
-        checkLeaks(dict);
+        findLeaks(dict);
         close( fd );
         destruct_dict( dict );
 }
@@ -259,8 +262,11 @@ readSzFile( const char *text, int *sz, char *file, int fileLen )
 
 
 /*----------------------------------------------------------------------------*/
+/*
+ * If type is new, then insert the ptr,
+ * If type is del, then remove the ptr from Hash. */
 inline void
-checkAddress( int type, int ptr, nod_t nod, dict_ptr dict )
+judgeAdress( int type, int ptr, nod_t nod, dict_ptr dict )
 {
         nod_t A;
         int found = 0;

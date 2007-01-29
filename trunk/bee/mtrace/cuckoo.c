@@ -26,6 +26,11 @@
 #include<strings.h>
 #include<time.h>
 #include<math.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <errno.h>
 #include "cuckoo.h"
 
 
@@ -137,6 +142,8 @@ dict_ptr construct_dict( int min_size )
 
 
 /*------insert-----------------------------------------*/
+/*
+ * If threshold size is reached, then dump the hash to disk */
 boolean insert( dict_ptr D, int key, nod_t node )
 {
 
@@ -163,6 +170,11 @@ boolean insert( dict_ptr D, int key, nod_t node )
         /*
          * else insert new element in D 
          */
+        if( D->size >= SIZE_THRESHOLD )
+        {
+            dumpHash( D, "1.db");
+            insert( D, key, node );
+        }
         x.key = key;
         x.data = node;
         for( j = 0; j < D->maxchain; j++ )
@@ -194,11 +206,6 @@ boolean insert( dict_ptr D, int key, nod_t node )
 
         /*
          * Forced rehash 
-         */
-        /*
-         * if( D->size > D->dumplimit)
-         *      dump_tables( D );
-         * realloc_tables(D);
          */
         if( D->size < D->meansize )
                 rehash( D, D->tablesize );
@@ -260,6 +267,50 @@ boolean delete( dict_ptr D, int key )
         return FALSE;
 }                               /* delete */
 
+
+int dumpHash( dict_ptr D, const char* fname )
+{
+    int fd=-1,i;
+    fd = open( fname, O_RDWR|O_CREAT | O_TRUNC, S_IRWXU);
+    if( fd ==-1 )
+    {
+        fprintf(stderr, "cannot open %s : %s\n",
+                fname, strerror(errno) ) ;
+        exit(EXIT_FAILURE);
+    }
+    printf("dumping %d:%d:%d\n", D->size,sizeof(*(D->T1)),sizeof(*(D->T2)));
+    write(fd, &(*D), sizeof(int)*6);
+    write(fd, &(*(D->T1)), D->size*sizeof(celltype));
+    for(i=0;i<10; i++) {
+        printf("%d-%d\n", D->T1[i], D->T2[i]);
+    }
+    write(fd, &(*(D->T2)), D->size*sizeof(celltype));
+    close(fd);
+    D->size =0;
+}
+
+dict_ptr loadHash( const char* fname )
+{
+    int fd=-1;
+    struct cell *T=calloc(5,sizeof(celltype));
+    dict_ptr D = ( dict_ptr ) calloc( 1, sizeof( dict ) );
+
+
+    fd = open(fname, O_RDWR );
+    read(fd, D ,sizeof(int)*6);
+    printf("-------Size:%d-----------\n", D->size);
+
+    read(fd, T, sizeof(celltype)*5);
+    D->T1 = ( celltype * ) calloc( 5, sizeof( celltype ) ) ;
+    memcpy( D->T1, T, 5*sizeof(celltype));
+
+    read(fd, T, sizeof(celltype)*5);
+    D->T2 = ( celltype * ) calloc( 5, sizeof( celltype ) ) ;
+    memcpy( D->T2, T, 5*sizeof(celltype));
+
+    close(fd);
+    return D;
+}
 
 /*-------size-------------------------------------------*/
 int size( dict_ptr D )
