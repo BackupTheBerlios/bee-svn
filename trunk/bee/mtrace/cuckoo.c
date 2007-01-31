@@ -272,41 +272,45 @@ int dumpHash( dict_ptr D, const char* fname )
 {
     int fd=-1,i;
     fd = open( fname, O_RDWR|O_CREAT | O_TRUNC, S_IRWXU);
+    int tb_size=0;
     if( fd ==-1 )
     {
         fprintf(stderr, "cannot open %s : %s\n",
                 fname, strerror(errno) ) ;
         exit(EXIT_FAILURE);
     }
-    printf("dumping %d:%d:%d\n", D->size,sizeof(*(D->T1)),sizeof(*(D->T2)));
-    write(fd, &(*D), sizeof(int)*6);
-    write(fd, &(*(D->T1)), D->size*sizeof(celltype));
+    tb_size = D->size*sizeof(celltype);
+    printf("dumping sz=%d szT1=%d\n", D->size, tb_size);
     for(i=0;i<10; i++) {
-        printf("%d-%d\n", D->T1[i], D->T2[i]);
+        printf("t1[i]=%d-t2[i]=%d\n", D->T1[i], D->T2[i]);
     }
-    write(fd, &(*(D->T2)), D->size*sizeof(celltype));
+    write(fd, (void*)D, sizeof(int)*6);
+    write(fd, (void*)(D->T1), tb_size );
+    write(fd, (void*)(D->T2), tb_size );
     close(fd);
     D->size =0;
 }
 
 dict_ptr loadHash( const char* fname )
 {
-    int fd=-1;
-    struct cell *T=calloc(5,sizeof(celltype));
+    int fd=-1, tb_size=0;
+    struct cell *T;
     dict_ptr D = ( dict_ptr ) calloc( 1, sizeof( dict ) );
 
 
     fd = open(fname, O_RDWR );
     read(fd, D ,sizeof(int)*6);
     printf("-------Size:%d-----------\n", D->size);
+    T = calloc(D->size,sizeof(celltype));
+    tb_size = D->size*sizeof(celltype);
+    D->T1 = ( celltype * ) calloc( D->size, sizeof( celltype ) ) ;
+    D->T2 = ( celltype * ) calloc( D->size, sizeof( celltype ) ) ;
 
-    read(fd, T, sizeof(celltype)*5);
-    D->T1 = ( celltype * ) calloc( 5, sizeof( celltype ) ) ;
-    memcpy( D->T1, T, 5*sizeof(celltype));
+    read(fd, T,tb_size );
+    memcpy( D->T1, T, tb_size);
 
-    read(fd, T, sizeof(celltype)*5);
-    D->T2 = ( celltype * ) calloc( 5, sizeof( celltype ) ) ;
-    memcpy( D->T2, T, 5*sizeof(celltype));
+    read(fd, T,tb_size );
+    memcpy( D->T2, T, tb_size);
 
     close(fd);
     return D;
