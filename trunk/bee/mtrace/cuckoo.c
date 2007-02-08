@@ -34,7 +34,7 @@
 #include <string.h>
 #include "cuckoo.h"
 
-
+static unsigned int dumpedTables=0;
 
 dict_ptr alloc_dict( int tablesize )
 {
@@ -173,7 +173,10 @@ boolean insert( dict_ptr D, int key, nod_t node )
          */
         if( D->size >= SIZE_THRESHOLD )
         {
-            dumpHash( D, "1.db");
+            unsigned char dbName[32]={0};
+            sprintf(dbName, "%d.db", dumpedTables);
+            dumpHash( D, dbName);
+            ++dumpedTables;
             insert( D, key, node );
         }
         x.key = key;
@@ -228,9 +231,44 @@ boolean lookup( dict_ptr D, int key )
                 return TRUE;
 
         hashcuckoo( hkey, D->a2, D->shift, key );
-        return ( D->T2[hkey].key == key );
+        if( D->T2[hkey].key == key )
+                return TRUE;
 
+        return lookupOnDisk( int key );
 }                               /* lookup */
+
+//TODO: Dump a1 and a2 to disk
+//return the table in which it was found
+int lookupOnDisk(int key )
+{
+        int i=0;
+        dict_ptr D=0;
+        unsigned long hkey;
+
+        for( i=0; i< dumpedTables; ++i)
+        {
+                char dbName[32]={0};
+                sprintf( dbName, "%d.db", i);
+                fd = open( dbName, O_RDONLY );
+                // treat errors
+
+                read( fd, D, header_size );
+
+                hashcuckoo( hkey, D->a1, D->shift, key );
+                read( fd, &tcell, hkey*sizeof(celltype) + HEADER);
+                if( tcell.key = key )
+                        return i;
+
+                hashcuckoo( hkey, D->a2, D->shift, key );
+                read( fd, &tcell, hkey*sizeof(celltype) + MAGIC_NUMBER + HEADER);
+                if( tcell.key = key )
+                        return i;
+
+                close( fd);
+        }
+        return FALSE ;
+}
+
 
 /*-------delete---------------------------------------*/
 boolean delete( dict_ptr D, int key )
