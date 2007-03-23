@@ -1,0 +1,72 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+
+  <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+  <title>Seraph bot</title>
+
+
+</head>
+<body style="height: 289px;">
+
+<br>
+
+<br>
+
+<br>
+
+<form action="http://192.168.18.129/apache2-default/run_tests.php" method="post">
+  <table style="background-color: rgb(65, 134, 207); width: 100%; height: 100%; text-align: left; margin-left: auto; margin-right: auto;" border="1" cellpadding="2" cellspacing="2">
+
+    <tbody>
+
+      <tr>
+
+        <td>Tests</td>
+
+        <td>OS</td>
+
+        <td>Machine</td>
+
+      </tr>
+
+      <tr>
+
+        <td style="background-color: rgb(253, 253, 252); text-align: left; vertical-align: middle;">
+        <select multiple="multiple" name="choose_tests">
+        <option>all</option>
+        <option>imap</option>
+        <option>smtp</option>
+        <option>pop3</option>
+        <option>html</option>
+        <option>cli</option>
+        </select>
+
+        </td>
+
+        <td style="background-color: rgb(252, 249, 253);">
+        <select name="choose_os">
+        <option>openbsd</option>
+        <option>freebsd</option>
+        <option>netbsd</option>
+        <option>sunos10</option>
+        <option>linux</option>
+        </select>
+
+        </td>
+
+        <td style="background-color: rgb(251, 241, 249);"><input name="choose_machine"></td>
+
+      </tr>
+
+    </tbody>
+  </table>
+
+  <button value="asd" name="run_tests">Run</button><br>
+
+</form>
+
+<br>
+
+</body>
+</html>

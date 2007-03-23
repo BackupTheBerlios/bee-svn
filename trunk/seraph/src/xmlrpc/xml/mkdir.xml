@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<methodCall>
+<methodName>mkdir</methodName>
+<params>
+<param><value><string>/tmp/TESTDIR</string></value></param>
+</params></methodCall>
