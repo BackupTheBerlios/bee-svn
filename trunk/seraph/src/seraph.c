@@ -57,10 +57,10 @@ void srph_usage( int status )
         printf( "  -V|--verbose                     Emit verbose output.\n" );
         printf( "  -V|--version                     Print version and exit\n" );
         printf( "  -X|--xmlrpc  <port>              Start XMLRPC service on 'port'\n" );
-        printf( "  -c|--config <file>               Use 'file' as seraph config\n" );
+        printf( "  -C|--config <file>               Use 'file' as seraph config\n" );
         printf( "  -h|--help                        Print this text and exit\n" );
         printf( "  -k|--kill                        Kill child after timeout\n" );
-        printf( "  -o <OS>                          OS running on remote machine\n" );
+/*        printf( "  -o <OS>                          OS running on remote machine\n" );*/
         printf( "  -r <choice>                      Restore SUT state after each testRun ?\n(y)es, (n)o, (a)sk.[yes]\n" );
         printf( "  -t <type>                        Test type: 'local' or 'remote'\n" );
         exit( status );
@@ -71,7 +71,7 @@ void srph_usage( int status )
 int srph_parseArgs( struct config_s *cfg, int argc, char *argv[] )
 {
         int c;
-        while( ( c = getopt( argc, argv, "DRX:C:S:t:T:H:P:d:o:r:hvVk" ) ) != -1 ) {
+        while( ( c = getopt( argc, argv, "DRX:C:S:t:T:H:P:d:r:hvVk" ) ) != -1 ) {
                 switch ( c ) {
                 case 'h':
                         srph_usage( EXIT_SUCCESS );
@@ -100,6 +100,7 @@ int srph_parseArgs( struct config_s *cfg, int argc, char *argv[] )
                 case 'C':
                         cfg->config_file = optarg;
                         break;
+                /*
                 case 'o':
                         if( !strcasecmp( optarg, "linux" ) ) {
                                 cfg->config_file = "_linux";
@@ -121,6 +122,7 @@ int srph_parseArgs( struct config_s *cfg, int argc, char *argv[] )
                                  optarg );
                         srph_usage( EXIT_FAILURE );
                         break;
+                */
                 case 'X':
                         cfg->start_xmlrpc = true;
                         cfg->port = atoi( optarg );
