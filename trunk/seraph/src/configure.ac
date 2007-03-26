@@ -13,5 +13,5 @@ AC_CHECK_HEADER([stdio.h],
 #checks for library functions
 #checks for system services
 AC_CONFIG_HEADERS( configure.h)
-AC_CONFIG_FILES([config.h])
+#AC_CONFIG_FILES([config.h])
 AC_OUTPUT
