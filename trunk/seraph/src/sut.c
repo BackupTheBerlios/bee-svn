@@ -160,26 +160,26 @@ static bool sut_startLocal( int timeout, char *maillog, char *start )
         return true;
 }
 
-char **sut_listTests( const char *td, int *sz )
+char**
+sut_listTests(const char* td, int* sz)
 {
-        DIR *dir;
-        struct dirent *ent;
-        int i = 0;
+        DIR* dir;
+        struct dirent* ent;
+        int i=0;
 
-        char **buf = ( char ** )calloc( 8192, sizeof( char * ) );       //TODO
+        char** buf =(char**)calloc(8192, sizeof(char*)); //TODO
         if( !( dir = opendir( td ) ) ) {
                 debug( "1: Can't open test directory [%s] : %s\n",
-                       td, strerror( errno ) );
+                         td, strerror( errno ) );
                 exit( EXIT_FAILURE );
         }
         while( ( ent = readdir( dir ) ) ) {
-                buf[i] = ( char * )calloc( 512, sizeof( char ) );
-                strcpy( buf[i++], ent->d_name );
+                buf[i] = (char*)calloc(512, sizeof(char));
+                strcpy(buf[i++], ent->d_name);
         }
         *sz = i;
         return buf;
 }
-
 /*
 bool
 sut_listOSes()
@@ -381,12 +381,15 @@ static bool sut_refreshLocalWarm(  )
 
         }
 
-        fori = 1;
+        fori
+                = 1;
         i <= nr_users;
         i++ delete_msgs(  ) {
-        login select inbox store 1:*+flags \ deleted
-                    a expunge} delete_folders(  ) {
-                list "" * fori = nr_lines;
+      login select inbox store 1:*+flags \ deleted
+                    a expunge}
+        delete_folders(  ) {
+                list "" * fori
+                        = nr_lines;
                 i > 0;
         i-- delete mbox}
         end

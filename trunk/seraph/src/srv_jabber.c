@@ -207,9 +207,9 @@ handle_messages( LmMessageHandler * handler,
         g_print( "TestLM: Incoming message from: %s\n%s\n", from, msg );
 
         if( strstr( msg, "start" ) )
-                rsp = "Starting OK";
+                rsp = "Starting axigen OK";
         if( strstr( msg, "stop" ) )
-                rsp = "Stopping OK";
+                rsp = "Stopping axigen OK";
         if( strstr( msg, "lstests" ) )
                 rsp = "This will list tests";
         mout = lm_message_new( from, LM_MESSAGE_TYPE_MESSAGE );

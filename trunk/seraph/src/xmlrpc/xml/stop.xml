@@ -4,5 +4,5 @@
 <params>
 <param><value><int>99</int></value></param>
 <param><value><string>/var/log/maillog</string></value></param>
-<param><value><string>/etc/init.d/SUT stop</string></value></param>
+<param><value><string>/etc/init.d/axigen stop</string></value></param>
 </params></methodCall>

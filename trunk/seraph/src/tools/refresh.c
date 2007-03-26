@@ -121,7 +121,7 @@ void rc_usage( int status )
 {
 
         printf( "Usage: refresh [OPTION] COMMAND...\n" );
-        printf( "Refresh the state of SUT.\n" );
+        printf( "Refresh the state of Axigen.\n" );
         printf( "\n" );
         printf
             ( "  -v, --verbose     print a message for each action executed\n" );

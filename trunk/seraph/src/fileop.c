@@ -15,10 +15,8 @@ static int forceFlag = 0;
 
 static int fop_rmRemote( char *path, char *host, int port );
 static int fop_rmLocal( char *path );
-static int rm_fileAction( const char *fileName, struct stat *statbuf,
-                          void *junk );
-static int rm_dirAction( const char *fileName, struct stat *statbuf,
-                         void *junk );
+static int rm_fileAction( const char *fileName, struct stat *statbuf, void *junk );
+static int rm_dirAction( const char *fileName, struct stat *statbuf, void *junk );
 
 
 
@@ -130,7 +128,7 @@ recursiveAction( const char *fileName,
         if( status < 0 ) {
 #ifdef BB_DEBUG_PRINT_SCAFFOLD
                 debug( "status=%d followLinks=%d TRUE=%d\n",
-                       status, followLinks, TRUE );
+                        status, followLinks, TRUE );
 #endif
                 perror( fileName );
                 return FALSE;

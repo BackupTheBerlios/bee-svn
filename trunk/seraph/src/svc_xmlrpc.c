@@ -30,28 +30,27 @@ x_startCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void *userData )
 
         printf( "START [%d][%s][%s]\n", timeout, maillog, startCmd );
         rc = sut_start( TEST_LOCAL, timeout, maillog, startCmd, 0, 0 );
-        rs = rc > 0 ? "Started" : "Failed to start";
+        rs = rc > 0 ? "Axigen Started" : "Axigen Failed to start";
         return XMLRPC_CreateValueString( NULL, rs, 0 );
 }
 
 XMLRPC_VALUE
-x_listTestsCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request,
-                     void *userData )
+x_listTestsCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void *userData )
 {
         const char *rs;
-        char **testList = 0;
-        int nbTests = 0;
+        char** testList=0;
+        int nbTests=0;
         XMLRPC_VALUE rv;
 
         printf( "LISTTESTS\n" );
 
-        rv = XMLRPC_CreateVector( NULL, xmlrpc_vector_array );
-        testList = sut_listTests( "/home/groleo/tests", &nbTests );
+        rv = XMLRPC_CreateVector(NULL, xmlrpc_vector_array);
+        testList = sut_listTests( "/home/groleo/tests", &nbTests);
         while( nbTests-- ) {
                 XMLRPC_VectorAppendString( rv, NULL, testList[nbTests], 0 );
-                free( testList[nbTests] );
+                free(testList[nbTests]);
         }
-        free( testList );
+        free(testList);
         return rv;
 }
 
@@ -76,7 +75,7 @@ x_stopCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void *userData )
 
         printf( "STOP [%d][%s][%s]\n", timeout, maillog, stopCmd );
         rc = sut_stop( TEST_LOCAL, timeout, maillog, stopCmd, 0, 0 );
-        rs = rc > 0 ? "Stopped" : "Failed to stop";
+        rs = rc > 0 ? "Axigen Stopped" : "Axigen Failed to stop";
         return XMLRPC_CreateValueString( NULL, rs, 0 );
 }
 
@@ -139,57 +138,47 @@ x_executeCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request,
 
 
 XMLRPC_VALUE
-x_runTestsCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request,
-                    void *userData )
+x_runTestsCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void* userData )
 {
         XMLRPC_VALUE str;
-        char *sut_build, *p;
+        char* sut_build, *p;
         XMLRPC_VALUE oses, tests;
-        XMLRPC_VALUE xIter;
+        XMLRPC_VALUE xIter ;
         extern struct config_s cfg;
         pid_t pid;
 
 
-        str = XMLRPC_VectorRewind( XMLRPC_RequestGetData( request ) );
+        str = XMLRPC_VectorRewind(XMLRPC_RequestGetData(request));
 
         /* Extract SUT Build */
-        sut_build = XMLRPC_VectorGetStringWithID( str, "sut_build" );
-        debug( "SUT Build:%s\n", sut_build );
+        sut_build = XMLRPC_VectorGetStringWithID(str, "sut_build");
+        debug("SUT Build:%s\n", sut_build);
 
         /* Extract OSes */
-        oses = XMLRPC_VectorGetValueWithID( str, "sut_os" );
+        oses = XMLRPC_VectorGetValueWithID(str, "sut_os");
         xIter = XMLRPC_VectorRewind( oses );
-        while( xIter ) {
+        while(xIter) {
                 p = XMLRPC_GetValueString( xIter );
-                debug( "OSes: %s\n", p );
-                xIter = XMLRPC_VectorNext( oses );
+                debug("OSes: %s\n", p);
+                xIter = XMLRPC_VectorNext(oses);
         }
 
         /* Extract and RUN SUT Tests */
-        tests = XMLRPC_VectorGetValueWithID( str, "sut_tests" );
+        tests = XMLRPC_VectorGetValueWithID(str, "sut_tests");
         xIter = XMLRPC_VectorRewind( tests );
-        pid = fork(  );
+        pid = fork() ;
 
-        if( pid < 0 ) {
-                debug( "ERR:cant start the tests\n" );
-                return -1;
+        if(pid<0) { debug("ERR:cant start the tests\n"); return -1; }
+        if(pid>0) {int status; wait(&status); return XMLRPC_CreateValueString( NULL, "Starting Test Execution", 0 ); }
+        if(!pid) {
+        while(xIter) {
+                char b[PATH_MAX] = {0};
+                p = XMLRPC_GetValueString( xIter );
+                debug("Run tests from directory: '%s/%s' \n", cfg.test_dir,p);
+                sprintf(b, "%s/%s", cfg.test_dir,p);
+                srph_runTests( b );
+                xIter = XMLRPC_VectorNext(tests);
         }
-        if( pid > 0 ) {
-                int status;
-                wait( &status );
-                return XMLRPC_CreateValueString( NULL,
-                                                 "Starting Test Execution", 0 );
-        }
-        if( !pid ) {
-                while( xIter ) {
-                        char b[PATH_MAX] = { 0 };
-                        p = XMLRPC_GetValueString( xIter );
-                        debug( "Run tests from directory: '%s/%s' \n",
-                               cfg.test_dir, p );
-                        sprintf( b, "%s/%s", cfg.test_dir, p );
-                        srph_runTests( b );
-                        xIter = XMLRPC_VectorNext( tests );
-                }
         }
 }
 

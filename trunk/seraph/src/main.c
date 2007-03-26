@@ -21,25 +21,26 @@ int main( int argc, char *argv[] )
         switch ( cfg.behaviour ) {
         case TB_BE_DAEMON:
                 if( cfg.start_rawrpc ) {
-                        if( cfg.port == 0 ) {
+                        if(cfg.port == 0 ) {
                                 fprintf( stderr,
-                                         "! seraph: You have to specify -P option\n" );
-                                exit( -2 );
-                        } else {
+                                                "! seraph: You have to specify -P option\n" );
+                                exit( -2 );}
+                        else
+                        {
                                 start_rawrpc( cfg.port );
                         }
 
-                }               /*if( cfg.start_jabber)
-                                   start_jabber(); */
-                if( cfg.start_xmlrpc ) {
-                        /*3. export any variable from config file */
-                        srph_parseCfg( cfg.config_file );
+                }                /*if( cfg.start_jabber)
+                                   start_jabber();*/
+                if( cfg.start_xmlrpc) {
+        /*3. export any variable from config file */
+       srph_parseCfg( cfg.config_file );
 
-                        /*4. check if the needed variables are exported */
-                        srph_initEnv( &cfg );
+        /*4. check if the needed variables are exported */
+        srph_initEnv( &cfg );
                         /*5. check if the proper tools are installed */
                         srph_checkTools( getenv( SUT_TOOL ) );
-                        start_xmlrpc( cfg.port );
+                        start_xmlrpc(cfg.port);
                 }
                 return 0;
         case TB_BE_SETUP:

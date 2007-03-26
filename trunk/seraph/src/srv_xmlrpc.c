@@ -8,10 +8,11 @@
 
 static int callback_socket( int portno );
 static int callback_command( int sckt );
-char *clientCallback( char *filebuf );
+char* clientCallback( char* filebuf );
 
 
-int start_xmlrpc( int port )
+int
+start_xmlrpc(int port)
 {
 
         pid_t pid, sid;
@@ -108,10 +109,10 @@ static int callback_socket( int portno )
 static int callback_command( int sckt )
 {
         char buf[8192] = { 0 };
-        char *buf1 = 0, *rsp;
+        char*buf1=0,*rsp;
         int ok = 1;
         int n, i;
-        char banner[8192] = { 0 };;
+        char banner[8192]={0};;
         while( ok ) {
                 char *p = NULL;
                 memset( buf, 0, 8192 );
@@ -128,30 +129,28 @@ static int callback_command( int sckt )
                         break;
                 }
                 buf[( unsigned int )n] = '\0';
-                buf1 = strstr( buf, "\r\n\r\n" );
-                if( buf1 ) {
-                        buf1 += 4;
-                        debug( "%s\n", buf1 );
-                        rsp = clientCallback( buf1 );
-                        sprintf( banner,
-                                 "HTTP/1.1 200 OK\r\nDate: Wed, 07 Mar 2007 09:50:14 GMT\r\nServer: libwww-perl-daemon/1.36\r\nAccept: text/xml\r\nContent-Length: %d\r\nContent-Type: text/xml\r\nRPC-Encoding: XML-RPC\r\nRPC-Server: RPC::XML::Server/1.44\r\n\r\n",
-                                 strlen( rsp ) );
-                        debug( "\n[%s]\n[%s]\n", banner, rsp );
-                        write( sckt, banner, strlen( banner ) );
-                        write( sckt, rsp, strlen( rsp ) );
-                        free( rsp );
-                        ok = false;
+                buf1 = strstr(buf, "\r\n\r\n");
+                if(buf1){
+                        buf1+=4;
+                        debug("%s\n", buf1);
+                        rsp = clientCallback(buf1);
+                        sprintf(banner,"HTTP/1.1 200 OK\r\nDate: Wed, 07 Mar 2007 09:50:14 GMT\r\nServer: libwww-perl-daemon/1.36\r\nAccept: text/xml\r\nContent-Length: %d\r\nContent-Type: text/xml\r\nRPC-Encoding: XML-RPC\r\nRPC-Server: RPC::XML::Server/1.44\r\n\r\n",
+                        strlen(rsp));
+                        debug("\n[%s]\n[%s]\n", banner, rsp);
+                        write(sckt, banner, strlen(banner));
+                        write(sckt, rsp, strlen(rsp));
+                        free(rsp);
+                        ok=false;
                 }
                 //
-        }                       /*while */
+        } /*while */
         close( sckt );
         return 0;
 }
-
 /* with the exception of the registration calls, most everything in main
  * only needs to be written once per server.
  */
-char *clientCallback( char *filebuf )
+char* clientCallback( char* filebuf )
 {
         XMLRPC_SERVER server;
         XMLRPC_REQUEST request, response;
@@ -173,19 +172,19 @@ char *clientCallback( char *filebuf )
          * This will be read from a  socket
          */
         {
-                /*         char filebuf[4096];     // not that intelligent.  sue me.
-                   int len =
-                   fread( filebuf, sizeof( char ), sizeof( filebuf ) - 1,
+       /*         char filebuf[4096];     // not that intelligent.  sue me.
+                int len =
+                    fread( filebuf, sizeof( char ), sizeof( filebuf ) - 1,
 
-                   if( len ) {
-                   filebuf[len] = 0;
-                   stdin );
-                 */
-                // parse the xml into a request structure
-                request =
-                    XMLRPC_REQUEST_FromXML( ( const char * )filebuf,
-                                            strlen( filebuf ), NULL );
-                //         }
+                if( len ) {
+                        filebuf[len] = 0;
+                           stdin );
+*/
+                        // parse the xml into a request structure
+                        request =
+                            XMLRPC_REQUEST_FromXML( ( const char * )filebuf,
+                                                    strlen(filebuf), NULL );
+       //         }
         }
         if( !request ) {
                 fprintf( stderr, "bogus xmlrpc request\n" );
@@ -196,7 +195,7 @@ char *clientCallback( char *filebuf )
  */
 
         /* create a response struct */
-        response = XMLRPC_RequestNew(  );
+        response = XMLRPC_RequestNew( );
         XMLRPC_RequestSetRequestType( response, xmlrpc_request_response );
 
         /* call server method with client request and assign the response to our response struct */
@@ -210,11 +209,11 @@ char *clientCallback( char *filebuf )
                                         ( request ) );
 
         /* serialize server response as XML */
-        char *outBuf = XMLRPC_REQUEST_ToXML( response, 0 );
+                char *outBuf = XMLRPC_REQUEST_ToXML( response, 0 );
 
-        if( outBuf ) {
-                printf( outBuf );
-        }
+                if( outBuf ) {
+                        printf( outBuf );
+                }
         // cleanup.  null safe.
         XMLRPC_RequestFree( request, 1 );
         XMLRPC_RequestFree( response, 1 );

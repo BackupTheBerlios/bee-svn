@@ -40,7 +40,7 @@ Specifications.
     The curent implemented solution is described below :
 
 
-                                                                             rsh->system/SUT
+                                                                             rsh->system/axigen
                                                                             /
                                                                            /
                               |- system( copy, rm, mkdir, exec)|          (remote)
@@ -50,7 +50,7 @@ tesBot* runScript-----calls ->|- stop                          |->effects
                               |- checkCore                     |          (local)
                               |- runScript                     |           \
                                                                             \
-                                                                             system/SUT
+                                                                             system/axigen
 
 Note:
     seraph needs read access on /var/log/maillog. This can be achieved through two ways :
@@ -68,7 +68,7 @@ Note:
     of each step a testScript is performing.
 
     Each protocol has it's corespondent Perl module,
-    such as POP3 has the library called SUT::Pop3.
+    such as POP3 has the library called Axigen::Pop3.
 
     The functions implemented in a module are a direct corespondent
     of protocols command.
@@ -77,7 +77,7 @@ Note:
         Pop3::Stat() will send "stat".
 
     The current testAPI has four modules:
-    SUT::Smtp, SUT::POP3, SUT::Cli and SUT::Utils.
+    Axigen::Smtp, Axigen::POP3, Axigen::Cli and Axigen::Utils.
     A better description of each of them is found in the ./engine/ directory
 
 3.1. Environment Variables:
@@ -85,7 +85,7 @@ Note:
     To provide a network transparent script execution, certain environent
     variables are exported such as:
 
-    sut_host        The machine where SUT resides
+    sut_host        The machine where axigen resides
     sut_errorlog    Full path where to place seraph errorlog
     sut_imap        IMAP            port
     sut_imaps       IMAP     [SSL]  port
@@ -102,20 +102,20 @@ Note:
     sut_user        Default user used in tests( user1 )
     sut_pass        Password of the default user
     sut_defdom      Default domain
-    sut_start       Command that STARTs SUT in a syncronous way
-    sut_stop        Command that STOPs SUT in a syncronous way
-    sut_reload      Command that RELOADs SUT in a syncronous way
+    sut_start       Command that STARTs axigen in a syncronous way
+    sut_stop        Command that STOPs axigen in a syncronous way
+    sut_reload      Command that RELOADs axigen in a syncronous way
     sut_tool        Directory holding the framework( Perl modules and start/stop tools)
-    sut_workdir     SUT Workdir
+    sut_workdir     Axigen Workdir
     sut_sendmail    Sendmail binary
     sut_adminpass   Admin pass, used with CLI
     sut_bin         The path to the AXIGEN binary file
     sut_fresh       A fresh copy of the AXIGEN work folder, with the default configuration for seraph
     sut_cfgfile     was sut_cfg_file( copied when a core is droped )
-    sut_coredir     was sut_core_dir( where SUT drops a core ) ( scanned after each test is runned )
+    sut_coredir     was sut_core_dir( where axigen drops a core ) ( scanned after each test is runned )
     sut_dbgdir      was sut_dbg_dir
     sut_refresh	    was refresh_client - Specify what tool will perform a SUT refresh
-    sut_syslog      Path to the syslog/maillog (where SUT logs system messages)
+    sut_syslog      Path to the syslog/maillog (where Axigen logs system messages)
     sut_smtpfilters Path to smtpFilters.script
 
     Scripts can read environent variables using getenv() calls

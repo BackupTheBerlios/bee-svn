@@ -55,7 +55,7 @@ static void stop_usage( int status )
 {
 
         printf( "Usage: start [OPTION] COMMAND...\n" );
-        printf( "Stop SUT.\n" );
+        printf( "Stop Axigen.\n" );
         printf( "\n" );
         printf
             ( "  -v, --verbose     print a message for each action executed\n" );

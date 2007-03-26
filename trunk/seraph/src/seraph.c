@@ -28,12 +28,12 @@ static int srph_runBat( const char *bat_name, int timeout );
 static int srph_setupTmp( char const *source_bat, char *tmpDir );
 static int srph_parseBat( const char *filename );
 static int srph_dirAction( const char *fileName, struct stat *statbuf,
-                           void *junk );
+                         void *junk );
 static int srph_checkCore( int test_type, const char *core_srcDir,
-                           const char *dbg_srcDir, const char *axi_workDir,
-                           const char *axi_cfgFile, const char *crash_destDir );
+                         const char *dbg_srcDir, const char *axi_workDir,
+                         const char *axi_cfgFile, const char *crash_destDir );
 static int srph_fileAction( const char *fileName, struct stat *statbuf,
-                            void *junk );
+                          void *junk );
 static int srph_sutRefresh( int option, const char *filename );
 static int srph_cleanupTmp( char *tmpDir );
 static int srph_setErrorlog( void );
@@ -45,39 +45,24 @@ void srph_usage( int status )
         printf( "Usage: seraph [<options> ...]\n\n" );
         printf( "  -D|--daemon                      Act as daemon.\n" );
         printf( "  -R|--rawrpc                      Start RAWRPC service.\n" );
-        printf
-            ( "  -H|--host <name>                 Host on which RAWRPC runs.\n" );
-        printf
-            ( "  -P|--port <number>               Port on which RAWRPC listens.\n" );
-        printf
-            ( "  -I|--ignore <name>               Ignore tests in directory 'name'\n" );
-        printf
-            ( "  -d|--directory <name>            Run only the tests in directory 'name'\n" );
-        printf
-            ( "  -J|--jabber                      Start Jabber remote control service.\n" );
+        printf( "  -H|--host <name>                 Host on which RAWRPC runs.\n" );
+        printf( "  -P|--port <number>               Port on which RAWRPC listens.\n" );
+        printf( "  -I|--ignore <name>               Ignore tests in directory 'name'\n" );
+        printf( "  -d|--directory <name>            Run only the tests in directory 'name'\n" );
+        printf( "  -J|--jabber                      Start Jabber remote control service.\n" );
         printf( "  -U|--jabberuser                  \n" );
-        printf
-            ( "  -M|--mail <name(s)>              Whom to mail the results to\n" );
-        printf
-            ( "  -S|--setup <machine>             Install seraph on <machine>\n\t\tEx:machine openbsd#user@192.168.x.y:/home/userX/seraph\n" );
-        printf
-            ( "  -T|--timeout <number>            Timeout until child is killed\n" );
+        printf( "  -M|--mail <name(s)>              Whom to mail the results to\n" );
+        printf( "  -S|--setup <machine>             Install seraph on <machine>\n\t\tEx:machine openbsd#user@192.168.x.y:/home/userX/seraph\n" );
+        printf( "  -T|--timeout <number>            Timeout until child is killed\n" );
         printf( "  -V|--verbose                     Emit verbose output.\n" );
         printf( "  -V|--version                     Print version and exit\n" );
-        printf
-            ( "  -X|--xmlrpc  <port>              Start XMLRPC service on 'port'\n" );
-        printf
-            ( "  -c|--config <file>               Use 'file' as seraph config\n" );
-        printf
-            ( "  -h|--help                        Print this text and exit\n" );
-        printf
-            ( "  -k|--kill                        Kill child after timeout\n" );
-        printf
-            ( "  -o <OS>                          OS running on remote machine\n" );
-        printf
-            ( "  -r <choice>                      Restore SUT state after each testRun ?\n(y)es, (n)o, (a)sk.[yes]\n" );
-        printf
-            ( "  -t <type>                        Test type: 'local' or 'remote'\n" );
+        printf( "  -X|--xmlrpc  <port>              Start XMLRPC service on 'port'\n" );
+        printf( "  -c|--config <file>               Use 'file' as seraph config\n" );
+        printf( "  -h|--help                        Print this text and exit\n" );
+        printf( "  -k|--kill                        Kill child after timeout\n" );
+        printf( "  -o <OS>                          OS running on remote machine\n" );
+        printf( "  -r <choice>                      Restore SUT state after each testRun ?\n(y)es, (n)o, (a)sk.[yes]\n" );
+        printf( "  -t <type>                        Test type: 'local' or 'remote'\n" );
         exit( status );
 }
 
@@ -86,8 +71,7 @@ void srph_usage( int status )
 int srph_parseArgs( struct config_s *cfg, int argc, char *argv[] )
 {
         int c;
-        while( ( c =
-                 getopt( argc, argv, "DRX:C:S:t:T:H:P:d:o:r:hvVk" ) ) != -1 ) {
+        while( ( c = getopt( argc, argv, "DRX:C:S:t:T:H:P:d:o:r:hvVk" ) ) != -1 ) {
                 switch ( c ) {
                 case 'h':
                         srph_usage( EXIT_SUCCESS );
@@ -243,9 +227,9 @@ int srph_initCfg( struct config_s *config, int argc, char *argv[] )
         config->argv = argv;
         config->argc = argc;
         config->axi_syslog = "/var/log/maillog";
-        config->start_rawrpc = false;
-        config->start_xmlrpc = false;
-        config->start_jabber = false;
+        config->start_rawrpc = false ;
+        config->start_xmlrpc = false ;
+        config->start_jabber = false ;
 #if 0
         config->platf[0] = "linux";
         config->platf[1] = "bsd";
@@ -458,7 +442,7 @@ srph_fileAction( const char *fileName, struct stat *statbuf, void *junk )
         }
         srph_runBat( fileName, cfg.script_tout );
         srph_checkCore( cfg.test_type, cfg.axi_coreDir, cfg.axi_dbgDir,
-                        cfg.axi_workDir, cfg.axi_cfgFile, cfg.dest_coreDir );
+                      cfg.axi_workDir, cfg.axi_cfgFile, cfg.dest_coreDir );
         srph_cleanupTmp( tmpDir );
         sleep( 1 );
         if( -1 == chdir( curDir ) ) {
@@ -605,9 +589,9 @@ static int srph_parseBat( const char *filename )
 /*This has alot of params. pls review?*/
 static int
 srph_checkCore( int test_type,
-                const char *core_srcDir, const char *dbg_srcDir,
-                const char *axi_workDir, const char *axi_cfgFile,
-                const char *crash_destDir )
+              const char *core_srcDir, const char *dbg_srcDir,
+              const char *axi_workDir, const char *axi_cfgFile,
+              const char *crash_destDir )
 {
         bool rc = false;
         rc = sut_checkCore( test_type, core_srcDir, dbg_srcDir, axi_workDir,
@@ -651,7 +635,7 @@ static int srph_sutRefresh( int refresh, const char *bat_file )
 
         /* We excluded all NO's, so we're left with the yes. */
         /* Try to restore the default ptgen state --groleo */
-        debug( "refresh\n" );
+        debug("refresh\n");
         rc = system( "refresh" );
         debug( "# seraph: refresh retVal : %d\n", rc );
         if( rc == -1 || WEXITSTATUS( rc ) != 0 ) {
@@ -701,8 +685,7 @@ char *expand_vars( const char *t1 )
                         }
                         p++;
                         if( NULL == getenv( id ) ) {
-                                debug( "Can't expand [%s] : Not exported\n",
-                                       id );
+                                debug( "Can't expand [%s] : Not exported\n", id );
                                 memset( id, 0, 512 );
                                 i = 0;  /* Reset ID pointer and ID size counter */
                                 continue;
@@ -737,7 +720,7 @@ static int srph_setErrorlog(  )
         char rez[LINE_MAX] = "";
         struct tm *t = 0;
         time_t now;
-        char *dn[PATH_MAX] = { 0 }, *p = 0;
+        char* dn[PATH_MAX]={0}, *p=0;
 
         time( &now );
         t = localtime( &now );
@@ -749,14 +732,13 @@ static int srph_setErrorlog(  )
         setenv( SUT_ERRLOG, rez, 1 );
 
         /* Create ./errors in case it doesn't exists */
-        strcpy( dn, rez );
-        p = dirname( dn );
+        strcpy(dn,rez);
+        p = dirname(dn);
         if( -1 == access( p, F_OK ) ) {
                 fprintf( stderr, "%s doesn't exist\n", dirname( rez ) );
                 if( -1 == mkdir( p, 0777 ) ) {
-                        fprintf( stderr,
-                                 "SetErrorLog: Unable to create [%s]: [%s]\n",
-                                 p, strerror( errno ) );
+                        fprintf( stderr, "SetErrorLog: Unable to create [%s]: [%s]\n",
+                                 p,strerror( errno ) );
                         exit( EXIT_FAILURE );
                 }
                 fprintf( stderr, "%s created\n", p );
