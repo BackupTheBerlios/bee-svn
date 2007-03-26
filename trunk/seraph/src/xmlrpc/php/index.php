@@ -44,15 +44,12 @@ function listSUTVersions($cli)
 
 function listOSes($cli)
 {
-    echo "Remote OS:<br>
+    echo "On machine:<br>
     <select name='sut_os[]' multiple size='5'>
-    <option value='linux/gcc3' >linux/gcc3</option>
-    <option value='linux/gcc4'>linux/gcc4</option>
-    <option value='NetBSD/3.0'>NetBSD/3.0</option>
-    <option value='Solaris/10'>Solaris/10</option>
-    <option value='OpenBSD/3.9'>OpenBSD/3.9</option>
-    <option>FreeBSD/5.4</option>
-    <option>FreeBSD/6.1</option>
+    <option value='purec' >purec</option>
+    <option value='openbsd39'>openbsd39</option>
+    <option value='netbsd30'>netbsd30</option>
+    <option value='solaris10'>solaris10</option>
     </select> ";
 }
 
@@ -101,6 +98,7 @@ $cli = new XML_RPC_Client('/RPCSERVER', 'localhost', 5000);
             <span > <?php listSUTVersions($cli); ?> &nbsp;</span>
             <span > <?php listOSes($cli); ?> &nbsp;</span>
             <input type='submit' value='Run'/>
+            <input type='submit' value='Setup'/>
             </div>
         </form>
 </body>
