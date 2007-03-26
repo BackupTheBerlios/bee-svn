@@ -1,5 +1,6 @@
 <?php
 require_once 'XML/RPC.php';
+include 'mystyle.php';
 function showInfo($cli)
 {
     print "<pre>\n";
@@ -101,20 +102,9 @@ function showInfo($cli)
 <head>
 <link href='mystyle.css' rel='stylesheet' type='text/css'>
 </head>
-<body style='margin:0px'>
-<div  class='header'>
-<font class='header'>Seraph</font>
-<br/><br/>
-</div>
-<div class='head_menu'>
-<ul>
-<li><a href='login.php'>Login</a></li>
-<li><a href='register.php'>Register</a></li>
-<li><a href='settings.php'>Settings</a></li>
-<li><a href="README.txt">Documentation</a></li>
-</ul>
-</div>
+<body class='bheader'>
 <?php
+drawMenu() ;
 $cli = new XML_RPC_Client('/RPCSERVER','localhost',5000);
 showInfo($cli);
 ?>
