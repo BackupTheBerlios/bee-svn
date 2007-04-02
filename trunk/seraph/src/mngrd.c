@@ -26,8 +26,6 @@ extern int optind;
 
 int main( int argc, char *argv[] )
 {
-
-
         DBG;
         if( argc == 1 )
                 mngrd_usage( EXIT_FAILURE );
@@ -37,29 +35,27 @@ int main( int argc, char *argv[] )
 
         /*2. export axi_ttype axi_host axi_port specified as -t, -H, -P */
         mngrd_parseArgs( &cfg, argc, argv );
-        switch ( cfg.behaviour ) {
-        case TB_BE_DAEMON:
-                if( cfg.start_rawrpc ) {
-                        if(cfg.port == 0 ) {
-                                fprintf( stderr,
-                                                "! seraph: You have to specify -P option\n" );
-                                exit( -2 );}
-                        else
-                        {
-                                start_rawrpc( cfg.port );
-                        }
+        if( cfg.start_rawrpc ) {
+            if(cfg.port == 0 ) {
+                debug( "You have to specify -P option\n" );
+                exit( -2 );}
+            else
+            {
+                start_rawrpc( cfg.port );
+            }
 
-                }                /*if( cfg.start_jabber)
-                                   start_jabber();*/
-                if( cfg.start_xmlrpc) {
+        }
+        //if( cfg.start_jabber)
+        //    start_jabber();
+        if( cfg.start_xmlrpc) {
         /*3. export any variable from config file */
        //mngrd_parseCfg( cfg.config_file );
 
         /*4. check if the needed variables are exported */
         mngrd_initEnv( &cfg );
-                        /*5. check if the proper tools are installed */
-                        mngrd_checkTools( getenv( SUT_TOOL ) );
-                        start_xmlrpc(cfg.port);
+        /*5. check if the proper tools are installed */
+        //mngrd_checkTools( getenv( SUT_TOOL ) );
+        start_xmlrpc(cfg.port);
                 }
                 return 0;
         }
@@ -79,15 +75,6 @@ int main( int argc, char *argv[] )
                 mngrd_usage( EXIT_FAILURE );
         }
 
-        if( cfg.test_type == TEST_LOCAL && cfg.verbose == TRUE ) {
-                debug( "* seraph: Tests will be done LOCALLY.\n" );
-        }
-        if( cfg.test_type == TEST_REMOTE ) {
-                str_isEnv( cfg.verbose, SUT_HOST );
-                str_isEnv( cfg.verbose, SUT_PORT );
-                if( cfg.verbose == TRUE )
-                        debug( "* seraph: Tests will be done REMOTE.\n" );
-        }
         //mngrd_runTests( cfg.test_dir );
         mngrd_free( &cfg );
         UNDBG;
@@ -97,7 +84,6 @@ int main( int argc, char *argv[] )
 void mngrd_usage( int status )
 {
         printf( "Usage: seraph [<options> ...]\n\n" );
-        printf( "  -D|--daemon                      Act as daemon.\n" );
         printf( "  -R|--rawrpc                      Start RAWRPC service.\n" );
         printf( "  -d|--directory <name>            Run only the tests in directory 'name'\n" );
         printf( "  -J|--jabber                      Start Jabber remote control service.\n" );
@@ -116,7 +102,7 @@ void mngrd_usage( int status )
 int mngrd_parseArgs( struct config_s *cfg, int argc, char *argv[] )
 {
         int c;
-        while( ( c = getopt( argc, argv, "DRX:C:d:hvV" ) ) != -1 ) {
+        while( ( c = getopt( argc, argv, "RX:C:d:hvV" ) ) != -1 ) {
                 switch ( c ) {
                 case 'h':
                         mngrd_usage( EXIT_SUCCESS );
@@ -140,9 +126,6 @@ int mngrd_parseArgs( struct config_s *cfg, int argc, char *argv[] )
                         break;
                 case 'V':
                         cfg->verbose = TRUE;
-                        break;
-                case 'D':
-                        cfg->behaviour = TB_BE_DAEMON;
                         break;
                 }
         }
