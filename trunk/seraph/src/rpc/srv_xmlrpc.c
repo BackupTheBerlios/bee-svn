@@ -5,7 +5,6 @@
 #include "xmlrpc.h"
 #include "svc_xmlrpc.h"
 
-
 static int callback_socket( int portno );
 static int callback_command( int sckt );
 char* clientCallback( char* filebuf );
@@ -111,10 +110,10 @@ static int callback_command( int sckt )
         char buf[8192] = { 0 };
         char*buf1=0,*rsp;
         int ok = 1;
-        int n, i;
+        int n;//, i;
         char banner[8192]={0};;
         while( ok ) {
-                char *p = NULL;
+                //char *p = NULL;
                 memset( buf, 0, 8192 );
                 n = read( sckt, buf, 8191 );
 

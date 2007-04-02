@@ -9,12 +9,9 @@
 #include <limits.h>
 #include <time.h>
 #include "debug.h"
-#include "seraph.h"
 #include "rshd.h"
-#include "socket.h"
 #include "strop.h"
 #include "fileop.h"
-#include "sut.h"
 #include "wall.h"
 /*#include <limits.h>*/
 /*
@@ -988,7 +985,7 @@ static int srph_setErrorlog(  )
         char rez[LINE_MAX] = "";
         struct tm *t = 0;
         time_t now;
-        char* dn[PATH_MAX]={0}, *p=0;
+        char dn[PATH_MAX]={0}, *p=0;
 
         time( &now );
         t = localtime( &now );

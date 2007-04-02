@@ -15,17 +15,20 @@ all: lib seraph  mngrd
 help:
 	echo "Targets are: seraph lib clean tar indent install"
 
-files = strop.o fileop.o sut.o socket.o wall.o scan.o rpc/srv_xmlrpc.o rpc/svc_xmlrpc.o debug.o
+files = strop.o fileop.o sut.o socket.o wall.o scan.o srv_xmlrpc.o svc_xmlrpc.o debug.o
 
 $(filter %.o,$(files)): %.o: %.c
 	$(CC) -c $(CFLAGS) $< -o ./objs/$@
 
 objs=$(addprefix ./objs/,$(files))
 
-seraph: lib
+seraph: lib librpc
 	mkdir -p ./bin/tools
 	$(CC) $(CFLAGS) $(objs) seraph.c srv_tcp.c svc_tcp.c -lxmlrpc -ltbot $(LDFLAGS) -o ./bin/seraph
 	make -C ./tools
+
+librpc:
+	make -C rpc
 
 mngrd: lib
 	mkdir -p ./bin/tools

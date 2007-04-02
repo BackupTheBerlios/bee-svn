@@ -31,7 +31,7 @@ int str_isEnv( int verbose, char *var_name )
         if( !var_name )
                 return FALSE;
         if( !getenv( var_name ) ) {
-                debug( stderr, "$%s not exported.\n", var_name );
+                debug( "$%s not exported.\n", var_name );
                 exit( -1 );
         }
         if( verbose == TRUE )
