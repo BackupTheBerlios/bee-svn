@@ -4,6 +4,18 @@
 #include "strop.h"
 #include <sys/wait.h>
 #include <sys/types.h>
+#include <libgen.h>
+#include <sys/wait.h>
+#include <limits.h>
+#include <time.h>
+#include "debug.h"
+#include "seraph.h"
+#include "rshd.h"
+#include "socket.h"
+#include "strop.h"
+#include "fileop.h"
+#include "sut.h"
+#include "wall.h"
 /*#include <limits.h>*/
 /*
  * Dont use any GETENV, or cfgal variables in this file
@@ -27,6 +39,20 @@ sut_checkCoreLocal( const char *core_srcDir, const char *dbg_srcDir,
                     const char *workDir, const char *cfgFile,
                     const char *crash_destDir );
 
+static int srph_runBat( const char *bat_name, int timeout );
+static int srph_setupTmp( char const *source_bat, char *tmpDir );
+static int srph_parseBat( const char *filename );
+static int srph_dirAction( const char *fileName, struct stat *statbuf,
+                         void *junk );
+static int srph_checkCore( int test_type, const char *core_srcDir,
+                         const char *dbg_srcDir, const char *axi_workDir,
+                         const char *axi_cfgFile, const char *crash_destDir );
+static int srph_fileAction( const char *fileName, struct stat *statbuf,
+                          void *junk );
+static int srph_sutRefresh( int option, const char *filename );
+static int srph_cleanupTmp( char *tmpDir );
+static int srph_setErrorlog( void );
+static int srph_runRecursive( const char *srcName );
 /*  Start SUT   */
 bool
 sut_start( int test_type,
@@ -993,3 +1019,32 @@ static int srph_setErrorlog(  )
         }
         return 0;
 }
+
+
+
+
+
+int srph_runTests( const char *dir )
+{
+        struct stat inf;
+        char fullPath[FILENAME_MAX] = { 0 };
+        char curDir[FILENAME_MAX] = { 0 };
+
+        if( stat( dir, &inf ) < 0 ) {
+                printf( "! seraph: The directory [%s] doesn't exist.\n", dir );
+                return 0;
+        }
+        getcwd( curDir, FILENAME_MAX );
+        if( -1 == chdir( dir ) ) {
+                fprintf( stderr, "! seraph: Can't change to [%s] : [%s]\n",
+                         dir, strerror( errno ) );
+                exit( EXIT_FAILURE );
+        }
+        /*! @todo verify if `tests` dir is an absolute or a relative path */
+        sprintf( fullPath, "%s/%s", curDir, dir );
+//        srph_runRecursive( fullPath );
+        return TRUE;
+}
+
+
+
