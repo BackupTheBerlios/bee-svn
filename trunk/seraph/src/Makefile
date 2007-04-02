@@ -10,7 +10,7 @@ TARGETS=seraph
 # Solaris
 # LDFLAGS= -lsocket -lnsl
 
-all: lib seraph  mngrd
+all: librpc lib seraph  mngrd
 
 help:
 	echo "Targets are: seraph lib clean tar indent install"

@@ -14,8 +14,8 @@ sut_checkCore( int test_type,
               const char *axi_workDir, const char *axi_cfgFile,
               const char *crash_destDir );
 
-void sut_sigpipe();
-void sut_sigint();
+void sut_sigpipe(int);
+void sut_sigint(int);
 int  srph_checkTools(const char* tools_path) ;
 int  srph_runTests(const char* dir) ;
 

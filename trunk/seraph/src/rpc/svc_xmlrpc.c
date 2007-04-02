@@ -29,7 +29,7 @@ x_startCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void *userData )
         startCmd = XMLRPC_GetValueString( xIter );
 
         printf( "START [%d][%s][%s]\n", timeout, maillog, startCmd );
-        rc = sut_start( TEST_LOCAL, timeout, maillog, startCmd, 0, 0 );
+        rc = sut_start( TEST_LOCAL, timeout, (const char*)maillog, startCmd, 0, 0 ); //TODO
         rs = rc > 0 ? "Sut Started" : "Sut Failed to start";
         return XMLRPC_CreateValueString( NULL, rs, 0 );
 }

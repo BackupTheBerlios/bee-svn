@@ -4,6 +4,7 @@
 #include "sut.h"
 #include "xmlrpc.h"
 #include "svc_xmlrpc.h"
+#include <signal.h>
 
 static int callback_socket( int portno );
 static int callback_command( int sckt );
@@ -187,7 +188,7 @@ char* clientCallback( char* filebuf )
         }
         if( !request ) {
                 fprintf( stderr, "bogus xmlrpc request\n" );
-                return 1;
+                return 0;
         }
 /*
  *  The interesting part is below
