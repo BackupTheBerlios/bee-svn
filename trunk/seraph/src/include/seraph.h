@@ -9,11 +9,6 @@ int  srph_initCfg( struct config_s* cfg, int argc, char* argv[]);
 int  srph_parseCfg(char* config_file) ;
 int  srph_initEnv(struct config_s*) ;
 int  srph_free(struct config_s*) ;
-int  srph_checkTools(const char* tools_path) ;
-int  srph_runTests(const char* dir) ;
-
-char*
-expand_vars( char const * t1 );
 #else
         #warning "*** Header allready included ***"
 #endif

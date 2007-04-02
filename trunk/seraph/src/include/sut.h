@@ -16,6 +16,11 @@ sut_checkCore( int test_type,
 
 void sut_sigpipe();
 void sut_sigint();
+int  srph_checkTools(const char* tools_path) ;
+int  srph_runTests(const char* dir) ;
+
+char*
+expand_vars( char const * t1 );
 #else
         #warning "*** Header allready included ***"
 #endif
