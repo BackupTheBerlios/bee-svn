@@ -19,8 +19,8 @@
  */
 
 extern struct config_s cfg;
-static bool sut_startRemote( int timeout, char *maillog, char *start,
-                             char *host, int port );
+static bool sut_startRemote( const int timeout, const char *maillog, const char *start,
+                             const char *host, const int port );
 static bool sut_startLocal( int timeout, char *maillog, char *start );
 static bool sut_stopRemote( int timeout, char *maillog, char *stop,
                             char *host, int port );
