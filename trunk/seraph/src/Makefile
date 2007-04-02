@@ -10,12 +10,12 @@ TARGETS=seraph
 # Solaris
 # LDFLAGS= -lsocket -lnsl
 
-all: lib seraph
+all: lib seraph  mngrd
 
 help:
 	echo "Targets are: seraph lib clean tar indent install"
 
-files = strop.o fileop.o sut.o socket.o wall.o seraph.o scan.o srv_xmlrpc.o svc_xmlrpc.o debug.o
+files = strop.o fileop.o sut.o socket.o wall.o scan.o srv_xmlrpc.o svc_xmlrpc.o debug.o
 
 $(filter %.o,$(files)): %.o: %.c
 	$(CC) -c $(CFLAGS) $< -o ./objs/$@
@@ -24,7 +24,12 @@ objs=$(addprefix ./objs/,$(files))
 
 seraph: lib
 	mkdir -p ./bin/tools
-	$(CC) $(CFLAGS) $(objs) main.c srv_tcp.c svc_tcp.c -lxmlrpc -ltbot $(LDFLAGS) -o ./bin/seraph
+	$(CC) $(CFLAGS) $(objs) seraph.c srv_tcp.c svc_tcp.c -lxmlrpc -ltbot $(LDFLAGS) -o ./bin/seraph
+	make -C ./tools
+
+mngrd: lib
+	mkdir -p ./bin/tools
+	$(CC) $(CFLAGS) $(objs) mngrd.c srv_tcp.c svc_tcp.c -lxmlrpc -ltbot $(LDFLAGS) -o ./bin/mngrd
 	make -C ./tools
 
 lib: $(files)
