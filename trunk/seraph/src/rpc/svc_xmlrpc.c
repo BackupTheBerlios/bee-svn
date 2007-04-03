@@ -3,6 +3,9 @@
 #include "strop.h"
 #include "socket.h"
 #include "sut.h"
+#include <sys/types.h>
+#include <sys/wait.h>
+
 
 /*
  * Server-side remote procedure call implemented over XMLRPC.
@@ -103,7 +106,7 @@ XMLRPC_VALUE
 x_mkdirCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void *userData )
 {
         const char *path;
-        int rc = 0;
+//        int rc = 0;
 
         XMLRPC_VALUE xParams = XMLRPC_RequestGetData( request );
         XMLRPC_VALUE xIter = XMLRPC_VectorRewind( xParams );
@@ -140,7 +143,7 @@ XMLRPC_VALUE
 x_runTestsCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void* userData )
 {
         XMLRPC_VALUE str;
-        char* sut_build, *p;
+        const char* sut_build, *p;
         XMLRPC_VALUE oses, tests;
         XMLRPC_VALUE xIter ;
         extern struct config_s cfg;
@@ -167,8 +170,12 @@ x_runTestsCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void* userData
         xIter = XMLRPC_VectorRewind( tests );
         pid = fork() ;
 
-        if(pid<0) { debug("ERR:cant start the tests\n"); return -1; }
-        if(pid>0) {int status; wait(&status); return XMLRPC_CreateValueString( NULL, "Starting Test Execution", 0 ); }
+        if(pid<0) { debug("ERR:cant start the tests\n"); return 0; }
+        if(pid>0) {
+            int status=0;
+            wait(&status);
+            return XMLRPC_CreateValueString( NULL, "Starting Test Execution", 0 );
+        }
         if(!pid) {
         while(xIter) {
                 char b[PATH_MAX] = {0};
@@ -179,6 +186,7 @@ x_runTestsCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void* userData
                 xIter = XMLRPC_VectorNext(tests);
         }
         }
+        return 0;
 }
 
 /* chechcore( core_srcDir, dbg_srcDir, axi_workDir, axi_cfgFile, crash_destDir ) */
