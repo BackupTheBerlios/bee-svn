@@ -141,6 +141,7 @@ float:left;
 margin:0.25em 1em 0.5em 0;
 }
  */
+/*
 #menu b{
     border:1px solid #000;
     text-align:right; 
@@ -151,8 +152,9 @@ margin:0.25em 1em 0.5em 0;
     padding-bottom:2px;
     clear:both;
 }
+*/
+/*
 #menu a b {
-    /*font-weight:normal;*/
     text-decoration:none;
     text-align: left;
     color: red;
@@ -176,7 +178,7 @@ a:hover em.butt {
 #menu a:hover b {
     background-color: blue;
 }
-
+*/
 #menu input {
     border-width:1px;
     float: right;

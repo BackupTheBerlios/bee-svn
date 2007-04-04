@@ -29,7 +29,6 @@ function listTests($cli)
     }
 /* */
 }
-
 function listSUTVersions($cli)
 {
     echo "SUT Versions:<br>
@@ -44,6 +43,34 @@ function listSUTVersions($cli)
 
 function listOSes($cli)
 {
+    echo "ON Machine:<br>" ;
+    echo $arg2;
+/* */
+    $msg = new XML_RPC_Message('listMachines');
+    $resp = $cli->send($msg);
+    if (!$resp) {
+        echo 'Can\' talk to <b>seraph</b> daemon: ' . $cli->errstr;
+        exit;
+    }
+    if (!$resp->faultCode()) {
+        $i=0;
+        $val = $resp->value();
+        $i = $val->arraysize();
+        echo "<select name='sut_os[]' multiple size='5'>" ;
+        while($i--) {
+                echo "<option>".XML_RPC_decode($val->arraymem($i))."</option>";
+        }
+        echo "</select>" ;
+        $data = XML_RPC_decode($val);
+    } else {
+        echo 'Fault Code: ' . $resp->faultCode() . "\n";
+        echo 'Fault Reason: ' . $resp->faultString() . "\n";
+    }
+/* */
+}
+/*
+function listOSes($cli)
+{
     echo "On machine:<br>
     <select name='sut_os[]' multiple size='5'>
     <option value='purec' >purec</option>
@@ -52,7 +79,7 @@ function listOSes($cli)
     <option value='solaris10'>solaris10</option>
     </select> ";
 }
-
+*/
 function call($arg1, $arg2, $cli)
 {
     echo $arg2;

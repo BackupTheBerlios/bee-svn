@@ -21,8 +21,6 @@ function drawMachines() {
 echo " <ul id='menu'>
         <li ><p>purec
         <span>
-        <a href='http://google.com'><em class='butt'>Add entry</em></a>
-        <a href='http://google.com'><em class='butt'>Save</em></a>
         <b>OS:</b><input type='text' value='NetBSD'/><br>
         <b>OS VERSION:</b><input type='text' value='3.0'/><br>
         <b>HOST:</b><input type='text' value='192.168.9.56'/><br>
@@ -30,12 +28,12 @@ echo " <ul id='menu'>
         <b>SMTP:</b><input type='text' value='2580'/><br>
         <b>POP3:</b><input type='text' value='1180'/><br>
         <b>IMAP:</b><input type='text' value='1430'/><br>
-        <b>PATH:</b><input type='text' value='/var/sut'/><br>
+        <b>PATH:</b><input type='text' value='/var/axigen'/><br>
         <b>TOOL:</b><input type='text' value='$ {PWD}/engine'/><br>
-        <b>WORKDIR:</b><input type='text' value='/var/sut/'/><br>
-        <b>FRESH:</b><input type='text' value='/home/sut/'/><br>
-        <b>DBGDIR:</b><input type='text' value='/var/sut/logs/debug'/><br>
-        <b>COREDIR:</b><input type='text' value='/var/sut'/><br>
+        <b>WORKDIR:</b><input type='text' value='/var/axigen/'/><br>
+        <b>FRESH:</b><input type='text' value='/home/axigen/'/><br>
+        <b>DBGDIR:</b><input type='text' value='/var/axigen/logs/debug'/><br>
+        <b>COREDIR:</b><input type='text' value='/var/axigen'/><br>
         </span></p>
         </li>
         </ul>
@@ -44,20 +42,18 @@ echo " <ul id='menu'>
 echo " <ul id='menu'>
         <li ><p>Openbsd39
         <span>
-        <a href='http://google.com'><em class='butt'>Add entry</em></a>
-        <a href='http://google.com'><em class='butt'>Save</em></a>
         <b>OS:</b><input type='text' value='OpenBSD'/><br>
         <b>OS VERSION:</b><input type='text' value='3.9'/><br>
         <b>IP:</b><input type='text' value='192.168.9.56'/><br>
         <b>SMTP:</b><input type='text' value='2580'/><br>
         <b>POP3:</b><input type='text' value='1180'/><br>
         <b>IMAP:</b><input type='text' value='1430'/><br>
-        <b>PATH:</b><input type='text' value='/var/sut'/><br>
+        <b>PATH:</b><input type='text' value='/var/axigen'/><br>
         <b>TOOL:</b><input type='text' value='$ {PWD}/engine'/><br>
-        <b>WORKDIR:</b><input type='text' value='/var/sut/'/><br>
-        <b>FRESH:</b><input type='text' value='/home/sut/'/><br>
-        <b>DBGDIR:</b><input type='text' value='/var/sut/logs/debug'/><br>
-        <b>COREDIR:</b><input type='text' value='/var/sut'/><br>
+        <b>WORKDIR:</b><input type='text' value='/var/axigen/'/><br>
+        <b>FRESH:</b><input type='text' value='/home/axigen/'/><br>
+        <b>DBGDIR:</b><input type='text' value='/var/axigen/logs/debug'/><br>
+        <b>COREDIR:</b><input type='text' value='/var/axigen'/><br>
         </span></p>
         </li>
         </ul>
@@ -65,20 +61,18 @@ echo " <ul id='menu'>
 echo " <ul id='menu'>
         <li ><p>Openbsd39
         <span>
-        <a href='http://google.com'><em class='butt'>Add entry</em></a>
-        <a href='http://google.com'><em class='butt'>Save</em></a>
         <b>OS:</b><input type='text' value='OpenBSD'/><br>
         <b>OS VERSION:</b><input type='text' value='3.9'/><br>
         <b>IP:</b><input type='text' value='192.168.9.56'/><br>
         <b>SMTP:</b><input type='text' value='2580'/><br>
         <b>POP3:</b><input type='text' value='1180'/><br>
         <b>IMAP:</b><input type='text' value='1430'/><br>
-        <b>PATH:</b><input type='text' value='/var/sut'/><br>
+        <b>PATH:</b><input type='text' value='/var/axigen'/><br>
         <b>TOOL:</b><input type='text' value='$ {PWD}/engine'/><br>
-        <b>WORKDIR:</b><input type='text' value='/var/sut/'/><br>
-        <b>FRESH:</b><input type='text' value='/home/sut/'/><br>
-        <b>DBGDIR:</b><input type='text' value='/var/sut/logs/debug'/><br>
-        <b>COREDIR:</b><input type='text' value='/var/sut'/><br>
+        <b>WORKDIR:</b><input type='text' value='/var/axigen/'/><br>
+        <b>FRESH:</b><input type='text' value='/home/axigen/'/><br>
+        <b>DBGDIR:</b><input type='text' value='/var/axigen/logs/debug'/><br>
+        <b>COREDIR:</b><input type='text' value='/var/axigen'/><br>
         </span></p>
         </li>
         </ul>
@@ -86,20 +80,18 @@ echo " <ul id='menu'>
 echo " <ul id='menu'>
         <li ><p>Openbsd39
         <span>
-        <a href='http://google.com'><em class='butt'>Add entry</em></a>
-        <a href='http://google.com'><em class='butt'>Save</em></a>
         <b>OS:</b><input type='text' value='OpenBSD'/><br>
         <b>OS VERSION:</b><input type='text' value='3.9'/><br>
         <b>IP:</b><input type='text' value='192.168.9.56'/><br>
         <b>SMTP:</b><input type='text' value='2580'/><br>
         <b>POP3:</b><input type='text' value='1180'/><br>
         <b>IMAP:</b><input type='text' value='1430'/><br>
-        <b>PATH:</b><input type='text' value='/var/sut'/><br>
+        <b>PATH:</b><input type='text' value='/var/axigen'/><br>
         <b>TOOL:</b><input type='text' value='$ {PWD}/engine'/><br>
-        <b>WORKDIR:</b><input type='text' value='/var/sut/'/><br>
-        <b>FRESH:</b><input type='text' value='/home/sut/'/><br>
-        <b>DBGDIR:</b><input type='text' value='/var/sut/logs/debug'/><br>
-        <b>COREDIR:</b><input type='text' value='/var/sut'/><br>
+        <b>WORKDIR:</b><input type='text' value='/var/axigen/'/><br>
+        <b>FRESH:</b><input type='text' value='/home/axigen/'/><br>
+        <b>DBGDIR:</b><input type='text' value='/var/axigen/logs/debug'/><br>
+        <b>COREDIR:</b><input type='text' value='/var/axigen'/><br>
         </span></p>
         </li>
         </ul>
