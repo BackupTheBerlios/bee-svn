@@ -10,14 +10,15 @@ static int callback_socket( int portno );
 static int callback_command( int sckt );
 char* clientCallback( char* filebuf );
 
+int running = 1;
 
 int
-start_xmlrpc(int port)
+start_xmlrpc(const unsigned int port)
 {
 
         pid_t pid, sid;
         if( port <= 0 || port > 65535 ) {
-                fprintf( stderr, "Cant bind port: %d\n", port );
+                debug( "Cant bind port: %d : Illegal value.\n", port );
                 return -1;
         }
         /* Daemon */
@@ -35,7 +36,7 @@ start_xmlrpc(int port)
         if( sid < 0 )
                 exit( EXIT_FAILURE );
         if( ( chdir( "/tmp" ) ) < 0 ) {
-                perror( "rsh: Can't change to /" );
+                perror( "rsh: Can't change to /tmp" );
                 exit( EXIT_FAILURE );
         }
         if( signal( SIGINT, sut_sigint ) == SIG_ERR ) {
@@ -81,17 +82,17 @@ static int callback_socket( int portno )
         serv_addr.sin_port = htons( portno );
         if( bind( sockfd, ( struct sockaddr * )&serv_addr, sizeof( serv_addr ) )
             < 0 ) {
-                perror( "rsh: ERR on binding" );
+                debug( "rsh: ERR on binding: %s", strerror(errno) );
                 exit( -1 );
         }
         cod = listen( sockfd, 5 );
         if( cod < 0 ) {
-                perror( "rsh: ERR on listen" );
+                debug( "rsh: ERR on listen %s", strerror(errno) );
                 exit( -1 );
         }
         clilen = sizeof( cli_addr );
 
-        while( 1 ) {
+        while( running ) {
                 int newsockfd;
                 newsockfd =
                     accept( sockfd, ( struct sockaddr * )&cli_addr, &clilen );
@@ -101,6 +102,8 @@ static int callback_socket( int portno )
                 }
                 callback_command( newsockfd );
         }
+        close( sockfd);
+        return 0;
 }
 
 

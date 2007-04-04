@@ -647,6 +647,13 @@ void sut_sigint(  int sig)
         exit( EXIT_SUCCESS );
 }
 
+void sut_sigterm(  int sig)
+{
+        extern int running;
+        printf( "SigTerm\n" );
+        running = 0;
+}
+
 
 void sig_handler( int sig )
 {
