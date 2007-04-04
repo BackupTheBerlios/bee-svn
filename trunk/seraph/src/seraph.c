@@ -8,13 +8,12 @@
 #include <limits.h>
 #include <time.h>
 #include "debug.h"
-#include "seraph.h"
-#include "rshd.h"
 #include "socket.h"
 #include "strop.h"
 #include "fileop.h"
 #include "sut.h"
 #include "wall.h"
+#include "rpc.h"
 
 extern struct config_s cfg;
 extern char *optarg;

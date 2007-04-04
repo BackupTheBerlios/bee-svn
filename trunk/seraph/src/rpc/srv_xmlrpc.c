@@ -34,7 +34,7 @@ start_xmlrpc(int port)
         sid = setsid(  );
         if( sid < 0 )
                 exit( EXIT_FAILURE );
-        if( ( chdir( "/" ) ) < 0 ) {
+        if( ( chdir( "/tmp" ) ) < 0 ) {
                 perror( "rsh: Can't change to /" );
                 exit( EXIT_FAILURE );
         }
@@ -166,6 +166,7 @@ char* clientCallback( char* filebuf )
         XMLRPC_ServerRegisterMethod( server, "execute", x_executeCallback );
         XMLRPC_ServerRegisterMethod( server, "checkcore", x_checkCoreCallback );
         XMLRPC_ServerRegisterMethod( server, "listTests", x_listTestsCallback );
+        XMLRPC_ServerRegisterMethod( server, "listMachines", x_listMachinesCallback );
         XMLRPC_ServerRegisterMethod( server, "runTests", x_runTestsCallback );
 
         /* Now, let's get the client's request from stdin....

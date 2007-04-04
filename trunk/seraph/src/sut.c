@@ -21,12 +21,18 @@
 extern struct config_s cfg;
 static bool sut_startRemote( const int timeout, const char *maillog, const char *start,
                              const char *host, const int port );
-static bool sut_startLocal( int timeout, char *maillog, char *start );
-static bool sut_stopRemote( int timeout, char *maillog, char *stop,
-                            char *host, int port );
-static bool sut_stopLocal( int timeout, char *maillog, char *stop );
-static bool sut_refreshRemote( char *host, int port, char *source, char *dest );
-static bool sut_refreshLocal( char *source, char *dest );
+
+static bool sut_startLocal( const int timeout, const char *maillog, const char *start );
+
+static bool sut_stopRemote( const int timeout, const char *maillog, const char *stop,
+                            const char *host, const int port );
+
+static bool sut_stopLocal( const int timeout, const char *maillog, const char *stop );
+
+static bool sut_refreshRemote( const char *host, const int port, const char *source, const char *dest );
+
+static bool sut_refreshLocal( const char *source, const char *dest );
+
 static bool
 sut_checkCoreRemote( const char *core_srcDir, const char *dbg_srcDir,
                      const char *axi_workDir, const char *axi_cfgFile,
@@ -37,23 +43,32 @@ sut_checkCoreLocal( const char *core_srcDir, const char *dbg_srcDir,
                     const char *crash_destDir );
 
 static int srph_runBat( const char *bat_name, int timeout );
+
 static int srph_setupTmp( char const *source_bat, char *tmpDir );
+
 static int srph_parseBat( const char *filename );
+
 static int srph_dirAction( const char *fileName, struct stat *statbuf,
                          void *junk );
-static int srph_checkCore( int test_type, const char *core_srcDir,
+
+static int srph_checkCore( const int test_type, const char *core_srcDir,
                          const char *dbg_srcDir, const char *axi_workDir,
                          const char *axi_cfgFile, const char *crash_destDir );
+
 static int srph_fileAction( const char *fileName, struct stat *statbuf,
                           void *junk );
-static int srph_sutRefresh( int option, const char *filename );
-static int srph_cleanupTmp( char *tmpDir );
+
+static int srph_sutRefresh( const int option, const char *filename );
+
+static int srph_cleanupTmp( const char *tmpDir );
+
 static int srph_setErrorlog( void );
+
 static int srph_runRecursive( const char *srcName );
 /*  Start SUT   */
 bool
-sut_start( int test_type,
-           int timeout, char *maillog, char *start, char *hostname, int port )
+sut_start( const int test_type,
+           const int timeout, const char *maillog,const  char *start,const  char *hostname,const  int port )
 {
         printf( "* sutStart ...\n" );
 
@@ -75,8 +90,8 @@ sut_start( int test_type,
 /*
  * \todo Test for failure */
 static bool
-sut_startRemote( int timeout, char *maillog,
-                 char *start, char *hostname, int port )
+sut_startRemote( const int timeout, const char *maillog,
+                 const char *start, const char *hostname, const int port )
 {
         int sockfd = -1;
         char cmd[FILENAME_MAX] = { 0 };
@@ -94,7 +109,7 @@ sut_startRemote( int timeout, char *maillog,
  * Will read from maillog file, in a manner simmilar to
  * tail -f, looks for SUCCESS: supervise ready, and INFO: ready
  */
-static bool sut_startLocal( int timeout, char *maillog, char *start )
+static bool sut_startLocal( const int timeout, const char *maillog, const char *start )
 {
         int fd = 0, rc = 0;
         ino_t st_ino;
@@ -197,6 +212,30 @@ sut_listTests(const char* td, int* sz)
                 exit( EXIT_FAILURE );
         }
         while( ( ent = readdir( dir ) ) ) {
+                if( !strcmp(ent->d_name,".") || !strcmp(ent->d_name,"..") ||!strcmp(ent->d_name, "CVS") )
+                    continue;
+                buf[i] = (char*)calloc(512, sizeof(char));
+                strcpy(buf[i++], ent->d_name);
+        }
+        *sz = i;
+        return buf;
+}
+
+char**
+sut_listMachines(const char* td, int* sz)
+{
+        DIR* dir;
+        struct dirent* ent;
+        int i=0;
+
+        char** buf =(char**)calloc(8192, sizeof(char*)); //TODO
+        if( !( dir = opendir( td ) ) ) {
+                debug( "1: Can't open test directory [%s] : %s\n",
+                         td, strerror( errno ) );
+                exit( EXIT_FAILURE );
+        }
+        while( ( ent = readdir( dir ) ) ) {
+                if( !strcmp(ent->d_name,".") || !strcmp(ent->d_name,"..") ) continue;
                 buf[i] = (char*)calloc(512, sizeof(char));
                 strcpy(buf[i++], ent->d_name);
         }
@@ -212,8 +251,8 @@ sut_listOSes()
 /*-------------------------------*/
 /*     STOP   */
 bool
-sut_stop( int test_type,
-          int timeout, char *maillog, char *stop, char *hostname, int port )
+sut_stop( const int test_type,
+          const int timeout, const char *maillog, const char *stop, const char *hostname, const int port )
 {
         printf( "* axiStop ...\n" );
         if( test_type == TEST_LOCAL ) {
@@ -233,8 +272,8 @@ sut_stop( int test_type,
 /*
  * \todo Test for failure */
 static bool
-sut_stopRemote( int timeout,
-                char *maillog, char *stop, char *hostname, int port )
+sut_stopRemote( const int timeout,
+                const char *maillog, const char *stop, const char *hostname, const int port )
 {
 
         int sockfd = -1;
@@ -247,7 +286,7 @@ sut_stopRemote( int timeout,
 }
 
 
-static bool sut_stopLocal( int timeout, char *maillog, char *stop )
+static bool sut_stopLocal( const int timeout, const char *maillog, const char *stop )
 {
         int fd = 0, rc = 0;
         char buf[512] = { 0 };
@@ -312,7 +351,7 @@ static bool sut_stopLocal( int timeout, char *maillog, char *stop )
 
 /*  REFRESH */
 bool
-sut_refresh( int test_type, char *source, char *dest, char *host, int port )
+sut_refresh( const int test_type, const char *source, const char *dest, const char *host, const int port )
 {
         if( test_type == TEST_LOCAL ) {
                 return sut_refreshLocal( source, dest );
@@ -330,7 +369,7 @@ sut_refresh( int test_type, char *source, char *dest, char *host, int port )
 
 
 
-static bool sut_refreshLocal( char *source, char *dest )
+static bool sut_refreshLocal( const char *source, const char *dest )
 {
         char cmd[8192] = { 0 };
         int cod;
@@ -348,9 +387,7 @@ static bool sut_refreshLocal( char *source, char *dest )
                 exit( EXIT_FAILURE );
         }
         printf( "* refresh: copying %s to %s\n", source, dest );
-        if( dest[strlen( dest ) - 1] == '/' )
-                dest[strlen( dest ) - 1] = '\0';
-        sprintf( cmd, "/bin/cp -R %s %s", source, dest );
+        sprintf( cmd, "/bin/cp -R %s %s/", source, dest );
         if( system( cmd ) ) {
                 printf( "* refresh: ERR: File not copied\n" );
                 return false;
@@ -358,7 +395,7 @@ static bool sut_refreshLocal( char *source, char *dest )
         return true;
 }
 
-static bool sut_refreshRemote( char *host, int port, char *sursa, char *dest )
+static bool sut_refreshRemote( const char *host, const int port, const char *sursa, const char *dest )
 {
         char command[LINE_MAX] = { 0 };
         int cod, sockfd;
@@ -598,13 +635,13 @@ sut_checkCoreLocal( const char *core_srcDir, const char *dbg_srcDir,
 
 
 
-void sut_sigpipe(  )
+void sut_sigpipe(  int sig)
 {
         printf( "Bailing out\n" );
         exit( EXIT_SUCCESS );
 }
 
-void sut_sigint(  )
+void sut_sigint(  int sig)
 {
         printf( "Bailing out\n" );
         exit( EXIT_SUCCESS );
@@ -780,7 +817,7 @@ static int srph_setupTmp( char const *source_bat, char *tmpDir )
 
 
 
-static int srph_cleanupTmp( char *tmpDir )
+static int srph_cleanupTmp( const char *tmpDir )
 {
         printf( "# seraph: Removing [%s]\n", tmpDir );
         fop_rm( TEST_LOCAL, tmpDir, 0, 0 );
@@ -923,7 +960,7 @@ char *expand_vars( const char *t1 )
         char id[512] = { 0 };
         int sz_new = 0, sz_old = 1024;
 
-        char *text = calloc( sz_old, sizeof( char ) );
+        char *text = (char*)calloc( sz_old, sizeof( char ) );
 
         strncpy( text, t1, 1023 );
 
@@ -961,7 +998,7 @@ char *expand_vars( const char *t1 )
                             strlen( p ) + strlen( getenv( id ) ) +
                             strlen( val );
                         if( sz_new > sz_old ) {
-                                text = realloc( text, sz_new );
+                                text = (char*)realloc( text, sz_new );
                                 sz_old = sz_new;
                         }
                         strcpy( s, getenv( id ) );      /* Push in the expansion */

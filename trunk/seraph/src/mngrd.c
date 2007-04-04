@@ -35,48 +35,18 @@ int main( int argc, char *argv[] )
 
         /*2. export axi_ttype axi_host axi_port specified as -t, -H, -P */
         mngrd_parseArgs( &cfg, argc, argv );
-        if( cfg.start_rawrpc ) {
-            if(cfg.port == 0 ) {
-                debug( "You have to specify -P option\n" );
-                exit( -2 );}
-            else
-            {
-                start_rawrpc( cfg.port );
-            }
 
-        }
-        //if( cfg.start_jabber)
-        //    start_jabber();
         if( cfg.start_xmlrpc) {
-        /*3. export any variable from config file */
-       //mngrd_parseCfg( cfg.config_file );
+            /*3. export any variable from config file */
+            //mngrd_parseCfg( cfg.config_file );
 
-        /*4. check if the needed variables are exported */
-        mngrd_initEnv( &cfg );
-        /*5. check if the proper tools are installed */
-        //mngrd_checkTools( getenv( SUT_TOOL ) );
-        start_xmlrpc(cfg.port);
-                }
-                return 0;
+            /*4. check if the needed variables are exported */
+            //mngrd_initEnv( &cfg );
+            /*5. check if the proper tools are installed */
+            start_xmlrpc(cfg.port);
+            return 0;
         }
 
-
-        /*3. export any variable from config file */
-        //mngrd_parseCfg( cfg.config_file );
-
-        /*4. check if the needed variables are exported */
-        mngrd_initEnv( &cfg );
-
-        /*5. check if the proper tools are installed */
-        mngrd_checkTools( getenv( SUT_TOOL ) );
-
-        if( !cfg.test_dir ) {
-                printf( "! seraph: Provide the test directory.\n" );
-                mngrd_usage( EXIT_FAILURE );
-        }
-
-        //mngrd_runTests( cfg.test_dir );
-        mngrd_free( &cfg );
         UNDBG;
         return 0;
 }
@@ -147,7 +117,6 @@ int mngrd_initEnv( struct config_s *config )
         str_isEnv( config->verbose, SUT_COREDIR );
         str_isEnv( config->verbose, SUT_CFGFILE );
         str_isEnv( config->verbose, SUT_WORKDIR );
-
         /* build the PATH like $HOME/seraph/tools:$PATH
          * so the system() will use our cp, rm, mkdir */
         st = getenv( SUT_TOOL );
@@ -204,27 +173,5 @@ int mngrd_initCfg( struct config_s *config, int argc, char *argv[] )
         return 0;
 }
 
-
-int mngrd_checkTools( const char *tools_path )
-{
-        char buf[FILENAME_MAX] = { 0 };
-#define NB_TOOLS 7
-        char *tools[NB_TOOLS] =
-            { "rexec", "cp", "mkdir", "refresh", "rm", "start", "stop" };
-        struct stat s;
-        int i, rc;
-
-        for( i = 0; i < NB_TOOLS; ++i ) {
-                sprintf( buf, "%s/%s", tools_path, tools[i] );
-                rc = stat( buf, &s );
-                if( rc == -1 ) {
-                        fprintf( stderr,
-                                 "chechTools: Can't find tool [%s/%s] : [%s]\n",
-                                 tools_path, tools[i], strerror( errno ) );
-                        exit( EXIT_FAILURE );
-                }
-        }
-        return 0;
-}
 
 

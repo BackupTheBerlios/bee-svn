@@ -1,12 +1,12 @@
 #if !defined SUT_H
 #define SUT_H
 bool
-sut_start( int test_type, int timeout, char* maillog, char* start, char* host, int port);
+sut_start( const int test_type, const int timeout, const char* maillog, const char* start, const char* host, const int port);
 
-bool sut_stop( int test_type, int timeout, char* maillog, char* stop, char* host, int port);
+bool sut_stop( const int test_type, const int timeout, const char* maillog, const char* stop,const char* host,const int port);
 
-bool sut_refresh( int test_type,
-                 char* source, char* dest, char* host, int port);
+bool sut_refresh( const int test_type,
+                 const char* source, const char* dest, const char* host, const int port);
 
 bool
 sut_checkCore( int test_type,
@@ -21,6 +21,10 @@ int  srph_runTests(const char* dir) ;
 
 char*
 expand_vars( char const * t1 );
+
+char** sut_listTests(const char* td, int* sz) ;
+char** sut_listMachines(const char* td, int* sz) ;
+
 #else
         #warning "*** Header allready included ***"
 #endif

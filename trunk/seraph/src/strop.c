@@ -43,7 +43,7 @@ int str_isEnv( int verbose, char *var_name )
 
 int str_startsWith( char *str, char *exp )
 {
-        int i;
+        unsigned int i;
 
         for( i = 0; i < strlen( exp ); ++i ) {
                 if( str[i] != exp[i] )
@@ -105,7 +105,7 @@ int str_getCode( char *str )
 
 int str_isNumber( char *nr )
 {
-        int i;
+        unsigned int i;
 
         for( i = 0; i < strlen( nr ); ++i ) {
                 if( !isdigit( nr[i] ) )

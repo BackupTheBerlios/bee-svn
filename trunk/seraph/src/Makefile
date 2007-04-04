@@ -2,38 +2,34 @@
            -Wnested-externs  -Wold-style-definition -Wstrict-prototypes \
 		   -Wdeclaration-after-statement
 
-CFLAGS = -g -Wall -I./include -L./lib #`pkg-config --cflags glib-2.0`
+CFLAGS = -g -static -Wall -I./include -L./lib #`pkg-config --cflags glib-2.0`
 
 CC = gcc
-LIB= strop.c fileop.c sut.c socket.c
-TARGETS=seraph
-# Solaris
-# LDFLAGS= -lsocket -lnsl
 
-all: librpc lib seraph  mngrd
+all: libtrpc lib seraph  mngrd
 
 help:
 	echo "Targets are: seraph lib clean tar indent install"
 
-files = strop.o fileop.o sut.o socket.o wall.o scan.o srv_xmlrpc.o svc_xmlrpc.o debug.o
+files = strop.o fileop.o sut.o socket.o wall.o scan.o debug.o
 
 $(filter %.o,$(files)): %.o: %.c
 	$(CC) -c $(CFLAGS) $< -o ./objs/$@
 
 objs=$(addprefix ./objs/,$(files))
 
-seraph: lib librpc
+seraph: lib libtrpc
 	mkdir -p ./bin/tools
-	$(CC) $(CFLAGS) $(objs) seraph.c srv_tcp.c svc_tcp.c -lxmlrpc -ltbot $(LDFLAGS) -o ./bin/seraph
+	$(CC) $(CFLAGS) -ltrpc -ltbot -lxmlrpc seraph.c  -o ./bin/seraph -u useDebug_g -u start_rawrpc -u str_isEnv -u start_xmlrpc -u srph_parseCfg
 	make -C ./tools
-
-librpc:
-	make -C rpc
 
 mngrd: lib
 	mkdir -p ./bin/tools
-	$(CC) $(CFLAGS) $(objs) mngrd.c srv_tcp.c svc_tcp.c -lxmlrpc -ltbot $(LDFLAGS) -o ./bin/mngrd
+	$(CC) $(CFLAGS) -ltrpc -ltbot -lxmlrpc mngrd.c  -o ./bin/mngrd -u useDebug_g -u start_rawrpc -u str_isEnv -u start_xmlrpc -u srph_parseCfg
 	make -C ./tools
+
+libtrpc:
+	make -C rpc
 
 lib: $(files)
 	flex -oscan.c scan.l

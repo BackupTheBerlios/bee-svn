@@ -11,7 +11,7 @@
 #include <limits.h>
 
 
-int sock_connectTo( char *host, int port )
+int sock_connectTo( const char *host, const int port )
 {
         struct sockaddr_in serv_addr;   /* structure used for connection */
         int sockfd;             /* socket descriptor */
@@ -55,7 +55,7 @@ int sock_connectTo( char *host, int port )
 /**
  * send on socket ERR: errno
  * or OK: Command successful*/
-int sock_sendStatus( int sock, int cod )
+int sock_sendStatus( const int sock, const int cod )
 {
         char str[LINE_MAX] = { 0 };
         int t = 0;
@@ -74,7 +74,7 @@ int sock_sendStatus( int sock, int cod )
         return cod;
 }
 
-int sock_getStatus( int sock )
+int sock_getStatus( const int sock )
 {
         char buf[LINE_MAX + 1] = { 0 };
         int status = 0;
@@ -86,7 +86,7 @@ int sock_getStatus( int sock )
         return status;
 }
 
-int sock_sendLine( int sock, char *line )
+int sock_sendLine( const int sock, const char *line )
 {
         int t;
         char tr[LINE_MAX] = { 0 };

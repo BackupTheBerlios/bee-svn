@@ -4,7 +4,7 @@
 int
 fop_fileSize( char *name );
 int
-fop_rm( int test_type, char *path, char *host, int port );
+fop_rm( const int test_type, const char *path,const char *host,const int port );
 int
 recursiveAction( const char *fileName,
                  int recurse, int followLinks, int depthFirst,

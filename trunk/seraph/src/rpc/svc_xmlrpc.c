@@ -56,6 +56,24 @@ x_listTestsCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void *userDat
         return rv;
 }
 
+XMLRPC_VALUE
+x_listMachinesCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void *userData )
+{
+        char** testList=0;
+        int nbMachines=0;
+        XMLRPC_VALUE rv;
+
+        printf( "LISTMACHINES\n" );
+
+        rv = XMLRPC_CreateVector(NULL, xmlrpc_vector_array);
+        testList = sut_listMachines( "/home/groleo/machines", &nbMachines);
+        while( nbMachines-- ) {
+                XMLRPC_VectorAppendString( rv, NULL, testList[nbMachines], 0 );
+                free(testList[nbMachines]);
+        }
+        free(testList);
+        return rv;
+}
 
 XMLRPC_VALUE
 x_stopCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void *userData )

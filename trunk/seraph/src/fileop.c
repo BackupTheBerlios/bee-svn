@@ -13,8 +13,8 @@
 static int recursiveFlag = 0;
 static int forceFlag = 0;
 
-static int fop_rmRemote( char *path, char *host, int port );
-static int fop_rmLocal( char *path );
+static int fop_rmRemote( const char *path, const char *host, const int port );
+static int fop_rmLocal( const char *path );
 static int rm_fileAction( const char *fileName, struct stat *statbuf, void *junk );
 static int rm_dirAction( const char *fileName, struct stat *statbuf, void *junk );
 
@@ -54,7 +54,7 @@ int fop_rm( char *srcName )
 #endif
 
 /* To be implemented*/
-int fop_rm( int test_type, char *path, char *host, int port )
+int fop_rm( const int test_type, const char *path,const char *host,const int port )
 {
         if( test_type == TEST_LOCAL )
                 return fop_rmLocal( path );
@@ -64,12 +64,12 @@ int fop_rm( int test_type, char *path, char *host, int port )
 }
 
 
-static int fop_rmRemote( char *path, char *host, int port )
+static int fop_rmRemote( const char *path,const char *host, const int port )
 {
         return 0;
 }
 
-static int fop_rmLocal( char *path )
+static int fop_rmLocal( const char *path )
 {
         struct stat statbuf;
         recursiveFlag = 1;
