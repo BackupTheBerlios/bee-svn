@@ -1,31 +1,30 @@
 CC  = gcc -g -I../include -Wall# -pedantic
-LIB = ../lib/libtbot.a
+LIB = ../lib/libtbot.a -lglib-2.0
 BIN = ../bin/tools
 TARGETS=rexec cp mkdir rm refresh start stop
-# Solaris
-# LDFLAGS= -lsocket -lnsl
+CFLAGS = `pkg-config --cflags glib-2.0`
 
 
 all: $(TARGETS)
 
 rexec:
-	$(CC) $(LDFLAGS) rexec.c $(LIB) -o $(BIN)/rexec
+	$(CC) $(CFLAGS) rexec.c $(LIB) -o $(BIN)/rexec
 cp:
-	$(CC) $(LDFLAGS) cp.c $(LIB) -o $(BIN)/cp
+	$(CC) $(CFLAGS) cp.c $(LIB) -o $(BIN)/cp
 
 mkdir:
-	$(CC) $(LDFLAGS) mkdir.c $(LIB) -o $(BIN)/mkdir
+	$(CC) $(CFLAGS) mkdir.c $(LIB) -o $(BIN)/mkdir
 rm:
-	$(CC) $(LDFLAGS) rm.c $(LIB) -o $(BIN)/rm
+	$(CC) $(CFLAGS) rm.c $(LIB) -o $(BIN)/rm
 
 refresh:
-	$(CC) $(LDFLAGS) refresh.c $(LIB) -o $(BIN)/refresh
+	$(CC) $(CFLAGS) refresh.c $(LIB) -o $(BIN)/refresh
 
 stop:
-	$(CC) $(LDFLAGS) stop.c $(LIB) -o $(BIN)/stop
+	$(CC) $(CFLAGS) stop.c $(LIB) -o $(BIN)/stop
 
 start:
-	$(CC) $(LDFLAGS) start.c $(LIB) -o $(BIN)/start
+	$(CC) $(CFLAGS) start.c $(LIB) -o $(BIN)/start
 clean:
 	rm -rf $(BIN)/*
 

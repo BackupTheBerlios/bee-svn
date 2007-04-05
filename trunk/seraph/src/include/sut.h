@@ -1,6 +1,8 @@
 #if !defined SUT_H
 #define SUT_H
 
+#include <glib.h>
+
 typedef struct {
     char* symbol;
     char* value;
@@ -34,7 +36,7 @@ char* sut_expandVars( char const * t1 );
 
 char** sut_listTests(const char* td, int* sz) ;
 char** sut_listMachines(const char* td, int* sz) ;
-ConfigEntry* sut_getConfig(const char* machine, int* sz) ;
+GSList* sut_getConfig(const char* machine, int* sz) ;
 
 #else
         #warning "*** Header allready included ***"

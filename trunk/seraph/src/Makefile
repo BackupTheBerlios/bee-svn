@@ -2,9 +2,11 @@
            -Wnested-externs  -Wold-style-definition -Wstrict-prototypes \
 		   -Wdeclaration-after-statement
 
-CFLAGS = -g -Wall -I./include -L./lib #`pkg-config --cflags glib-2.0`
+CFLAGS = -g -Wall -I./include -L./lib `pkg-config --cflags glib-2.0`
 
 CC = gcc
+
+
 
 all: libtrpc lib seraph  mngrd
 
@@ -20,12 +22,12 @@ objs=$(addprefix ./objs/,$(files))
 
 seraph: lib libtrpc
 	mkdir -p ./bin/tools
-	$(CC) $(CFLAGS) -ltrpc -ltbot -lxmlrpc seraph.c  -o ./bin/seraph -u useDebug_g -u start_rawrpc -u str_isEnv -u start_xmlrpc -u srph_parseCfg
+	$(CC) $(CFLAGS) -lglib-2.0 -ltrpc -ltbot -lxmlrpc seraph.c  -o ./bin/seraph -u useDebug_g -u start_rawrpc -u str_isEnv -u start_xmlrpc -u srph_parseCfg
 	make -C ./tools
 
 mngrd: lib
 	mkdir -p ./bin/tools
-	$(CC) $(CFLAGS) -ltrpc -ltbot -lxmlrpc mngrd.c  -o ./bin/mngrd -u useDebug_g -u start_rawrpc -u str_isEnv -u start_xmlrpc -u srph_parseCfg
+	$(CC) $(CFLAGS) -lglib-2.0 -ltrpc -ltbot -lxmlrpc mngrd.c  -o ./bin/mngrd -u useDebug_g -u start_rawrpc -u str_isEnv -u start_xmlrpc -u srph_parseCfg
 	make -C ./tools
 
 libtrpc:

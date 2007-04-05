@@ -13,6 +13,7 @@
 #include "strop.h"
 #include "fileop.h"
 #include "wall.h"
+#include <glib.h>
 /*#include <limits.h>*/
 /*
  * Dont use any GETENV, or cfgal variables in this file
@@ -1070,16 +1071,25 @@ int sut_runTests( const char *dir )
     return TRUE;
 }
 
-int onLineParsed(const char *name, const char *value, void* overwrite)
+int onLineParsed(const char *name, const char *value, void* arg)
 {
+    GSList** a = (GSList**)arg;
+    ConfigEntry* el = calloc(1, sizeof(ConfigEntry));
+
     printf("%s -- %s\n", name, value);
+    el->symbol = calloc(1, strlen(name)+1);
+    el->value = calloc(1, strlen(value)+1);
+
+    strcpy(el->symbol, name);
+    strcpy(el->value, value);
+    *a = g_slist_append (*a, el);
 }
 
 
-ConfigEntry* sut_getConfig(const char* machine, int* sz)
+GSList* sut_getConfig(const char* machine, int* sz)
 {
-    ConfigEntry* c = calloc(80, sizeof(ConfigEntry) );
+    GSList*   cfgTable =  g_slist_alloc() ;
     cfg.takeAction = onLineParsed ;
-    srph_parseCfg( "/home/groleo/machines/freebsd_5.4", &c);
-    return 0;
+    srph_parseCfg( "/home/groleo/machines/freebsd_5.4", &cfgTable);
+    return cfgTable;
 }

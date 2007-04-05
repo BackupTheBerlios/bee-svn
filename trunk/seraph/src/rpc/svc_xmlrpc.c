@@ -5,6 +5,7 @@
 #include "sut.h"
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <glib.h>
 
 
 /*
@@ -81,7 +82,7 @@ x_listMachinesCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void *user
     XMLRPC_VALUE
 x_getConfigCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void *userData )
 {
-    ConfigEntry* symbList=0;
+    GSList* symbList=0;
     int nbSymbols=0;
     char* machine=0;
     XMLRPC_VALUE rv;
@@ -91,7 +92,7 @@ x_getConfigCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void *userDat
     XMLRPC_VALUE xParams = XMLRPC_RequestGetData( request );
     XMLRPC_VALUE xIter = XMLRPC_VectorRewind( xParams );
     machine = XMLRPC_GetValueInt( xIter );
-
+/*
     symbList = sut_getConfig( machine , &nbSymbols);
     while( nbSymbols-- ) {
         XMLRPC_VectorAppendString( rv, NULL, symbList[nbSymbols].symbol, 0 );
@@ -99,6 +100,7 @@ x_getConfigCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void *userDat
         free(symbList[nbSymbols].value);
     }
     free(symbList);
+*/
     return rv;
 }
     XMLRPC_VALUE

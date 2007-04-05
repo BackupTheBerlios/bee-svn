@@ -1,5 +1,5 @@
 
-CFLAGS = -g -Wall -I../include -L../lib #`pkg-config --cflags glib-2.0`
+CFLAGS = -g -Wall -I../include -L../lib `pkg-config --cflags glib-2.0`
 
 all:
 	gcc $(CFLAGS) -c srv_xmlrpc.c
