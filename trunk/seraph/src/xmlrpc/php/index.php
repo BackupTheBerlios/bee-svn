@@ -10,28 +10,19 @@ function listTests($cli)
 
     $msg = new XML_RPC_Message('listTests');
     $resp = $cli->send($msg);
+    if( hasErrors($cli) ) return ;
 
-    if (!$resp)
-    {   echo 'Can\' talk to <b>seraph</b> daemon: ' . $cli->errstr;
-        exit;
+    $val = $resp->value();
+    $i = $val->arraysize();
+
+    echo "<select name='sut_tests[]' multiple size='5'>" ;
+
+    while($i--) {
+            echo "<option>".XML_RPC_decode($val->arraymem($i))."</option>";
     }
 
-    if (!$resp->faultCode())
-    {   $val = $resp->value();
-        $i = $val->arraysize();
-
-        echo "<select name='sut_tests[]' multiple size='5'>" ;
-
-        while($i--) {
-                echo "<option>".XML_RPC_decode($val->arraymem($i))."</option>";
-        }
-
-        echo "</select>" ;
-        $data = XML_RPC_decode($val);
-    } else
-    {   echo 'Fault Code  : ' . $resp->faultCode() . "\n";
-        echo 'Fault Reason: ' . $resp->faultString() . "\n";
-    }
+    echo "</select>" ;
+    #$data = XML_RPC_decode($val);
 }
 
 

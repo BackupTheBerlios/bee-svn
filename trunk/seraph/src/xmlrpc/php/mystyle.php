@@ -1,6 +1,20 @@
 <?php
 require_once 'XML/RPC.php';
 
+function hasErrors($cli)
+{
+    if (!$resp)
+    {   echo 'Can\' talk to <b>seraph</b> daemon: ' . $cli->errstr;
+        exit;
+    }
+    if( $resp->faultCode() )
+    {   echo 'Fault Code: ' . $resp->faultCode() . "\n";
+        echo 'Fault Reason: ' . $resp->faultString() . "\n";
+        return 1;
+    }
+    return 0;
+}
+
 function drawMenu() {
     echo "<div  class='header'>
         <font class='header'>Seraph</font>
@@ -30,27 +44,22 @@ function drawMachines()
         ";
 
     $msg = new XML_RPC_Message('listMachines');
+    $resp = $cli->send($msg);
+    if( hasErrors($cli) ) return;
 
-    for( nbMachines )
-    {   $msg = new XML_RPC_Message('getConfig'); // machine[$i]
+    $val = $resp->value();
+    $i = $val->arraysize();
+    for( $i-- )
+    {   $params = array(new XML_RPC_Value( $val->arraymem($i), 'string'));
+        $msg = new XML_RPC_Message('getConfig', $params);
         $resp = $cli->send($msg);
-        if (!$resp)
-        {   echo 'Can\' talk to <b>seraph</b> daemon: ' . $cli->errstr;
-            exit;
-        }
-        if( $resp->faultCode() )
-        {   echo 'Fault Code: ' . $resp->faultCode() . "\n";
-            echo 'Fault Reason: ' . $resp->faultString() . "\n";
-            return ;
-        }
-        $val = $resp->value();
-        $i = $val->arraysize();
+        if( hasErrors($cli) ) return ;
 
+        $cfg = $resp->value();
         while($i--)
         {   //echo "<option>".XML_RPC_decode($val->arraymem($i))."</option>";
-            echo "<b>OS:</b><input type='text' value='NetBSD'/><br>";
+            echo "<b>".SYMBOL."</b><input type='text' value='".VALUE."'/><br>";
         }
-        $data = XML_RPC_decode($val);
     }
     echo "</span></p>
         </li>
