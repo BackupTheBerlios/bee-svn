@@ -469,7 +469,8 @@ extern struct config_s cfg;
 int num_lines = 1, num_chars = 0;
 char *p1=0, *p2=0;
 int is_bat=0, is_cfg=0;
-#line 473 "scan.c"
+void* onLineParsedArg;
+#line 474 "scan.c"
 
 /* Macros after this point can all be overridden by user definitions in
  * section 1.
@@ -620,10 +621,10 @@ YY_DECL
 	register char *yy_cp = NULL, *yy_bp = NULL;
 	register int yy_act;
 
-#line 21 "scan.l"
+#line 22 "scan.l"
 
 
-#line 627 "scan.c"
+#line 628 "scan.c"
 
 	if ( yy_init )
 		{
@@ -708,7 +709,7 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 23 "scan.l"
+#line 24 "scan.l"
 {
     if(! is_bat ) return 0;
     
@@ -717,7 +718,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 29 "scan.l"
+#line 30 "scan.l"
 {
     if( ! is_cfg ) return 0;
     char* val=0;
@@ -734,31 +735,31 @@ YY_RULE_SETUP
     val = sut_expandVars(p1);
     if ( cfg.verbose )
         debug("export '%s'='%s'\n", yytext, val);
-    setenv(yytext, val, 1 );
+    cfg.takeAction( yytext, val, onLineParsedArg );
     free(val);
 }
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 50 "scan.l"
+#line 51 "scan.l"
 fprintf( stderr, "Error on line %d\n", num_lines);
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 52 "scan.l"
+#line 53 "scan.l"
 /* comment lines */
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 54 "scan.l"
+#line 55 "scan.l"
 ++num_lines;
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 56 "scan.l"
+#line 57 "scan.l"
 ECHO;
 	YY_BREAK
-#line 762 "scan.c"
+#line 763 "scan.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1639,15 +1640,16 @@ int main()
 	return 0;
 	}
 #endif
-#line 56 "scan.l"
+#line 57 "scan.l"
 
 
 int
-srph_parseCfg( char* config_file )
+srph_parseCfg( char* config_file, void* val )
 {
     is_cfg = 1;
     yyin = fopen( config_file, "r" );
     if(!yyin) { printf("E: Unable to open config file [%s]\n", config_file); exit(-1); }
+    onLineParsedArg = val;
     yylex();
     return 0;
 }

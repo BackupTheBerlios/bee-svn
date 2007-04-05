@@ -52,7 +52,8 @@ int main( int argc, char *argv[] )
                                    start_jabber();*/
                 if( cfg.start_xmlrpc) {
         /*3. export any variable from config file */
-       srph_parseCfg( cfg.config_file );
+       cfg.takeAction = setenv;
+       srph_parseCfg( cfg.config_file,1 );
 
         /*4. check if the needed variables are exported */
         srph_initEnv( &cfg );
@@ -68,7 +69,7 @@ int main( int argc, char *argv[] )
 
 
         /*3. export any variable from config file */
-        srph_parseCfg( cfg.config_file );
+        srph_parseCfg( cfg.config_file,1 );
 
         /*4. check if the needed variables are exported */
         srph_initEnv( &cfg );

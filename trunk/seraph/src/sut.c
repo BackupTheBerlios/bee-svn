@@ -1070,9 +1070,16 @@ int sut_runTests( const char *dir )
     return TRUE;
 }
 
+int onLineParsed(const char *name, const char *value, void* overwrite)
+{
+    printf("%s -- %s\n", name, value);
+}
 
 
 ConfigEntry* sut_getConfig(const char* machine, int* sz)
 {
+    ConfigEntry* c = calloc(80, sizeof(ConfigEntry) );
+    cfg.takeAction = onLineParsed ;
+    srph_parseCfg( "/home/groleo/machines/freebsd_5.4", &c);
     return 0;
 }

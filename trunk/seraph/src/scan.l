@@ -11,6 +11,7 @@ extern struct config_s cfg;
 int num_lines = 1, num_chars = 0;
 char *p1=0, *p2=0;
 int is_bat=0, is_cfg=0;
+void* onLineParsedArg;
 %}
 
 DIGIT    [0-9]
@@ -42,7 +43,7 @@ SPACE    [ \t\n]+
     val = sut_expandVars(p1);
     if ( cfg.verbose )
         debug("export '%s'='%s'\n", yytext, val);
-    setenv(yytext, val, 1 );
+    cfg.takeAction( yytext, val, onLineParsedArg );
     free(val);
 }
 
@@ -56,11 +57,12 @@ SPACE    [ \t\n]+
 %%
 
 int
-srph_parseCfg( char* config_file )
+srph_parseCfg( char* config_file, void* val )
 {
     is_cfg = 1;
     yyin = fopen( config_file, "r" );
     if(!yyin) { printf("E: Unable to open config file [%s]\n", config_file); exit(-1); }
+    onLineParsedArg = val;
     yylex();
     return 0;
 }

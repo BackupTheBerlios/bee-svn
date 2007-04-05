@@ -10,7 +10,7 @@ function listTests($cli)
 
     $msg = new XML_RPC_Message('listTests');
     $resp = $cli->send($msg);
-    if( hasErrors($cli) ) return ;
+    if( hasErrors($resp) ) return ;
 
     $val = $resp->value();
     $i = $val->arraysize();

@@ -93,6 +93,7 @@ struct config_s {
     bool    start_jabber;
     char*   jabuser ;
     char*   notifyMail;
+    int     (*takeAction)(const char *name, const char *value, void* overwrite) ;
 } ;
 
 #else

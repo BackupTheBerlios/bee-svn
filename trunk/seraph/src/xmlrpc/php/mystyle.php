@@ -1,7 +1,7 @@
 <?php
 require_once 'XML/RPC.php';
 
-function hasErrors($cli)
+function hasErrors($resp)
 {
     if (!$resp)
     {   echo 'Can\' talk to <b>seraph</b> daemon: ' . $cli->errstr;
@@ -45,21 +45,22 @@ function drawMachines()
 
     $msg = new XML_RPC_Message('listMachines');
     $resp = $cli->send($msg);
-    if( hasErrors($cli) ) return;
+    if( hasErrors($resp) ) return;
 
-    $val = $resp->value();
-    $i = $val->arraysize();
-    for( $i-- )
-    {   $params = array(new XML_RPC_Value( $val->arraymem($i), 'string'));
-        $msg = new XML_RPC_Message('getConfig', $params);
-        $resp = $cli->send($msg);
-        if( hasErrors($cli) ) return ;
+    $machines = $resp->value();
+    $i = $machines->arraysize();
 
-        $cfg = $resp->value();
-        while($i--)
-        {   //echo "<option>".XML_RPC_decode($val->arraymem($i))."</option>";
-            echo "<b>".SYMBOL."</b><input type='text' value='".VALUE."'/><br>";
-        }
+    while( $i-- )
+    {   $params = array(new XML_RPC_Value( $machines->arraymem($i), 'string'));
+        $msg    = new XML_RPC_Message('getConfig', $params);
+        $resp   = $cli->send($msg);
+        if( hasErrors($resp) ) return ;
+/*
+        $cfgTable = $resp->value();
+        $cfgTable->structreset();
+        while (list($symbol, $value) = $machines->structeach())
+        { echo "<b>".$symbol."</b><input type='text' value='".$value."'/><br>";
+        }*/
     }
     echo "</span></p>
         </li>
