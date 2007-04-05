@@ -20,6 +20,7 @@
 
 extern struct config_s cfg;
 int running ;
+
 static bool sut_startRemote( const int timeout, const char *maillog, const char *start,
                              const char *host, const int port );
 

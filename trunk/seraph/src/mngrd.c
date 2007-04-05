@@ -20,12 +20,12 @@
 
 struct config_s cfg;
 extern char *optarg;
-extern int optind;
+extern int  optind;
 
 void mngrd_usage( int status );
-int mngrd_freeCfg( struct config_s *config );
-int mngrd_initCfg( struct config_s *config, int argc, char *argv[] );
-int mngrd_initEnv( struct config_s *config );
+int  mngrd_freeCfg( struct config_s *config );
+int  mngrd_initCfg( struct config_s *config, int argc, char *argv[] );
+int  mngrd_initEnv( struct config_s *config );
 
 int main( int argc, char *argv[] )
 {
