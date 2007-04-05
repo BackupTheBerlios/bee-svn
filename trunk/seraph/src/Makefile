@@ -2,7 +2,7 @@
            -Wnested-externs  -Wold-style-definition -Wstrict-prototypes \
 		   -Wdeclaration-after-statement
 
-CFLAGS = -g -static -Wall -I./include -L./lib #`pkg-config --cflags glib-2.0`
+CFLAGS = -g -Wall -I./include -L./lib #`pkg-config --cflags glib-2.0`
 
 CC = gcc
 

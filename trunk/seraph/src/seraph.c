@@ -90,7 +90,7 @@ int main( int argc, char *argv[] )
                 if( cfg.verbose == TRUE )
                         debug( "* seraph: Tests will be done REMOTE.\n" );
         }
-        srph_runTests( cfg.test_dir );
+        sut_runTests( cfg.test_dir );
         srph_free( &cfg );
         UNDBG;
         return 0;

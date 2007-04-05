@@ -463,12 +463,13 @@ char *yytext;
 #include <math.h>
 #include <string.h>
 #include "seraph.h"
+#include "sut.h"
 
 extern struct config_s cfg;
 int num_lines = 1, num_chars = 0;
 char *p1=0, *p2=0;
 int is_bat=0, is_cfg=0;
-#line 472 "scan.c"
+#line 473 "scan.c"
 
 /* Macros after this point can all be overridden by user definitions in
  * section 1.
@@ -619,10 +620,10 @@ YY_DECL
 	register char *yy_cp = NULL, *yy_bp = NULL;
 	register int yy_act;
 
-#line 20 "scan.l"
+#line 21 "scan.l"
 
 
-#line 626 "scan.c"
+#line 627 "scan.c"
 
 	if ( yy_init )
 		{
@@ -707,7 +708,7 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 22 "scan.l"
+#line 23 "scan.l"
 {
     if(! is_bat ) return 0;
     
@@ -716,7 +717,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 28 "scan.l"
+#line 29 "scan.l"
 {
     if( ! is_cfg ) return 0;
     char* val=0;
@@ -730,7 +731,7 @@ YY_RULE_SETUP
     p1 = strchr(p1, '\'');
     *p1 = '\0';
     p1++;
-    val = expand_vars(p1);
+    val = sut_expandVars(p1);
     if ( cfg.verbose )
         debug("export '%s'='%s'\n", yytext, val);
     setenv(yytext, val, 1 );
@@ -739,25 +740,25 @@ YY_RULE_SETUP
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 49 "scan.l"
+#line 50 "scan.l"
 fprintf( stderr, "Error on line %d\n", num_lines);
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 51 "scan.l"
+#line 52 "scan.l"
 /* comment lines */
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 53 "scan.l"
+#line 54 "scan.l"
 ++num_lines;
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 55 "scan.l"
+#line 56 "scan.l"
 ECHO;
 	YY_BREAK
-#line 761 "scan.c"
+#line 762 "scan.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1638,7 +1639,7 @@ int main()
 	return 0;
 	}
 #endif
-#line 55 "scan.l"
+#line 56 "scan.l"
 
 
 int

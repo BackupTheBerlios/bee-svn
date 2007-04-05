@@ -5,6 +5,7 @@
 #include <math.h>
 #include <string.h>
 #include "seraph.h"
+#include "sut.h"
 
 extern struct config_s cfg;
 int num_lines = 1, num_chars = 0;
@@ -38,7 +39,7 @@ SPACE    [ \t\n]+
     p1 = strchr(p1, '\'');
     *p1 = '\0';
     p1++;
-    val = expand_vars(p1);
+    val = sut_expandVars(p1);
     if ( cfg.verbose )
         debug("export '%s'='%s'\n", yytext, val);
     setenv(yytext, val, 1 );
@@ -59,7 +60,7 @@ srph_parseCfg( char* config_file )
 {
     is_cfg = 1;
     yyin = fopen( config_file, "r" );
-    if(!yyin) { printf("Unable to open config file '%s'\n", config_file); exit(-1); }
+    if(!yyin) { printf("E: Unable to open config file [%s]\n", config_file); exit(-1); }
     yylex();
     return 0;
 }
@@ -68,6 +69,7 @@ int srph_parseBat( char* bat_file )
 {
     is_bat = 1;
     yyin = fopen( bat_file, "r" );
+    if(!yyin) { printf("E: Unable to open file [%s]\n", bat_file); exit(-1); }
     yylex();
     return 0;
 }
