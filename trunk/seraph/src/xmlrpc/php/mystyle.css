@@ -29,7 +29,6 @@ div.head_menu li a:hover {
 div.head_menu ul{
     text-decoration: none;
 }
-/*
    div.machines {
    background-color: #6666FF ;
    border-top: solid #000 1px;
@@ -37,7 +36,6 @@ div.head_menu ul{
    text-decoration: none;
 
    }
- */
 li.machines {
     background-color: #6666FF ;
     border-top: solid #000 1px;
@@ -125,11 +123,10 @@ a {
     border:1px solid #808;
 }
 
-/*#menu p:hover input {
+#menu p:hover input {
   padding-left: 10%;
   vertical-align: middle;
-  }*/
-/*
+  }
 #menu p:hover span:first-line {
 font-weight:bold; 
 font-size:1.2em;
@@ -140,8 +137,6 @@ border:1px solid #000;
 float:left; 
 margin:0.25em 1em 0.5em 0;
 }
- */
-/*
 #menu b{
     border:1px solid #000;
     text-align:right; 
@@ -152,8 +147,6 @@ margin:0.25em 1em 0.5em 0;
     padding-bottom:2px;
     clear:both;
 }
-*/
-/*
 #menu a b {
     text-decoration:none;
     text-align: left;
@@ -178,7 +171,6 @@ a:hover em.butt {
 #menu a:hover b {
     background-color: blue;
 }
-*/
 #menu input {
     border-width:1px;
     float: right;

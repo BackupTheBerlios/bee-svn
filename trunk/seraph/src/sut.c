@@ -19,6 +19,7 @@
  */
 
 extern struct config_s cfg;
+int running ;
 static bool sut_startRemote( const int timeout, const char *maillog, const char *start,
                              const char *host, const int port );
 
@@ -649,7 +650,6 @@ void sut_sigint(  int sig)
 
 void sut_sigterm(  int sig)
 {
-        extern int running;
         printf( "SigTerm\n" );
         running = 0;
 }

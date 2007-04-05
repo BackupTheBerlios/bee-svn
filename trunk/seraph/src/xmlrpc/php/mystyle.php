@@ -21,6 +21,8 @@ function drawMachines() {
 echo " <ul id='menu'>
         <li ><p>purec
         <span>
+        <a href='http://google.com'><em class='butt'>Add</em></a>
+        <a href='http://google.com'><em class='butt'>Save</em></a>
         <b>OS:</b><input type='text' value='NetBSD'/><br>
         <b>OS VERSION:</b><input type='text' value='3.0'/><br>
         <b>HOST:</b><input type='text' value='192.168.9.56'/><br>

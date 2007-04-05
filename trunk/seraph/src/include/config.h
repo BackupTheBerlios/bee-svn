@@ -91,6 +91,8 @@ struct config_s {
     bool    start_rawrpc;
     bool    start_xmlrpc;
     bool    start_jabber;
+    char*   jabuser ;
+    char*   notifyMail;
 } ;
 
 #else
