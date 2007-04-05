@@ -9,15 +9,15 @@ bool sut_refresh( const int test_type,
                  const char* source, const char* dest, const char* host, const int port);
 
 bool
-sut_checkCore( int test_type,
+sut_checkCore( const int test_type,
               const char *core_srcDir, const char *dbg_srcDir,
               const char *axi_workDir, const char *axi_cfgFile,
               const char *crash_destDir );
 
 void sut_sigpipe(int);
 void sut_sigint(int);
-int  srph_checkTools(const char* tools_path) ;
-int  srph_runTests(const char* dir) ;
+int  sut_checkTools(const char* tools_path) ;
+int  sut_runTests(const char* dir) ;
 
 char*
 expand_vars( char const * t1 );

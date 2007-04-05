@@ -44,29 +44,25 @@ sut_checkCoreLocal( const char *core_srcDir, const char *dbg_srcDir,
                     const char *workDir, const char *cfgFile,
                     const char *crash_destDir );
 
-static int srph_runBat( const char *bat_name, int timeout );
+static int sut_runBat( const char *bat_name, int timeout );
 
-static int srph_setupTmp( char const *source_bat, char *tmpDir );
+static int sut_setupTmp( char const *source_bat, char *tmpDir );
 
-static int srph_parseBat( const char *filename );
+static int sut_parseBat( const char *filename );
 
-static int srph_dirAction( const char *fileName, struct stat *statbuf,
+static int sut_dirAction( const char *fileName, struct stat *statbuf,
                          void *junk );
 
-static int srph_checkCore( const int test_type, const char *core_srcDir,
-                         const char *dbg_srcDir, const char *axi_workDir,
-                         const char *axi_cfgFile, const char *crash_destDir );
-
-static int srph_fileAction( const char *fileName, struct stat *statbuf,
+static int sut_fileAction( const char *fileName, struct stat *statbuf,
                           void *junk );
 
-static int srph_sutRefresh( const int option, const char *filename );
+static int sut_sutRefresh( const int option, const char *filename );
 
-static int srph_cleanupTmp( const char *tmpDir );
+static int sut_cleanupTmp( const char *tmpDir );
 
-static int srph_setErrorlog( void );
+static int sut_setErrorlog( void );
 
-static int srph_runRecursive( const char *srcName );
+static int sut_runRecursive( const char *srcName );
 /*  Start SUT   */
 bool
 sut_start( const int test_type,
@@ -470,7 +466,7 @@ static bool sut_refreshRemoteWarm(  )
 
 
 bool
-sut_checkCore( int test_type,
+sut_checkCore( const int test_type,
                const char *core_srcDir, const char *dbg_srcDir,
                const char *axi_workDir, const char *axi_cfgFile,
                const char *crash_destDir )
@@ -486,6 +482,7 @@ sut_checkCore( int test_type,
                                             crash_destDir );
         return false;
 }
+
 
 
 static bool
@@ -675,7 +672,7 @@ void sig_handler( int sig )
 
 
 
-static int srph_runBat( const char *bat_name, int timeout )
+static int sut_runBat( const char *bat_name, int timeout )
 {
         char c;
         int pid = 0, hasAlarm;
@@ -724,7 +721,7 @@ static int srph_runBat( const char *bat_name, int timeout )
 
 
 static int
-srph_fileAction( const char *fileName, struct stat *statbuf, void *junk )
+sut_fileAction( const char *fileName, struct stat *statbuf, void *junk )
 {
         char curDir[FILENAME_MAX] = { 0 };
         char tmpDir[FILENAME_MAX] = { 0 };
@@ -738,8 +735,8 @@ srph_fileAction( const char *fileName, struct stat *statbuf, void *junk )
 
         if( strcmp( bn, "runtest.bat" ) || access( fileName, X_OK ) )
                 return TRUE;
-        srph_sutRefresh( cfg.refresh, fileName );
-        srph_setupTmp( fileName, tmpDir );
+        sut_sutRefresh( cfg.refresh, fileName );
+        sut_setupTmp( fileName, tmpDir );
         if( NULL == getcwd( curDir, FILENAME_MAX ) ) {
                 perror( "! seraph: Unable to get current directory" );
         }
@@ -750,10 +747,10 @@ srph_fileAction( const char *fileName, struct stat *statbuf, void *junk )
                          tmpDir, strerror( errno ) );
                 return FALSE;
         }
-        srph_runBat( fileName, cfg.script_tout );
-        srph_checkCore( cfg.test_type, cfg.axi_coreDir, cfg.axi_dbgDir,
+        sut_runBat( fileName, cfg.script_tout );
+        sut_checkCore( cfg.test_type, cfg.axi_coreDir, cfg.axi_dbgDir,
                       cfg.axi_workDir, cfg.axi_cfgFile, cfg.dest_coreDir );
-        srph_cleanupTmp( tmpDir );
+        sut_cleanupTmp( tmpDir );
         sleep( 1 );
         if( -1 == chdir( curDir ) ) {
                 fprintf( stderr,
@@ -768,17 +765,17 @@ srph_fileAction( const char *fileName, struct stat *statbuf, void *junk )
 
 
 static int
-srph_dirAction( const char *fileName, struct stat *statbuf, void *junk )
+sut_dirAction( const char *fileName, struct stat *statbuf, void *junk )
 {
         return ( TRUE );
 }
 
 
 
-static int srph_runRecursive( const char *srcName )
+static int sut_runRecursive( const char *srcName )
 {
         if( recursiveAction( srcName, 1, FALSE,
-                             TRUE, srph_fileAction, srph_dirAction,
+                             TRUE, sut_fileAction, sut_dirAction,
                              NULL ) == FALSE ) {
                 printf( "error in runRecursive\n" );
                 exit( EXIT_FAILURE );
@@ -794,7 +791,7 @@ static int srph_runRecursive( const char *srcName )
  * \todo  Implement a sut_refresh function
  * \todo  Return Bool ??
  */
-static int srph_setupTmp( char const *source_bat, char *tmpDir )
+static int sut_setupTmp( char const *source_bat, char *tmpDir )
 {
         char cmd[FILENAME_MAX] = { 0 };
         int status;
@@ -825,7 +822,7 @@ static int srph_setupTmp( char const *source_bat, char *tmpDir )
 
 
 
-static int srph_cleanupTmp( const char *tmpDir )
+static int sut_cleanupTmp( const char *tmpDir )
 {
         printf( "# seraph: Removing [%s]\n", tmpDir );
         fop_rm( TEST_LOCAL, tmpDir, 0, 0 );
@@ -835,7 +832,7 @@ static int srph_cleanupTmp( const char *tmpDir )
 
 
 /** Search a file for axi_fi=y or axi_fi=n . */
-static int srph_parseBat( const char *filename )
+static int sut_parseBat( const char *filename )
 {
 #if 0
         char line[LINE_MAX] = { 0 };
@@ -896,27 +893,10 @@ static int srph_parseBat( const char *filename )
 
 
 
-/*This has alot of params. pls review?*/
-static int
-srph_checkCore( int test_type,
-              const char *core_srcDir, const char *dbg_srcDir,
-              const char *axi_workDir, const char *axi_cfgFile,
-              const char *crash_destDir )
-{
-        bool rc = false;
-        rc = sut_checkCore( test_type, core_srcDir, dbg_srcDir, axi_workDir,
-                            axi_cfgFile, core_srcDir );
-        if( rc && !cfg.behaviour == TB_BE_TESTER )
-                wall( "****  SUT dropped CORE ****\r\n", 0, 0 );
-        return rc;
-}
-
-
-
 /*
  * Restore the default configuration of the SUT.
  * SUT = server under test */
-static int srph_sutRefresh( int refresh, const char *bat_file )
+static int sut_sutRefresh( int refresh, const char *bat_file )
 {
         int cod;
         int rc = 0;
@@ -939,7 +919,7 @@ static int srph_sutRefresh( int refresh, const char *bat_file )
                 }
         }
 
-        cod = srph_parseBat( bat_file );
+        cod = sut_parseBat( bat_file );
         if( cod == OPT_NO )
                 return 0;
 
@@ -1025,7 +1005,7 @@ char *expand_vars( const char *t1 )
 /*
  * Export axi_errorlog=$CWD/errors/$HOST-$PID
  */
-static int srph_setErrorlog(  )
+static int sut_setErrorlog(  )
 {
         char rez[LINE_MAX] = "";
         struct tm *t = 0;
@@ -1066,7 +1046,7 @@ static int srph_setErrorlog(  )
 
 
 
-int srph_runTests( const char *dir )
+int sut_runTests( const char *dir )
 {
         struct stat inf;
         char fullPath[FILENAME_MAX] = { 0 };
@@ -1084,7 +1064,7 @@ int srph_runTests( const char *dir )
         }
         /*! @todo verify if `tests` dir is an absolute or a relative path */
         sprintf( fullPath, "%s/%s", curDir, dir );
-//        srph_runRecursive( fullPath );
+//        sut_runRecursive( fullPath );
         return TRUE;
 }
 
