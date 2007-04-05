@@ -1,5 +1,12 @@
 #if !defined SUT_H
 #define SUT_H
+
+typedef struct {
+    char* symbol;
+    char* value;
+} ConfigEntry ;
+
+
 bool sut_start( const int test_type,
                 const int timeout, const char* maillog,
                 const char* start, const char* host, const int port);
@@ -27,6 +34,7 @@ char* sut_expandVars( char const * t1 );
 
 char** sut_listTests(const char* td, int* sz) ;
 char** sut_listMachines(const char* td, int* sz) ;
+ConfigEntry* sut_getConfig(const char* machine, int* sz) ;
 
 #else
         #warning "*** Header allready included ***"

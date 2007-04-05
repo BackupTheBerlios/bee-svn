@@ -1647,7 +1647,7 @@ srph_parseCfg( char* config_file )
 {
     is_cfg = 1;
     yyin = fopen( config_file, "r" );
-    if(!yyin) { printf("Unable to open config file '%s'\n", config_file); exit(-1); }
+    if(!yyin) { printf("E: Unable to open config file [%s]\n", config_file); exit(-1); }
     yylex();
     return 0;
 }
@@ -1656,6 +1656,7 @@ int srph_parseBat( char* bat_file )
 {
     is_bat = 1;
     yyin = fopen( bat_file, "r" );
+    if(!yyin) { printf("E: Unable to open file [%s]\n", bat_file); exit(-1); }
     yylex();
     return 0;
 }

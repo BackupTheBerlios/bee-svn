@@ -63,6 +63,8 @@ static int sut_cleanupTmp( const char *tmpDir );
 static int sut_setErrorlog( void );
 
 static int sut_runRecursive( const char *srcName );
+
+
 /*  Start SUT   */
     bool
 sut_start( const int test_type,
@@ -1070,3 +1072,7 @@ int sut_runTests( const char *dir )
 
 
 
+ConfigEntry* sut_getConfig(const char* machine, int* sz)
+{
+    return 0;
+}
