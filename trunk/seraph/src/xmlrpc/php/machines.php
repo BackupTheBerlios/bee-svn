@@ -10,21 +10,6 @@ include 'mystyle.php';
 
 <?php drawMenu() ;?>
 <?php drawMachines() ;?>
-<!--
-<input type='button' value='Add'/>
-Machines:
-<div >
-<select>
-<option value='NetBSD/3.0'>NetBSD/3.0</option>
-<option value='OpenBSD/3.9'>OpenBSD/3.9</option>
-<option value='linux/gcc3'>linux/gcc3</option>
-<option value='linux/gcc4'>linux/gcc4</option>
-<option value='Solaris/10'>Solaris/10</option>
-</select>
-<input type='text' value='192.168.8.29'/>
-</div>
-<br>
--->
 <hr/>
 <div>
 <input type='button' value='Add'/>

@@ -2,33 +2,71 @@
 require_once 'XML/RPC.php';
 include 'mystyle.php' ;
 
+
+
 function listTests($cli)
 {
     echo "Tests:<br>" ;
-    echo $arg2;
-/* */
+
     $msg = new XML_RPC_Message('listTests');
     $resp = $cli->send($msg);
-    if (!$resp) {
-        echo 'Can\' talk to <b>seraph</b> daemon: ' . $cli->errstr;
+
+    if (!$resp)
+    {   echo 'Can\' talk to <b>seraph</b> daemon: ' . $cli->errstr;
         exit;
     }
-    if (!$resp->faultCode()) {
-        $i=0;
-        $val = $resp->value();
+
+    if (!$resp->faultCode())
+    {   $val = $resp->value();
         $i = $val->arraysize();
+
         echo "<select name='sut_tests[]' multiple size='5'>" ;
+
+        while($i--) {
+                echo "<option>".XML_RPC_decode($val->arraymem($i))."</option>";
+        }
+
+        echo "</select>" ;
+        $data = XML_RPC_decode($val);
+    } else
+    {   echo 'Fault Code  : ' . $resp->faultCode() . "\n";
+        echo 'Fault Reason: ' . $resp->faultString() . "\n";
+    }
+}
+
+
+
+function listOSes($cli)
+{
+    echo "ON Machine:<br>" ;
+
+    $msg = new XML_RPC_Message('listMachines');
+    $resp = $cli->send($msg);
+
+    if (!$resp)
+    {   echo 'Can\' talk to <b>seraph</b> daemon: ' . $cli->errstr;
+        exit;
+    }
+
+    if (!$resp->faultCode())
+    {   $val = $resp->value();
+        $i = $val->arraysize();
+
+        echo "<select name='sut_os[]' multiple size='5'>" ;
+
         while($i--) {
                 echo "<option>".XML_RPC_decode($val->arraymem($i))."</option>";
         }
         echo "</select>" ;
         $data = XML_RPC_decode($val);
-    } else {
-        echo 'Fault Code: ' . $resp->faultCode() . "\n";
+    } else
+    {   echo 'Fault Code  : ' . $resp->faultCode() . "\n";
         echo 'Fault Reason: ' . $resp->faultString() . "\n";
     }
-/* */
 }
+
+
+
 function listSUTVersions($cli)
 {
     echo "SUT Versions:<br>
@@ -41,33 +79,8 @@ function listSUTVersions($cli)
     ";
 }
 
-function listOSes($cli)
-{
-    echo "ON Machine:<br>" ;
-    echo $arg2;
-/* */
-    $msg = new XML_RPC_Message('listMachines');
-    $resp = $cli->send($msg);
-    if (!$resp) {
-        echo 'Can\' talk to <b>seraph</b> daemon: ' . $cli->errstr;
-        exit;
-    }
-    if (!$resp->faultCode()) {
-        $i=0;
-        $val = $resp->value();
-        $i = $val->arraysize();
-        echo "<select name='sut_os[]' multiple size='5'>" ;
-        while($i--) {
-                echo "<option>".XML_RPC_decode($val->arraymem($i))."</option>";
-        }
-        echo "</select>" ;
-        $data = XML_RPC_decode($val);
-    } else {
-        echo 'Fault Code: ' . $resp->faultCode() . "\n";
-        echo 'Fault Reason: ' . $resp->faultString() . "\n";
-    }
-/* */
-}
+
+
 /*
 function listOSes($cli)
 {
@@ -104,6 +117,7 @@ function call($arg1, $arg2, $cli)
     }
 }
 
+/*-------------------------------*/
 $cli = new XML_RPC_Client('/RPCSERVER', 'localhost', 5000);
 ?>
 
