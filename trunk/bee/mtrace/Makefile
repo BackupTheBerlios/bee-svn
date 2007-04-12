@@ -1,5 +1,6 @@
 CC=gcc
 CFLAGS=-g -Wall -DDEBUG
+OCFLAGS=-march=i686 -mtune=i686 -O9 -finline-functions -funroll-loops -mno-push-args -fomit-frame-pointer -m3dnow -mmmx -minline-all-stringops
 LDFLAGS=-lcunit -lm
 TARGETS= memtrace test mmtrace mtrace buf gendebug test_ck
 all: memtrace
@@ -8,7 +9,7 @@ all: memtrace
 	$(CC) $(CFLAGS) $< -c
 
 memtrace: cuckoo.c
-	$(CC) $(CFLAGS) $(LDFLAGS) $< memtrace.c -o memtrace
+	$(CC) $(OCFLAGS) $(LDFLAGS) $< memtrace.c -o memtrace
 
 gendebug: gendebug.c
 	$(CC) $(CFLAGS) $(LDFLAGS) $< -o gendebug

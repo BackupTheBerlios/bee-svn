@@ -34,9 +34,9 @@
 #include <string.h>
 #include "cuckoo.h"
 
-#define SIZE_THRESHOLD  100
+#define SIZE_THRESHOLD  104857600
 #define T1_SIZE         (SIZE_THRESHOLD*8)
-#define HEADER_SIZE     (T1_SIZE+sizeof(int)*6)
+#define HEADER_SIZE     (T1_SIZE*2+sizeof(int)*6)
 
 static unsigned int dumpedTables=0;
 int lookupOnDisk(int key );
@@ -83,6 +83,7 @@ boolean rehash_insert( dict_ptr D, int key, nod_t node )
         x.data = node;
         for( j = 0; j < D->maxchain; j++ )
         {
+            printf("cicling %d [%d]\n", j, D->maxchain);
                 hashcuckoo( hkey, D->a1, D->shift, x.key );
                 temp = D->T1[hkey];
                 D->T1[hkey] = x;
@@ -261,10 +262,11 @@ int dumpHash( dict_ptr D, const char* fname )
     write(fd, (void*)D, sizeof(int)*6);
     write(fd, (void*)(D->T1), tb_size );
     write(fd, (void*)(D->T2), tb_size );
-    printf("HEADER_SIZE=%d\n", sizeof(int)*6+tb_size*2);
-    printf("T1_SIZE=%d\n", tb_size);
+    printf("HEADER_SIZE=%d MACRO=%d\n", sizeof(int)*6+tb_size*2, HEADER_SIZE);
+    printf("T1_SIZE=%d MACRO=%d\n", tb_size, T1_SIZE);
     close(fd);
     D->size =0;
+    D->tablesize /=2;
     return TRUE;
 }
 
@@ -325,7 +327,7 @@ boolean delete( dict_ptr D, int key )
                 D->T1[hkey].data.is_newa = 0;
                 D->size--;
                 if( D->size < D->minsize )
-                        //rehash( D, D->tablesize / 2 );
+                        rehash( D, D->tablesize / 2 );
                 return TRUE;
         } else  /* Search/delete in  T2 */
         {
@@ -339,7 +341,7 @@ boolean delete( dict_ptr D, int key )
                         D->T2[hkey].data.is_newa = 0;
                         D->size--;
                         if( D->size < D->minsize )
-                                //rehash( D, D->tablesize / 2 );
+                                rehash( D, D->tablesize / 2 );
                         return TRUE;
                 }
         }
