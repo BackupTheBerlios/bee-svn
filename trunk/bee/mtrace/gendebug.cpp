@@ -1,6 +1,6 @@
-#include <cstdio>
+#include <stdio.h>
 int main() {
-    for(int i=1;i<=0xfff; ++i)
+    for(int i=1;i<=0xff; ++i)
         printf("MEMINFO: new() %#.7x 00 unix/thread.cpp(000){00000, -0000000000}\n",
         i);
     for(int i=1;i<=0xff; ++i)

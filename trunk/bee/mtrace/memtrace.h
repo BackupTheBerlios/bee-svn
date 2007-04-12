@@ -37,7 +37,7 @@ inline static size_t buf_readline( char *start, char **end );
 inline static char * buf_rebuf( buffer_t * bp, size_t chunk_size, char isSmall );
 inline static void   readSzFile( const char *text, int *sz, char *file, int fileLen );
 inline static void   readInt( const char *text, int *res );
-inline static void   checkAddress(int type, int ptr, nod_t node, dict_ptr dict) ;
+inline static void judgeAdress( int type, int ptr, nod_t nod, dict_ptr dict );
 
 #if 0
 int  runTestSuite(void) ;

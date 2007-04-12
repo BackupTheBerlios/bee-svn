@@ -1,12 +1,21 @@
 CC=gcc
 CFLAGS=-g -Wall -DDEBUG
 LDFLAGS=-lcunit -lm
-
+TARGETS= memtrace test mmtrace mtrace buf gendebug test_ck
 all: memtrace
 
+%.o: %.c
+	$(CC) $(CFLAGS) $< -c
 
-memtrace:
-	$(CC) $(CFLAGS) $(LDFLAGS) cuckoo.c memtrace.c -o memtrace
+memtrace: cuckoo.c
+	$(CC) $(CFLAGS) $(LDFLAGS) $< memtrace.c -o memtrace
+
+gendebug: gendebug.c
+	$(CC) $(CFLAGS) $(LDFLAGS) $< -o gendebug
+
+
+test: cuckoo.c
+	$(CC) $(CFLAGS) $(LDFLAGS) $< test_ck.c -o test_ck
 
 mmtrace:
 	$(CC) $(CFLAGS) $(LDFLAGS) cuckoo.c mmtrace.c -o mmtrace
@@ -18,4 +27,4 @@ buf:
 	$(CC) $(CFLAGS) $(LDFLAGS)  buffer.c -o buf
 
 clean:
-	rm -rf memtrace mmtrace mtrace buf
+	rm -rf $(TARGETS) *.db a.out core

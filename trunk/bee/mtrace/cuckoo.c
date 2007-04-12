@@ -16,16 +16,16 @@
  *     Department of Computer Science
  *     University of Aarhus, Denmark
  *     {pagh,ffr}@brics.dk
- * 
- * Date: June 27, 2001.  
+ *
+ * Date: June 27, 2001.
  */
 
 
-#include<stdio.h>
-#include<stdlib.h>
-#include<strings.h>
-#include<time.h>
-#include<math.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <strings.h>
+#include <time.h>
+#include <math.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -34,7 +34,12 @@
 #include <string.h>
 #include "cuckoo.h"
 
+#define SIZE_THRESHOLD  100
+#define T1_SIZE         (SIZE_THRESHOLD*8)
+#define HEADER_SIZE     (T1_SIZE+sizeof(int)*6)
+
 static unsigned int dumpedTables=0;
+int lookupOnDisk(int key );
 
 dict_ptr alloc_dict( int tablesize )
 {
@@ -143,8 +148,6 @@ dict_ptr construct_dict( int min_size )
 
 
 /*------insert-----------------------------------------*/
-/*
- * If threshold size is reached, then dump the hash to disk */
 boolean insert( dict_ptr D, int key, nod_t node )
 {
 
@@ -152,8 +155,18 @@ boolean insert( dict_ptr D, int key, nod_t node )
         int j;
         celltype x, temp;
 
+        /* If threshold size is reached, then dump the hash to disk */
+        if( D->size == SIZE_THRESHOLD )
+        {
+            char dbName[32]={0};
+            sprintf(dbName, "%u.db", dumpedTables);
+            dumpHash( D, dbName);
+            ++dumpedTables;
+            insert( D, key, node );
+        }
+
         /*
-         * If element already in D then replace and return
+         * If element already in D then replace the node's data and return
          */
         hashcuckoo( h1, D->a1, D->shift, key );
         if( D->T1[h1].key == key )
@@ -171,14 +184,6 @@ boolean insert( dict_ptr D, int key, nod_t node )
         /*
          * else insert new element in D 
          */
-        if( D->size >= SIZE_THRESHOLD )
-        {
-            unsigned char dbName[32]={0};
-            sprintf(dbName, "%d.db", dumpedTables);
-            dumpHash( D, dbName);
-            ++dumpedTables;
-            insert( D, key, node );
-        }
         x.key = key;
         x.data = node;
         for( j = 0; j < D->maxchain; j++ )
@@ -234,78 +239,8 @@ boolean lookup( dict_ptr D, int key )
         if( D->T2[hkey].key == key )
                 return TRUE;
 
-        return lookupOnDisk( int key );
+        return lookupOnDisk( key );
 }                               /* lookup */
-
-//TODO: Dump a1 and a2 to disk
-//return the table in which it was found
-int lookupOnDisk(int key )
-{
-        int i=0;
-        dict_ptr D=0;
-        unsigned long hkey;
-
-        for( i=0; i< dumpedTables; ++i)
-        {
-                char dbName[32]={0};
-                sprintf( dbName, "%d.db", i);
-                fd = open( dbName, O_RDONLY );
-                // treat errors
-
-                read( fd, D, header_size );
-
-                hashcuckoo( hkey, D->a1, D->shift, key );
-                read( fd, &tcell, hkey*sizeof(celltype) + HEADER);
-                if( tcell.key = key )
-                        return i;
-
-                hashcuckoo( hkey, D->a2, D->shift, key );
-                read( fd, &tcell, hkey*sizeof(celltype) + MAGIC_NUMBER + HEADER);
-                if( tcell.key = key )
-                        return i;
-
-                close( fd);
-        }
-        return FALSE ;
-}
-
-
-/*-------delete---------------------------------------*/
-boolean delete( dict_ptr D, int key )
-{
-        unsigned long hkey;
-
-        hashcuckoo( hkey, D->a1, D->shift, key );
-        if( D->T1[hkey].key == key )
-        {
-                D->T1[hkey].key = 0;
-                D->T1[hkey].data.line = 0;
-                D->T1[hkey].data.is_new = 0;
-                D->T1[hkey].data.fid = 0;
-                D->T1[hkey].data.is_newa = 0;
-                D->size--;
-                if( D->size < D->minsize )
-                        rehash( D, D->tablesize / 2 );
-                return TRUE;
-        } else
-        {
-                hashcuckoo( hkey, D->a2, D->shift, key );
-                if( D->T2[hkey].key == key )
-                {
-                        D->T2[hkey].key = 0;
-                        D->T2[hkey].data.line = 0;
-                        D->T2[hkey].data.is_new = 0;
-                        D->T2[hkey].data.fid = 0;
-                        D->T2[hkey].data.is_newa = 0;
-                        D->size--;
-                        if( D->size < D->minsize )
-                                rehash( D, D->tablesize / 2 );
-                        return TRUE;
-                }
-        }
-        return FALSE;
-}                               /* delete */
-
 
 int dumpHash( dict_ptr D, const char* fname )
 {
@@ -320,15 +255,99 @@ int dumpHash( dict_ptr D, const char* fname )
     }
     tb_size = D->size*sizeof(celltype);
     printf("dumping sz=%d szT1=%d\n", D->size, tb_size);
-    for(i=0;i<10; i++) {
-        printf("t1[i]=%d-t2[i]=%d\n", D->T1[i], D->T2[i]);
+    for(i=0;i<D->size; i++) {
+        printf("t1[%i]=%3d || t2[%i]=%3d\n", i,D->T1[i].key, i, D->T2[i].key);
     }
     write(fd, (void*)D, sizeof(int)*6);
     write(fd, (void*)(D->T1), tb_size );
     write(fd, (void*)(D->T2), tb_size );
+    printf("HEADER_SIZE=%d\n", sizeof(int)*6+tb_size*2);
+    printf("T1_SIZE=%d\n", tb_size);
     close(fd);
     D->size =0;
+    return TRUE;
 }
+
+//TODO: Dump a1 and a2 to disk
+//return the table in which it was found
+int lookupOnDisk(int key )
+{
+        int i=0,fd=-1;
+        dict_ptr D=0;
+        unsigned long hkey;
+        celltype tcell;
+
+        for( i=0; i< dumpedTables; ++i)
+        {
+                char dbName[32]={0};
+                sprintf( dbName, "%d.db", i);
+                fd = open( dbName, O_RDONLY );
+                // treat errors
+                if( fd<0 )
+                {
+                        fprintf(stderr, "Unable to open file '%s'\n", dbName );
+                        exit(EXIT_FAILURE);
+                }
+
+                read( fd, D, HEADER_SIZE );
+                if( !D ) return FALSE ;
+
+                hashcuckoo( hkey, D->a1, D->shift, key );
+                read( fd, &tcell, HEADER_SIZE + hkey*sizeof(celltype));
+                if( tcell.key == key )
+                        return i;
+
+                hashcuckoo( hkey, D->a2, D->shift, key );
+                read( fd, &tcell, HEADER_SIZE + T1_SIZE + hkey*sizeof(celltype) );
+                if( tcell.key == key )
+                        return i;
+
+                close( fd);
+        }
+        return FALSE ;
+}
+
+
+/*-------delete---------------------------------------*/
+boolean delete( dict_ptr D, int key )
+{
+        unsigned long hkey;
+
+        hashcuckoo( hkey, D->a1, D->shift, key );
+
+        /* Search/delete in  T1 */
+        if( D->T1[hkey].key == key )
+        {
+                D->T1[hkey].key = 0;
+                D->T1[hkey].data.line = 0;
+                D->T1[hkey].data.is_new = 0;
+                D->T1[hkey].data.fid = 0;
+                D->T1[hkey].data.is_newa = 0;
+                D->size--;
+                if( D->size < D->minsize )
+                        //rehash( D, D->tablesize / 2 );
+                return TRUE;
+        } else  /* Search/delete in  T2 */
+        {
+                hashcuckoo( hkey, D->a2, D->shift, key );
+                if( D->T2[hkey].key == key )
+                {
+                        D->T2[hkey].key = 0;
+                        D->T2[hkey].data.line = 0;
+                        D->T2[hkey].data.is_new = 0;
+                        D->T2[hkey].data.fid = 0;
+                        D->T2[hkey].data.is_newa = 0;
+                        D->size--;
+                        if( D->size < D->minsize )
+                                //rehash( D, D->tablesize / 2 );
+                        return TRUE;
+                }
+        }
+        /* Search/delete on disk */
+        return FALSE;
+}                               /* delete */
+
+
 
 dict_ptr loadHash( const char* fname )
 {

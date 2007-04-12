@@ -18,6 +18,7 @@
 //#include <CUnit/CUnit.h>
 //#include <CUnit/Basic.h>
 #include "memtrace.h"
+#define dprintf printf
 
 char buf[512]={0};
 
@@ -274,7 +275,7 @@ judgeAdress( int type, int ptr, nod_t nod, dict_ptr dict )
         switch ( type )
         {
         case IS_NEW:
-                //dprintf( ("---new()--\n") );
+                dprintf( ("---new()--\n") );
                 A.line = nod.line;
                 A.fid = 1;
                 A.is_new = 1;
@@ -282,7 +283,7 @@ judgeAdress( int type, int ptr, nod_t nod, dict_ptr dict )
                 break;
 
         case IS_NEWA:
-                //dprintf( "---new[]--\n" );
+                dprintf( "---new[]--\n" );
                 A.line = nod.line;
                 A.fid = 1;
                 A.is_newa = 1;
@@ -290,17 +291,17 @@ judgeAdress( int type, int ptr, nod_t nod, dict_ptr dict )
                 break;
 
         case IS_DEL:
-                //dprintf( "---delete()--\n" );
+                dprintf( "---delete()--\n" );
                 found = lookup( dict, ptr );
                 if( !found )
-                        printf( "Double free\n" );
+                        printf( "Invalid/Double free %#.7x\n", ptr );
                 delete( dict, ptr );
                 break;
 
         case IS_DELA:
-                //dprintf( "---delete[]--\n" );
+                dprintf( "---delete[]--\n" );
                 if( !found )
-                        printf( "Double free\n" );
+                        printf( "Invalid/Double free\n" );
                 delete( dict, ptr );
                 break;
         default:

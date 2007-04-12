@@ -23,7 +23,6 @@
 #define CUCKOO_H 
 
 
-#define SIZE_THRESHOLD 10
 
 /* Keeps meta-data one new().
  * Uses only 4 bytes to fit in one %movsw */
@@ -68,7 +67,8 @@ extern int         keyval       (dict_ptr D, int key);
 extern int         size         (dict_ptr D); 
 extern void        clear        (dict_ptr D, int min_size); 
 extern dict_ptr    destruct_dict(dict_ptr D); 
-int dumpHash( dict_ptr D, const char* fname );
+extern int dumpHash( dict_ptr D, const char* fname );
+extern dict_ptr loadHash( const char* fname );
 
 /* The below hash function was found to work well in practice */
 /* There is no proof that this is always the case, and there  */
