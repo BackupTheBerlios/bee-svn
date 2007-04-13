@@ -8,48 +8,28 @@ function setMachineConfig($cli)
     print "\nSet config of machine:\n";
     $versions = array() ;
     $m = $_GET['SUT_MACHINE'];
-    print "   $m\n";
+    print "   $m--\n";
 
     $xmachine = new XML_RPC_Value( $m,'string');
     /*--------------------------------------------*/
 
     /* Serialize the content of config */
     foreach ($_POST as $k => $v) {
-        if( preg_match( "/SUT_/", $k) )
-            print "   $k = $v\n";
+        if( preg_match( "/SUT_/", $k) ) {
+            echo "$k = $v\n";
+            $cfgLines[] = new XML_RPC_Value("$k = '$v'\n", 'string');
+        }
     }
-    /* Serialize the OSes  */
-    /*print "\nOS:\n";
-    $oses = array() ;
-    for($i=0;$i<count($_GET['sut_os']);++$i) {
-        print "   ".$_GET['sut_os'][$i]."\n";
-        $oses[] = new XML_RPC_Value($_GET['sut_os'][$i],'string');
-    };
-    $xoses = new XML_RPC_Value($oses,'array');
-    */
-    /*--------------------------------------------*/
-
-    /* Serialize the TEST categories */
-    /*print "\nTests:\n";
-    $tests = array();
-    for($i=0;$i<count($_GET['sut_tests']);++$i) {
-        print "   ".$_GET['sut_tests'][$i]."\n";
-        $tests[] = new XML_RPC_Value($_GET['sut_tests'][$i],'string');
-    };
-    $xtests = new XML_RPC_Value($tests, "array");
-    */
-    /*--------------------------------------------*/
+    $xcfgLines = new XML_RPC_Value(  $cfgLines, 'array');
 
     /* Serialize Method parameter */
     $request = new XML_RPC_Value(
             array(
-                "sut_tests" => $xtests,
-                "sut_versions" => $xversions,
-                "sut_os" => $xoses,
-                "sut_build" => new XML_RPC_Value($_GET['sut_build'], 'string')
+                "sut_machine" => $xmachine,
+                "cfg_lines" => $xcfgLines,
                 ), "struct");
     $params=array($request);
-    $msg = new XML_RPC_Message('runTests', $params);
+    $msg = new XML_RPC_Message('setConfig', $params);
     /*--------------------------------------------*/
 
     $resp = $cli->send($msg);
@@ -71,6 +51,8 @@ function setMachineConfig($cli)
         echo 'Fault Reason: ' . $resp->faultString() . "\n";
     }
 }
+
+
 function showInfo()
 {
     print "<pre>\n";
@@ -111,9 +93,9 @@ function showInfo()
 <body class='bheader'>
 <?php
 drawMenu() ;
-#$cli = new XML_RPC_Client('/RPCSERVER','localhost',5000);
-#setMachineConfig($cli);
-showInfo();
+$cli = new XML_RPC_Client('/RPCSERVER','localhost',5000);
+setMachineConfig($cli);
+#showInfo();
 ?>
 <br>
 </body>

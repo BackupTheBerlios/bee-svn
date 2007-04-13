@@ -172,6 +172,7 @@ char* clientCallback( char* filebuf )
     XMLRPC_ServerRegisterMethod( server, "runTests", x_runTestsCallback );
     XMLRPC_ServerRegisterMethod( server, "listMachines", x_listMachinesCallback );
     XMLRPC_ServerRegisterMethod( server, "getConfig", x_getConfigCallback );
+    XMLRPC_ServerRegisterMethod( server, "setConfig", x_setConfigCallback );
 
     /* Now, let's get the client's request from stdin....
      * This will be read from a  socket

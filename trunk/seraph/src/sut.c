@@ -1122,10 +1122,12 @@ int onLineParsed(const char *name, const char *value, void* arg)
 
 GSList* sut_getConfig(const char* machine, int* sz)
 {
+    char path[PATH_MAX]={0};
     debug( "\nGETCONFIG\n" );
     GSList*   cfgTable =  g_slist_alloc() ;
     cfg.takeAction = onLineParsed ;
-    srph_parseCfg( "/home/groleo/machines/freebsd_5.4", &cfgTable);
+    sprintf(path,"%s/%s", MACHINES, machine);
+    srph_parseCfg( path, &cfgTable);
     *sz = g_slist_length(cfgTable);
     return cfgTable;
 }

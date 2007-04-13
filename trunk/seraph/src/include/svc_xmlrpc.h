@@ -13,6 +13,7 @@ XMLRPC_VALUE x_checkCoreCallback(XMLRPC_SERVER server, XMLRPC_REQUEST request, v
 XMLRPC_VALUE x_listTestsCallback(XMLRPC_SERVER server, XMLRPC_REQUEST request, void* userData);
 XMLRPC_VALUE x_listMachinesCallback(XMLRPC_SERVER server, XMLRPC_REQUEST request, void* userData);
 XMLRPC_VALUE x_getConfigCallback(XMLRPC_SERVER server, XMLRPC_REQUEST request, void* userData);
+XMLRPC_VALUE x_setConfigCallback(XMLRPC_SERVER server, XMLRPC_REQUEST request, void* userData);
 XMLRPC_VALUE x_runTestsCallback(XMLRPC_SERVER server, XMLRPC_REQUEST request, void* userData);
 XMLRPC_VALUE x_listOSes(XMLRPC_SERVER server, XMLRPC_REQUEST request, void* userData);
 

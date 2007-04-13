@@ -88,7 +88,7 @@ x_getConfigCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void *userDat
     XMLRPC_VALUE ret = XMLRPC_CreateVector(NULL, xmlrpc_vector_array);
     rv  = XMLRPC_CreateVector(NULL, xmlrpc_vector_struct);
 
-    machine = XMLRPC_GetValueInt( xIter );
+    machine = XMLRPC_GetValueString( xIter );
     symbList = sut_getConfig( machine , &nbSymbols);
     nbSymbols--;
     XMLRPC_VectorAppendString( rv, "symbol", "some symbol", 0 );
@@ -108,6 +108,52 @@ x_getConfigCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void *userDat
     //free(symbList);
     return ret;
 }
+
+
+    XMLRPC_VALUE
+x_setConfigCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void *userData )
+{
+    XMLRPC_VALUE rv;
+    char* machine=0, *p=0, path[PATH_MAX]={0};
+    XMLRPC_VALUE cfg_lines,str;
+    FILE* f;
+
+    XMLRPC_VALUE xParams = XMLRPC_RequestGetData( request );
+    XMLRPC_VALUE xIter   = XMLRPC_VectorRewind( xParams );
+    rv  = XMLRPC_CreateVector(NULL, xmlrpc_vector_struct);
+
+    str = XMLRPC_VectorRewind(XMLRPC_RequestGetData(request));
+
+    /* Extract machine Name */
+    machine = XMLRPC_VectorGetStringWithID(str, "sut_machine");
+    debug("SUT machine:%s\n", machine);
+
+    sprintf( path, "%s/%s", MACHINES, machine );
+    f = fopen( path, "w");
+    if(!f) {
+        debug("Unable to open [%s]\n", path);
+        exit(EXIT_FAILURE);
+    }else
+        debug("Opened [%s]\n", path);
+
+    /* Extract Config Lines */
+    cfg_lines = XMLRPC_VectorGetValueWithID(str, "cfg_lines");
+    xIter = XMLRPC_VectorRewind( cfg_lines );
+    while(xIter) {
+        p = XMLRPC_GetValueString( xIter );
+        debug("LINE: [%s]\n", p);
+        xIter = XMLRPC_VectorNext(cfg_lines);
+        if( EOF == fprintf( f, "%s", p) ) {
+            debug("Cant write to config\n");
+            exit(EXIT_FAILURE);
+        }
+    }
+    //free(symbList);
+    fflush(f);
+    fclose(f);
+    return rv;
+}
+
 
 
     XMLRPC_VALUE
