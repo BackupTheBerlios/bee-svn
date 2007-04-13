@@ -20,7 +20,7 @@
 #include "memtrace.h"
 
 int bogusPrint(const char*a, ...) { return 0;}
-#define dprintf bogusPrint
+#define dprintf printf
 
 char buf[512]={0};
 
@@ -140,7 +140,7 @@ findLeaks(dict_ptr dict)
 {
     int i=0,key1=0, key2=0;
 
-    printf("Found the following leaks:\n");
+    printf("\n------LEAKS------:\n");
 
     for(i=0; i<dict->tablesize;++i)
     {
@@ -260,7 +260,7 @@ readSzFile( const char *text, int *sz, char *file, int fileLen )
             ;
 
         /* 0.1 % cache misses */
-        if(*file)
+        //if(*file)
             memcpy( file, text + 1, i );
 }
 /*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/

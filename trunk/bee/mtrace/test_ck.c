@@ -10,13 +10,16 @@ int main() {
         for(i=0;i<11;i++) {
                 insert( dict, i, A);
         }
+        printf("Printing in-memory dict BEFORE dump\n");
+        for(i=0;i<dict->size;i++)
+                printf( "t1[%i]=%3d || t2[%i]=%3d\n", i,dict->T1[i].key, i,dict->T2[i].key);
         /*Insert one more, so the table gets dumped */
         insert( dict, i, A);
 
-        printf("Printing in-memory dict\n");
+
+        printf("Printing in-memory dict AFTER dump\n");
         for(i=0;i<dict->size;i++)
                 printf( "t1[%i]=%3d || t2[%i]=%3d\n", i,dict->T1[i].key, i,dict->T2[i].key);
-
         printf("Loading...\n");
         ldict = loadHash("0.db");
 

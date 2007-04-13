@@ -15,8 +15,9 @@ gendebug: gendebug.o
 	$(CC) $(CFLAGS) $(LDFLAGS) $< -o gendebug
 
 
-test: cuckoo.o
-	$(CC) $(CFLAGS) $(LDFLAGS) $< test_ck.c -o test_ck
+test: cuckoo.o test_ck.o
+	$(CC) $(CFLAGS) $(LDFLAGS) $< test_ck.o -o test_ck
+	./test_ck
 
 mmtrace:
 	$(CC) $(CFLAGS) $(LDFLAGS) cuckoo.c mmtrace.c -o mmtrace

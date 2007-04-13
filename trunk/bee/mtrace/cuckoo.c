@@ -34,7 +34,7 @@
 #include <string.h>
 #include "cuckoo.h"
 
-#define SIZE_THRESHOLD  104
+#define SIZE_THRESHOLD  10
 #define T1_SIZE         (SIZE_THRESHOLD*8)
 #define HEADER_SIZE     (T1_SIZE*2+sizeof(int)*6)
 
@@ -46,8 +46,8 @@ dict_ptr alloc_dict( int tablesize )
 
         dict_ptr D;
 
-        printf("FUNCT: %s\n", __FUNCTION__);
-        printf("ALLOC: tablesize=%d\n", tablesize);
+        dprintf("FUNCT: %s\n", __FUNCTION__);
+        dprintf("ALLOC: tablesize=%d\n", tablesize);
         D = ( dict_ptr ) calloc( 1, sizeof( dict ) );
         D->size = 0;
         D->tablesize = tablesize;
@@ -70,7 +70,7 @@ dict_ptr alloc_dict( int tablesize )
         inithashcuckoo( D->a1 );
         inithashcuckoo( D->a2 );
 
-        printf("HASH_CHAIN: %d\n", D->maxchain);
+        dprintf("HASH_CHAIN: %d\n", D->maxchain);
         return ( D );
 }
 
@@ -91,12 +91,12 @@ boolean rehash_insert( dict_ptr D, int key, nod_t node )
         int j;
         celltype x, temp;
 
-        printf("FUNCT: %s\n", __FUNCTION__);
+        dprintf("FUNCT: %s\n", __FUNCTION__);
         x.key = key;
         x.data = node;
         for( j = 0; j < D->maxchain; j++ )
         {
-                printf("FUN: cicling %d [%d]\n", j, D->maxchain);
+                dprintf("FUN: cicling %d [%d]\n", j, D->maxchain);
                 hashcuckoo( hkey, D->a1, D->shift, x.key );
                 temp = D->T1[hkey];
                 D->T1[hkey] = x;
@@ -127,23 +127,23 @@ void rehash( dict_ptr D, int new_size )
 {
         dict_ptr D_new;
         int k;
-        printf("FUNCT: %s\n", __FUNCTION__);
-        printf("REHASH1: tablesize=%d new_size=%d\n", D->tablesize, new_size);
+        dprintf("FUNCT: %s\n", __FUNCTION__);
+        dprintf("REHASH1: tablesize=%d new_size=%d\n", D->tablesize, new_size);
         D_new = alloc_dict( new_size );
 
         for( k = 0; k < D->tablesize; k++ )
         {
-                printf("FUN: rehashing [%d]...\n", k);
+                dprintf("FUN: rehashing [%d]...\n", k);
                 if( ( D->T1[k].key ) &&  ( !rehash_insert( D_new, D->T1[k].key, D->T1[k].data ) ))
                 {
                         k = -1;
-                        printf("HASH1: failed\n");
+                        dprintf("HASH1: failed\n");
                         continue;
                 }
                 if( ( D->T2[k].key ) &&  ( !rehash_insert( D_new, D->T2[k].key, D->T2[k].data ) ))
                 {
                         k = -1;
-                        printf("HASH2: failed\n");
+                        dprintf("HASH2: failed\n");
                 }
         }
         free( D->T1 );
@@ -151,7 +151,7 @@ void rehash( dict_ptr D, int new_size )
 
         D_new->size = D->size;
         *D = *D_new;
-        printf("REHASH2: tablesize=%d new_size=%d\n", D->tablesize, new_size);
+        dprintf("REHASH2: tablesize=%d new_size=%d\n", D->tablesize, new_size);
         free( D_new );
 }                               /* rehash */
 
@@ -159,7 +159,7 @@ void rehash( dict_ptr D, int new_size )
 /*------construct_dict---------------------------------*/
 dict_ptr construct_dict( int min_size )
 {
-        printf("FUNCT: %s\n", __FUNCTION__);
+        dprintf("FUNCT: %s\n", __FUNCTION__);
         srand( time( NULL ) );
         return alloc_dict( min_size );
 }                               /* construct_dict */
@@ -173,7 +173,7 @@ boolean insert( dict_ptr D, int key, nod_t node )
         int j;
         celltype x, temp;
 
-        printf("FUNCT: %s\n", __FUNCTION__);
+        dprintf("FUNCT: %s\n", __FUNCTION__);
         /* If threshold size is reached, then dump the hash to disk */
         if( D->size == SIZE_THRESHOLD )
         {
@@ -213,7 +213,7 @@ boolean insert( dict_ptr D, int key, nod_t node )
                 {
                         D->size++;
                         if( D->size >= D->tablesize ) {
-                                printf("BREHASH1: %d %d\n", D->tablesize, D->size);
+                                dprintf("BREHASH1: %d %d\n", D->tablesize, D->size);
                                 rehash( D, 2 * D->tablesize );
                                 //enlarge_dict(D, 2);
                         }
@@ -229,9 +229,9 @@ boolean insert( dict_ptr D, int key, nod_t node )
                 {
                         D->size++;
                         if( D->size >= D->tablesize ) {
-                                printf("BREHASH2: %d %d\n", D->tablesize, D->size);
-                                //rehash( D, 2 * D->tablesize );
-                                enlarge_dict(D, 2);
+                                dprintf("BREHASH2: %d %d\n", D->tablesize, D->size);
+                                rehash( D, 2 * D->tablesize );
+                                //enlarge_dict(D, 2);
                         }
                         return TRUE;
                 }
@@ -244,7 +244,7 @@ boolean insert( dict_ptr D, int key, nod_t node )
          */
         if( D->size < D->meansize )
         {
-                //rehash( D, D->tablesize );
+                rehash( D, D->tablesize /2);
                 //enlarge_dict(D,2);
         }else
         {
@@ -260,7 +260,7 @@ boolean lookup( dict_ptr D, int key )
 {
         unsigned long hkey;
 
-        printf("FUNCT: %s\n", __FUNCTION__);
+        dprintf("FUNCT: %s\n", __FUNCTION__);
         hashcuckoo( hkey, D->a1, D->shift, key );
         if( D->T1[hkey].key == key )
                 return TRUE;
@@ -275,7 +275,15 @@ boolean lookup( dict_ptr D, int key )
 int dumpHash( dict_ptr D, const char* fname )
 {
     int fd=-1,i;
-    printf("FUNCT: %s\n", __FUNCTION__);
+    dprintf("FUNCT: %s\n", __FUNCTION__);
+
+    if(!access(fname, W_OK |F_OK ) )
+        if( unlink(fname) < 0)
+        {
+            dprintf("unable to remove '%s'\n", fname);
+            exit(EXIT_FAILURE);
+        }
+
     fd = open( fname, O_RDWR|O_CREAT | O_TRUNC, S_IRWXU);
     int tb_size=0;
     if( fd ==-1 )
@@ -285,15 +293,15 @@ int dumpHash( dict_ptr D, const char* fname )
         exit(EXIT_FAILURE);
     }
     tb_size = D->size*sizeof(celltype);
-    printf("dumping sz=%d szT1=%d\n", D->size, tb_size);
+    dprintf("dumping sz=%d szT1=%d\n", D->size, tb_size);
     for(i=0;i<D->size; i++) {
-        printf("t1[%i]=%3d || t2[%i]=%3d\n", i,D->T1[i].key, i, D->T2[i].key);
+        dprintf("t1[%i]=%3d || t2[%i]=%3d\n", i,D->T1[i].key, i, D->T2[i].key);
     }
     write(fd, (void*)D, sizeof(int)*6);
     write(fd, (void*)(D->T1), tb_size );
     write(fd, (void*)(D->T2), tb_size );
-    printf("HEADER_SIZE=%d MACRO=%d\n", sizeof(int)*6+tb_size*2, HEADER_SIZE);
-    printf("T1_SIZE=%d MACRO=%d\n", tb_size, T1_SIZE);
+    dprintf("HEADER_SIZE=%d MACRO=%d\n", sizeof(int)*6+tb_size*2, HEADER_SIZE);
+    dprintf("T1_SIZE=%d MACRO=%d\n", tb_size, T1_SIZE);
     close(fd);
     D->size =0;
     return TRUE;
@@ -308,7 +316,7 @@ int lookupOnDisk(int key )
         unsigned long hkey;
         celltype tcell;
 
-        printf("FUNCT: %s\n", __FUNCTION__);
+        dprintf("FUNCT: %s\n", __FUNCTION__);
         for( i=0; i< dumpedTables; ++i)
         {
                 char dbName[32]={0};
@@ -345,7 +353,7 @@ boolean delete( dict_ptr D, int key )
 {
         unsigned long hkey;
 
-        printf("FUNCT: %s\n", __FUNCTION__);
+        dprintf("FUNCT: %s\n", __FUNCTION__);
         hashcuckoo( hkey, D->a1, D->shift, key );
 
         /* Search/delete in  T1 */
@@ -357,7 +365,7 @@ boolean delete( dict_ptr D, int key )
                 D->T1[hkey].data.fid = 0;
                 D->T1[hkey].data.is_newa = 0;
                 D->size--;
-                if( D->size < D->minsize )
+                if( D->size > 1 && D->size < D->minsize )
                 {
                         //rehash( D, D->tablesize / 2 );
                 }
@@ -373,7 +381,7 @@ boolean delete( dict_ptr D, int key )
                         D->T2[hkey].data.fid = 0;
                         D->T2[hkey].data.is_newa = 0;
                         D->size--;
-                        if( D->size < D->minsize )
+                        if( D->size > 1 && D->size < D->minsize )
                         {
                                 //rehash( D, D->tablesize / 2 );
                         }
@@ -393,10 +401,10 @@ dict_ptr loadHash( const char* fname )
     dict_ptr D = ( dict_ptr ) calloc( 1, sizeof( dict ) );
 
 
-        printf("FUNCT: %s\n", __FUNCTION__);
+        dprintf("FUNCT: %s\n", __FUNCTION__);
     fd = open(fname, O_RDWR );
     read(fd, D ,sizeof(int)*6);
-    printf("-------Size:%d-----------\n", D->size);
+    dprintf("-------Size:%d-----------\n", D->size);
     T = calloc(D->size,sizeof(celltype));
     tb_size = D->size*sizeof(celltype);
     D->T1 = ( celltype * ) calloc( D->size, sizeof( celltype ) ) ;
@@ -415,7 +423,7 @@ dict_ptr loadHash( const char* fname )
 /*-------size-------------------------------------------*/
 int size( dict_ptr D )
 {
-        printf("FUNCT: %s\n", __FUNCTION__);
+        dprintf("FUNCT: %s\n", __FUNCTION__);
         return ( D->size );
 }                               /* size */
 
@@ -425,7 +433,7 @@ void clear( dict_ptr D, int min_size )
 {
         dict_ptr D_new;
 
-        printf("FUNCT: %s\n", __FUNCTION__);
+        dprintf("FUNCT: %s\n", __FUNCTION__);
         D_new = construct_dict( min_size );
         free( D->T1 );
         free( D->T2 );
@@ -436,11 +444,11 @@ void clear( dict_ptr D, int min_size )
 dict_ptr destruct_dict( dict_ptr D )
 {
         int i;
-        printf("FUNCT: %s\n", __FUNCTION__);
+        dprintf("FUNCT: %s\n", __FUNCTION__);
         for( i = 0; i < D->tablesize; ++i )
         {
-                // delete( D->T1[i] );
-                // delete( D->T2[i] );
+                 //delete( D->T1[i] );
+                 //delete( D->T2[i] );
         }
         free( D->T1 );
         free( D->T2 );
