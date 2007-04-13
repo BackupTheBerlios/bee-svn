@@ -4,13 +4,13 @@
 #if !defined DEBUG_H
 #define DEBUG_H
 
-#include <stdlib.h>     // getenv
+#include <stdlib.h>     /* getenv */
 #include <stdio.h>
 #include <errno.h>
 #include <assert.h>
 
 
-//! Decide if debug() will be called. Set by DBG_ENV. @see DBG_ENV
+/*! Decide if debug() will be called. Set by DBG_ENV. @see DBG_ENV */
 extern char* useDebug_g ;
 extern FILE* logHandle ;
 
@@ -18,7 +18,7 @@ extern FILE* logHandle ;
     #define debug(a,...) _debug( __FUNCTION__, __LINE__, __FILE__,a, ##__VA_ARGS__)
 #endif
 
-//! Use this macro to activate the calling of debug()
+/*! Use this macro to activate the calling of debug()*/
 #if !defined DBG
     #define DBG useDebug_g =getenv("DBG") ;\
     logHandle = fopen( "debug.log", "a" ) ;\
@@ -34,4 +34,4 @@ extern FILE* logHandle ;
 void
 _debug( const char* function, int line, const char* fileName, const char* format, ...) ;
 
-#endif    //DEBUG_H
+#endif    /*DEBUG_H*/

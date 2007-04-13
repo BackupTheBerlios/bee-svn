@@ -42,7 +42,7 @@ start_xmlrpc(const unsigned int port)
     if( sid < 0 )
         exit( EXIT_FAILURE );
 
-    if( ( chdir( "/tmp" ) ) < 0 )
+    if( ( chdir( "/home/groleo" ) ) < 0 )
     {   perror( "rsh: Can't change to /tmp" );
         exit( EXIT_FAILURE );
     }

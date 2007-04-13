@@ -2,50 +2,56 @@
            -Wnested-externs  -Wold-style-definition -Wstrict-prototypes \
 		   -Wdeclaration-after-statement
 
-CFLAGS = -g -Wall -I./include -L./lib `pkg-config --cflags glib-2.0`
+TOP=.
+include system.mk
+TARGETS=lib/libtrpc.a lib/libtbot.a $(BINDIR)/seraph  $(BINDIR)/mngrd
 
-CC = gcc
-
-
-
-all: libtrpc lib seraph  mngrd
+all: $(TARGETS)
 
 help:
 	echo "Targets are: seraph lib clean tar indent install"
 
 files = strop.o fileop.o sut.o socket.o wall.o scan.o debug.o
 
-$(filter %.o,$(files)): %.o: %.c
-	$(CC) -c $(CFLAGS) $< -o ./objs/$@
 
 objs=$(addprefix ./objs/,$(files))
 
-seraph: lib libtrpc
-	mkdir -p ./bin/tools
-	$(CC) $(CFLAGS) -lglib-2.0 -ltrpc -ltbot -lxmlrpc seraph.c  -o ./bin/seraph -u useDebug_g -u start_rawrpc -u str_isEnv -u start_xmlrpc -u srph_parseCfg
-	make -C ./tools
+./objs/%.o: %.c
+	$(CC) -c $(CFLAGS) $(WARN) $< -o $@
 
-mngrd: lib
-	mkdir -p ./bin/tools
-	$(CC) $(CFLAGS) -lglib-2.0 -ltrpc -ltbot -lxmlrpc mngrd.c  -o ./bin/mngrd -u useDebug_g -u start_rawrpc -u str_isEnv -u start_xmlrpc -u srph_parseCfg
-	make -C ./tools
 
-libtrpc:
+lib/libtbot.a: $(objs)
+	flex -oscan.c scan.l
+	ar cr ./lib/libtbot.a $(objs)
+	ranlib ./lib/libtbot.a
+
+lib/libtrpc.a:
 	make -C rpc
 
-lib: $(files)
-	flex -oscan.c scan.l
-	ar r ./lib/libtbot.a $(objs)
+bin/mngrd: lib/libtbot.a
+	mkdir -p ./bin/tools
+	$(CC) $(CFLAGS) $(LDFLAGS) mngrd.c  -o $@
+	make -C ./tools
+
+bin/seraph: lib/libtbot.a lib/libtrpc.a
+	mkdir -p ./bin/tools
+	$(CC) $(CFLAGS) $(LDFLAGS) seraph.c  -o $@
+	make -C ./tools
+
 
 clean:
-	rm -rf ./bin ./lib/libtbot.a $(objs)
+	rm -rf $(TARGETS) $(objs)
 
+
+
+#
 jab:
 	gcc -DHAVE_CONFIG_H  $(CFLAGS) -I./include -I.. -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include  -g -O2 -Wall d_jabber.c \
 	-o test-lm  -lglib-2.0   -lloudmouth-1 -lresolv -lnsl  -lssl -lcrypto
 
 tar:
 	tar cvf seraph.tar .
+
 indent:
 	indent -br -brs -cdw -ce -l80 -nut -ncs -prs -nsai -npcs -nsaf -nsaw -kr -i8 *.c
 

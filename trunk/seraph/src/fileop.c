@@ -66,6 +66,7 @@ int fop_rm( const int test_type, const char *path,const char *host,const int por
 
 static int fop_rmRemote( const char *path,const char *host, const int port )
 {
+        printf("%s %s %d\n", path, host, port);
         return 0;
 }
 
@@ -217,6 +218,7 @@ recursiveAction( const char *fileName,
 static int
 rm_fileAction( const char *fileName, struct stat *statbuf, void *junk )
 {
+        printf("%p %p\n", statbuf, junk);
         if( unlink( fileName ) < 0 ) {
                 perror( fileName );
                 return ( FALSE );

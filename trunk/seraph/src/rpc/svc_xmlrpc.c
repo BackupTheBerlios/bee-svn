@@ -23,16 +23,15 @@ x_startCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void *userData )
     const char *rs;
 
     XMLRPC_VALUE xParams = XMLRPC_RequestGetData( request );
-    XMLRPC_VALUE xIter = XMLRPC_VectorRewind( xParams );
+    XMLRPC_VALUE xIter   = XMLRPC_VectorRewind( xParams );
     timeout = XMLRPC_GetValueInt( xIter );
 
-    xIter = XMLRPC_VectorNext( XMLRPC_RequestGetData( request ) );
+    xIter   = XMLRPC_VectorNext( XMLRPC_RequestGetData( request ) );
     maillog = XMLRPC_GetValueString( xIter );
 
-    xIter = XMLRPC_VectorNext( XMLRPC_RequestGetData( request ) );
+    xIter    = XMLRPC_VectorNext( XMLRPC_RequestGetData( request ) );
     startCmd = XMLRPC_GetValueString( xIter );
 
-    printf( "START [%d][%s][%s]\n", timeout, maillog, startCmd );
     rc = sut_start( TEST_LOCAL, timeout, maillog, startCmd, 0, 0 );
     rs = rc > 0 ? "Sut Started" : "Sut Failed to start";
     return XMLRPC_CreateValueString( NULL, rs, 0 );
@@ -45,8 +44,6 @@ x_listTestsCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void *userDat
     char** testList=0;
     int nbTests=0;
     XMLRPC_VALUE rv;
-
-    printf( "LISTTESTS\n" );
 
     testList = sut_listTests( "/home/groleo/tests", &nbTests);
     rv = XMLRPC_CreateVector(NULL, xmlrpc_vector_array);
@@ -66,9 +63,7 @@ x_listMachinesCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void *user
     int nbMachines=0;
     XMLRPC_VALUE rv;
 
-    printf( "\nLISTMACHINES\n" );
-
-    testList = sut_listMachines( "/home/groleo/machines", &nbMachines);
+    testList = sut_listMachines( MACHINES, &nbMachines);
     rv = XMLRPC_CreateVector(NULL, xmlrpc_vector_array);
     while( nbMachines-- ) {
         XMLRPC_VectorAppendString( rv, NULL, testList[nbMachines], 0 );
@@ -82,27 +77,39 @@ x_listMachinesCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void *user
     XMLRPC_VALUE
 x_getConfigCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void *userData )
 {
+    XMLRPC_VALUE rv;
     GSList* symbList=0;
+    ConfigEntry* tmp;
     int nbSymbols=0;
     char* machine=0;
-    XMLRPC_VALUE rv;
-
-    printf( "\nGETCONFIG\n" );
 
     XMLRPC_VALUE xParams = XMLRPC_RequestGetData( request );
-    XMLRPC_VALUE xIter = XMLRPC_VectorRewind( xParams );
+    XMLRPC_VALUE xIter   = XMLRPC_VectorRewind( xParams );
+    XMLRPC_VALUE ret = XMLRPC_CreateVector(NULL, xmlrpc_vector_array);
+    rv  = XMLRPC_CreateVector(NULL, xmlrpc_vector_struct);
+
     machine = XMLRPC_GetValueInt( xIter );
-/*
     symbList = sut_getConfig( machine , &nbSymbols);
+    nbSymbols--;
+    XMLRPC_VectorAppendString( rv, "symbol", "some symbol", 0 );
+    XMLRPC_VectorAppendString( rv, "val" , "some value", 0 );
+    XMLRPC_AddValueToVector ( ret, rv);
+
     while( nbSymbols-- ) {
-        XMLRPC_VectorAppendString( rv, NULL, symbList[nbSymbols].symbol, 0 );
-        free(symbList[nbSymbols].symbol);
-        free(symbList[nbSymbols].value);
+        tmp = (ConfigEntry*)g_slist_nth_data(symbList, nbSymbols);
+        if(!tmp || !tmp->symbol || !tmp->value) continue;
+        rv = XMLRPC_CreateVector(NULL, xmlrpc_vector_struct);
+        XMLRPC_VectorAppendString( rv, "symbol", tmp->symbol, 0 );
+        XMLRPC_VectorAppendString( rv, "val" , tmp->value, 0 );
+        XMLRPC_AddValueToVector ( ret, rv);
+        //free(symbList[nbSymbols].symbol);
+        //free(symbList[nbSymbols].value);
     }
-    free(symbList);
-*/
-    return rv;
+    //free(symbList);
+    return ret;
 }
+
+
     XMLRPC_VALUE
 x_stopCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void *userData )
 {
@@ -121,7 +128,6 @@ x_stopCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void *userData )
     xIter = XMLRPC_VectorNext( XMLRPC_RequestGetData( request ) );
     stopCmd = XMLRPC_GetValueString( xIter );
 
-    printf( "STOP [%d][%s][%s]\n", timeout, maillog, stopCmd );
     rc = sut_stop( TEST_LOCAL, timeout, maillog, stopCmd, 0, 0 );
     rs = rc > 0 ? "Sut Stopped" : "Sut Failed to stop";
     return XMLRPC_CreateValueString( NULL, rs, 0 );

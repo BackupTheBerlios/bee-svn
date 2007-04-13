@@ -7,13 +7,14 @@
 #include <sys/wait.h>
 #include <limits.h>
 #include <time.h>
+#include <stdlib.h>
 #include "debug.h"
 #include "socket.h"
 #include "strop.h"
 #include "fileop.h"
+#include "rpc.h"
 #include "sut.h"
 #include "wall.h"
-#include "rpc.h"
 
 extern struct config_s cfg;
 extern char *optarg;

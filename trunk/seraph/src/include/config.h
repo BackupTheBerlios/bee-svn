@@ -56,7 +56,7 @@
 #define OPT_ASK 3
 #define TRUE  1
 #define FALSE 0
-// TODO: fa-le enum-uri
+/* TODO: fa-le enum-uri*/
 #define TB_BE_DAEMON 1
 #define TB_BE_SETUP 2
 #define TB_BE_TESTER 3

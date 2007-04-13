@@ -22,7 +22,7 @@ function drawMenu() {
         </div>
     <div class='head_menu'>
         <ul>
-            <li><a href='/'>Home</a></li>
+            <li><a href='.'>Home</a></li>
             <!--<li><a href='register.php'>Register</a></li>-->
             <li><a href='machines.php'>Machines</a></li>
             <li><a href='settings.php'>Settings</a></li>
@@ -36,12 +36,6 @@ function drawMachines()
 {
     $cli = new XML_RPC_Client('/RPCSERVER', 'localhost', 5000);
 
-    echo " <ul id='menu'>
-        <li ><p>purec
-        <span>
-        <a href='http://google.com'><em class='butt'>Add</em></a>
-        <a href='http://google.com'><em class='butt'>Save</em></a>
-        ";
 
     $msg = new XML_RPC_Message('listMachines');
     $resp = $cli->send($msg);
@@ -49,22 +43,30 @@ function drawMachines()
 
     $machines = $resp->value();
     $i = $machines->arraysize();
-
+    #$i = 1;
     while( $i-- )
-    {   $params = array(new XML_RPC_Value( $machines->arraymem($i), 'string'));
+    {   echo " <ul id='menu'>
+        <li ><p>".XML_RPC_decode($machines->arraymem($i))."
+        <span>
+        <a href='http://google.com'><em class='butt'>Add</em></a>
+        <a href='http://google.com'><em class='butt'>Save</em></a>
+        ";
+        $params = array(new XML_RPC_Value( XML_RPC_decode($machines->arraymem($i)), 'string'));
         $msg    = new XML_RPC_Message('getConfig', $params);
         $resp   = $cli->send($msg);
         if( hasErrors($resp) ) return ;
-/*
         $cfgTable = $resp->value();
-        $cfgTable->structreset();
-        while (list($symbol, $value) = $machines->structeach())
-        { echo "<b>".$symbol."</b><input type='text' value='".$value."'/><br>";
-        }*/
+        $j = $cfgTable->arraysize();
+        while($j--){
+            $cfgEntry=$cfgTable->arraymem($j);
+            $cfgEntry->structreset();
+            echo "<b>".XML_RPC_decode($cfgEntry->structmem("symbol"))."</b>";
+            echo "<input type='text' value='". XML_RPC_decode($cfgEntry->structmem("val"))."' /><br>\n";
+        }
+        echo "</span></p>
+            </li>
+            </ul>";
     }
-    echo "</span></p>
-        </li>
-        </ul>";
 
 }
 

@@ -5,7 +5,7 @@
 #include <stdarg.h> //va_list
 
 
-char* useDebug_g=0 ;    //!< Decide if debug() will be called. Set by DBG_ENV. @see DBG_ENV
+char* useDebug_g=1 ;    //!< Decide if debug() will be called. Set by DBG_ENV. @see DBG_ENV
 FILE* logHandle =0 ;
 
 /** Print debug information in this.log.

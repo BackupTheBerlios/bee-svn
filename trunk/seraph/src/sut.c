@@ -23,12 +23,12 @@ extern struct config_s cfg;
 int running ;
 
 static bool sut_startRemote( const int timeout, const char *maillog, const char *start,
-        const char *host, const int port );
+			     const char *host, const int port );
 
 static bool sut_startLocal( const int timeout, const char *maillog, const char *start );
 
 static bool sut_stopRemote( const int timeout, const char *maillog, const char *stop,
-        const char *host, const int port );
+			    const char *host, const int port );
 
 static bool sut_stopLocal( const int timeout, const char *maillog, const char *stop );
 
@@ -38,12 +38,12 @@ static bool sut_refreshLocal( const char *source, const char *dest );
 
 static bool
 sut_checkCoreRemote( const char *core_srcDir, const char *dbg_srcDir,
-        const char *axi_workDir, const char *axi_cfgFile,
-        const char *crash_destDir );
+		     const char *axi_workDir, const char *axi_cfgFile,
+		     const char *crash_destDir );
 static bool
 sut_checkCoreLocal( const char *core_srcDir, const char *dbg_srcDir,
-        const char *workDir, const char *cfgFile,
-        const char *crash_destDir );
+		    const char *workDir, const char *cfgFile,
+		    const char *crash_destDir );
 
 static int sut_runBat( const char *bat_name, int timeout );
 
@@ -52,10 +52,10 @@ static int sut_setupTmp( char const *source_bat, char *tmpDir );
 static int sut_parseBat( const char *filename );
 
 static int sut_dirAction( const char *fileName, struct stat *statbuf,
-        void *junk );
+			  void *junk );
 
 static int sut_fileAction( const char *fileName, struct stat *statbuf,
-        void *junk );
+			   void *junk );
 
 static int sut_sutRefresh( const int option, const char *filename );
 
@@ -66,12 +66,14 @@ static int sut_setErrorlog( void );
 static int sut_runRecursive( const char *srcName );
 
 
-/*  Start SUT   */
+
+/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
     bool
 sut_start( const int test_type,
-        const int timeout, const char *maillog,const  char *start,const  char *hostname,const  int port )
+           const int timeout, const char *maillog,
+           const char *start, const char *hostname,const  int port )
 {
-    debug( "* sutStart ...\n" );
+    /*printf( "START [%d][%s][%s]\n", timeout, maillog, startCmd );*/
 
     if( test_type == TEST_LOCAL )
     {       sut_startLocal( timeout, maillog, start );
@@ -85,7 +87,8 @@ sut_start( const int test_type,
         return true;
     }
     return true;
-}
+}/*------------------------------------------------------------------*/
+
 
 
 /*
@@ -102,7 +105,8 @@ sut_startRemote( const int timeout, const char *maillog,
     sock_sendLine( sockfd, cmd );
     close( sockfd );
     return true;
-}
+}/*------------------------------------------------------------------*/
+
 
 
 /**
@@ -115,10 +119,10 @@ static bool sut_startLocal( const int timeout, const char *maillog, const char *
     int fd = 0, rc = 0;
     ino_t st_ino;
     struct stat stat_buf;
-    char buf[512] = { 0 };
+    char buf[512]   = { 0 };
     char *supRdyStr = "SUCCESS: supervise ready";
-    char *rdyStr = "INFO: ready";
-    bool supRdy = false;
+    char *rdyStr    = "INFO: ready";
+    bool supRdy     = false;
 
     printf( "==> %s <==\n", maillog );
     fd = open( maillog, O_RDONLY );
@@ -126,7 +130,7 @@ static bool sut_startLocal( const int timeout, const char *maillog, const char *
     {   debug( "E: Unable to open [%s] for reading\n", maillog );
         return false;
     }
-        
+
     if( -1 == fstat( fd, &stat_buf ) )
     {   debug("E: Unable to stat [%s]: [%s]\n", maillog, strerror( errno ) );
         return false;
@@ -134,7 +138,7 @@ static bool sut_startLocal( const int timeout, const char *maillog, const char *
     st_ino = stat_buf.st_ino;
     lseek( fd, 0, SEEK_END );
     rc = system( start );
-    if( rc == -1 )  
+    if( rc == -1 )
     {   printf( "Failed\n" );
         exit( EXIT_FAILURE );
         /* ask for options */
@@ -197,8 +201,10 @@ static bool sut_startLocal( const int timeout, const char *maillog, const char *
     }
     close( fd );
     return true;
-}
+}/*------------------------------------------------------------------*/
 
+
+/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
     char**
 sut_listTests(const char* td, int* sz)
 {
@@ -220,16 +226,21 @@ sut_listTests(const char* td, int* sz)
     }
     *sz = i;
     return buf;
-}
+}/*------------------------------------------------------------------*/
 
+
+
+/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
     char**
 sut_listMachines(const char* td, int* sz)
 {
     DIR* dir;
     struct dirent* ent;
     int i=0;
+    char** buf;
 
-    char** buf =(char**)calloc(8192, sizeof(char*)); //TODO
+    debug("LISTMACHINES: [%s]\n", td);
+    buf =(char**)calloc(8192, sizeof(char*)); /*TODO*/
     if( !( dir = opendir( td ) ) ) {
         debug( "1: Can't open test directory [%s] : %s\n",
                 td, strerror( errno ) );
@@ -242,20 +253,16 @@ sut_listMachines(const char* td, int* sz)
     }
     *sz = i;
     return buf;
-}
-/*
-   bool
-   sut_listOSes()
-   {
-   }*/
+}/*------------------------------------------------------------------*/
 
-/*-------------------------------*/
-/*     STOP   */
+
+
+/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
     bool
 sut_stop( const int test_type,
         const int timeout, const char *maillog, const char *stop, const char *hostname, const int port )
 {
-    printf( "* axiStop ...\n" );
+//    debug( "STOP [%d][%s][%s]\n", timeout, maillog, stopCmd );
     if( test_type == TEST_LOCAL ) {
         sut_stopLocal( timeout, maillog, stop );
         sleep( 1 );
@@ -267,11 +274,10 @@ sut_stop( const int test_type,
         return true;
     }
     return true;
-}
+}/*------------------------------------------------------------------*/
 
 
-/*
- * \todo Test for failure */
+
     static bool
 sut_stopRemote( const int timeout,
         const char *maillog, const char *stop, const char *hostname, const int port )
@@ -284,7 +290,8 @@ sut_stopRemote( const int timeout,
     sock_sendLine( sockfd, cmd );
     close( sockfd );
     return true;
-}
+}/*------------------------------------------------------------------*/
+
 
 
 static bool sut_stopLocal( const int timeout, const char *maillog, const char *stop )
@@ -346,12 +353,12 @@ static bool sut_stopLocal( const int timeout, const char *maillog, const char *s
         }
     }
     return true;
-}
+}/*------------------------------------------------------------------*/
 
 
 
-/*  REFRESH */
-    bool
+/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+bool
 sut_refresh( const int test_type, const char *source, const char *dest, const char *host, const int port )
 {
     if( test_type == TEST_LOCAL ) {
@@ -366,7 +373,7 @@ sut_refresh( const int test_type, const char *source, const char *dest, const ch
         return true;
     }
     return true;
-}
+}/*------------------------------------------------------------------*/
 
 
 
@@ -394,7 +401,9 @@ static bool sut_refreshLocal( const char *source, const char *dest )
         return false;
     }
     return true;
-}
+}/*------------------------------------------------------------------*/
+
+
 
 static bool sut_refreshRemote( const char *host, const int port, const char *sursa, const char *dest )
 {
@@ -414,7 +423,8 @@ static bool sut_refreshRemote( const char *host, const int port, const char *sur
 
     close( sockfd );
     return true;
-}
+}/*------------------------------------------------------------------*/
+
 
 /*
  * Local Refresh without restart/hup
@@ -462,12 +472,15 @@ static bool sut_refreshLocalWarm(  )
 /*
  * Remote Refresh without restart/hup
  */
+/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 static bool sut_refreshRemoteWarm(  )
 {
     return true;
-}
+}/*------------------------------------------------------------------*/
 
 
+
+/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
     bool
 sut_checkCore( const int test_type,
         const char *core_srcDir, const char *dbg_srcDir,
@@ -484,7 +497,7 @@ sut_checkCore( const int test_type,
                 axi_workDir, axi_cfgFile,
                 crash_destDir );
     return false;
-}
+}/*------------------------------------------------------------------*/
 
 
 
@@ -508,10 +521,11 @@ sut_checkCoreRemote( const char *core_srcDir, const char *dbg_srcDir,
         return true;
     }
     return false;
-}
+}/*------------------------------------------------------------------*/
 
 
-/*---------------*/
+
+/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
     static bool
 sut_setupDstDir( char *dst, char *coreName,
         const char *core_srcDir, const char *core_dstDir )
@@ -526,6 +540,8 @@ sut_setupDstDir( char *dst, char *coreName,
     return true;
 }
 
+
+/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 static bool sut_moveCore( char *src, char *dst )
 {
     char cmd[2 * FILENAME_MAX + 32] = { 0 };
@@ -541,6 +557,9 @@ static bool sut_moveCore( char *src, char *dst )
     return true;
 }
 
+
+
+/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 static bool sut_moveDebugs( const char *srcDir, char *dst )
 {
     DIR *dir;
@@ -570,6 +589,8 @@ static bool sut_moveDebugs( const char *srcDir, char *dst )
     return true;
 }
 
+
+/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 static bool sut_moveLog( const char *workDir, char *dst )
 {
     char src[FILENAME_MAX] = { 0 };
@@ -580,6 +601,8 @@ static bool sut_moveLog( const char *workDir, char *dst )
     return true;
 }
 
+
+/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 static bool sut_copyCfg( const char *cfgFile, char *dst )
 {
     char cmd[2 * FILENAME_MAX + 32] = { 0 };
@@ -593,7 +616,8 @@ static bool sut_copyCfg( const char *cfgFile, char *dst )
  * \return false if core not dropped.
  * For the moment, this works local only.
  * Have to implement the same function in host.c*/
-    bool
+/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+bool
 sut_checkCoreLocal( const char *core_srcDir, const char *dbg_srcDir,
         const char *workDir, const char *cfgFile,
         const char *core_dstDir )
@@ -636,26 +660,30 @@ sut_checkCoreLocal( const char *core_srcDir, const char *dbg_srcDir,
 }
 
 
-
+/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 void sut_sigpipe(  int sig)
 {
     printf( "Bailing out\n" );
     exit( EXIT_SUCCESS );
 }
 
+
+/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 void sut_sigint(  int sig)
 {
     printf( "Bailing out\n" );
     exit( EXIT_SUCCESS );
 }
 
+
+/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 void sut_sigterm(  int sig)
 {
     printf( "SigTerm\n" );
     running = 0;
 }
 
-
+/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 void sig_handler( int sig )
 {
     int status;
@@ -674,7 +702,7 @@ void sig_handler( int sig )
 }
 
 
-
+/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 static int sut_runBat( const char *bat_name, int timeout )
 {
     char c;
@@ -722,7 +750,7 @@ static int sut_runBat( const char *bat_name, int timeout )
 }
 
 
-
+/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
     static int
 sut_fileAction( const char *fileName, struct stat *statbuf, void *junk )
 {
@@ -766,7 +794,7 @@ sut_fileAction( const char *fileName, struct stat *statbuf, void *junk )
 }
 
 
-
+/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
     static int
 sut_dirAction( const char *fileName, struct stat *statbuf, void *junk )
 {
@@ -774,7 +802,7 @@ sut_dirAction( const char *fileName, struct stat *statbuf, void *junk )
 }
 
 
-
+/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 static int sut_runRecursive( const char *srcName )
 {
     if( recursiveAction( srcName, 1, FALSE,
@@ -794,6 +822,7 @@ static int sut_runRecursive( const char *srcName )
  * \todo  Implement a sut_refresh function
  * \todo  Return Bool ??
  */
+/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 static int sut_setupTmp( char const *source_bat, char *tmpDir )
 {
     char cmd[FILENAME_MAX] = { 0 };
@@ -824,7 +853,7 @@ static int sut_setupTmp( char const *source_bat, char *tmpDir )
 }
 
 
-
+/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 static int sut_cleanupTmp( const char *tmpDir )
 {
     printf( "# seraph: Removing [%s]\n", tmpDir );
@@ -835,6 +864,7 @@ static int sut_cleanupTmp( const char *tmpDir )
 
 
 /** Search a file for axi_fi=y or axi_fi=n . */
+/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 static int sut_parseBat( const char *filename )
 {
 #if 0
@@ -899,6 +929,7 @@ static int sut_parseBat( const char *filename )
 /*
  * Restore the default configuration of the SUT.
  * SUT = server under test */
+/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 static int sut_sutRefresh( int refresh, const char *bat_file )
 {
     int cod;
@@ -944,6 +975,7 @@ static int sut_sutRefresh( int refresh, const char *bat_file )
 /**
  * \brief search and expand any occurence in str, of ${VARNAME} */
 /* expand ${VAR} from prefix/${VAR}/suffix */
+/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 char* sut_expandVars( const char *t1 )
 {
     char *p = 0, *s = 0, *val;
@@ -1008,6 +1040,7 @@ char* sut_expandVars( const char *t1 )
 /*
  * Export axi_errorlog=$CWD/errors/$HOST-$PID
  */
+/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 static int sut_setErrorlog(  )
 {
     char rez[LINE_MAX] = "";
@@ -1048,7 +1081,7 @@ static int sut_setErrorlog(  )
 
 
 
-
+/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 int sut_runTests( const char *dir )
 {
     struct stat inf;
@@ -1083,13 +1116,16 @@ int onLineParsed(const char *name, const char *value, void* arg)
     strcpy(el->symbol, name);
     strcpy(el->value, value);
     *a = g_slist_append (*a, el);
+    return 0;
 }
 
 
 GSList* sut_getConfig(const char* machine, int* sz)
 {
+    debug( "\nGETCONFIG\n" );
     GSList*   cfgTable =  g_slist_alloc() ;
     cfg.takeAction = onLineParsed ;
     srph_parseCfg( "/home/groleo/machines/freebsd_5.4", &cfgTable);
+    *sz = g_slist_length(cfgTable);
     return cfgTable;
 }

@@ -117,7 +117,7 @@ a {
     top:0;
     text-align:left;
     padding:0.5em;
-    width:27em;
+    width:30em;
     background-color:#eee;
     color:#000; 
     border:1px solid #808;
@@ -127,11 +127,12 @@ a {
   padding-left: 10%;
   vertical-align: middle;
   }
+  /*
 #menu p:hover span:first-line {
 font-weight:bold; 
 font-size:1.2em;
 color:#808;
-}
+}*/
 #menu img {
 border:1px solid #000; 
 float:left; 
@@ -142,16 +143,19 @@ margin:0.25em 1em 0.5em 0;
     text-align:right; 
     float: left;
     height:1.1em;
-    width: 8em;
+    width: 12em;
     padding-top:2px;
     padding-bottom:2px;
     clear:both;
+    font-weight:normal;
 }
 #menu a b {
     text-decoration:none;
+
     text-align: left;
     color: red;
     padding-bottom:2px;
+    font-weight:normal;
 }
 a em.butt {
     color:red;
