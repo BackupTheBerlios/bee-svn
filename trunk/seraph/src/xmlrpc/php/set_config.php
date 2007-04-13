@@ -95,6 +95,8 @@ function showInfo()
 drawMenu() ;
 $cli = new XML_RPC_Client('/RPCSERVER','localhost',5000);
 setMachineConfig($cli);
+#include 'machines.php';
+header( 'machines.php' ) ;
 #showInfo();
 ?>
 <br>
