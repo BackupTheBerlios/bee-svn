@@ -71,12 +71,14 @@ function showInfo()
     print "<pre>\n";
     print "\nContents of \$_GET:\n";
     foreach ($_GET as $k => $v) {
-        print "   $k = $v\n";
+        if( preg_match( "/SUT_/", $k) )
+            print "   $k = $v\n";
     }
 #
     print "\nContents of \$_POST:\n";
     foreach ($_POST as $k => $v) {
-        print "   $k = $v\n";
+        if( preg_match( "/SUT_/", $k) )
+            print "   $k = $v\n";
     }
 #
     print "\nContents of \$_COOKIE:\n";
@@ -103,9 +105,9 @@ function showInfo()
 </head>
 <body class='bheader'>
 <?php
-#drawMenu() ;
+drawMenu() ;
 #$cli = new XML_RPC_Client('/RPCSERVER','localhost',5000);
-#runTests($cli);
+#setMachineConfig($cli);
 showInfo();
 ?>
 <br>

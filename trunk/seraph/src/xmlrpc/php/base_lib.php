@@ -46,7 +46,7 @@ function drawMachines()
     #$i = 1;
     while( $i-- )
     {   $m = XML_RPC_decode( $machines->arraymem($i) );
-        echo "<form action='set_config.php?machine=$m' method='post'> <ul id='menu'>
+        echo "<form action='set_config.php?SUT_MACHINE=$m' method='post'> <ul id='menu'>
         <li ><p>$m
         <span>
         <!--<a href='http://google.com'><em class='butt'>Add</em></a>
