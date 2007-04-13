@@ -12,7 +12,7 @@ FILE* logHandle =0 ;
  * @param[in] function Name of the calling function.
  * @param[in] line Line from where debug() was called.
  * @param[in] fname File name from where debug() was called.
- * @param[in] fmt Simmilar to printf. **/
+ * @param[in] fmt Simmilar to printf. */
 void
 _debug( const char* function, int line, const char* fname, const char* fmt, ... )
 {
