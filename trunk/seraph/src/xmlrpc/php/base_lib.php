@@ -26,7 +26,7 @@ function drawMenu() {
             <!--<li><a href='register.php'>Register</a></li>-->
             <li><a href='machines.php'>Machines</a></li>
             <li><a href='settings.php'>Settings</a></li>
-            <li><a href='README.txt'>Documentation</a></li>
+            <li><a href='docs.php'>Documentation</a></li>
             <li><a href='login.php'>Login</a></li>
             </ul>
         </div>";
