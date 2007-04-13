@@ -1,6 +1,6 @@
 <?php
 require_once 'XML/RPC.php';
-include 'mystyle.php' ;
+include 'base_lib.php' ;
 
 
 

@@ -1,15 +1,8 @@
 <?php
 require_once 'XML/RPC.php';
-include 'mystyle.php';
-function showInfo($cli)
+include 'base_lib.php';
+function runTests($cli)
 {
-    print "<pre>\n";
-    /*
-    print "\nContents of \$_GET:\n";
-    foreach ($_GET as $k => $v) {
-        print "   $k = $v\n";
-    }
-    */
 
     /* Serialize the SUT Versions */
     print "\nVersions:\n";
@@ -72,7 +65,14 @@ function showInfo($cli)
         echo 'Fault Code: ' . $resp->faultCode() . "\n";
         echo 'Fault Reason: ' . $resp->faultString() . "\n";
     }
-/*
+}
+function showInfo()
+{
+    print "<pre>\n";
+    print "\nContents of \$_GET:\n";
+    foreach ($_GET as $k => $v) {
+        print "   $k = $v\n";
+    }
 #
     print "\nContents of \$_POST:\n";
     foreach ($_POST as $k => $v) {
@@ -93,7 +93,6 @@ function showInfo($cli)
     foreach ($_SERVER as $k => $v) {
         print "   $k = $v\n";
     }
-    */
     print "</pre>\n";
 }
 ?>
@@ -104,9 +103,10 @@ function showInfo($cli)
 </head>
 <body class='bheader'>
 <?php
-drawMenu() ;
-$cli = new XML_RPC_Client('/RPCSERVER','localhost',5000);
-showInfo($cli);
+#drawMenu() ;
+#$cli = new XML_RPC_Client('/RPCSERVER','localhost',5000);
+#runTests($cli);
+showInfo();
 ?>
 <br>
 </body>

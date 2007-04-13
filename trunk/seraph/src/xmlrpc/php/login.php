@@ -1,5 +1,5 @@
 <?php
-include 'mystyle.php';
+include 'base_lib.php';
 ?>
 
 <html>

@@ -45,13 +45,15 @@ function drawMachines()
     $i = $machines->arraysize();
     #$i = 1;
     while( $i-- )
-    {   echo " <ul id='menu'>
-        <li ><p>".XML_RPC_decode($machines->arraymem($i))."
+    {   $m = XML_RPC_decode( $machines->arraymem($i) );
+        echo "<form action='set_config.php?machine=$m' method='post'> <ul id='menu'>
+        <li ><p>$m
         <span>
-        <a href='http://google.com'><em class='butt'>Add</em></a>
-        <a href='http://google.com'><em class='butt'>Save</em></a>
+        <!--<a href='http://google.com'><em class='butt'>Add</em></a>
+        <a href='http://google.com'><em class='butt'>Save</em></a>-->
+        <input type='submit' value='Save'>
         ";
-        $params = array(new XML_RPC_Value( XML_RPC_decode($machines->arraymem($i)), 'string'));
+        $params = array(new XML_RPC_Value( ($m), 'string') );
         $msg    = new XML_RPC_Message('getConfig', $params);
         $resp   = $cli->send($msg);
         if( hasErrors($resp) ) return ;
@@ -60,12 +62,14 @@ function drawMachines()
         while($j--){
             $cfgEntry=$cfgTable->arraymem($j);
             $cfgEntry->structreset();
-            echo "<b>".XML_RPC_decode($cfgEntry->structmem("symbol"))."</b>";
-            echo "<input type='text' value='". XML_RPC_decode($cfgEntry->structmem("val"))."' /><br>\n";
+            $symbol = XML_RPC_decode($cfgEntry->structmem("symbol")) ;
+            $value  = XML_RPC_decode($cfgEntry->structmem("val")) ;
+            echo "<b>$symbol</b>";
+            echo "<input type='text' name='$symbol' value='$value' /><br>\n";
         }
         echo "</span></p>
             </li>
-            </ul>";
+            </ul></form>";
     }
 
 }
