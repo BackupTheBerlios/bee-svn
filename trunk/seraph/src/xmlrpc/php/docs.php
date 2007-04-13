@@ -74,7 +74,7 @@ Note:
     of each step a testScript is performing.
 
     Each protocol has it's corespondent Perl module,
-    such as POP3 has the library called Axigen::Pop3.
+    such as POP3 has the library called ServerUnderStress::Pop3.
 
     The functions implemented in a module are a direct corespondent
     of protocols command.
@@ -83,7 +83,7 @@ Note:
         Pop3::Stat() will send "stat".
 
     The current testAPI has four modules:
-    Axigen::Smtp, Axigen::POP3, Axigen::Cli and Axigen::Utils.
+    ServerUnderStress::Smtp, ServerUnderStress::POP3, ServerUnderStress::Cli and ServerUnderStress::Utils.
     A better description of each of them is found in the ./engine/ directory
 
 3.1. Environment Variables:
@@ -112,7 +112,7 @@ Note:
     sut_stop        Command that STOPs axigen in a syncronous way
     sut_reload      Command that RELOADs axigen in a syncronous way
     sut_tool        Directory holding the framework( Perl modules and start/stop tools)
-    sut_workdir     Axigen Workdir
+    sut_workdir     ServerUnderStress Workdir
     sut_sendmail    Sendmail binary
     sut_adminpass   Admin pass, used with CLI
     sut_bin         The path to the AXIGEN binary file
@@ -121,7 +121,7 @@ Note:
     sut_coredir     was sut_core_dir( where axigen drops a core ) ( scanned after each test is runned )
     sut_dbgdir      was sut_dbg_dir
     sut_refresh	    was refresh_client - Specify what tool will perform a SUT refresh
-    sut_syslog      Path to the syslog/maillog (where Axigen logs system messages)
+    sut_syslog      Path to the syslog/maillog (where ServerUnderStress logs system messages)
     sut_smtpfilters Path to smtpFilters.script
 
     Scripts can read environent variables using getenv() calls
