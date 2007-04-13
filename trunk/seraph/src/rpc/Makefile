@@ -9,4 +9,4 @@ all:
 	ar cr ../lib/libtrpc.a srv_xmlrpc.o svc_xmlrpc.o srv_tcp.o svc_tcp.o
 	ranlib ../lib/libtrpc.a
 clean:
-	rm *.o ../lib/libtrpc.a
+	rm -rf *.o ../lib/libtrpc.a
