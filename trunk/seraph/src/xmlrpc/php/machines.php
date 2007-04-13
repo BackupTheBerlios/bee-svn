@@ -6,11 +6,11 @@ require_once 'base_lib.php';
 <link href='mystyle.css' rel='stylesheet' type='text/css'>
 <script type="text/javascript">
 
-function addEvent(spanId)
+function addEvent(spanId, sName, sValue)
 {
 var sut_name = document.getElementById(spanId);
-var name = document.getElementById('SUT_NAME');
-var value = document.getElementById('SUT_VALUE');
+var name = document.getElementById(sName);
+var value = document.getElementById(sValue);
 var newBold = document.createElement('b');
 newBold.innerHTML = name.value;
 var newInput = document.createElement('input');

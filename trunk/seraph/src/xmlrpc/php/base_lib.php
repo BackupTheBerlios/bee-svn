@@ -49,11 +49,11 @@ function drawMachines()
         echo "<form name='$m' action='set_config.php?SUT_MACHINE=$m' method='post'> <ul id='menu'>
         <li ><p>$m
         <span id='span$m'>
-        <a href='javascript:;' onclick='addEvent(\"span$m\");'><em class='butt'>Add</em></a>
+        <a href='javascript:;' onclick='addEvent(\"span$m\", \"sName$m\", \"sValue$m\");'><em class='butt'>Add</em></a>
         <input type='submit' value='Save'>
 
-        <input id='SUT_NAME'  type='text' value='SUT_NAME' style='text-align:right; clear:both; float:left; width:12em;'/>
-        <input id='SUT_VALUE' type='text' value='Value'/>
+        <input id='sName$m'  type='text' value='SUT_NAME' style='text-align:right; clear:both; float:left; width:12em;'/>
+        <input id='sValue$m' type='text' value='Value'/>
 
 
         ";
