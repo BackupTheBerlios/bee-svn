@@ -5,34 +5,39 @@ function setMachineConfig($cli)
 {
 
     /* Serialize the SUT Versions */
-    print "\nVersions:\n";
+    print "\nSet config of machine:\n";
     $versions = array() ;
-    for($i=0;$i<count($_GET['sut_versions']);++$i) {
-        print "   ".$_GET['sut_versions'][$i]."\n";
-        $versions[] = new XML_RPC_Value($_GET['sut_versions'][$i],'string');
-    };
-    $xversions = new XML_RPC_Value($versions,"array");
-    print "\nBuild:\n   ".$_GET['sut_build']."\n";
+    $m = $_GET['SUT_MACHINE'];
+    print "   $m\n";
+
+    $xmachine = new XML_RPC_Value( $m,'string');
     /*--------------------------------------------*/
 
+    /* Serialize the content of config */
+    foreach ($_POST as $k => $v) {
+        if( preg_match( "/SUT_/", $k) )
+            print "   $k = $v\n";
+    }
     /* Serialize the OSes  */
-    print "\nOS:\n";
+    /*print "\nOS:\n";
     $oses = array() ;
     for($i=0;$i<count($_GET['sut_os']);++$i) {
         print "   ".$_GET['sut_os'][$i]."\n";
         $oses[] = new XML_RPC_Value($_GET['sut_os'][$i],'string');
     };
     $xoses = new XML_RPC_Value($oses,'array');
+    */
     /*--------------------------------------------*/
 
     /* Serialize the TEST categories */
-    print "\nTests:\n";
+    /*print "\nTests:\n";
     $tests = array();
     for($i=0;$i<count($_GET['sut_tests']);++$i) {
         print "   ".$_GET['sut_tests'][$i]."\n";
         $tests[] = new XML_RPC_Value($_GET['sut_tests'][$i],'string');
     };
     $xtests = new XML_RPC_Value($tests, "array");
+    */
     /*--------------------------------------------*/
 
     /* Serialize Method parameter */
