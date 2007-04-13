@@ -298,15 +298,15 @@ judgeAdress( int type, int ptr, nod_t nod, dict_ptr dict )
         case IS_DEL:
                 dprintf( "---delete()--\n" );
                 found = lookup( dict, ptr );
-                if( !found )
+                if( !found && ptr)
                         printf( "Invalid/Double free %#.7x\n", ptr );
                 delete( dict, ptr );
                 break;
 
         case IS_DELA:
                 dprintf( "---delete[]--\n" );
-                if( !found )
-                        printf( "Invalid/Double free\n" );
+                if( !found && ptr)
+                        printf( "Invalid/Double free %#.7x\n", ptr );
                 delete( dict, ptr );
                 break;
         default:

@@ -1,7 +1,31 @@
 Opening log...debug level=0x0000001F (31)
 MEMINFO: new() 0x9d2cfb0 40 unix/thread.cpp(204){26826, -1211291984}
 MEMINFO: new[] 0x9d2cfe0 12 unix/thread.cpp(207){26826, -1211291984}
+MEMINFO: new[] 0x9d2cfe0 12 unix/thread.cpp(207){26826, -1211291984}
 MEMINFO: new() 0x9d2cff8 40 objectSync.cpp(83){26826, -1211291984}
+MEMINFO: new() 0x9d2d028 40 unix/thread.cpp(212){26826, -1211291984}
+MEMINFO: new() 0x9d2d028 40 unix/thread.cpp(212){26826, -1211291984}
+MEMINFO: new[] 0x9d2d058 12 unix/cs.cpp(112){26826, -1211291984}
+MEMINFO: new() 0x9d2d070 12 unix/cs.cpp(114){26826, -1211291984}
+MEMINFO: new() 0x9d2d088 12 unix/cs.cpp(114){26826, -1211291984}
+MEMINFO: new() 0x9d2d0a0 12 unix/cs.cpp(114){26826, -1211291984}
+MEMINFO: new[] 0x9d2d0b8 116 unix/thread.cpp(217){26826, -1211291984}
+MEMINFO: new[] 0x9d2d138 116 unix/thread.cpp(218){26826, -1211291984}
+MEMINFO: new() 0x9d2d1b8 40 unix/thread.cpp(220){26826, -1211291984}
+MEMINFO: new() 0x9d2d1e8 20 unix/thread.cpp(221){26826, -1211291984}
+MEMINFO: new() 0x9d2d208 40 unix/thread.cpp(220){26826, -1211291984}
+MEMINFO: new() 0x9d2d238 20 unix/thread.cpp(221){26826, -1211291984}
+MEMINFO: new() 0x9d2d258 40 unix/thread.cpp(220){26826, -1211291984}
+MEMINFO: new() 0x9d2d288 20 unix/thread.cpp(221){26826, -1211291984}
+MEMINFO: new() 0x9d2d2a8 40 unix/thread.cpp(220){26826, -1211291984}
+MEMINFO: new() 0x9d2d2d8 20 unix/thread.cpp(221){26826, -1211291984}
+MEMINFO: new() 0x9d2d2f8 40 unix/thread.cpp(220){26826, -1211291984}
+MEMINFO: new() 0x9d2d328 20 unix/thread.cpp(221){26826, -1211291984}
+MEMINFO: new() 0x9d2d348 40 unix/thread.cpp(220){26826, -1211291984}
+MEMINFO: new() 0x9d2d378 20 unix/thread.cpp(221){26826, -1211291984}
+MEMINFO: new() 0x9d2d398 40 unix/thread.cpp(220){26826, -1211291984}
+MEMINFO: new() 0x9d2cff8 40 objectSync.cpp(83){26826, -1211291984}
+MEMINFO: new() 0x9d2d028 40 unix/thread.cpp(212){26826, -1211291984}
 MEMINFO: new() 0x9d2d028 40 unix/thread.cpp(212){26826, -1211291984}
 MEMINFO: new[] 0x9d2d058 12 unix/cs.cpp(112){26826, -1211291984}
 MEMINFO: new() 0x9d2d070 12 unix/cs.cpp(114){26826, -1211291984}
@@ -27960,16 +27984,6 @@ MEMINFO: new() 0x9f62ee8 8 hspparser.ypp(245){26828, -1216758880}
 MEMINFO: new() 0x9f62ef8 8 hspparser.ypp(226){26828, -1216758880}
 MEMINFO: new() 0x9f62f08 20 hsptree.cpp(314){26828, -1216758880}
 MEMINFO: del[] 0x9f61ae8 ../../include/common/hvector.h(268){26828, -1216758880}
-MEMINFO: del() 0x9f30380 hvector.cpp(173){26828, -1216758880}
-MEMINFO: del() 0x9f62d90 ../include/common/halloc.h(431){26828, -1216758880}
-MEMINFO: del() 0x9f62d20 ../include/common/halloc.h(431){26828, -1216758880}
-MEMINFO: del() 0x9f62e30 ../include/common/halloc.h(431){26828, -1216758880}
-MEMINFO: del() 0x9f62e60 ../include/common/halloc.h(431){26828, -1216758880}
-MEMINFO: del() 0x9f62e80 ../include/common/halloc.h(431){26828, -1216758880}
-MEMINFO: del() 0x9f62ea0 ../include/common/halloc.h(431){26828, -1216758880}
-MEMINFO: del() 0x9f62ec0 ../include/common/halloc.h(431){26828, -1216758880}
-MEMINFO: del() 0x9f62ee8 ../include/common/halloc.h(431){26828, -1216758880}
-MEMINFO: del[] 0x9f61b68 ../../include/common/hvector.h(268){26828, -1216758880}
 MEMINFO: new[] 0x9f62ee8 4 hspparser.ypp(422){26828, -1216758880}
 MEMINFO: new() 0x9f61b50 16 hvector.cpp(43){26828, -1216758880}
 MEMINFO: new[] 0x9f61b68 64 ../../include/common/hvector.h(260){26828, -1216758880}
