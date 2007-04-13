@@ -1,9 +1,7 @@
 /**
  *   \brief    
- *   \author   Marius Negreanu
  *   \date     Thu Aug 17 17:38:13 2006
  *
- *   Copyright (c) Gecad Technologies
  */
 #include "config.h"
 #include "socket.h"

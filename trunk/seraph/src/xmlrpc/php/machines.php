@@ -1,22 +1,24 @@
 <?php
-include 'base_lib.php';
+require_once 'base_lib.php';
 ?>
 <html>
 <head>
 <link href='mystyle.css' rel='stylesheet' type='text/css'>
 <script type="text/javascript">
 
-function addEvent()
+function addEvent(spanId)
 {
-var sut_name = document.getElementById('SUT_NAME');
-var numi = document.getElementById('SUT_VALUE');
-var num = (document.getElementById("SUT_VALUE").value -1)+ 2;
-numi.value = num;
-var divIdName = "my"+num+"Div";
+var sut_name = document.getElementById(spanId);
+var name = document.getElementById('SUT_NAME');
+var value = document.getElementById('SUT_VALUE');
 var newBold = document.createElement('b');
-newBold.setAttribute("id",divIdName);
-newBold.innerHTML = "El"+num+"added!";
+newBold.innerHTML = name.value;
+var newInput = document.createElement('input');
+newInput.setAttribute('type','text');
+newInput.setAttribute('name',name.value);
+newInput.value=value.value;
 sut_name.appendChild(newBold);
+sut_name.appendChild(newInput);
 }
 
 function removeEvent(divNum)

@@ -1,10 +1,8 @@
 /**
  *   \brief  execute a given parameter, either on local machine, or remote
  *   \see    socket.c
- *   \author Cristina Balan, Andrei Paduraru
  *   \date Thu Aug 17 17:38:13 2006
  *
- *   Copyright (c) Gecad Technologies
  */
 /*#define _POSIX_SOURCE*/
 

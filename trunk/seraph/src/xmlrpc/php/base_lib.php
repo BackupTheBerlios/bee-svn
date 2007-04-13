@@ -46,10 +46,10 @@ function drawMachines()
     #$i = 1;
     while( $i-- )
     {   $m = XML_RPC_decode( $machines->arraymem($i) );
-        echo "<form id='$m' action='set_config.php?SUT_MACHINE=$m' method='post'> <ul id='menu'>
+        echo "<form name='$m' action='set_config.php?SUT_MACHINE=$m' method='post'> <ul id='menu'>
         <li ><p>$m
-        <span>
-        <a href='javascript:;' onclick='addEvent();'><em class='butt'>Add</em></a>
+        <span id='span$m'>
+        <a href='javascript:;' onclick='addEvent(\"span$m\");'><em class='butt'>Add</em></a>
         <input type='submit' value='Save'>
 
         <input id='SUT_NAME'  type='text' value='SUT_NAME' style='text-align:right; clear:both; float:left; width:12em;'/>

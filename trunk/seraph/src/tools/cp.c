@@ -1,9 +1,7 @@
 /**
  *   \brief     Wraps around copy operations.
- *   \author    Cristina Balan, Andrei Paduraru
  *   \date      Thu Aug 17 17:38:13 2006
  *
- *   Copyright (c) Gecad Technologies
  */
 #include <libgen.h>
 #include "config.h"

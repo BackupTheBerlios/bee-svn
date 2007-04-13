@@ -40,11 +40,13 @@ SPACE    [ \t\n]+
     p1 = strchr(p1, '\'');
     *p1 = '\0';
     p1++;
-    val = sut_expandVars(p1);
+    /* variables will be expanded inside takeAction function pointer */
+    /*val = sut_expandVars(p1);*/
+    val = p1;
     if ( cfg.verbose )
         debug("export '%s'='%s'\n", yytext, val);
     cfg.takeAction( yytext, val, onLineParsedArg );
-    free(val);
+    //free(val);
 }
 
 

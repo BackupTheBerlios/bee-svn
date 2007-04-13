@@ -1,10 +1,8 @@
 /**
  *   \brief    Wraps around mkdir cmd.
  *   \see      cp.c 
- *   \author   Cristina Balan, Andrei Paduraru 
  *   \date     Thu Aug 17 17:38:13 2006
  *
- *   Copyright (c) Gecad Technologies
  */
 #include "config.h"
 #include "socket.h"

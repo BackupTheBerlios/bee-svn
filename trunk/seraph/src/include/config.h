@@ -1,9 +1,9 @@
 /**
  *   \brief    Global declarations
- *   \author   Cristina Balan, Andrei Paduraru 
+ *   \author   
  *   \date     Thu Aug 17 17:38:13 2006
  *
- *   Copyright (c) Gecad Technologies
+ *   Copyright (c)  
  */
 #if !defined( GLOBAL_H )
 #define GLOBAL_H

@@ -12,7 +12,7 @@
 #include "socket.h"
 #include "strop.h"
 #include "fileop.h"
-#include "rpc.h"
+//#include "rpc.h"
 #include "sut.h"
 #include "wall.h"
 

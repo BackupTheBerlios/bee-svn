@@ -1,6 +1,6 @@
 <?php
 require_once 'XML/RPC.php';
-include 'base_lib.php';
+require_once 'base_lib.php';
 function setMachineConfig($cli)
 {
 
@@ -16,7 +16,7 @@ function setMachineConfig($cli)
     /* Serialize the content of config */
     foreach ($_POST as $k => $v) {
         if( preg_match( "/SUT_/", $k) ) {
-            echo "$k = $v\n";
+            echo "GOT: $k = $v\n";
             $cfgLines[] = new XML_RPC_Value("$k = '$v'\n", 'string');
         }
     }
@@ -95,9 +95,8 @@ function showInfo()
 drawMenu() ;
 $cli = new XML_RPC_Client('/RPCSERVER','localhost',5000);
 setMachineConfig($cli);
-#include 'machines.php';
-header( 'machines.php' ) ;
-#showInfo();
+#include "machines.php";
+showInfo();
 ?>
 <br>
 </body>
