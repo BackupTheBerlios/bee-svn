@@ -18,7 +18,9 @@
 //#include <CUnit/CUnit.h>
 //#include <CUnit/Basic.h>
 #include "memtrace.h"
-#define dprintf printf
+
+int bogusPrint(const char*a, ...) { return 0;}
+#define dprintf bogusPrint
 
 char buf[512]={0};
 
@@ -158,16 +160,18 @@ static void
 memtrace( const char *const fname )
 {
         char *p = NULL, *end = 0;
-        unsigned int fd = 0,size=0,left_to_read=0, linesRead=0,tmp=0;
+        int fd = -1,size=0,left_to_read=0, linesRead=0,tmp=0;
         struct stat statbuf;
         unsigned int ptr=0, type=0;
-        nod_t nod;
+        nod_t nod={.line=0,.is_new=0,.fid=0, .is_newa=0};
         dict_ptr dict;
         buffer_t bp ;
 
-        if( ( fd = open( fname, O_RDWR ) ) < 0 )
-                err( "Unable to open debug file\n" );
-
+        fd = open( fname, O_RDWR ) ;
+        if( fd < 0 ) {
+                fprintf( stderr, "Unable to open debug file '%s'\n", fname );
+                exit(EXIT_FAILURE);
+        }
         dict = construct_dict( MIN_DICT_SIZE );
         fstat( fd, &statbuf );
 
@@ -256,7 +260,8 @@ readSzFile( const char *text, int *sz, char *file, int fileLen )
             ;
 
         /* 0.1 % cache misses */
-        memcpy( file, text + 1, i );
+        if(*file)
+            memcpy( file, text + 1, i );
 }
 /*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 
@@ -338,11 +343,13 @@ parseLine( const char *const text, nod_t * res, unsigned int *type )
                 break;
         case IS_DEL:
                 *type = IS_DEL;
-                memcpy( file, text + 16, FNAME_LEN );
+                if(*file)
+                    memcpy( file, text + 16, FNAME_LEN );
                 break;
         case IS_DELA:
                 *type = IS_DELA;
-                memcpy( file, text + 16, FNAME_LEN );
+                if(*file)
+                    memcpy( file, text + 16, FNAME_LEN );
                 break;
         default:
                 return 0;

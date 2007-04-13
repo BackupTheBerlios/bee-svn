@@ -27894,7 +27894,6 @@ MEMINFO: del() 0x9f62c80 ../include/common/halloc.h(431){26828, -1216758880}
 MEMINFO: del() 0x9f62ca0 ../include/common/halloc.h(431){26828, -1216758880}
 MEMINFO: del() 0x9f62cc8 ../include/common/halloc.h(431){26828, -1216758880}
 MEMINFO: del[] 0x9f61b68 ../../include/common/hvector.h(268){26828, -1216758880}
-MEMINFO: del() 0x9f61b50 hvector.cpp(173){26828, -1216758880}
 MEMINFO: new[] 0x9f62cc8 4 hspparser.ypp(422){26828, -1216758880}
 MEMINFO: new() 0x9f61b50 16 hvector.cpp(43){26828, -1216758880}
 MEMINFO: new[] 0x9f61b68 64 ../../include/common/hvector.h(260){26828, -1216758880}
@@ -27923,7 +27922,6 @@ MEMINFO: new() 0x9f62dd8 8 hspparser.ypp(245){26828, -1216758880}
 MEMINFO: new() 0x9f62de8 8 hspparser.ypp(226){26828, -1216758880}
 MEMINFO: new() 0x9f62df8 20 hsptree.cpp(314){26828, -1216758880}
 MEMINFO: del[] 0x9f61b68 ../../include/common/hvector.h(268){26828, -1216758880}
-MEMINFO: del() 0x9f61b50 hvector.cpp(173){26828, -1216758880}
 MEMINFO: del() 0x9f62c80 ../include/common/halloc.h(431){26828, -1216758880}
 MEMINFO: del() 0x9f62c10 ../include/common/halloc.h(431){26828, -1216758880}
 MEMINFO: del() 0x9f62d20 ../include/common/halloc.h(431){26828, -1216758880}
@@ -27972,7 +27970,6 @@ MEMINFO: del() 0x9f62ea0 ../include/common/halloc.h(431){26828, -1216758880}
 MEMINFO: del() 0x9f62ec0 ../include/common/halloc.h(431){26828, -1216758880}
 MEMINFO: del() 0x9f62ee8 ../include/common/halloc.h(431){26828, -1216758880}
 MEMINFO: del[] 0x9f61b68 ../../include/common/hvector.h(268){26828, -1216758880}
-MEMINFO: del() 0x9f61b50 hvector.cpp(173){26828, -1216758880}
 MEMINFO: new[] 0x9f62ee8 4 hspparser.ypp(422){26828, -1216758880}
 MEMINFO: new() 0x9f61b50 16 hvector.cpp(43){26828, -1216758880}
 MEMINFO: new[] 0x9f61b68 64 ../../include/common/hvector.h(260){26828, -1216758880}
