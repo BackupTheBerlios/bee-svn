@@ -46,12 +46,16 @@ function drawMachines()
     #$i = 1;
     while( $i-- )
     {   $m = XML_RPC_decode( $machines->arraymem($i) );
-        echo "<form action='set_config.php?SUT_MACHINE=$m' method='post'> <ul id='menu'>
+        echo "<form id='$m' action='set_config.php?SUT_MACHINE=$m' method='post'> <ul id='menu'>
         <li ><p>$m
         <span>
-        <!--<a href='http://google.com'><em class='butt'>Add</em></a>
-        <a href='http://google.com'><em class='butt'>Save</em></a>-->
+        <a href='javascript:;' onclick='addEvent();'><em class='butt'>Add</em></a>
         <input type='submit' value='Save'>
+
+        <input id='SUT_NAME'  type='text' value='SUT_NAME' style='text-align:right; clear:both; float:left; width:12em;'/>
+        <input id='SUT_VALUE' type='text' value='Value'/>
+
+
         ";
         $params = array(new XML_RPC_Value( ($m), 'string') );
         $msg    = new XML_RPC_Message('getConfig', $params);
@@ -67,9 +71,13 @@ function drawMachines()
             echo "<b>$symbol</b>";
             echo "<input type='text' name='$symbol' value='$value' /><br>\n";
         }
-        echo "</span></p>
+        echo "
+
+        </span></p>
             </li>
-            </ul></form>";
+            </ul>
+
+</form>";
     }
 
 }

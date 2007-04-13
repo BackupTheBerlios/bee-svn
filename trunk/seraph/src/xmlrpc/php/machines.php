@@ -4,6 +4,29 @@ include 'base_lib.php';
 <html>
 <head>
 <link href='mystyle.css' rel='stylesheet' type='text/css'>
+<script type="text/javascript">
+
+function addEvent()
+{
+var sut_name = document.getElementById('SUT_NAME');
+var numi = document.getElementById('SUT_VALUE');
+var num = (document.getElementById("SUT_VALUE").value -1)+ 2;
+numi.value = num;
+var divIdName = "my"+num+"Div";
+var newBold = document.createElement('b');
+newBold.setAttribute("id",divIdName);
+newBold.innerHTML = "El"+num+"added!";
+sut_name.appendChild(newBold);
+}
+
+function removeEvent(divNum)
+{
+var d = document.getElementById('myDiv');
+var olddiv = document.getElementById(divNum);
+d.removeChild(olddiv);
+}
+
+</script>
 </head>
 
 <body class='bheader'>
