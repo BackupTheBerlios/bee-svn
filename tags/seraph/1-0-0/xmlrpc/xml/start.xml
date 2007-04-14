@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<methodCall>
+<methodName>start</methodName>
+<params>
+<param><value><int>99</int></value></param>
+<param><value><string>/var/log/maillog</string></value></param>
+<param><value><string>/etc/init.d/axigen start</string></value></param>
+</params></methodCall>

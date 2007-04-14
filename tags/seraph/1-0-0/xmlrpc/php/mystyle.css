@@ -1,0 +1,184 @@
+body.bheader { margin: 0px;}
+div.header { vertical-align: top; color: white; background-color: rgb(50,0,210); }
+font.header {font-size:xx-large ;}
+
+div.head_menu {
+    background-color: #36c ;
+    border-top: solid #000 1px;
+    border-bottom: solid #000 1px;
+    text-decoration: none;
+}
+
+div.head_menu li {
+    display: inline;
+    list-style-type: none;
+}
+
+div.head_menu li a{
+    text-decoration: none;
+    padding: 5px 10px;
+}
+
+div.head_menu li a:hover {
+    background-color: #3366FF;
+    border-top: solid #000 1px;
+    border-bottom: solid #000 1px;
+
+}
+
+div.head_menu ul{
+    text-decoration: none;
+}
+   div.machines {
+   background-color: #6666FF ;
+   border-top: solid #000 1px;
+   border-bottom: solid #000 1px;
+   text-decoration: none;
+
+   }
+li.machines {
+    background-color: #6666FF ;
+    border-top: solid #000 1px;
+    border-bottom: solid #000 1px;
+    text-decoration: none;
+    list-style-type: none;
+    display: inline;
+    padding: 0 0 3px;
+}
+li.machines a{
+    text-decoration: none;
+    padding: 5px 0px 0px 10px;
+}
+li.machines a:hover {
+    background-color: #6666FF;
+    border-top: solid #000 1px;
+    border-bottom: solid #000 1px;
+
+}
+
+.column span {
+    margin: 0 15px;
+    float:left;
+    line-height:1.5em;
+    background-color: #e5ecf9;
+    /*margin-top:10px;*/
+    border:1px dashed #00e1ff;
+    padding: 10px 3px 3px 10px;
+}
+
+textarea.console {
+    border:1px;
+    background-color:black;
+    color:white;
+}
+
+a {
+    color:white;
+    text-decoration:none;
+}
+
+
+
+/* COPY PASTE */
+#menu {
+    position:relative;
+    padding:0;
+    margin:0;
+    width:0;
+}
+#menu li {
+    list-style-type:none;
+    margin:0 0 0 0;
+}
+#menu p {
+    display:block;
+    width:9.5em;
+    border:1px dashed #00e1ff;
+    font-family:arial, verdana, sans-serif;
+    font-size:0.8em;
+    text-align:center;
+    text-decoration:none;
+    background: #e5ecf9;
+    padding:0.18em;
+}
+#menu p span {
+    display:none;
+}
+#menu p:hover {
+    font-weight:bold;
+    border:1px solid #000;
+    background-color:#3366FF;
+    color: #fff;
+}
+#menu p:hover span {
+    display:block;
+    position:absolute; 
+    left:10em;
+    top:0;
+    text-align:left;
+    padding:0.5em;
+    width:30em;
+    background-color:#eee;
+    color:#000; 
+    border:1px solid #808;
+}
+
+#menu p:hover input {
+  padding-left: 10%;
+  vertical-align: middle;
+  }
+  /*
+#menu p:hover span:first-line {
+font-weight:bold; 
+font-size:1.2em;
+color:#808;
+}*/
+#menu img {
+border:1px solid #000; 
+float:left; 
+margin:0.25em 1em 0.5em 0;
+}
+#menu b{
+    border:1px solid #000;
+    text-align:right; 
+    float: left;
+    height:1.1em;
+    width: 12em;
+    padding-top:2px;
+    padding-bottom:2px;
+    clear:both;
+    font-weight:normal;
+}
+#menu a b {
+    text-decoration:none;
+
+    text-align: left;
+    color: red;
+    padding-bottom:2px;
+    font-weight:normal;
+}
+a em.butt {
+    color:red;
+    float:left;
+    width:8em;
+    border:1px solid #000;
+    margin-right:1px;
+    background-color: #36c;
+    text-decoration: none;
+    font-style: normal;
+    text-align: center;
+    margin-bottom: 3px;
+}
+a:hover em.butt {
+    background-color: #3366FF;
+  }
+#menu a:hover b {
+    background-color: blue;
+}
+#menu input {
+    border-width:1px;
+    float: right;
+    height:1.4em;
+    width:16.81em;
+    background: #e5ecf9;
+}

@@ -1,0 +1,34 @@
+<<<<<<< .mine
+[1]  Implement list of runned scripts, and an option if
+     seraph should continue from the last script runned
+[5]  Implement `Submit results`
+[5]  Implement `Results server`
+[5]  Implement `Submit test`
+[5]  Add warm-refresh: server is not restarted, but the SUT state
+     is restored using protocol commands( IMAP/POP3 ).
+     Maybe a sniffing library would be helpfull.
+[1]  Add fop_cp fop_mkdir
+[1]  Implement/use other environment variables
+[5]  run memtrace after each test was runned
+[3]  Add libhttpd server.
+[1]  Define the layout and pages.
+=======
+[5] Implement `Submit results`
+[5] Implement `Results server`
+[5] Implement `Submit test`
+[5] Add warm-refresh: server is not restarted, but the SUT state
+    is restored using protocol commands( IMAP/POP3 ).
+    Maybe a sniffing library would be helpfull.
+[1] Add fop_cp fop_mkdir
+[1] Implement/use other environment variables
+[1] use db4 to keep test results and machines.
+[5] run memtrace after each test was runned
+[1] Implement(using db4?) list of runned scripts, and an option if
+    seraph should continue from the last script runned.
+[0] Implement /etc/seraph/machines/ as a holder for machine list AND
+        their description.
+    Implement /etc/seraph/config as base config for testManager.
+[0] Implement /var/log/seraph/errors as log for testing errors and
+    /var/log/seraph/runned loggin the tests runned.
+    The last can be used to continue testing after a shutdown.
+>>>>>>> .r311
