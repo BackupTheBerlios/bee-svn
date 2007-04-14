@@ -16,13 +16,10 @@ function listTests($cli)
     $i = $val->arraysize();
 
     echo "<select name='sut_tests[]' multiple size='5'>" ;
-
-    while($i--) {
-            echo "<option>".XML_RPC_decode($val->arraymem($i))."</option>";
-    }
-
+        while($i--) {
+                echo "<option>".XML_RPC_decode($val->arraymem($i))."</option>";
+        }
     echo "</select>" ;
-    #$data = XML_RPC_decode($val);
 }
 
 
@@ -33,27 +30,15 @@ function listOSes($cli)
 
     $msg = new XML_RPC_Message('listMachines');
     $resp = $cli->send($msg);
+    if( hasErrors($resp)) return;
+    $val = $resp->value();
+    $i = $val->arraysize();
 
-    if (!$resp)
-    {   echo 'Can\' talk to <b>seraph</b> daemon: ' . $cli->errstr;
-        exit;
-    }
-
-    if (!$resp->faultCode())
-    {   $val = $resp->value();
-        $i = $val->arraysize();
-
-        echo "<select name='sut_os[]' multiple size='5'>" ;
-
+    echo "<select name='sut_os[]' multiple size='5'>" ;
         while($i--) {
                 echo "<option>".XML_RPC_decode($val->arraymem($i))."</option>";
         }
-        echo "</select>" ;
-        $data = XML_RPC_decode($val);
-    } else
-    {   echo 'Fault Code  : ' . $resp->faultCode() . "\n";
-        echo 'Fault Reason: ' . $resp->faultString() . "\n";
-    }
+    echo "</select>" ;
 }
 
 
@@ -84,29 +69,6 @@ function listOSes($cli)
     </select> ";
 }
 */
-function call($arg1, $arg2, $cli)
-{
-    echo $arg2;
-    $params = array(new XML_RPC_Value( $arg2, 'string'));
-    $msg = new XML_RPC_Message($arg1, $params);
-    $resp = $cli->send($msg);
-    if (!$resp) {
-        echo 'Communication error: ' . $cli->errstr;
-        exit;
-    }
-    if (!$resp->faultCode()) {
-        $val = $resp->value();
-        $data = XML_RPC_decode($val);
-        echo $data;
-    } else {
-        /*
-         * Display problems that have been gracefully cought and
-         * reported by the xmlrpc.php script
-         */
-        echo 'Fault Code: ' . $resp->faultCode() . "\n";
-        echo 'Fault Reason: ' . $resp->faultString() . "\n";
-    }
-}
 
 /*-------------------------------*/
 $cli = new XML_RPC_Client('/RPCSERVER', 'localhost', 5000);
@@ -123,7 +85,6 @@ $cli = new XML_RPC_Client('/RPCSERVER', 'localhost', 5000);
 
     <?php drawMenu() ; ?>
     <br>
-
     <form action='run_tests.php' method='get' name='sut_pretest'>
         <div class='column'>
             <span > <?php listTests($cli); ?> &nbsp;</span>

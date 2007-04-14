@@ -237,6 +237,28 @@ x_executeCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request,
 }
 
 
+
+    XMLRPC_VALUE
+x_addMachineCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request,
+        void *userData )
+{
+    const char *name, *OS, *OSVer, *IP;
+    int rc = 0;
+
+    XMLRPC_VALUE xParams = XMLRPC_RequestGetData( request );
+    XMLRPC_VALUE xIter = XMLRPC_VectorRewind( xParams );
+
+    name  = XMLRPC_VectorGetStringWithID(xIter, "sut_mname");
+    OS    = XMLRPC_VectorGetStringWithID(xIter, "sut_os");
+    OSVer = XMLRPC_VectorGetStringWithID(xIter, "sut_osver");
+    IP    = XMLRPC_VectorGetStringWithID(xIter, "sut_mip");
+
+    sut_addMachine( name, OS, OSVer, IP );
+
+    return XMLRPC_CreateValueString( NULL, "Machine added", 0 );
+}
+
+
     XMLRPC_VALUE
 x_runTestsCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void* userData )
 {

@@ -4,7 +4,7 @@ require_once 'base_lib.php';
 function setMachineConfig($cli)
 {
 
-    /* Serialize the SUT Versions */
+    /* Serialize Machine name */
     print "\nSet config of machine:\n";
     $versions = array() ;
     $m = $_GET['SUT_MACHINE'];
@@ -13,7 +13,7 @@ function setMachineConfig($cli)
     $xmachine = new XML_RPC_Value( $m,'string');
     /*--------------------------------------------*/
 
-    /* Serialize the content of config */
+    /* Serialize the content of config +++++++++++*/
     foreach ($_POST as $k => $v) {
         if( preg_match( "/SUT_/", $k) ) {
             echo "GOT: $k = $v\n";
@@ -21,8 +21,9 @@ function setMachineConfig($cli)
         }
     }
     $xcfgLines = new XML_RPC_Value(  $cfgLines, 'array');
+    /*--------------------------------------------*/
 
-    /* Serialize Method parameter */
+    /* Serialize Method parameter ++++++++++++++++*/
     $request = new XML_RPC_Value(
             array(
                 "sut_machine" => $xmachine,
@@ -33,57 +34,10 @@ function setMachineConfig($cli)
     /*--------------------------------------------*/
 
     $resp = $cli->send($msg);
-
-    if (!$resp) {
-        echo 'Communication error: ' . $cli->errstr;
-        exit;
-    }
-    if (!$resp->faultCode()) {
-        $val = $resp->value();
-        $data = XML_RPC_decode($val);
-        echo $data;
-    } else {
-        /*
-        * Display problems that have been gracefully cought and
-        * reported by the xmlrpc.php script
-         */
-        echo 'Fault Code: ' . $resp->faultCode() . "\n";
-        echo 'Fault Reason: ' . $resp->faultString() . "\n";
-    }
+    if( hasErrors($resp) ) return;
 }
 
 
-function showInfo()
-{
-    print "<pre>\n";
-    print "\nContents of \$_GET:\n";
-    foreach ($_GET as $k => $v) {
-        if( preg_match( "/SUT_/", $k) )
-            print "   $k = $v\n";
-    }
-#
-    print "\nContents of \$_POST:\n";
-    foreach ($_POST as $k => $v) {
-        if( preg_match( "/SUT_/", $k) )
-            print "   $k = $v\n";
-    }
-#
-    print "\nContents of \$_COOKIE:\n";
-    foreach ($_COOKIE as $k => $v) {
-        print "   $k = $v\n";
-    }
-#
-    print "\nContents of \$_REQUEST:\n";
-    foreach ($_REQUEST as $k => $v) {
-        print "   $k = $v\n";
-    }
-#
-    print "\nContents of \$_SERVER:\n";
-    foreach ($_SERVER as $k => $v) {
-        print "   $k = $v\n";
-    }
-    print "</pre>\n";
-}
 ?>
 
 <html>

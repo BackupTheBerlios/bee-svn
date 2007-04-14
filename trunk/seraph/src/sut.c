@@ -1152,3 +1152,24 @@ GSList* sut_getConfig(const char* machine, int* sz)
     *sz = g_slist_length(cfgTable);
     return cfgTable;
 }
+
+
+/* TODO write something in the created file */
+bool sut_addMachine(const char* mName,
+                    const char* mOS,
+                    const char* mOSVer,
+                    const char* mIP)
+{
+    int fd=-1;
+    char fname[PATH_MAX]={0};
+
+    debug( "\nADDMACHINE [%s][%s][%s][%s]\n",mName, mOS, mOSVer, mIP );
+    sprintf(fname,"%s/%s", MACHINES, mName);
+    fd = open(fname, O_CREAT | O_EXCL, S_IWUSR | S_IRUSR );
+    if(fd<0)
+    {   debug("Unable to create [%s] [%s]\n", fname, strerror(errno));
+        return false;
+    }
+    close(fd);
+    return true;
+}

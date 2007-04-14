@@ -1,3 +1,7 @@
+[-1] Check return values inside xmlrpc wrapper functions
+
+[0] Add machine
+[0] Setup on remote machine.
 [0] Implement /var/log/seraph/errors as log for testing errors and
     /var/log/seraph/runned loggin the tests runned.
     The last can be used to continue testing after a shutdown.

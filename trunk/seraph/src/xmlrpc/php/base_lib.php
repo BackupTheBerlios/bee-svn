@@ -15,6 +15,29 @@ function hasErrors($resp)
     return 0;
 }
 
+function call($arg1, $arg2, $cli)
+{
+    echo $arg2;
+    $params = array(new XML_RPC_Value( $arg2, 'string'));
+    $msg = new XML_RPC_Message($arg1, $params);
+    $resp = $cli->send($msg);
+    if (!$resp) {
+        echo 'Communication error: ' . $cli->errstr;
+        exit;
+    }
+    if (!$resp->faultCode()) {
+        $val = $resp->value();
+        $data = XML_RPC_decode($val);
+        echo $data;
+    } else {
+        /*
+         * Display problems that have been gracefully cought and
+         * reported by the xmlrpc.php script
+         */
+        echo 'Fault Code: ' . $resp->faultCode() . "\n";
+        echo 'Fault Reason: ' . $resp->faultString() . "\n";
+    }
+}
 function drawMenu() {
     echo "<div  class='header'>
         <font class='header'>Seraph</font>
@@ -79,7 +102,37 @@ function drawMachines()
 
 </form>";
     }
-
+}
+function showInfo()
+{
+    print "<pre>\n";
+    print "\nContents of \$_GET:\n";
+    foreach ($_GET as $k => $v) {
+        if( preg_match( "/SUT_/", $k) )
+            print "   $k = $v\n";
+    }
+#
+    print "\nContents of \$_POST:\n";
+    foreach ($_POST as $k => $v) {
+        if( preg_match( "/SUT_/", $k) )
+            print "   $k = $v\n";
+    }
+#
+    print "\nContents of \$_COOKIE:\n";
+    foreach ($_COOKIE as $k => $v) {
+        print "   $k = $v\n";
+    }
+#
+    print "\nContents of \$_REQUEST:\n";
+    foreach ($_REQUEST as $k => $v) {
+        print "   $k = $v\n";
+    }
+#
+    print "\nContents of \$_SERVER:\n";
+    foreach ($_SERVER as $k => $v) {
+        print "   $k = $v\n";
+    }
+    print "</pre>\n";
 }
 
 
