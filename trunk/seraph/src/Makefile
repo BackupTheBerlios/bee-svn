@@ -42,6 +42,7 @@ bin/seraph: lib/libtbot.a lib/libtrpc.a
 clean:
 	rm -rf $(TARGETS) $(objs) *.o
 	make -C rpc clean
+	make -C tools clean
 
 
 
