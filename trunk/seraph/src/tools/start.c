@@ -8,7 +8,7 @@
 #include "strop.h"
 #include "sut.h"
 
-//! @todo use axi_binpath to look for axigen
+//! @todo use sut_binpath to look for serverUnderTest
 struct config_s cfg;
 char *axi_param = NULL;
 static int rc_parseArgs( int argc, char *argv[] );
@@ -53,7 +53,7 @@ static void start_usage( int status )
 {
 
         printf( "Usage: start [OPTION] COMMAND...\n" );
-        printf( "Start Axigen.\n" );
+        printf( "Start.\n" );
         printf( "\n" );
         printf
             ( "  -v, --verbose     print a message for each action executed\n" );
