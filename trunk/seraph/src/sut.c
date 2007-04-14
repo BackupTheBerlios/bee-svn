@@ -240,11 +240,13 @@ sut_listMachines(const char* td, int* sz)
     char** buf;
 
     debug("LISTMACHINES: [%s]\n", td);
-    buf =(char**)calloc(8192, sizeof(char*)); /*TODO*/
-    if( !( dir = opendir( td ) ) ) {
-        debug( "1: Can't open test directory [%s] : %s\n",
+    buf =(char**)calloc(8192, sizeof(char*)); /*TODO use linked list */
+
+    if( !( dir = opendir(td) ) ) {
+        debug( "1: Can't open directory [%s] : %s\n",
                 td, strerror( errno ) );
-        exit( EXIT_FAILURE );
+        *sz = 0;
+        return NULL ;
     }
     while( ( ent = readdir( dir ) ) ) {
         if( !strcmp(ent->d_name,".") || !strcmp(ent->d_name,"..") ) continue;
