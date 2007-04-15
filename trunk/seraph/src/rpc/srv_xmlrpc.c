@@ -69,7 +69,6 @@ static int callback_socket( int portno )
     int cod, sockfd;
 
 
-    printf( "Running on port:%d\n", portno );
     sockfd = socket( AF_INET, SOCK_STREAM, 0 );
     if( sockfd < 0 )
     {  fprintf( stderr, "rsh: ERR: opening socket: %s\n",
@@ -90,6 +89,7 @@ static int callback_socket( int portno )
     {   debug( "rsh: ERR on listen %s", strerror(errno) );
         exit( -1 );
     }
+    printf( "Running on port:%d\n", portno );
     clilen = sizeof( cli_addr );
 
     extern int running ;

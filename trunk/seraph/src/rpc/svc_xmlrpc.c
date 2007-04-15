@@ -90,6 +90,7 @@ x_getConfigCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void *userDat
 
     machine = XMLRPC_GetValueString( xIter );
     symbList = sut_getConfig( machine , &nbSymbols);
+    printf("----------------%p-------\n", userData);
 //    nbSymbols--;
 /*    XMLRPC_VectorAppendString( rv, "symbol", "some symbol", 0 );
     XMLRPC_VectorAppendString( rv, "val" , "some value", 0 );

@@ -1,4 +1,4 @@
-<?php
+true<?php
 require_once 'XML/RPC.php';
 
 function hasErrors($resp)
@@ -50,7 +50,7 @@ function drawMenu() {
             echo "<li><a href='login_form.php'>Login</a></li>";
             echo "<li><a href='register_form.php'>Register</a></li>";
             echo "</ul></div><br>";
-            return false;
+            return true;
     }
     echo "<li><a href='.'>Home</a></li>
             <li><a href='machines.php'>Machines</a></li>
@@ -65,6 +65,9 @@ function drawMenu() {
 function drawMachines()
 {
     $cli = new XML_RPC_Client('/RPCSERVER', 'localhost', 5000);
+
+    $cli->setDebug(1);
+    $cli->setCredentials("user1","user1");
 
 
     $msg = new XML_RPC_Message('listMachines');
