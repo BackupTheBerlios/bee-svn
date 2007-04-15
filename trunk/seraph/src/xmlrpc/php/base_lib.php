@@ -50,7 +50,7 @@ function drawMenu() {
             <li><a href='machines.php'>Machines</a></li>
             <li><a href='settings.php'>Settings</a></li>
             <li><a href='docs.php'>Documentation</a></li>
-            <li><a href='login.php'>Login</a></li>
+            <li><a href='login_form.php'>Login</a></li>
             </ul>
         </div>";
 }
