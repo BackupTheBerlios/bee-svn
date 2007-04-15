@@ -1,4 +1,5 @@
-[-1] Check return values inside xmlrpc wrapper functions
+[-1] look for directory traversal when writing in MACHINES.
+[-1] Check return values inside xmlrpc wrapper functions.
 
 [0] Add machine
 [0] Setup on remote machine.
