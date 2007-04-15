@@ -1,9 +1,15 @@
+<?php session_start(); ?>
 <html>
 <head>
 <link href='mystyle.css' rel='stylesheet' type='text/css'>
 </head>
 <body class='bheader'>
-<?php require_once 'base_lib.php'; drawMenu(); ?>
+<?php require_once 'base_lib.php'; 
+    if( !drawMenu() ){
+        echo "</body></html>";
+        return;
+    }
+?>
 <pre>
 TODO.
 =========================

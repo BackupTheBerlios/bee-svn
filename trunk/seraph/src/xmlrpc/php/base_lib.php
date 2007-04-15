@@ -43,16 +43,23 @@ function drawMenu() {
         <font class='header'>Seraph</font>
         <br/><br/>
         </div>
-    <div class='head_menu'>
-        <ul>
-            <li><a href='.'>Home</a></li>
-            <!--<li><a href='register.php'>Register</a></li>-->
+        <div class='head_menu'>
+        <ul>";
+    if ( empty( $_SESSION['username'] ) ) {
+            echo "<li><a href='.'>Home</a></li>";
+            echo "<li><a href='login_form.php'>Login</a></li>";
+            echo "<li><a href='register_form.php'>Register</a></li>";
+            echo "</ul></div><br>";
+            return false;
+    }
+    echo "<li><a href='.'>Home</a></li>
             <li><a href='machines.php'>Machines</a></li>
             <li><a href='settings.php'>Settings</a></li>
             <li><a href='docs.php'>Documentation</a></li>
-            <li><a href='login_form.php'>Login</a></li>
-            </ul>
-        </div>";
+         ";
+    echo "<li><a href='./logout.php'>Logout</a></li>";
+    echo "</ul></div><br>";
+    return true;
 }
 
 function drawMachines()

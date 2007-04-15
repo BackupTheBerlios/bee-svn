@@ -1,4 +1,5 @@
 <?php
+session_start();
 include 'base_lib.php'
 ?>
 <html>
@@ -7,9 +8,12 @@ include 'base_lib.php'
 </head>
 
 <body class='bheader'>
-
-<?php drawMenu(); ?>
-
+<?php
+    if( !drawMenu() ){
+        echo "</body></html>";
+        return;
+    }
+?>
 
 <div>
 <input type='button' value='Add'/>

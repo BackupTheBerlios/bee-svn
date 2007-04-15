@@ -1,77 +1,72 @@
 <?php
+session_start();
 require_once 'XML/RPC.php';
 include 'base_lib.php' ;
 
+class Index {
 
+    var $xmlrpc;
 
-function listTests($cli)
-{
-    echo "Tests:<br>" ;
+    function Index( $host, $port )
+    {
+        $this->xmlrpc = new XML_RPC_Client('/RPCSERVER', $host, $port );
+        /* check for errors */
+        //$this->xmlrpc->setDebug(1);
+    }
 
-    $msg = new XML_RPC_Message('listTests');
-    $resp = $cli->send($msg);
-    if( hasErrors($resp) ) return ;
+    function listTests()
+    {
+        echo "Tests:<br>" ;
 
-    $val = $resp->value();
-    $i = $val->arraysize();
+        $msg = new XML_RPC_Message('listTests');
+        $resp = $this->xmlrpc->send($msg);
+        if( hasErrors($resp) ) return false;
 
-    echo "<select name='sut_tests[]' multiple size='5'>" ;
+        $i = $resp->value()->arraysize();
+
+        echo "<select name='sut_tests[]' multiple size='5'>" ;
         while($i--) {
-                echo "<option>".XML_RPC_decode($val->arraymem($i))."</option>";
+            echo "<option>"
+                .XML_RPC_decode($resp->value()->arraymem($i))
+            ."</option>";
         }
-    echo "</select>" ;
-}
+        echo "</select>" ;
+    }
 
 
 
-function listOSes($cli)
-{
-    echo "ON Machine:<br>" ;
+    function listOSes()
+    {
+        echo "ON Machine:<br>" ;
 
-    $msg = new XML_RPC_Message('listMachines');
-    $resp = $cli->send($msg);
-    if( hasErrors($resp)) return;
-    $val = $resp->value();
-    $i = $val->arraysize();
+        $msg = new XML_RPC_Message('listMachines');
+        $resp = $this->xmlrpc->send($msg);
+        if( hasErrors($resp)) return false;
+        $i = $resp->value()->arraysize();
 
-    echo "<select name='sut_os[]' multiple size='5'>" ;
+        echo "<select name='sut_os[]' multiple size='5'>" ;
         while($i--) {
-                echo "<option>".XML_RPC_decode($val->arraymem($i))."</option>";
+            echo "<option>"
+                .XML_RPC_decode($resp->value()->arraymem($i))
+            ."</option>";
         }
-    echo "</select>" ;
+        echo "</select>" ;
+    }
+
+
+
+    function listSUTVersions( )
+    {
+        echo "TODO!!SUT Versions:<br>
+            <select name='sut_versions[]' multiple size='5'>
+            <option>2.0</option>
+            <option>3.0</option>
+            <option selected>4.0</option>
+            </select>
+            <input valign='top' value='0.0' name='sut_build' type='text' size='3'/>
+            ";
+    }
 }
-
-
-
-function listSUTVersions($cli)
-{
-    echo "SUT Versions:<br>
-    <select name='sut_versions[]' multiple size='5'>
-    <option>2.0</option>
-    <option>3.0</option>
-    <option selected>4.0</option>
-    </select>
-    <input valign='top' value='0.0' name='sut_build' type='text' size='3'/>
-    ";
-}
-
-
-
-/*
-function listOSes($cli)
-{
-    echo "On machine:<br>
-    <select name='sut_os[]' multiple size='5'>
-    <option value='purec' >purec</option>
-    <option value='openbsd39'>openbsd39</option>
-    <option value='netbsd30'>netbsd30</option>
-    <option value='solaris10'>solaris10</option>
-    </select> ";
-}
-*/
-
-/*-------------------------------*/
-$cli = new XML_RPC_Client('/RPCSERVER', 'localhost', 5000);
 ?>
 
 
@@ -83,13 +78,19 @@ $cli = new XML_RPC_Client('/RPCSERVER', 'localhost', 5000);
 
 <body class='bheader' >
 
-    <?php drawMenu() ; ?>
-    <br>
+<?php
+    $index = new Index('localhost', 5000);
+    if( !drawMenu() ){
+        echo "</body></html>";
+        return;
+    }
+    ?>
+
     <form action='run_tests.php' method='get' name='sut_pretest'>
         <div class='column'>
-            <span > <?php listTests($cli); ?> &nbsp;</span>
-            <span > <?php listSUTVersions($cli); ?> &nbsp;</span>
-            <span > <?php listOSes($cli); ?> &nbsp;</span>
+            <span > <?php $index->listTests(); ?> &nbsp;</span>
+            <span > <?php $index->listSUTVersions(); ?> &nbsp;</span>
+            <span > <?php $index->listOSes(); ?> &nbsp;</span>
             <input type='submit' value='Run'/>
             <input type='submit' value='Setup'/>
             </div>

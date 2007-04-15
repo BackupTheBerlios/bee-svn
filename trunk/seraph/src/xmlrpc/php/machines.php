@@ -1,4 +1,5 @@
 <?php
+session_start();
 require_once 'base_lib.php';
 ?>
 <html>
@@ -33,8 +34,12 @@ function removeEvent(divNum)
 
 <body class='bheader'>
 
-    <?php drawMenu() ;?>
-    <?php drawMachines() ;?>
+    <?php
+    if( !drawMenu() ){
+        echo "</body></html>";
+        return;
+    }
+    drawMachines() ;?>
 
     <hr/>
     <form name="add_machine" method="post" action="add_machine.php">
