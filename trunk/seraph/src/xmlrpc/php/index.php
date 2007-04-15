@@ -74,6 +74,7 @@ class Index {
 <html>
 <head>
     <LINK href="mystyle.css" rel="stylesheet" type="text/css">
+    <LINK REL="SHORTCUT ICON" href="seraph.ico">
     </head>
 
 <body class='bheader' >

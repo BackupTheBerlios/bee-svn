@@ -3,7 +3,7 @@
 $dbhost = "localhost";
 $dbname = "website";
 $dbuser = "root";
-$dbpass = "19323165171";
+$dbpass = "asd";
 
 #connect to database
 mysql_connect ( $dbhost, $dbuser, $dbpass)or die("Could not connect: ".mysql_error());
@@ -18,8 +18,9 @@ $query = "SELECT username,password from member where username='$username' and pa
 $result = mysql_query($query) or die(mysql_error());
 # do they match ?
 if( mysql_num_rows($result) ==0 ) {
+    header('location:index.php');
     echo "Bad login";
-    include "login.html";
+    return;
 }else {
     $_SESSION['username'] = "$username" ;
     header('location:index.php');
