@@ -1,3 +1,5 @@
+#include <limits.h>
+#include <linux/limits.h>
 #include "config.h"
 #include "strop.h"
 #include "socket.h"
@@ -11,7 +13,7 @@ int t_startCallback( int sock, char *buf )
 {
         int timeout = 0, rb;
         char *startCmd = NULL;
-        char maillog[LINE_MAX] = { 0 };
+        char maillog[PATH_MAX] = { 0 };
 
         if( NULL == buf ) {
                 fprintf( stderr, "! START: (null) internal `buf` parameter\n" );
@@ -37,7 +39,7 @@ int t_stopCallback( int sock, char *buf )
 {
         int timeout = 0, rb;
         char *stopCmd = NULL;
-        char maillog[LINE_MAX] = { 0 };
+        char maillog[PATH_MAX] = { 0 };
 
         if( NULL == buf ) {
                 fprintf( stderr, "! STOP: (null) internal `buf` parameter\n" );
@@ -62,10 +64,10 @@ int t_stopCallback( int sock, char *buf )
  */
 int t_refreshCallback( int sock, char *buf )
 {
-        char com[LINE_MAX] = { 0 };
+        char com[PATH_MAX] = { 0 };
         struct stat stats;
-        char cale_s[LINE_MAX] = { 0 };
-        char cale_d[LINE_MAX] = { 0 };
+        char cale_s[PATH_MAX] = { 0 };
+        char cale_d[PATH_MAX] = { 0 };
         int cod = 0, rb = 0;
 
         if( NULL == buf ) {
@@ -101,7 +103,7 @@ int t_refreshCallback( int sock, char *buf )
 int t_copyCallback( int sock, char *buf )
 {
         int f, bw, len, rb;     /* bytes written to disk */
-        char buff[LINE_MAX] = { 0 };
+        char buff[PATH_MAX] = { 0 };
         char dest_file[FILENAME_MAX] = { 0 };
         char src_file[FILENAME_MAX] = { 0 };
         char dest_dir[FILENAME_MAX] = { 0 };
@@ -123,7 +125,7 @@ int t_copyCallback( int sock, char *buf )
                 sock_sendStatus( sock, errno );
                 return errno;
         }
-        while( len > 0 && ( bw = read( sock, buff, LINE_MAX - 1 ) ) ) {
+        while( len > 0 && ( bw = read( sock, buff, PATH_MAX - 1 ) ) ) {
                 int ret = write( f, buff, bw < len ? bw : len );
                 if( bw < 0 ) {
                         perror( "Transmission error" );
@@ -146,9 +148,9 @@ int t_copyCallback( int sock, char *buf )
 
 int t_rmCallback( int sock, char *buf )
 {
-        char cmd[LINE_MAX] = { 0 };
+        char cmd[PATH_MAX] = { 0 };
         int rb;
-        char path[LINE_MAX] = { 0 };
+        char path[PATH_MAX] = { 0 };
 
         if( NULL == buf ) {
                 fprintf( stderr, "! RM: (null) internal `buf` parameter\n" );
@@ -171,7 +173,7 @@ int t_rmCallback( int sock, char *buf )
 int t_mkdirCallback( int sock, char *buf )
 {
         int rb;
-        char path[LINE_MAX] = { 0 };
+        char path[PATH_MAX] = { 0 };
 
         if( NULL == buf ) {
                 fprintf( stderr, "! MKDIR: (null) internal `buf` parameter\n" );

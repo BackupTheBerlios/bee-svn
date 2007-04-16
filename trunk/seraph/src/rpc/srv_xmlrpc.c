@@ -4,11 +4,11 @@
 #include "sut.h"
 #include "xmlrpc.h"
 #include "svc_xmlrpc.h"
-#include <signal.h>
+#include <linux/limits.h>
 
 static int callback_socket( int portno );
 static int callback_command( int sckt );
-char* clientCallback( char* filebuf );
+char* clientCallback( const char* filebuf );
 
 int running = 1;
 
@@ -18,8 +18,8 @@ start_xmlrpc(const unsigned int port)
 
     pid_t pid=-1, sid=-1;
 
-    if( port == 0 || port > 65535 ) {
-        debug( "Cant bind port: %d : Illegal value.\n", port );
+    if( (port == 0U) || (port > 65535U) ) {
+        debug( "Cant bind port: %u : Illegal value.\n", port );
         return -1;
     }
 
@@ -57,8 +57,7 @@ start_xmlrpc(const unsigned int port)
     }
 
     /* Daemon */
-    callback_socket( port );
-    return 0;
+    return callback_socket( port );
 }
 
 
@@ -75,7 +74,8 @@ static int callback_socket( int portno )
                 strerror( errno ) );
         return 1;
     }
-    bzero( ( char * )&serv_addr, sizeof( serv_addr ) );
+    memset( ( char * )&serv_addr, '\0', sizeof( serv_addr ) );
+
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_addr.s_addr = INADDR_ANY;
     serv_addr.sin_port = htons( portno );
@@ -113,7 +113,8 @@ static int callback_socket( int portno )
 static int callback_command( int sckt )
 {
     char buf[8192] = { 0 };
-    char*buf1=0,*rsp;
+    char *buf1=NULL;
+    char *rsp;
     int ok = 1;
     int n;//, i;
     char banner[8192]={0};;
@@ -153,7 +154,7 @@ static int callback_command( int sckt )
 /* with the exception of the registration calls, most everything in main
  * only needs to be written once per server.
  */
-char* clientCallback( char* filebuf )
+char* clientCallback( const char* filebuf )
 {
     XMLRPC_SERVER server;
     XMLRPC_REQUEST request, response;
@@ -175,27 +176,18 @@ char* clientCallback( char* filebuf )
     XMLRPC_ServerRegisterMethod( server, "setConfig", x_setConfigCallback );
     XMLRPC_ServerRegisterMethod( server, "addMachine", x_addMachineCallback );
 
-    /* Now, let's get the client's request from stdin....
+    /*
      * This will be read from a  socket
      */
     {
-        /*         char filebuf[4096];     // not that intelligent.  sue me.
-                   int len =
-                   fread( filebuf, sizeof( char ), sizeof( filebuf ) - 1,
-
-                   if( len ) {
-                   filebuf[len] = 0;
-                   stdin );
-                   */
         // parse the xml into a request structure
         request =
-            XMLRPC_REQUEST_FromXML( ( const char * )filebuf,
+            XMLRPC_REQUEST_FromXML( filebuf,
                     strlen(filebuf), NULL );
-        //         }
     }
     if( !request ) {
         fprintf( stderr, "bogus xmlrpc request\n" );
-        return 0;
+        return NULL;
     }
     /*
      *  The interesting part is below

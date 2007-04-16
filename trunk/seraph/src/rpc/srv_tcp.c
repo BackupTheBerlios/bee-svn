@@ -32,14 +32,14 @@ Callbacks callbacks[] = {
         {NULL, NULL}
 };
 
-static int callback_socket( int portno );
+static int callback_socket( short unsigned int portno );
 static int callback_command( int sckt );
 
-int start_rawrpc( int port )
+int start_rawrpc( const unsigned int port )
 {
 
         pid_t pid, sid;
-        if( port <= 0 || port > 65535 ) {
+        if( (port == 0U) || (port > 65535U) ) {
                 fprintf( stderr, "Cant bind port: %d\n", port );
                 return -1;
         }
@@ -56,18 +56,18 @@ int start_rawrpc( int port )
         ( void )umask( 0 );
         sid = setsid(  );
         if( sid < 0 )
-                exit( EXIT_FAILURE );
-        if( ( chdir( "/" ) ) < 0 ) {
-                perror( "rsh: Can't change to /" );
+        {       exit( EXIT_FAILURE );}
+        if( ( chdir( "/" ) ) < 0 )
+        {       perror( "rsh: Can't change to /" );
                 exit( EXIT_FAILURE );
         }
-        if( signal( SIGINT, sut_sigint ) == SIG_ERR ) {
-                perror( "signal() error!" );
+        if( signal( SIGINT, sut_sigint ) == SIG_ERR )
+        {       perror( "signal() error!" );
                 return 1;
         }
 
-        if( signal( SIGPIPE, sut_sigpipe ) == SIG_ERR ) {
-                perror( "signal() error!" );
+        if( signal( SIGPIPE, sut_sigpipe ) == SIG_ERR )
+        {       perror( "signal() error!" );
                 return 1;
         }
 #if 0
@@ -84,7 +84,7 @@ int start_rawrpc( int port )
 }
 
 
-static int callback_socket( int portno )
+static int callback_socket( const unsigned short int portno )
 {
         unsigned int clilen;
         struct sockaddr_in serv_addr, cli_addr;
@@ -98,7 +98,7 @@ static int callback_socket( int portno )
                          strerror( errno ) );
                 return 1;
         }
-        bzero( ( char * )&serv_addr, sizeof( serv_addr ) );
+        memset( ( char * )&serv_addr, '\0', sizeof( serv_addr ) );
         serv_addr.sin_family = AF_INET;
         serv_addr.sin_addr.s_addr = INADDR_ANY;
         serv_addr.sin_port = htons( portno );
@@ -131,7 +131,7 @@ static int callback_socket( int portno )
 
 static int callback_command( int sckt )
 {
-        char buf[8192] = { 0 };
+        char buf[8192] = { '\0' };
         int ok = 1;
         int n, i;
 
