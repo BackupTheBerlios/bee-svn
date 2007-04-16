@@ -4,6 +4,7 @@
  *   \date     Thu Aug 17 17:38:13 2006
  *
  */
+#include <strings.h>
 #include "config.h"
 #include "socket.h"
 #include "strop.h"

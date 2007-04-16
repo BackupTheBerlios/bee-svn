@@ -3,6 +3,7 @@
  *   \date      Thu Aug 17 17:38:13 2006
  *
  */
+#include <strings.h>
 #include <libgen.h>
 #include "config.h"
 #include "fileop.h"
