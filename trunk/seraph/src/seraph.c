@@ -37,7 +37,7 @@
 extern struct config_s cfg;
 extern char *optarg;
 extern int optind;
-        extern int (*setenv)(const char *name, const char *value, int overwrite);
+//        extern int (*setenv)(const char *name, const char *value, int overwrite);
 
 
 

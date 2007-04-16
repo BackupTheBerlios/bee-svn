@@ -6,7 +6,7 @@ MACHINES=/home/groleo/machines
 ifndef FLINT
 CC = gcc
 # same as Wall but without Wunused
-XOPEN_SOURCE=-D_XOPEN_SOURCE -D_XOPEN_SOURCE_EXTENDED
+XOPEN_SOURCE=-D_POSIX_C_SOURCE -D_XOPEN_SOURCE=600 -D_XOPEN_SOURCE_EXTENDED -D_XOPEN2K
 WARN=	-W -Wimplicit -Wreturn-type -Wswitch -Wcomment \
 	-Wtrigraphs -Wformat -Wchar-subscripts \
 	-Wparentheses -pedantic -Wuninitialized -std=c99
