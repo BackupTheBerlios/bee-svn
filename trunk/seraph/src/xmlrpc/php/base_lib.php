@@ -1,4 +1,4 @@
-true<?php
+<?php
 require_once 'XML/RPC.php';
 
 function hasErrors($resp)
@@ -50,7 +50,7 @@ function drawMenu() {
             echo "<li><a href='login_form.php'>Login</a></li>";
             echo "<li><a href='register_form.php'>Register</a></li>";
             echo "</ul></div><br>";
-            return true;
+            return false;
     }
     echo "<li><a href='.'>Home</a></li>
             <li><a href='machines.php'>Machines</a></li>

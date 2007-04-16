@@ -21,47 +21,46 @@ class User {
 
     function User($host, $port, $date)
     {
-        $this->xmlrpc = new XML_RPC_Client('/RPCSERVER', $host, $port);
+    # database information
+    $dbhost = "localhost";
+    $dbname = "website";
+    $dbuser = "root";
+    $dbpass = "asd";
+        #connect to database
+        mysql_connect ( $dbhost, $dbuser, $dbpass)or die("Could not connect: ".mysql_error());
+        mysql_select_db($dbname) or die(mysql_error());
         $this->date = $date;
-        echo $date."<br>\n";
+        //echo $date."<br>\n";
         if( !$_SESSION['logged'] )
             $this->checkSession();
-        elseif( isset($_COOKIE['mtwebLogin']) )
-            echo "ERR<br>\n";
+        elseif( isset($_COOKIE['mtwebLogin']) ) {}
+            //echo "ERR<br>\n";
 
     }
-    function checkLogin($username, $password, $remember)
+    function logout()
     {
-        $password = md5($password);
-        $req = 'getRow'; /* Build XMLRPC request */
-        $resp = $this->xmlrpc->send($req);
-        if( hasErrors($resp) )
-        {   $this->failed = true;
-            $this->logout();
-            return false;
-        }
-
-        $this->setSession($result, $remember);
-        return true;
+        session_unregister("username");
+        //echo "Bad login<br>";
     }
     function checkSession() {
         $username = $_SESSION['username'];
-        $cookie = $_SESSION['cookie'];
-        $sess   = session_id();
-        $ip     = $_SERVER['REMOTE_ADDR'];
-        echo "$username, $cookie, $sess, $ip<br>\n";
-        /*$sql = "SELECT * FROM member WHERE " .
-            "(username = $username) AND (cookie = $cookie) AND " .
-            "(session = $session) AND (ip = $ip)";
-        $result = $this->db->getRow($sql);
-        if (is_object($result) ) {
-            $this->_setSession($result, false, false);
+        $cookie   = $_SESSION['cookie'];
+        $session  = session_id();
+        $ip       = $_SERVER['REMOTE_ADDR'];
+
+        //echo "$username, $cookie, $sess, $ip<br>\n";
+
+        $sql = "SELECT * FROM member WHERE " .
+            "(username = '$username') AND (cookie = '$cookie') AND " .
+            "(session = '$session') AND (ip = '$ip')";
+        //echo "HERE<br>";
+        $result = mysql_query($sql) or die(mysql_error());
+        if( mysql_num_rows($result) !=0 ) {
+            $this->setSession($result, false, false);
         } else {
-            $this->_logout();
-        }*/
+            $this->logout();
+        }
     }
-
-
     function setSession( &$values, $remember, $init=true)
     {
         $this->id = $values->id;
@@ -75,10 +74,52 @@ class User {
         if($init) {
             $session = session_id();
             $ip = $_SERVER['REMOTE_ADDR'];
-            $req = "Set session=$session, ip=$ip, where id=$this->id";
+            $sql = "UPDATE member SET session = '$session', ip = '$ip' WHERE " .
+                    "id = '$this->id'";
+            $result = mysql_query($sql) or die(mysql_error());
         }
     }
+
+    function updateCookie($cookie, $save) {
+        $_SESSION['cookie'] = $cookie;
+        if ($save) {
+            $cookie = serialize(array($_SESSION['username'], $cookie) );
+            setcookie('mtwebLogin', $cookie, time() + 31104000, '/directory/');
+        }
+    }
+    function checkLogin($username, $password, $remember) {
+        //$username = $this->db->quote($username);
+        $password = md5($password);
+        $sql = "SELECT * FROM member WHERE " .
+            "username = '$username' AND " .
+            "password = '$password'";
+        $result = mysql_query($sql) or die(mysql_error());
+        if( mysql_num_rows($result) !=0 ) {
+            $this->setSession($result, $remember);
+            return true;
+        } else {
+            $this->failed = true;
+            $this->logout();
+            return false;
+        }
+    }
+    function checkRemembered($cookie) {
+        list($username, $cookie) = @unserialize($cookie);
+        if (!$username or !$cookie) return;
+        //$username = $this->db->quote($username);
+        //$cookie = $this->db->quote($cookie);
+        $sql = "SELECT * FROM member WHERE " .
+            "(username = '$username') AND (cookie = '$cookie')";
+        $result = mysql_query($sql) or die(mysql_error());
+        if( mysql_num_rows($result) !=0 ) {
+            $this->setSession($result, true);
+        }
+    } 
 }
+if( !isset($_SESSION['uid']) )
+session_defaults();
+$user = new User('localhost', 5000, gmdate("'Y-m-d'"));
+$user->checkLogin($_POST['username'], $_POST['password'], true);
 ?>
 
 <html>
@@ -87,12 +128,9 @@ class User {
 </head>
 <body class='bheader'>
 <?php
-    drawMenu() ;
-    if( !isset($_SESSION['uid']) )
-        session_defaults();
-    $user = new User('localhost', 5000, gmdate("'Y-m-d'"));
-    showInfo();
+drawMenu() ;
+showInfo();
 ?>
-    <br>
+<br>
 </body>
 </html>
