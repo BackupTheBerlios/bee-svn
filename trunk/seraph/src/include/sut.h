@@ -37,6 +37,10 @@ char* sut_expandVars( char const * t1 );
 char** sut_listTests(const char* td, int* sz) ;
 char** sut_listMachines(const char* td, int* sz) ;
 GSList* sut_getConfig(const char* machine, int* sz) ;
+bool sut_addMachine(const char* mName,
+                    const char* mOS,
+                    const char* mOSVer,
+                    const char* mIP);
 
 #else
         #warning "*** Header allready included ***"

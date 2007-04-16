@@ -1,6 +1,7 @@
 <?php
 require_once 'XML/RPC.php';
 require_once 'base_lib.php';
+session_start();
 
 
 function session_defaults() {
@@ -78,7 +79,6 @@ class User {
         }
     }
 }
-    session_start();
 ?>
 
 <html>

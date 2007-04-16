@@ -21,10 +21,11 @@
 #include <netdb.h>
 #include <fcntl.h>
 #include <dirent.h>
-#include <signal.h>
 #include <ctype.h>
 #include <limits.h>
 #include <stdbool.h>
+#include <linux/limits.h>
+#include <signal.h>
 
 #include "debug.h"
 
@@ -47,7 +48,7 @@
 
 #define VER "2.0.0"
 
-/*#define LINE_MAX 2048*/
+/*#define PATH_MAX 2048*/
 #define TEST_UNSET  0
 #define TEST_LOCAL  1
 #define TEST_REMOTE 2

@@ -76,7 +76,7 @@ int sock_connectTo( const char *host, const int port )
  * or OK: Command successful*/
 int sock_sendStatus( const int sock, const int cod )
 {
-        char str[LINE_MAX] = { 0 };
+        char str[PATH_MAX] = { 0 };
         int t = 0;
 
         if( !cod ) {
@@ -95,9 +95,9 @@ int sock_sendStatus( const int sock, const int cod )
 
 int sock_getStatus( const int sock )
 {
-        char buf[LINE_MAX + 1] = { 0 };
+        char buf[PATH_MAX + 1] = { 0 };
         int status = 0;
-        read( sock, buf, LINE_MAX );
+        read( sock, buf, PATH_MAX );
         if( buf[0] == 'O' )
                 return 0;
         if( buf[0] == 'E' )
@@ -108,7 +108,7 @@ int sock_getStatus( const int sock )
 int sock_sendLine( const int sock, const char *line )
 {
         int t;
-        char tr[LINE_MAX] = { 0 };
+        char tr[PATH_MAX] = { 0 };
 
         sprintf( tr, "%s\r\n", line );
         t = write( sock, tr, strlen( tr ) );

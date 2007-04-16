@@ -17,16 +17,15 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "debug.h"
-#include "seraph.h"
-#include "rshd.h"
-#include "strop.h"
 
+#include <stdlib.h>
 #include <libgen.h>
 #include <sys/wait.h>
 #include <limits.h>
 #include <time.h>
-#include <stdlib.h>
+
+#include "seraph.h"
+#include "rshd.h"
 #include "debug.h"
 #include "socket.h"
 #include "strop.h"
@@ -38,6 +37,7 @@
 extern struct config_s cfg;
 extern char *optarg;
 extern int optind;
+        extern int (*setenv)(const char *name, const char *value, int overwrite);
 
 
 
@@ -310,10 +310,10 @@ int srph_initCfg( struct config_s *config, int argc, char *argv[] )
 int srph_parseCfg( char *config_file )
 {
         pcre *re = NULL;
-        char buf[LINE_MAX];
+        char buf[PATH_MAX];
         int erroffset, matches, len;
         int offsetv[30];        /*! offset vector, pointing to the found matches */
-        char varName[LINE_MAX], varVal[LINE_MAX];
+        char varName[PATH_MAX], varVal[PATH_MAX];
         const char *error = NULL, *line = NULL;
 
         FILE *f = fopen( config_file, "r" );
@@ -326,7 +326,7 @@ int srph_parseCfg( char *config_file )
         re = pcre_compile( "(\\w+)\\s*=\\s*\"(.+)\"", 0, &error, &erroffset,
                            NULL );
 
-        while( ( line = fgets( buf, LINE_MAX, f ) ) ) {
+        while( ( line = fgets( buf, PATH_MAX, f ) ) ) {
                 char *c = strchr( line, '#' );
                 if( c )
                         continue;

@@ -5,7 +5,7 @@
 #include "sut.h"
 //#include <sys/types.h>
 #include <sys/wait.h>
-#include <linux/limits.h>
+#include <limits.h>
 //#include <glib.h>
 
 

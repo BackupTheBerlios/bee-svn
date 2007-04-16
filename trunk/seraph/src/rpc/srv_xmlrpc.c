@@ -4,7 +4,7 @@
 #include "sut.h"
 #include "xmlrpc.h"
 #include "svc_xmlrpc.h"
-#include <linux/limits.h>
+#include <limits.h>
 
 static int callback_socket( int portno );
 static int callback_command( int sckt );

@@ -18,6 +18,7 @@
  */
 
 #include <strings.h>
+#include <limits.h>
 #include "debug.h"
 #include "config.h"
 #include "strop.h"
@@ -98,7 +99,7 @@ int str_getCode( char *str )
 {
         int i = 1;
         char *b = NULL;
-        char cod[LINE_MAX];
+        char cod[PATH_MAX];
 
         if( !str_startsWith( str, "OK:" )
             && !str_startsWith( str, "ERR:" ) ) {

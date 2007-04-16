@@ -43,7 +43,7 @@
 #define VER "0.9.1"
 
 #define DIM_BUFF 1024
-#define LINE_MAX  750
+#define PATH_MAX  750
 #define BSIZE 1024
 #define TEST_UNSET  0
 #define TEST_LOCAL  1

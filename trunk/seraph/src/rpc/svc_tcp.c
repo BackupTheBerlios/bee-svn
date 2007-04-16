@@ -1,5 +1,4 @@
 #include <limits.h>
-#include <linux/limits.h>
 #include "config.h"
 #include "strop.h"
 #include "socket.h"

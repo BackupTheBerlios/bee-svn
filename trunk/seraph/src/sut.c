@@ -18,21 +18,23 @@
  */
 
 #include "config.h"
+#include <sys/wait.h>
+#include <sys/types.h>
+
 #include "sut.h"
 #include "socket.h"
 #include "strop.h"
-#include <sys/wait.h>
-#include <sys/types.h>
-#include <libgen.h>
-#include <sys/wait.h>
-#include <limits.h>
-#include <time.h>
 #include "debug.h"
 #include "rshd.h"
 #include "strop.h"
 #include "fileop.h"
 #include "wall.h"
+
 #include <glib.h>
+#include <libgen.h>
+#include <sys/wait.h>
+#include <limits.h>
+#include <time.h>
 /*#include <limits.h>*/
 /*
  * Dont use any GETENV, or cfgal variables in this file
@@ -428,7 +430,7 @@ static bool sut_refreshLocal( const char *source, const char *dest )
 
 static bool sut_refreshRemote( const char *host, const int port, const char *sursa, const char *dest )
 {
-    char command[LINE_MAX] = { 0 };
+    char command[PATH_MAX] = { 0 };
     int cod, sockfd;
 
     sockfd = sock_connectTo( host, port );
@@ -527,7 +529,7 @@ sut_checkCoreRemote( const char *core_srcDir, const char *dbg_srcDir,
         const char *axi_workDir, const char *axi_cfgFile,
         const char *crash_destDir )
 {
-    char cmd[LINE_MAX] = { 0 };     /* Max line should therefore be 3 times the length of FILENAME_MAX */
+    char cmd[PATH_MAX] = { 0 };     /* Max line should therefore be 3 times the length of FILENAME_MAX */
     int rc = 0;
     int sock;
 
@@ -889,7 +891,7 @@ static int sut_cleanupTmp( const char *tmpDir )
 static int sut_parseBat( const char *filename )
 {
 #if 0
-    char line[LINE_MAX] = { 0 };
+    char line[PATH_MAX] = { 0 };
     char *str = 0;
     pcre *re = NULL;
     int erroffset;
@@ -922,7 +924,7 @@ static int sut_parseBat( const char *filename )
         exit( EXIT_FAILURE );
     }
     printf( "# seraph: Scanning [%s]\n", filename );
-    while( ( str = fgets( line, LINE_MAX - 1, f ) ) ) {
+    while( ( str = fgets( line, PATH_MAX - 1, f ) ) ) {
         ;
         matches =
             pcre_exec( re, NULL, str, strlen( str ), 0, 0, ovector,
@@ -1064,7 +1066,7 @@ char* sut_expandVars( const char *t1 )
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 static int sut_setErrorlog(  )
 {
-    char rez[LINE_MAX] = "";
+    char rez[PATH_MAX] = "";
     struct tm *t = 0;
     time_t now;
     char dn[PATH_MAX]={0}, *p=0;

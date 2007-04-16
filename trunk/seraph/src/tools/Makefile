@@ -1,8 +1,11 @@
-CC  = gcc -g -I../include -Wall# -pedantic
+TOP=..
+include $(TOP)/system.mk
+
+#CC  = gcc -g -I../include -Wall# -pedantic
 LIB = ../lib/libtbot.a -lglib-2.0
 BIN = ../bin/tools
 TARGETS=rexec cp mkdir rm refresh start stop
-CFLAGS = `pkg-config --cflags glib-2.0`
+#CFLAGS = `pkg-config --cflags glib-2.0`
 
 
 all: $(TARGETS)
