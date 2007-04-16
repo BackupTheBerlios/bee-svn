@@ -77,7 +77,7 @@ int sock_connectTo( const char *host, const int port )
 int sock_sendStatus( const int sock, const int cod )
 {
         char str[PATH_MAX] = { 0 };
-        int t = 0;
+        ssize_t t = 0;
 
         if( !cod ) {
                 sprintf( str, "O:\r\n" );

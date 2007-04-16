@@ -17,7 +17,7 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-
+#include <strings.h>
 #include <stdlib.h>
 #include <libgen.h>
 #include <sys/wait.h>
@@ -37,9 +37,8 @@
 extern struct config_s cfg;
 extern char *optarg;
 extern int optind;
-//        extern int (*setenv)(const char *name, const char *value, int overwrite);
 
-
+static int srph_checkTools( const char *tools_path );
 
 struct config_s cfg;
 
@@ -353,7 +352,7 @@ int srph_parseCfg( char *config_file )
 #endif
 
 
-int srph_checkTools( const char *tools_path )
+static int srph_checkTools( const char *tools_path )
 {
         char buf[FILENAME_MAX] = { 0 };
 #define NB_TOOLS 7
