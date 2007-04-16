@@ -237,7 +237,7 @@ recursiveAction( const char *fileName,
 static int
 rm_fileAction( const char *fileName, struct stat *statbuf, void *junk )
 {
-        printf("%p %p\n", statbuf, junk);
+        debug("%p %p\n", (void*)statbuf, (void*)junk);
         if( unlink( fileName ) < 0 ) {
                 perror( fileName );
                 return ( FALSE );

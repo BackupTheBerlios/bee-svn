@@ -4,7 +4,7 @@
 
 TOP=.
 include system.mk
-TARGETS=lib/libtrpc.a lib/libtbot.a $(BINDIR)/seraph  $(BINDIR)/mngrd
+TARGETS=lib/libtrpc.a lib/libtbot.a $(BINDIR)/seraph  $(BINDIR)/mngrd tool
 
 all: $(TARGETS)
 
@@ -31,13 +31,15 @@ lib/libtrpc.a:
 bin/mngrd: lib/libtbot.a
 	mkdir -p ./bin/tools
 	$(CC) $(CFLAGS) $(LDFLAGS) mngrd.c  -o $@
-	make -C ./tools
 
 bin/seraph: lib/libtbot.a lib/libtrpc.a
 	mkdir -p ./bin/tools
 	$(CC) $(CFLAGS) $(LDFLAGS) seraph.c  -o $@
-	make -C ./tools
 
+
+tool:
+	make -C ./tools
+	touch tool
 
 clean:
 	rm -rf $(TARGETS) $(objs) *.o *.lob
