@@ -15,9 +15,9 @@ static int rm_parseArgs( int argc, char *argv[] );
 
 int main( int argc, char *argv[] )
 {
-        char *tc;               // conexion type
-        char *host;
-        int port, test_type;
+        char *tc=NULL;               // conexion type
+        char *host=NULL;
+        int port=0, test_type=TEST_LOCAL;
 
         if( argc < 2 )          // trebuie sa am sursa si destinatie
         {

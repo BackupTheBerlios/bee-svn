@@ -28,6 +28,7 @@
 #include <sys/wait.h>
 #include <limits.h>
 #include <time.h>
+#include "rpc.h"
 #include "debug.h"
 #include "seraph.h"
 #include "rshd.h"
