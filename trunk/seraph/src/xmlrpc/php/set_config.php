@@ -1,4 +1,5 @@
 <?php
+session_start();
 require_once 'XML/RPC.php';
 require_once 'base_lib.php';
 function setMachineConfig($cli)
@@ -48,6 +49,7 @@ function setMachineConfig($cli)
 <?php
 drawMenu() ;
 $cli = new XML_RPC_Client('/RPCSERVER','localhost',5000);
+$cli->setDebug(1);
 setMachineConfig($cli);
 #include "machines.php";
 showInfo();

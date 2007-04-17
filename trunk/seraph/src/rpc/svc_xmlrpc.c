@@ -268,8 +268,10 @@ x_runTestsCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void* userData
     const char* sut_build, *p;
     XMLRPC_VALUE oses, tests;
     XMLRPC_VALUE xIter ;
+    XMLRPC_VALUE xStarted;
     extern struct config_s cfg;
     pid_t pid;
+    int status=0;
 
 
     str = XMLRPC_VectorRewind(XMLRPC_RequestGetData(request));
@@ -290,13 +292,17 @@ x_runTestsCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void* userData
     /* Extract and RUN SUT Tests */
     tests = XMLRPC_VectorGetValueWithID(str, "sut_tests");
     xIter = XMLRPC_VectorRewind( tests );
+
     pid = fork() ;
 
-    if(pid<0) { debug("ERR:cant start the tests\n"); return NULL; }
+    if(pid<0) {
+        debug("ERR:cant start the tests\n");
+        return XMLRPC_CreateValueString( NULL, "Unable to start the tests", 0 );
+    }
     if(pid>0) {
-        int status=0;
-        wait(&status);
-        return XMLRPC_CreateValueString( NULL, "Starting Test Execution", 0 );
+        debug("father returned\n");
+        //waitpid(pid, &status, WNOHANG);
+        return XMLRPC_CreateValueString( NULL, "Started Test Execution", 0 );
     }
     if(!pid) {
         while(xIter) {
@@ -307,8 +313,10 @@ x_runTestsCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void* userData
             sut_runTests( b );
             xIter = XMLRPC_VectorNext(tests);
         }
+        sleep(20);
+        return NULL;
+    //return XMLRPC_CreateValueString( NULL, "Tests executed",0);
     }
-    return NULL;
 }
 
 /* chechcore( core_srcDir, dbg_srcDir, axi_workDir, axi_cfgFile, crash_destDir ) */

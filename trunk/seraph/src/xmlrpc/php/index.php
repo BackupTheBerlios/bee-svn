@@ -116,10 +116,63 @@ class Index {
         </form>
         <br style='clear:both'>
         <hr>
-        List of running Jobs:(Opens log on click)<br>
-        <pre>12:30:00 [cli, hsp, html] [2.0] [machine1] [12 of 120]</pre>
-        <pre>12:30:00 [cli, hsp, html] [3.0] [machine2] [12 of 120]</pre>
-        <pre>12:30:00 [cli, hsp, html] [4.0] [machine3] [12 of 120]</pre>
+        List of Jobs:(Opens log on click)<br>
+<table cellspacing='1' width='60%'>
+<tr bgcolor="#c8c8ff">
+        <td class="center" valign="top" width ="0" nowrap>
+        <span class="small">
+        <a href="view.php?id=1036" title="[assigned] aSfasfaSF">00001</a><br />&nbsp;     </span>
+    </td>
+
+        <td class="left" valign="top" width="100%">
+
+        <span class="small">
+        [cli, hsp, html]<br/>
+        [2.0] [machine1] [2007-04-12 05:02] [ 0 of 120]
+        </span>
+    </td>
+    <td>
+    <span>
+    Pending
+    </span>
+    </td>
+</tr>
+<tr bgcolor="#ffa0a0">
+        <td class="center" valign="top" width ="0" nowrap>
+        <span class="small">
+        <a href="view.php?id=1036" title="[assigned] aSfasfaSF">00002</a><br />&nbsp;     </span>
+    </td>
+
+        <td class="left" valign="top" width="100%">
+
+        <span class="small">
+        [cli, hsp, html]<br/>
+        [2.0] [machine1] [2007-04-12 05:02] [120 of 120]
+    <td>
+    <span> Complete
+    </span>
+    </td>
+        </span>
+    </td>
+</tr>
+<tr bgcolor="#cceedd">
+        <td class="center" valign="top" width ="0" nowrap>
+        <span class="small">
+        <a href="view.php?id=1036" title="[assigned] aSfasfaSF">00003</a><br />&nbsp;     </span>
+    </td>
+
+        <td class="left" valign="top" width="100%">
+
+        <span class="small">
+        [cli, hsp, html]<br/>
+        [2.0] [machine1] [2007-04-12 05:02] [ 12 of 120]
+        </span>
+    <td>
+    <span> Running
+    </span>
+    </td>
+</tr>
+</table>
 </body>
 </html>
 

@@ -58,9 +58,10 @@ function runTests($cli)
 <body class='bheader'>
 <?php
     #drawMenu() ;
-    #$cli = new XML_RPC_Client('/RPCSERVER','localhost',5000);
-    #runTests($cli);
-    showInfo();
+    $cli = new XML_RPC_Client('/RPCSERVER','localhost',5000);
+    $cli->setDebug(1);
+    runTests($cli);
+    #showInfo();
 ?>
     <br>
 </body>

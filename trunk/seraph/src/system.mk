@@ -1,7 +1,9 @@
 PREFIX=.
 BINDIR=$(PREFIX)/bin
-VARDIR=$(PREFIX)/db/seraph
-MACHINES=/home/groleo/machines
+VARDIR=/home/groleo/var/db/seraph
+MACHINES=$(VARDIR)/machines
+JOBS=$(VARDIR)/jobs
+SCHEDULES=$(VARDIR)/schedules
 
 ifndef FLINT
 CC = gcc

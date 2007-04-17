@@ -93,10 +93,10 @@ static int callback_socket( int portno )
     clilen = sizeof( cli_addr );
 
     extern int running ;
+    if (-1 == fcntl(sockfd, F_SETOWN, (int) getpid())) return -1;
     while( running )
-    {   int newsockfd;
-        newsockfd =
-            accept( sockfd, ( struct sockaddr * )&cli_addr, &clilen );
+    {   int newsockfd=0;
+        newsockfd = accept( sockfd, ( struct sockaddr * )&cli_addr, &clilen );
         if( newsockfd < 0 )
         {   perror( "rsh: ERR on accept" );
             exit( -1 );
@@ -139,16 +139,18 @@ static int callback_command( int sckt )
             buf1+=4;
             debug("%s\n", buf1);
             rsp = clientCallback(buf1);
+            if (-1 == fcntl(sckt, F_SETOWN, (int) getpid())) return -1;
+            if(!rsp) ok=false;
             sprintf(banner,"HTTP/1.1 200 OK\r\nDate: Wed, 07 Mar 2007 09:50:14 GMT\r\nServer: libwww-perl-daemon/1.36\r\nAccept: text/xml\r\nContent-Length: %d\r\nContent-Type: text/xml\r\nRPC-Encoding: XML-RPC\r\nRPC-Server: RPC::XML::Server/1.44\r\n\r\n",
                     strlen(rsp));
-            debug("\n[%s]\n[%s]\n", banner, rsp);
+            debug("Banner:[%s]\nResponse:[%s]\n", banner, rsp);
             write(sckt, banner, strlen(banner));
             write(sckt, rsp, strlen(rsp));
             free(rsp);
             ok=false;
         }
     } /*while */
-    close( sckt );
+    close(sckt);
     return 0;
 }
 /* with the exception of the registration calls, most everything in main
@@ -176,42 +178,28 @@ char* clientCallback( const char* filebuf )
     XMLRPC_ServerRegisterMethod( server, "setConfig", x_setConfigCallback );
     XMLRPC_ServerRegisterMethod( server, "addMachine", x_addMachineCallback );
 
-    /*
-     * This will be read from a  socket
-     */
-    {
-        // parse the xml into a request structure
-        request =
-            XMLRPC_REQUEST_FromXML( filebuf,
-                    strlen(filebuf), NULL );
-    }
+    request = XMLRPC_REQUEST_FromXML( filebuf, strlen(filebuf), NULL );
     if( !request ) {
         fprintf( stderr, "bogus xmlrpc request\n" );
         return NULL;
     }
-    /*
-     *  The interesting part is below
-     */
 
     /* create a response struct */
     response = XMLRPC_RequestNew( );
     XMLRPC_RequestSetRequestType( response, xmlrpc_request_response );
 
     /* call server method with client request and assign the response to our response struct */
-    XMLRPC_RequestSetData( response,
-            XMLRPC_ServerCallMethod( server, request,
-                NULL ) );
+    XMLRPC_RequestSetData( response, XMLRPC_ServerCallMethod( server, request, NULL ) );
+    if( !response ) return NULL;
 
     /* be courteous. reply in same vocabulary/manner as the request. */
-    XMLRPC_RequestSetOutputOptions( response,
-            XMLRPC_RequestGetOutputOptions
-            ( request ) );
+    XMLRPC_RequestSetOutputOptions( response, XMLRPC_RequestGetOutputOptions ( request ) );
 
     /* serialize server response as XML */
     char *outBuf = XMLRPC_REQUEST_ToXML( response, 0 );
 
     if( outBuf ) {
-        printf( outBuf );
+        debug( "%s\n", outBuf );
     }
     // cleanup.  null safe.
     XMLRPC_RequestFree( request, 1 );
