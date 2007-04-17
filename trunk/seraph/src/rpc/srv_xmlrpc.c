@@ -115,10 +115,9 @@ static int callback_command( int sckt )
     char buf[8192] = { 0 };
     char *buf1=NULL;
     char *rsp;
-    int ok = 1;
     int n;//, i;
     char banner[8192]={0};;
-    while( ok ) {
+    while( true ) {
         //char *p = NULL;
         memset( buf, 0, 8192 );
         n = read( sckt, buf, 8191 );
@@ -140,14 +139,13 @@ static int callback_command( int sckt )
             debug("%s\n", buf1);
             rsp = clientCallback(buf1);
             if (-1 == fcntl(sckt, F_SETOWN, (int) getpid())) return -1;
-            if(!rsp) ok=false;
             sprintf(banner,"HTTP/1.1 200 OK\r\nDate: Wed, 07 Mar 2007 09:50:14 GMT\r\nServer: libwww-perl-daemon/1.36\r\nAccept: text/xml\r\nContent-Length: %d\r\nContent-Type: text/xml\r\nRPC-Encoding: XML-RPC\r\nRPC-Server: RPC::XML::Server/1.44\r\n\r\n",
                     strlen(rsp));
             debug("Banner:[%s]\nResponse:[%s]\n", banner, rsp);
             write(sckt, banner, strlen(banner));
             write(sckt, rsp, strlen(rsp));
             free(rsp);
-            ok=false;
+            break;
         }
     } /*while */
     close(sckt);
