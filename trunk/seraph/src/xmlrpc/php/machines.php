@@ -43,17 +43,17 @@ function removeEvent(divNum)
 
     <hr/>
     <form name="add_machine" method="post" action="add_machine.php">
-        <div>
-            <input type='submit' value='Add'/>
-            Machine:
+        <div class='column' style="width:22em">
             <br>
             <span>
-            <b>Name:</b><input type='text' name='SUT_MNAME' value='ciociolina'/><br/>
-            <b>OS Name:</b><input type='text' name='SUT_OS' value='NetBSD'/><br/>
-            <b>OS Ver:</b><input type='text' name='SUT_OSVER' value='3.0'/><br/>
-            <b>IP:</b><input type='text' name='SUT_MIP' value='193.230.245.6'/><br/>
+            <b style="float:left">Name:</b>   <input style="float:right"type='text' name='SUT_MNAME' value='ciociolina'/><br/>
+            <b style="float:left">OS Name:</b><input style="float:right"type='text' name='SUT_OS' value='NetBSD'/><br/>
+            <b style="float:left">OS Ver:</b> <input style="float:right"type='text' name='SUT_OSVER' value='3.0'/><br/>
+            <b style="float:left">IP:</b>     <input style="float:right"type='text' name='SUT_MIP' value='193.230.245.6'/><br/>
             </span>
             </div>
+            <br>
+            <input type='submit' value='Add'/>
         </form>
 </body>
 </html>

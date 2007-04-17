@@ -12,23 +12,25 @@ include 'base_lib.php' ;
 <?php drawMenu(); ?>
 <form name="login" method="post" action="register.php">
 
-<div class ="header" style="width:350">
+<div class ="header" style="width:25em">
     <span><b>Registration</b></span>
 </div>
-<div id="menu" style="height:100; width:350">
+
+<div id="menu" style="height:100; width:25em">
+    <b style="width:100;">Username:</b>
+    <input type="text" name="username"/>
+
+    <b style="width:100;">Password:</b>
+    <input type="password" name="password"/>
+
     <b style="width:100">Name:</b>
     <input type="text" name="name" maxlength="100"/>
 
     <b style="width:100">Email:</b>
     <input type="text" name="email" maxlength="100"/>
 
-    <b style="width:100;">Username:</b>
-    <input type="text" name="username"/>
-
-    <b style="width:100;">Password:</b>
-    <input type="password" name="password"/>
-</div>
-<div class ="header" style="width:350">
+    </div>
+<div class ="header" style="width:25em">
     <span>&nbsp;</span>
 </div>
 <input type="submit" name="submit" value="Submit"/>

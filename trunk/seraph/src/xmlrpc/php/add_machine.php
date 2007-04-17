@@ -1,4 +1,5 @@
 <?php
+session_start();
 require_once 'XML/RPC.php';
 require_once 'base_lib.php';
 

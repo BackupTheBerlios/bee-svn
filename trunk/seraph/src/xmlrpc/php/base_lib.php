@@ -1,6 +1,16 @@
 <?php
 require_once 'XML/RPC.php';
 
+
+function session_defaults() {
+    $_SESSION['logged'] = false;
+    $_SESSION['uid'] = 0;
+    $_SESSION['username'] = '';
+    $_SESSION['cookie'] = 0;
+    $_SESSION['remember'] = false;
+}
+
+
 function hasErrors($resp)
 {
     if (!$resp)
@@ -45,7 +55,7 @@ function drawMenu() {
         </div>
         <div class='head_menu'>
         <ul>";
-    if ( empty( $_SESSION['username'] ) ) {
+    if ( $_SESSION['logged'] == false ) {
             echo "<li><a href='.'>Home</a></li>";
             echo "<li><a href='login_form.php'>Login</a></li>";
             echo "<li><a href='register_form.php'>Register</a></li>";
@@ -55,8 +65,8 @@ function drawMenu() {
     echo "<li><a href='.'>Home</a></li>
             <li><a href='machines.php'>Machines</a></li>
             <li><a href='settings.php'>Settings</a></li>
-            <li><a href='docs.php'>Documentation</a></li>
-         ";
+            <li><a href='schedules.php'>Schedules</a></li>
+            <li><a href='docs.php'>Documentation</a></li> ";
     echo "<li><a href='./logout.php'>Logout</a></li>";
     echo "</ul></div><br>";
     return true;
@@ -66,7 +76,7 @@ function drawMachines()
 {
     $cli = new XML_RPC_Client('/RPCSERVER', 'localhost', 5000);
 
-    $cli->setDebug(1);
+    #$cli->setDebug(1);
     $cli->setCredentials("user1","user1");
 
 
@@ -86,10 +96,7 @@ function drawMachines()
         <input type='submit' value='Save'>
 
         <input id='sName$m'  type='text' value='SUT_NAME' style='text-align:right; clear:both; float:left; width:12em;'/>
-        <input id='sValue$m' type='text' value='Value'/>
-
-
-        ";
+        <input id='sValue$m' type='text' value='Value'/>";
         $params = array(new XML_RPC_Value( ($m), 'string') );
         $msg    = new XML_RPC_Message('getConfig', $params);
         $resp   = $cli->send($msg);
@@ -104,13 +111,8 @@ function drawMachines()
             echo "<b>$symbol</b>";
             echo "<input type='text' name='$symbol' value='$value' /><br>\n";
         }
-        echo "
-
-        </span></p>
-            </li>
-            </ul>
-
-</form>";
+        echo " </span></p>
+            </li> </ul> </form>";
     }
 }
 function showInfo()

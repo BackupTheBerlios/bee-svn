@@ -4,7 +4,7 @@ session_start();
 $dbhost = "localhost";
 $dbname = "website";
 $dbuser = "root";
-$dbpass = "19323165171";
+$dbpass = "";
 mysql_connect ( $dbhost, $dbuser, $dbpass)or die("Could not connect: ".mysql_error());
 mysql_select_db($dbname) or die(mysql_error());
 

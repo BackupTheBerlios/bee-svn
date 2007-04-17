@@ -3,7 +3,7 @@
 $dbhost = "localhost";
 $dbname = "website";
 $dbuser = "root";
-$dbpass = "asd";
+$dbpass = "";
 
 #connect to database
 mysql_connect ( $dbhost, $dbuser, $dbpass)or die("Could not connect: ".mysql_error());

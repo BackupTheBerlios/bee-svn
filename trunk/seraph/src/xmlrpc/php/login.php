@@ -3,33 +3,23 @@ require_once 'XML/RPC.php';
 require_once 'base_lib.php';
 session_start();
 
-
-function session_defaults() {
-    $_SESSION['logged'] = false;
-    $_SESSION['uid'] = 0;
-    $_SESSION['username'] = '';
-    $_SESSION['cookie'] = 0;
-    $_SESSION['remember'] = false;
-}
-
-
 class User {
     var $xmlrpc=null;
     var $failed = false;
     var $date;
     var $id;
 
-    function User($host, $port, $date)
+    function User()
     {
     # database information
     $dbhost = "localhost";
     $dbname = "website";
     $dbuser = "root";
-    $dbpass = "asd";
+    $dbpass = "";
         #connect to database
         mysql_connect ( $dbhost, $dbuser, $dbpass)or die("Could not connect: ".mysql_error());
         mysql_select_db($dbname) or die(mysql_error());
-        $this->date = $date;
+        $this->date = gmdate("'Y-m-d'");
         //echo $date."<br>\n";
         if( !$_SESSION['logged'] )
             $this->checkSession();
@@ -117,20 +107,8 @@ class User {
     } 
 }
 if( !isset($_SESSION['uid']) )
-session_defaults();
-$user = new User('localhost', 5000, gmdate("'Y-m-d'"));
+    session_defaults();
+$user = new User();
 $user->checkLogin($_POST['username'], $_POST['password'], true);
+header('location:index.php');
 ?>
-
-<html>
-<head>
-<link href='mystyle.css' rel='stylesheet' type='text/css'>
-</head>
-<body class='bheader'>
-<?php
-drawMenu() ;
-showInfo();
-?>
-<br>
-</body>
-</html>

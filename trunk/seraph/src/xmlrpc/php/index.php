@@ -24,7 +24,7 @@ class Index {
 
         $i = $resp->value()->arraysize();
 
-        echo "<select name='sut_tests[]' multiple size='5'>" ;
+        echo "<select name='sut_tests[]' multiple size='5'><option>ALL</option>";
         while($i--) {
             echo "<option>"
                 .XML_RPC_decode($resp->value()->arraymem($i))
@@ -44,7 +44,7 @@ class Index {
         if( hasErrors($resp)) return false;
         $i = $resp->value()->arraysize();
 
-        echo "<select name='sut_os[]' multiple size='5'>" ;
+        echo "<select name='sut_os[]' multiple size='5'><option>ALL</option>" ;
         while($i--) {
             echo "<option>"
                 .XML_RPC_decode($resp->value()->arraymem($i))
@@ -57,13 +57,25 @@ class Index {
 
     function listSUTVersions( )
     {
-        echo "TODO!!SUT Versions:<br>
-            <select name='sut_versions[]' multiple size='5'>
+        echo "T:SUT Versions:<br>
+            <select style='float:left' name='sut_versions[]' multiple size='5'>
             <option>2.0</option>
             <option>3.0</option>
             <option selected>4.0</option>
             </select>
-            <input valign='top' value='0.0' name='sut_build' type='text' size='3'/>
+            <input style='float:left'value='0.0' name='sut_build' type='text' size='3'/>
+            ";
+    }
+    function listSchedules( )
+    {
+        echo "T:Schedules:
+            <input type='checkbox' name='vehicle' value='Bike' /><br>
+            <select name='sut_crontests[]' multiple size='5'>
+            <option>joia</option>
+            <option>vinerea</option>
+            <option selected>regression30</option>
+            </select>
+            <!--<input valign='top' value='0.0' name='sut_build' type='text' size='3'/>-->
             ";
     }
 }
@@ -97,10 +109,17 @@ class Index {
             <span > <?php $index->listTests(); ?> &nbsp;</span>
             <span > <?php $index->listSUTVersions(); ?> &nbsp;</span>
             <span > <?php $index->listOSes(); ?> &nbsp;</span>
+            <span > <?php $index->listSchedules(); ?> &nbsp;</span>
             <input type='submit' value='Run'/>
             <input type='submit' value='Setup'/>
             </div>
         </form>
+        <br style='clear:both'>
+        <hr>
+        List of running Jobs:(Opens log on click)<br>
+        <pre>12:30:00 [cli, hsp, html] [2.0] [machine1] [12 of 120]</pre>
+        <pre>12:30:00 [cli, hsp, html] [3.0] [machine2] [12 of 120]</pre>
+        <pre>12:30:00 [cli, hsp, html] [4.0] [machine3] [12 of 120]</pre>
 </body>
 </html>
 
