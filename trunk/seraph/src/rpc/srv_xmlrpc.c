@@ -114,7 +114,7 @@ static int callback_command( int sckt )
 {
     char buf[8192] = { 0 };
     char *buf1=NULL;
-    char *rsp;
+    char *rsp=NULL;
     int n;//, i;
     char banner[8192]={0};;
     while( true ) {
@@ -136,16 +136,22 @@ static int callback_command( int sckt )
         buf1 = strstr(buf, "\r\n\r\n");
         if(buf1){
             buf1+=4;
-            debug("%s\n", buf1);
-            rsp = clientCallback(buf1);
+            debug("BODY:[%s]\n", buf1);
             if (-1 == fcntl(sckt, F_SETOWN, (int) getpid())) return -1;
+            rsp = clientCallback(buf1);
+            if(!rsp) return 0;
+
             sprintf(banner,"HTTP/1.1 200 OK\r\nDate: Wed, 07 Mar 2007 09:50:14 GMT\r\nServer: libwww-perl-daemon/1.36\r\nAccept: text/xml\r\nContent-Length: %d\r\nContent-Type: text/xml\r\nRPC-Encoding: XML-RPC\r\nRPC-Server: RPC::XML::Server/1.44\r\n\r\n",
                     strlen(rsp));
             debug("Banner:[%s]\nResponse:[%s]\n", banner, rsp);
+            debug("will write on sckt(%d)\n", sckt);
             write(sckt, banner, strlen(banner));
             write(sckt, rsp, strlen(rsp));
             free(rsp);
-            break;
+            rsp=0;
+            shutdown(sckt,2);
+            close(sckt);
+            return 0;
         }
     } /*while */
     close(sckt);
