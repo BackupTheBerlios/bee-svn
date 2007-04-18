@@ -121,7 +121,7 @@ class Index {
 <tr bgcolor="#c8c8ff">
         <td class="center" valign="top" width ="0" nowrap>
         <span class="small">
-        <a href="view.php?id=1036" title="[assigned] aSfasfaSF">00001</a><br />&nbsp;     </span>
+        <a href="view_job.php?SUT_jobid=1036" title="[assigned] aSfasfaSF">00001</a><br />&nbsp;     </span>
     </td>
 
         <td class="left" valign="top" width="100%">
@@ -140,7 +140,7 @@ class Index {
 <tr bgcolor="#ffa0a0">
         <td class="center" valign="top" width ="0" nowrap>
         <span class="small">
-        <a href="view.php?id=1036" title="[assigned] aSfasfaSF">00002</a><br />&nbsp;     </span>
+        <a href="view_job.php?SUT_jobid=1036" title="[assigned] aSfasfaSF">00002</a><br />&nbsp;     </span>
     </td>
 
         <td class="left" valign="top" width="100%">
@@ -158,7 +158,7 @@ class Index {
 <tr bgcolor="#cceedd">
         <td class="center" valign="top" width ="0" nowrap>
         <span class="small">
-        <a href="view.php?id=1036" title="[assigned] aSfasfaSF">00003</a><br />&nbsp;     </span>
+        <a href="view_job.php?SUT_jobid=1036" title="[assigned] aSfasfaSF">00003</a><br />&nbsp;     </span>
     </td>
 
         <td class="left" valign="top" width="100%">
