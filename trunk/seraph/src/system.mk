@@ -14,7 +14,8 @@ WARN=	-W -Wimplicit -Wreturn-type -Wswitch -Wcomment \
 	-Wtrigraphs -Wformat -Wchar-subscripts \
 	-Wparentheses -pedantic -Wuninitialized -std=c99
 
-CFLAGS = $(WARN) $(XOPEN_SOURCE) -g -Os -DMACHINES=\"$(MACHINES)\" -I$(TOP)/include `pkg-config --cflags glib-2.0`
+CFLAGS = $(WARN) $(XOPEN_SOURCE) -g -Os -DMACHINES=\"$(MACHINES)\" -DJOBS=\"$(JOBS)\" \
+	-I$(TOP)/include `pkg-config --cflags glib-2.0`
 LDFLAGS =-lglib-2.0 -Llib -Wl,-whole-archive -ltrpc -ltbot -Wl,-no-whole-archive -lxmlrpc
 else
 CC = flint

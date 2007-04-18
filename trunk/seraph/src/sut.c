@@ -1073,29 +1073,28 @@ int sut_setErrorlog(  )
 
     time( &now );
     t = localtime( &now );
-    sprintf( rez, "%s/errors/%s-%d-%02d:%02d:%02d",
-            cfg.seraph_path, cfg.hostname, getpid(  ),
-            t->tm_hour, t->tm_min, t->tm_sec );
+    sprintf( rez, "%s/running/%s-%d-%02d:%02d", JOBS,
+            strrchr(cfg.config_file,'/'), getpid(  ),
+            t->tm_hour, t->tm_min );
 
-    printf( "# seraph: Log is: [%s]\n", rez );
+    debug( "I: Log is: [%s]\n", rez );
     setenv( SUT_ERRLOG, rez, 1 );
 
     /* Create ./errors in case it doesn't exists */
     strcpy(dn,rez);
     p = dirname(dn);
     if( -1 == access( p, F_OK ) ) {
-        fprintf( stderr, "%s doesn't exist\n", dirname( rez ) );
+        debug( "E: %s doesn't exist\n", dirname( rez ) );
         if( -1 == mkdir( p, 0777 ) ) {
-            fprintf( stderr, "SetErrorLog: Unable to create [%s]: [%s]\n",
-                    p,strerror( errno ) );
+            debug( "E: Unable to create [%s]: [%s]\n", p,strerror( errno ) );
             exit( EXIT_FAILURE );
         }
-        fprintf( stderr, "%s created\n", p );
+        debug( "I: %s created\n", p );
     }
 
     /* If it exists, but we dont have write permissions */
     if( -1 == access( p, W_OK ) ) {
-        fprintf( stderr, "%s doesn't have write permissions\n", p );
+        debug( "E: %s doesn't have write permissions\n", p );
         exit( EXIT_FAILURE );
     }
     return 0;
@@ -1123,8 +1122,9 @@ int sut_runTests( const char *dir )
         exit( EXIT_FAILURE );
     }
     /*! @todo verify if `tests` dir is an absolute or a relative path */
-    sprintf( fullPath, "%s/%s", curDir, dir );
-            sut_runRecursive( fullPath );
+    //sprintf( fullPath, "%s/%s", curDir, dir );
+    sprintf( fullPath, "%s", dir );
+    sut_runRecursive( fullPath );
     return TRUE;
 }
 

@@ -61,9 +61,11 @@ start_xmlrpc(const unsigned int port)
     int fderr, fdout,fdin;
 
     fdlimit = sysconf (_SC_OPEN_MAX);
-    if (fdlimit == -1)
+    if (fdlimit == -1) {
         fdlimit = 3;
-
+        debug("cant fdlimit\n");
+    }
+    fdlimit = 3;
     for (i = 0; i < fdlimit; i++)
         close (i);
 

@@ -305,7 +305,8 @@ x_runTestsCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void* userData
             p = XMLRPC_GetValueString( xIter );
             debug("Run tests from directory: '%s/%s' \n", cfg.test_dir,p);
             sprintf(b, "%s/%s", cfg.test_dir,p);
-            sut_runTests( b );
+            //sut_runTests( b );
+            system("/home/groleo/code/seraph/src/bin/seraph -C /home/groleo/code/seraph/src/linux_gcc3 -d ~/tests/pop3/ -t local -r n -k");
             xIter = XMLRPC_VectorNext(tests);
         }
         sleep(20);
