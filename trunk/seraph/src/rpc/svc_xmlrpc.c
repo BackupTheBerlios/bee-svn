@@ -91,12 +91,7 @@ x_getConfigCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void *userDat
 
     machine = XMLRPC_GetValueString( xIter );
     symbList = sut_getConfig( machine , &nbSymbols);
-    printf("----------------%p-------\n", userData);
-//    nbSymbols--;
-/*    XMLRPC_VectorAppendString( rv, "symbol", "some symbol", 0 );
-    XMLRPC_VectorAppendString( rv, "val" , "some value", 0 );
-    XMLRPC_AddValueToVector ( ret, rv);
-*/
+    debug("UserData:%p\n", userData);
     while( nbSymbols-- ) {
         tmp = (ConfigEntry*)g_slist_nth_data(symbList, nbSymbols);
         if( (!tmp) || (!tmp->symbol) || (!tmp->value) ) continue;

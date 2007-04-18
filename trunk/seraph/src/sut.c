@@ -1132,7 +1132,7 @@ int onLineParsed(const char *name, const char *value, void* arg)
     GSList** a = (GSList**)arg;
     ConfigEntry* el = calloc(1, sizeof(ConfigEntry));
 
-    printf("%s -- %s\n", name, value);
+    debug("%s -- %s\n", name, value);
     el->symbol = calloc(1, strlen(name)+1);
     el->value = calloc(1, strlen(value)+1);
 
