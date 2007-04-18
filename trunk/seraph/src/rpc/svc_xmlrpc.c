@@ -314,8 +314,7 @@ x_runTestsCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void* userData
             xIter = XMLRPC_VectorNext(tests);
         }
         sleep(20);
-        return NULL;
-    //return XMLRPC_CreateValueString( NULL, "Tests executed",0);
+        exit(EXIT_SUCCESS);
     }
 }
 
