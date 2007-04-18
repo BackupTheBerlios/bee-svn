@@ -50,7 +50,7 @@ static int  mngrd_parseArgs( struct config_s *cfg, int argc, char *argv[] );
 
 int main( int argc, char *argv[] )
 {
-    DBG;
+    DBG("mngrd.debug");
     if( argc == 1 )
         mngrd_usage( EXIT_FAILURE );
 

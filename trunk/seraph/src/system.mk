@@ -1,9 +1,17 @@
-PREFIX=.
+BIN_MODE=755
+
+PREFIX=/home/groleo/sand
 BINDIR=$(PREFIX)/bin
-VARDIR=/home/groleo/var/db/seraph
+LIBDIR=$(PREFIX)/lib/seraph
+
+VARDIR=/home/groleo/sand/var/db/seraph
 MACHINES=$(VARDIR)/machines
 JOBS=$(VARDIR)/jobs
 SCHEDULES=$(VARDIR)/schedules
+
+INSTALL=$(TOP)/install-sh -c
+INSTALLDIR=mkdir -p
+
 
 ifndef FLINT
 CC = gcc
@@ -15,7 +23,7 @@ WARN=	-W -Wimplicit -Wreturn-type -Wswitch -Wcomment \
 	-Wparentheses -pedantic -Wuninitialized -std=c99
 
 CFLAGS = $(WARN) $(XOPEN_SOURCE) -g -Os -DMACHINES=\"$(MACHINES)\" -DJOBS=\"$(JOBS)\" \
-	-I$(TOP)/include `pkg-config --cflags glib-2.0`
+	-DUSE_DEBUG -DLIBDIR=\"$(LIBDIR)\" -I$(TOP)/include `pkg-config --cflags glib-2.0`
 LDFLAGS =-lglib-2.0 -Llib -Wl,-whole-archive -ltrpc -ltbot -Wl,-no-whole-archive -lxmlrpc
 else
 CC = flint

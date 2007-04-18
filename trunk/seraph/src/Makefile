@@ -4,7 +4,7 @@
 
 TOP=.
 include system.mk
-TARGETS=lib/libtrpc.a lib/libtbot.a $(BINDIR)/seraph  $(BINDIR)/mngrd tool
+TARGETS=lib/libtrpc.a lib/libtbot.a bin/seraph  bin/mngrd tool
 
 all: $(TARGETS)
 
@@ -41,6 +41,18 @@ tool:
 	make -C ./tools
 	touch tool
 
+install:
+	$(INSTALLDIR) $(BINDIR)
+	$(INSTALL) -m $(BIN_MODE) ./bin/mngrd $(BINDIR)
+	$(INSTALL) -m $(BIN_MODE) ./bin/seraph $(BINDIR)
+	$(INSTALLDIR) $(MACHINES)
+	$(INSTALLDIR) $(JOBS)
+	$(INSTALLDIR) $(JOBS)/complete
+	$(INSTALLDIR) $(JOBS)/running
+	$(INSTALLDIR) $(SCHEDULES)
+	make -C tools install
+
+
 clean:
 	rm -rf $(TARGETS) $(objs) *.o *.lob
 	make -C rpc clean
@@ -58,10 +70,6 @@ tar:
 
 indent:
 	indent -br -brs -cdw -ce -l80 -nut -ncs -prs -nsai -npcs -nsaf -nsaw -kr -i8 *.c
-
-install:
-	cp ./seraph ..
-	make -C ./tools install
 
 rmtinst:
 	scp ./seraph root@gigi:/home/seraph

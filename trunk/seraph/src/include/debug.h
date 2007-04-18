@@ -19,17 +19,21 @@ extern FILE* logHandle ;
 #endif
 
 /*! Use this macro to activate the calling of debug()*/
+#if defined USE_DEBUG
 #if !defined DBG
-    #define DBG useDebug_g =getenv("DBG") ;\
-    logHandle = fopen( "seraph.log", "a" ) ;\
-    if( !logHandle ){ printf( "Can't open 'seraph.log' [%s]\n", strerror(errno)) ;exit(0) ;} \
+    #define DBG(afile) useDebug_g =getenv("DBG") ;\
+    logHandle = fopen( afile, "a" ) ;\
+    if( !logHandle ){ printf( "Can't open '%s' [%s]\n", afile, strerror(errno)) ;exit(0) ;} \
     setlinebuf(logHandle);
 #endif
 
 #if !defined UNDBG
     #define UNDBG fclose( logHandle ) ;
 #endif
-
+#else
+    #define DBG(a)
+    #define UNDBG
+#endif
 
 void
 _debug( const char* function, int line, const char* fileName, const char* format, ...) ;

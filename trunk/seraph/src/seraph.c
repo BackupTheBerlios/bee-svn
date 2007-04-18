@@ -56,7 +56,7 @@ int main( int argc, char *argv[] )
 {
 
 
-    DBG;
+    DBG("seraph.debug");
     if( argc == 1 )
         srph_usage( EXIT_FAILURE );
 
@@ -244,7 +244,6 @@ int srph_initEnv( struct config_s *config )
     char *st = 0;
     char *path = 0;
     /* Is the environment well set ? */
-    str_isEnv( config->verbose, SUT_TOOL );
     str_isEnv( config->verbose, SUT_STOP );
     str_isEnv( config->verbose, SUT_START );
     str_isEnv( config->verbose, SUT_TTYPE );
@@ -257,6 +256,7 @@ int srph_initEnv( struct config_s *config )
     /* build the PATH like $HOME/seraph/tools:$PATH
      * so the system() will use our cp, rm, mkdir */
     st = getenv( SUT_TOOL );
+    if(!st) { st = LIBDIR ; setenv(SUT_TOOL, LIBDIR, 1); }
     path = getenv( "PATH" );
 
     config->cur_path = calloc( 1, strlen( st ) + strlen( path ) + 2 );
@@ -320,6 +320,10 @@ static int srph_checkTools( const char *tools_path )
     struct stat s;
     int i, rc;
 
+    if( !tools_path ) {
+        debug("Using default path to the tools");
+        tools_path = LIBDIR ;
+    }
     for( i = 0; i < NB_TOOLS; ++i ) {
         sprintf( buf, "%s/%s", tools_path, tools[i] );
         rc = stat( buf, &s );
