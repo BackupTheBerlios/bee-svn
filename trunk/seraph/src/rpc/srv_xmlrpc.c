@@ -57,6 +57,32 @@ start_xmlrpc(const unsigned int port)
     }
 
     /* Daemon */
+    long fdlimit = -1, i;
+    int fderr, fdout,fdin;
+
+    fdlimit = sysconf (_SC_OPEN_MAX);
+    if (fdlimit == -1)
+        fdlimit = 3;
+
+    for (i = 0; i < fdlimit; i++)
+        close (i);
+
+    fderr = open ( "/home/groleo/ERRORS", O_RDWR, 0);/*TODO*/
+    fdout = open ( "/home/groleo/OUT", O_RDWR, 0);/*TODO*/
+    fdin  = open ( "/dev/null", O_RDWR,0);
+
+    if (fdin != -1 || fdout != -1 || fderr != -1)
+    {
+        dup2 (fdin, STDIN_FILENO);
+        dup2 (fdout, STDOUT_FILENO);
+        dup2 (fderr, STDERR_FILENO);
+        if (fdin > 2 )
+            close (fdin);
+        if (fdout > 2 )
+            close (fdout);
+        if (fderr > 2 )
+            close (fderr);
+    }
     return callback_socket( port );
 }
 

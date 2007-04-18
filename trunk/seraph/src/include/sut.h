@@ -41,6 +41,7 @@ bool sut_addMachine(const char* mName,
                     const char* mOS,
                     const char* mOSVer,
                     const char* mIP);
+int sut_setErrorlog( void );
 
 #else
         #warning "*** Header allready included ***"

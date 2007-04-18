@@ -82,7 +82,7 @@ static int sut_sutRefresh( const int option, const char *filename );
 
 static int sut_cleanupTmp( const char *tmpDir );
 
-static int sut_setErrorlog( void );
+int sut_setErrorlog( void );
 
 static int sut_runRecursive( const char *srcName );
 
@@ -1064,7 +1064,7 @@ char* sut_expandVars( const char *t1 )
  * Export axi_errorlog=$CWD/errors/$HOST-$PID
  */
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
-static int sut_setErrorlog(  )
+int sut_setErrorlog(  )
 {
     char rez[PATH_MAX] = "";
     struct tm *t = 0;
@@ -1115,6 +1115,7 @@ int sut_runTests( const char *dir )
         printf( "! seraph: The directory [%s] doesn't exist.\n", dir );
         return 0;
     }
+    debug("Running tests\n");
     getcwd( curDir, FILENAME_MAX );
     if( -1 == chdir( dir ) ) {
         fprintf( stderr, "! seraph: Can't change to [%s] : [%s]\n",
@@ -1123,7 +1124,7 @@ int sut_runTests( const char *dir )
     }
     /*! @todo verify if `tests` dir is an absolute or a relative path */
     sprintf( fullPath, "%s/%s", curDir, dir );
-    //        sut_runRecursive( fullPath );
+            sut_runRecursive( fullPath );
     return TRUE;
 }
 
