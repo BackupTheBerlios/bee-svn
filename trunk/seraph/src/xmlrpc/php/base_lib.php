@@ -65,7 +65,7 @@ function drawMenu() {
     echo "<li><a href='.'>Home</a></li>
             <li><a href='machines.php'>Machines</a></li>
             <li><a href='settings.php'>Settings</a></li>
-            <li><a href='schedules.php'>Schedules</a></li>
+            <li><a href='jobs.php'>Jobs</a></li>
             <li><a href='docs.php'>Documentation</a></li> ";
     echo "<li><a href='./logout.php'>Logout</a></li>";
     echo "</ul></div><br>";
