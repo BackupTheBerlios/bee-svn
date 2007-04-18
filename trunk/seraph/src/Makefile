@@ -30,7 +30,7 @@ lib/libtrpc.a:
 
 bin/mngrd: lib/libtbot.a
 	mkdir -p ./bin/tools
-	$(CC) $(CFLAGS) $(LDFLAGS) mngrd.c  -o $@
+	$(CC) $(CFLAGS) $(LDFLAGS) -lhttpd mngrd.c  -o $@
 
 bin/seraph: lib/libtbot.a lib/libtrpc.a
 	mkdir -p ./bin/tools
