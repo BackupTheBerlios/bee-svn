@@ -351,7 +351,7 @@ x_checkCoreCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request,
     printf( "CORE %s %s %s %s %s\n",
             core_srcDir, dbg_srcDir, axi_workDir,
             axi_cfgFile, crash_destDir );
-    rc = sut_checkCore( TEST_LOCAL,
+    rc = core_checkCore( TEST_LOCAL,
             core_srcDir, dbg_srcDir, axi_workDir,
             axi_cfgFile, crash_destDir );
 

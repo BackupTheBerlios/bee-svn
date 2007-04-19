@@ -444,24 +444,6 @@ void sut_sigterm(  int sig)
     running = 0;
 }
 
-/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
-void sig_handler( int sig )
-{
-    int status;
-    switch ( sig ) {
-        case SIGCHLD:
-            while( waitpid( -1, &status, WNOHANG ) > 0 )
-                if( WEXITSTATUS( status ) == 69 )
-                    printf( "* seraph: PASS\n" );
-                else
-                    printf( "* seraph: FAIL [%d]\n", status );
-            break;
-        case SIGALRM:
-            fprintf( stderr, "timeout\n" );
-            break;
-    }
-}
-
 /*
  * Restore the default configuration of the SUT.
  * SUT = server under test */

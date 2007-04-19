@@ -234,7 +234,7 @@ int t_checkCoreCallback( int sock, char *buf )
         printf( "CORE %s %s %s %s %s",
                 core_srcDir, dbg_srcDir, axi_workDir,
                 axi_cfgFile, crash_destDir );
-        rc = sut_checkCore( TEST_LOCAL,
+        rc = core_checkCore( TEST_LOCAL,
                             core_srcDir, dbg_srcDir, axi_workDir,
                             axi_cfgFile, crash_destDir );
         sock_sendStatus( sock, rc );    /*! @todo figure out what status i should send */

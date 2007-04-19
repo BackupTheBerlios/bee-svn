@@ -45,7 +45,7 @@ struct config_s cfg;
 static int onLineParsed(const char *name, const char *value, void* arg)
 {
     char* tmp;
-    tmp=sut_expandVars(value);
+    tmp=core_expandVars(value);
     debug("%s = %s\n", name, tmp);
     setenv(name, tmp,1);
     free(tmp);
@@ -121,7 +121,7 @@ int main( int argc, char *argv[] )
         if( cfg.verbose == TRUE )
             debug( "* seraph: Tests will be done REMOTE.\n" );
     }
-    sut_runTests( cfg.test_dir );
+    core_runTests( cfg.test_dir );
     srph_free( &cfg );
     UNDBG;
     return 0;
@@ -265,7 +265,7 @@ int srph_initEnv( struct config_s *config )
 
     setenv( "PERLLIB", getenv( SUT_TOOL ), 1 );
     setenv( "PERL5LIB", getenv( SUT_TOOL ), 1 );
-    sut_setErrorlog(  );
+    core_setErrorlog(  );
 
     config->axi_workDir = getenv( SUT_WORKDIR );
     config->axi_cfgFile = getenv( SUT_CFGFILE );

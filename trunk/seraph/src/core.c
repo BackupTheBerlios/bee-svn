@@ -1,46 +1,89 @@
+#include "config.h"
+#include <sys/wait.h>
+#include <sys/types.h>
+
+#include "sut.h"
+#include "socket.h"
+#include "strop.h"
+#include "debug.h"
+#include "rshd.h"
+#include "strop.h"
+#include "fileop.h"
+#include "wall.h"
+
+#include <glib.h>
+#include <libgen.h>
+#include <sys/wait.h>
+#include <limits.h>
+#include <time.h>
 #include "core.h"
+extern struct config_s cfg;
+int running ;
 static bool
-sut_checkCoreRemote( const char *core_srcDir, const char *dbg_srcDir,
+core_checkCoreRemote( const char *core_srcDir, const char *dbg_srcDir,
 		     const char *axi_workDir, const char *axi_cfgFile,
 		     const char *crash_destDir );
 static bool
-sut_checkCoreLocal( const char *core_srcDir, const char *dbg_srcDir,
+core_checkCoreLocal( const char *core_srcDir, const char *dbg_srcDir,
 		    const char *workDir, const char *cfgFile,
 		    const char *crash_destDir );
 
-static int sut_runBat( const char *bat_name, int timeout );
+static int core_runBat( const char *bat_name, int timeout );
 
-static int sut_setupTmp( char const *source_bat, char *tmpDir );
+static int core_setupTmp( char const *source_bat, char *tmpDir );
 
-static int sut_parseBat( const char *filename );
+static int core_parseBat( const char *filename );
 
-static int sut_dirAction( const char *fileName, struct stat *statbuf,
+static int core_dirAction( const char *fileName, struct stat *statbuf,
 			  void *junk );
 
-static int sut_fileAction( const char *fileName, struct stat *statbuf,
+static int core_fileAction( const char *fileName, struct stat *statbuf,
 			   void *junk );
 
-static int sut_cleanupTmp( const char *tmpDir );
+static int core_cleanupTmp( const char *tmpDir );
 
-static int sut_runRecursive( const char *srcName );
+static int core_runRecursive( const char *srcName );
 
-int sut_setErrorlog( void );
+int core_setErrorlog( void );
+
+
+
+/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+void sig_handler( int sig )
+{
+    int status;
+    switch ( sig ) {
+        case SIGCHLD:
+            while( waitpid( -1, &status, WNOHANG ) > 0 )
+                if( WEXITSTATUS( status ) == 69 )
+                    printf( "* seraph: PASS\n" );
+                else
+                    printf( "* seraph: FAIL [%d]\n", status );
+            break;
+        case SIGALRM:
+            fprintf( stderr, "timeout\n" );
+            break;
+    }
+}
+
+
+
 
 
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
     bool
-sut_checkCore( const int test_type,
+core_checkCore( const int test_type,
         const char *core_srcDir, const char *dbg_srcDir,
         const char *axi_workDir, const char *axi_cfgFile,
         const char *crash_destDir )
 {
     if( test_type == TEST_LOCAL )
-        return sut_checkCoreLocal( core_srcDir, dbg_srcDir,
+        return core_checkCoreLocal( core_srcDir, dbg_srcDir,
                 axi_workDir, axi_cfgFile,
                 crash_destDir );
 
     if( test_type == TEST_REMOTE )
-        return sut_checkCoreRemote( core_srcDir, dbg_srcDir,
+        return core_checkCoreRemote( core_srcDir, dbg_srcDir,
                 axi_workDir, axi_cfgFile,
                 crash_destDir );
     return false;
@@ -49,7 +92,7 @@ sut_checkCore( const int test_type,
 
 
     static bool
-sut_checkCoreRemote( const char *core_srcDir, const char *dbg_srcDir,
+core_checkCoreRemote( const char *core_srcDir, const char *dbg_srcDir,
         const char *axi_workDir, const char *axi_cfgFile,
         const char *crash_destDir )
 {
@@ -74,7 +117,7 @@ sut_checkCoreRemote( const char *core_srcDir, const char *dbg_srcDir,
 
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
     static bool
-sut_setupDstDir( char *dst, char *coreName,
+core_setupDstDir( char *dst, char *coreName,
         const char *core_srcDir, const char *core_dstDir )
 {
     sprintf( dst, "%s/dumps/%s-%s", core_dstDir, cfg.cur_test, coreName );
@@ -89,7 +132,7 @@ sut_setupDstDir( char *dst, char *coreName,
 
 
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
-static bool sut_moveCore( char *src, char *dst )
+static bool core_moveCore( char *src, char *dst )
 {
     char cmd[2 * FILENAME_MAX + 32] = { 0 };
     int status;
@@ -107,7 +150,7 @@ static bool sut_moveCore( char *src, char *dst )
 
 
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
-static bool sut_moveDebugs( const char *srcDir, char *dst )
+static bool core_moveDebugs( const char *srcDir, char *dst )
 {
     DIR *dir;
     char src[FILENAME_MAX] = { 0 };
@@ -138,7 +181,7 @@ static bool sut_moveDebugs( const char *srcDir, char *dst )
 
 
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
-static bool sut_moveLog( const char *workDir, char *dst )
+static bool core_moveLog( const char *workDir, char *dst )
 {
     char src[FILENAME_MAX] = { 0 };
     char cmd[2 * FILENAME_MAX + 32] = { 0 };
@@ -150,7 +193,7 @@ static bool sut_moveLog( const char *workDir, char *dst )
 
 
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
-static bool sut_copyCfg( const char *cfgFile, char *dst )
+static bool core_copyCfg( const char *cfgFile, char *dst )
 {
     char cmd[2 * FILENAME_MAX + 32] = { 0 };
     sprintf( cmd, "/bin/cp %s %s", cfgFile, dst );
@@ -165,7 +208,7 @@ static bool sut_copyCfg( const char *cfgFile, char *dst )
  * Have to implement the same function in host.c*/
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 bool
-sut_checkCoreLocal( const char *core_srcDir, const char *dbg_srcDir,
+core_checkCoreLocal( const char *core_srcDir, const char *dbg_srcDir,
         const char *workDir, const char *cfgFile,
         const char *core_dstDir )
 {
@@ -185,15 +228,15 @@ sut_checkCoreLocal( const char *core_srcDir, const char *dbg_srcDir,
             bool rc = false;
             sprintf( src, "%s/%s", core_srcDir, core->d_name );
 
-            rc = sut_setupDstDir( dst, core->d_name,
+            rc = core_setupDstDir( dst, core->d_name,
                     core_srcDir, core_dstDir );
             if( !rc )
                 return false;
 
-            sut_moveCore( src, dst );
-            sut_moveDebugs( dbg_srcDir, dst );
-            sut_moveLog( workDir, dst );
-            sut_copyCfg( cfgFile, dst );
+            core_moveCore( src, dst );
+            core_moveDebugs( dbg_srcDir, dst );
+            core_moveLog( workDir, dst );
+            core_copyCfg( cfgFile, dst );
 
             return true;
         }
@@ -209,7 +252,7 @@ sut_checkCoreLocal( const char *core_srcDir, const char *dbg_srcDir,
 
 
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
-static int sut_runBat( const char *bat_name, int timeout )
+static int core_runBat( const char *bat_name, int timeout )
 {
     char c;
     int pid = 0, hasAlarm;
@@ -258,7 +301,7 @@ static int sut_runBat( const char *bat_name, int timeout )
 
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
     static int
-sut_fileAction( const char *fileName, struct stat *statbuf, void *junk )
+core_fileAction( const char *fileName, struct stat *statbuf, void *junk )
 {
     char curDir[FILENAME_MAX] = { 0 };
     char tmpDir[FILENAME_MAX] = { 0 };
@@ -272,8 +315,8 @@ sut_fileAction( const char *fileName, struct stat *statbuf, void *junk )
 
     if( strcmp( bn, "runtest.bat" ) || access( fileName, X_OK ) )
         return TRUE;
-    sut_sutRefresh( cfg.refresh, fileName );
-    sut_setupTmp( fileName, tmpDir );
+    //sut_sutRefresh( cfg.refresh, fileName );
+    core_setupTmp( fileName, tmpDir );
     if( NULL == getcwd( curDir, FILENAME_MAX ) ) {
         perror( "! seraph: Unable to get current directory" );
     }
@@ -284,10 +327,10 @@ sut_fileAction( const char *fileName, struct stat *statbuf, void *junk )
                 tmpDir, strerror( errno ) );
         return FALSE;
     }
-    sut_runBat( fileName, cfg.script_tout );
-    sut_checkCore( cfg.test_type, cfg.axi_coreDir, cfg.axi_dbgDir,
+    core_runBat( fileName, cfg.script_tout );
+    core_checkCore( cfg.test_type, cfg.axi_coreDir, cfg.axi_dbgDir,
             cfg.axi_workDir, cfg.axi_cfgFile, cfg.dest_coreDir );
-    sut_cleanupTmp( tmpDir );
+    core_cleanupTmp( tmpDir );
     sleep( 1 );
     if( -1 == chdir( curDir ) ) {
         fprintf( stderr,
@@ -302,17 +345,17 @@ sut_fileAction( const char *fileName, struct stat *statbuf, void *junk )
 
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
     static int
-sut_dirAction( const char *fileName, struct stat *statbuf, void *junk )
+core_dirAction( const char *fileName, struct stat *statbuf, void *junk )
 {
     return ( TRUE );
 }
 
 
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
-static int sut_runRecursive( const char *srcName )
+static int core_runRecursive( const char *srcName )
 {
     if( recursiveAction( srcName, 1, FALSE,
-                TRUE, sut_fileAction, sut_dirAction,
+                TRUE, core_fileAction, core_dirAction,
                 NULL ) == FALSE ) {
         printf( "error in runRecursive\n" );
         exit( EXIT_FAILURE );
@@ -325,11 +368,11 @@ static int sut_runRecursive( const char *srcName )
 /*!
  * Copies source_bat in /tmp/PID, to create a sandbox for the test.
  * \param source_file[in] An absolute path pointing to a bat file.
- * \todo  Implement a sut_refresh function
+ * \todo  Implement a core_refresh function
  * \todo  Return Bool ??
  */
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
-static int sut_setupTmp( char const *source_bat, char *tmpDir )
+static int core_setupTmp( char const *source_bat, char *tmpDir )
 {
     char cmd[FILENAME_MAX] = { 0 };
     int status;
@@ -360,7 +403,7 @@ static int sut_setupTmp( char const *source_bat, char *tmpDir )
 
 
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
-static int sut_cleanupTmp( const char *tmpDir )
+static int core_cleanupTmp( const char *tmpDir )
 {
     printf( "# seraph: Removing [%s]\n", tmpDir );
     fop_rm( TEST_LOCAL, tmpDir, 0, 0 );
@@ -371,7 +414,7 @@ static int sut_cleanupTmp( const char *tmpDir )
 
 /** Search a file for axi_fi=y or axi_fi=n . */
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
-static int sut_parseBat( const char *filename )
+static int core_parseBat( const char *filename )
 {
 #if 0
     char line[PATH_MAX] = { 0 };
@@ -438,7 +481,7 @@ static int sut_parseBat( const char *filename )
  * \brief search and expand any occurence in str, of ${VARNAME} */
 /* expand ${VAR} from prefix/${VAR}/suffix */
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
-char* sut_expandVars( const char *t1 )
+char* core_expandVars( const char *t1 )
 {
     char *p = 0, *s = 0, *val;
     int i = 0;
@@ -503,7 +546,7 @@ char* sut_expandVars( const char *t1 )
  * Export axi_errorlog=$CWD/errors/$HOST-$PID
  */
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
-int sut_setErrorlog(  )
+int core_setErrorlog(  )
 {
     char rez[PATH_MAX] = "";
     struct tm *t = 0;
@@ -543,7 +586,7 @@ int sut_setErrorlog(  )
 
 
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
-int sut_runTests( const char *dir )
+int core_runTests( const char *dir )
 {
     struct stat inf;
     char fullPath[FILENAME_MAX] = { 0 };
@@ -563,7 +606,7 @@ int sut_runTests( const char *dir )
     /*! @todo verify if `tests` dir is an absolute or a relative path */
     //sprintf( fullPath, "%s/%s", curDir, dir );
     sprintf( fullPath, "%s", dir );
-    sut_runRecursive( fullPath );
+    core_runRecursive( fullPath );
     return TRUE;
 }
 
