@@ -1163,28 +1163,13 @@ bool sut_addMachine(const char* mName,
                     const char* mOSVer,
                     const char* mIP)
 {
-#define BUF_SZ 8192
-    int fd=-1, cfg=-1, br=0;
     char fname[PATH_MAX]={0}, cfgTemplate[PATH_MAX]={0};
-    char buf[BUF_SZ]={0};
 
     debug( "\nADDMACHINE [%s][%s][%s][%s]\n",mName, mOS, mOSVer, mIP );
     sprintf(fname,"%s/%s", MACHINES, mName);
     sprintf(cfgTemplate,"%s/cfg_template", MACHINES);
 
-    fd = open(fname, O_CREAT | O_EXCL | O_WRONLY , S_IWUSR | S_IRUSR );
-    cfg = open(cfgTemplate, O_RDONLY);
-    if(fd<0 || cfg<0)
-    {   debug("Unable to create [%s] [%s]\n", fname, strerror(errno));
+    if( !fop_cp( cfgTemplate, fname) )
         return false;
-    }
-    while( (br=read(cfg, buf, BUF_SZ)) >0 )
-    {
-        debug("read %d\n", br);
-        write(fd, buf, br);
-    }
-    close(fd);
-    close(cfg);
-
     return true;
 }

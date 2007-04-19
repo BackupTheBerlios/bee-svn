@@ -1,6 +1,7 @@
 #ifndef FILEOP_H
 #define FILEOP_H
 
+bool fop_cp( const char* const s, const char* const d);
 int
 fop_fileSize( char *name );
 int

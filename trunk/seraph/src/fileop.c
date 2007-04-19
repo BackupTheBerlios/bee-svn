@@ -255,3 +255,27 @@ rm_dirAction( const char *fileName, struct stat *statbuf, void *junk )
         }
         return ( TRUE );
 }
+
+
+
+bool fop_cp( const char* const s, const char* const d)
+{
+#define BUF_SZ 8192
+    int src=-1, dst=-1, br=0;
+    char buf[BUF_SZ]={0};
+
+    src = open( s, O_RDONLY);
+    dst = open( d, O_CREAT | O_EXCL | O_WRONLY , S_IWUSR | S_IRUSR );
+    if( src<0 || dst<0)
+    {   debug("Unable to create [%s] [%s]\n", dst, strerror(errno));
+        return false;
+    }
+    while( (br=read( src, buf, BUF_SZ)) >0 )
+    {
+        debug("read %d\n", br);
+        write( dst, buf, br);
+    }
+    close( src);
+    close( dst);
+
+}
