@@ -364,14 +364,15 @@ x_checkCoreCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request,
 x_registerUserCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request,
         void *userData )
 {
-    userdb_register( name, email, username, password)
+    char *name, *email, *username, *password;
+    userdb_register( name, email, username, password);
 }
 
     XMLRPC_VALUE
 x_checkSessionCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request,
         void *userData )
 {
-
+    char *username, *cookie, *session, *ip;
     userdb_checkSession( username, cookie, session, ip );
 
 }
@@ -381,6 +382,7 @@ x_checkSessionCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request,
 x_setSessionCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request,
         void *userData )
 {
+    char *id, *session, *ip;
     userdb_setSession( id, session, ip);
 }
 
@@ -389,6 +391,7 @@ x_setSessionCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request,
 x_checkLoginCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request,
         void *userData )
 {
+    char *username, *password;
     userdb_checkLogin( username, password);
 }
 
@@ -397,6 +400,7 @@ x_checkLoginCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request,
 x_checkRemembered( XMLRPC_SERVER server, XMLRPC_REQUEST request,
         void *userData )
 {
+    char *username, *cookie;
     userdb_checkRemembered( username, cookie );
 }
 #if 0

@@ -1,3 +1,6 @@
+#include "userdb.h"
+#include "config.h"
+
 bool
 userdb_register( const char* uname, const char* pass)
 {
@@ -99,7 +102,7 @@ userdb_listJobs( int job_type, GSList** jobs)
 
 
 bool
-testdb_register( const char* const name, const char* const email,
+userdb_register( const char* const name, const char* const email,
                 const char* const username, const char* const password)
 {
     return true;
@@ -107,7 +110,7 @@ testdb_register( const char* const name, const char* const email,
 
 
 bool
-testdb_checkSession(const char* const username,
+userdb_checkSession(const char* const username,
                     const char* const cookie,
                     const char* const session,
                     const char* const ip )
@@ -115,14 +118,14 @@ testdb_checkSession(const char* const username,
 }
 
 bool
-testdb_setSession(  const char* const id,
+userdb_setSession(  const char* const id,
                     const char* const session,
                     const char* const ip){}
 
 bool
-testdb_checkLogin(  const char* const username,
+userdb_checkLogin(  const char* const username,
                     const char* const password){}
 
 bool
-testdb_checkRemembered( const char* const username,
+userdb_checkRemembered( const char* const username,
                         const char* const cookie ) {}
