@@ -260,7 +260,7 @@ x_addMachineCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request,
 x_runTestsCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void* userData )
 {
     XMLRPC_VALUE str;
-    const char* sut_build, *p;
+    const char* sut_build, *p, *os;
     XMLRPC_VALUE oses, tests;
     XMLRPC_VALUE xIter ;
     XMLRPC_VALUE xStarted;
@@ -279,8 +279,8 @@ x_runTestsCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void* userData
     oses = XMLRPC_VectorGetValueWithID(str, "sut_os");
     xIter = XMLRPC_VectorRewind( oses );
     while(xIter) {
-        p = XMLRPC_GetValueString( xIter );
-        debug("OSes: %s\n", p);
+        os = XMLRPC_GetValueString( xIter );
+        debug("OSes: %s\n", os);
         xIter = XMLRPC_VectorNext(oses);
     }
 
@@ -301,12 +301,19 @@ x_runTestsCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void* userData
     }
     if(!pid) {
         while(xIter) {
-            char b[PATH_MAX] = {0};
+            //TODO: lots of BOF
+            char tDir[PATH_MAX] = {0};
+            char tCfg[PATH_MAX] = {0};
+            char cmd[PATH_MAX*3]={0};
+
             p = XMLRPC_GetValueString( xIter );
             debug("Run tests from directory: '%s/%s' \n", cfg.test_dir,p);
-            sprintf(b, "%s/%s", cfg.test_dir,p);
-            //sut_runTests( b );
-            system("/home/groleo/code/seraph/src/bin/seraph -C /home/groleo/code/seraph/src/linux_gcc3 -d ~/tests/pop3/ -t local -r n -k");
+            sprintf(tDir, "%s/%s", cfg.test_dir,p);
+            sprintf(tCfg, "%s/%s", MACHINES,os);
+            sprintf(cmd,"/home/groleo/code/seraph/src/bin/seraph -C %s -d %s -t local -r n -k"
+            ,tCfg, tDir
+            );
+            system(cmd);
             xIter = XMLRPC_VectorNext(tests);
         }
         sleep(20);
