@@ -43,13 +43,15 @@ tool:
 
 install:
 	$(INSTALLDIR) $(BINDIR)
-	$(INSTALL) -m $(BIN_MODE) ./bin/mngrd $(BINDIR)
-	$(INSTALL) -m $(BIN_MODE) ./bin/seraph $(BINDIR)
 	$(INSTALLDIR) $(MACHINES)
 	$(INSTALLDIR) $(JOBS)
 	$(INSTALLDIR) $(JOBS)/complete
 	$(INSTALLDIR) $(JOBS)/running
-	$(INSTALLDIR) $(SCHEDULES)
+	$(INSTALLDIR) $(JOBS)/pending
+	$(INSTALLDIR) $(USERS)
+	$(INSTALL) -m $(DATA_MODE) ./cfg_template $(MACHINES)
+	$(INSTALL) -m $(BIN_MODE) ./bin/mngrd $(BINDIR)
+	$(INSTALL) -m $(BIN_MODE) ./bin/seraph $(BINDIR)
 	make -C tools install
 
 

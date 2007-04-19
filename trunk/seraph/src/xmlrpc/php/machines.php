@@ -46,10 +46,10 @@ function removeEvent(divNum)
         <div class='column' style="width:22em">
             <br>
             <span>
-            <b style="float:left">Name:</b>   <input style="float:right"type='text' name='SUT_MNAME' value='ciociolina'/><br/>
-            <b style="float:left">OS Name:</b><input style="float:right"type='text' name='SUT_OS' value='NetBSD'/><br/>
-            <b style="float:left">OS Ver:</b> <input style="float:right"type='text' name='SUT_OSVER' value='3.0'/><br/>
-            <b style="float:left">IP:</b>     <input style="float:right"type='text' name='SUT_MIP' value='193.230.245.6'/><br/>
+            <b style="float:left">Name:</b>   <input style="float:right"type='text' name='SUT_MNAME' value=''/><br/>
+            <b style="float:left">OS Name:</b><input style="float:right"type='text' name='SUT_OS' value=''/><br/>
+            <b style="float:left">OS Ver:</b> <input style="float:right"type='text' name='SUT_OSVER' value=''/><br/>
+            <b style="float:left">IP:</b>     <input style="float:right"type='text' name='SUT_MIP' value=''/><br/>
             </span>
             </div>
             <br>

@@ -1,4 +1,5 @@
 BIN_MODE=755
+DATA_MODE=644
 
 PREFIX=/home/groleo/sand
 BINDIR=$(PREFIX)/bin
@@ -7,8 +8,7 @@ LIBDIR=$(PREFIX)/lib/seraph
 VARDIR=/home/groleo/sand/var/db/seraph
 MACHINES=$(VARDIR)/machines
 JOBS=$(VARDIR)/jobs
-SCHEDULES=$(VARDIR)/schedules
-
+USERS=$(VARDIR)/users
 INSTALL=$(TOP)/install-sh -c
 INSTALLDIR=mkdir -p
 

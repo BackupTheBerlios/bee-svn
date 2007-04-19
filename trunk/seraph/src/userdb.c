@@ -1,28 +1,42 @@
 bool
 userdb_register( const char* uname, const char* pass)
 {
-    chdir(USERDB);
-    /**
-     * TODO add jobs dir aswell */
-    if( mkdir(uname) == -1)
+    FILE* f=NULL;
+    if(chdir(USERDB))
+    {
+        debug("unable to chdir to %s\n", USERDB, strerror(errno));
         return false;
+    }
+    if( mkdir(uname, 0755) )
+    {
+        debug("unable to register user: [%s]\n", strerror(errno) );
+        return false;
+    }
     chdir(uname);
-    if(!fopen(pass, "w"))
+    if(! (f=fopen("metadata", "w")) )
+    {   debug("unable to create 'metadata' file: [%s]\n", strerror(errno));
         return false;
+    }
     fprintf(f, "%s", pass);
     fclose(f);
     return true;
 }
+
 bool
 userdb_login( const char* uname, const char* pass)
 {
-    char* p;
-    if( !access(USERDB/uname) )
+    char p[33]={0}; //md5sum
+    FILE* f=NULL;
+    char path[PATH_MAX]={0};
+
+    sprintf(path, "%s/%s", USERBD, uname);
+    if( !access(path, R_OK ) )
         return false;
-    if(!fopen(pass, "r") )
+    if(! (f=fopen(pass, "r")) )
         return false;
+
     fscanf(f, "%s", p );
-    if( strstr(p, pass) )
+    if( strcmp(p, pass) )
         return false;
     return true;
 }
@@ -41,13 +55,13 @@ userdb_listJobs( int job_type, GSList** jobs)
     DIR* dit;
     struct dirent* dent;
 
-    if(job_type & JOBS_ALL )
+    if(job_type & JOB_ALL )
     {
         job_type |= JOB_PENDING;
         job_type |= JOB_RUNNING;
         job_type |= JOB_COMPLETE;
     }
-    if(job_type & JOBS_PENDING )
+    if(job_type & JOB_PENDING )
     {
         dit = opendir(USERDB/uname/jobs/pending);
         while( dent=readdir(dit) )
@@ -58,7 +72,7 @@ userdb_listJobs( int job_type, GSList** jobs)
         }
         closedir(dit);
     }
-    if(job_type & JOBS_RUNNING )
+    if(job_type & JOB_RUNNING )
     {
         dit  = opendir(USERDB/uname/jobs/running);
         while( dent=readdir(dit) )
@@ -69,7 +83,7 @@ userdb_listJobs( int job_type, GSList** jobs)
         }
         close( dit );
     }
-    if(job_type & JOBS_COMPLETE )
+    if(job_type & JOB_COMPLETE )
     {
         dit = opendir(USERDB/uname/jobs/complete);
         while( dent=readdir(dit) )
