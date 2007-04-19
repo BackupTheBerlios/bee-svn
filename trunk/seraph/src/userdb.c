@@ -1,8 +1,21 @@
-#include "userdb.h"
+//#include "userdb.h"
 #include "config.h"
+#include <unistd.h>     //chdir
+#include <sys/types.h>  //opendir
+#include <dirent.h>     //opendir
+#include <glib.h>       //GSList
+
+
+enum JobType {
+    JOB_PENDING,
+    JOB_RUNNING,
+    JOB_COMPLETE,
+    JOB_ALL
+};
 
 bool
-userdb_register( const char* uname, const char* pass)
+userdb_register( const char* const name, const char* const email,
+                 const char* const uname, const char* const pass)
 {
     FILE* f=NULL;
     if(chdir(USERDB))
@@ -32,7 +45,7 @@ userdb_login( const char* uname, const char* pass)
     FILE* f=NULL;
     char path[PATH_MAX]={0};
 
-    sprintf(path, "%s/%s", USERBD, uname);
+    sprintf(path, "%s/%s", USERDB, uname);
     if( !access(path, R_OK ) )
         return false;
     if(! (f=fopen(pass, "r")) )
@@ -52,7 +65,7 @@ userdb_addJob( int job_type )
 
 
 int
-userdb_listJobs( int job_type, GSList** jobs)
+userdb_listJobs( const char * const uname, enum JobType job_type, GSList** jobs)
 {
     int nbJobs=0;
     DIR* dit;
@@ -66,34 +79,34 @@ userdb_listJobs( int job_type, GSList** jobs)
     }
     if(job_type & JOB_PENDING )
     {
-        dit = opendir(USERDB/uname/jobs/pending);
+        //dit = opendir(USERDB/uname/jobs/pending);
         while( dent=readdir(dit) )
         {
             if( !strstr(dent->d_name,".") || !strstr(dent->d_name, "..") ) continue;
             ++nbJobs;
-            gslist_append(*jobs, dent->d_name);
+            g_slist_append(*jobs, dent->d_name);
         }
         closedir(dit);
     }
     if(job_type & JOB_RUNNING )
     {
-        dit  = opendir(USERDB/uname/jobs/running);
+        //dit  = opendir(USERDB/uname/jobs/running);
         while( dent=readdir(dit) )
         {
-            if( dir == "." || dir == "..") continue;
+            if( !strstr(dent->d_name, ".") || !strstr(dent->d_name,"..") ) continue;
             ++nbJobs;
-            gslist_append(*jobs, str);
+            g_slist_append(*jobs, dent->d_name);//TODO: use a copy of dent->d_name
         }
         close( dit );
     }
     if(job_type & JOB_COMPLETE )
     {
-        dit = opendir(USERDB/uname/jobs/complete);
+        //dit = opendir(USERDB/uname/jobs/complete);
         while( dent=readdir(dit) )
         {
-            if( dir == "." || dir == "..") continue;
+            if( !strstr(dent->d_name, ".") || !strstr(dent->d_name,"..") ) continue;
             ++nbJobs;
-            gslist_append(*jobs, str);
+            g_slist_append(*jobs, dent->d_name); //TODO: use a copy of dent->d_name
         }
         close( dit );
     }
@@ -101,12 +114,7 @@ userdb_listJobs( int job_type, GSList** jobs)
 }
 
 
-bool
-userdb_register( const char* const name, const char* const email,
-                const char* const username, const char* const password)
-{
-    return true;
-}
+
 
 
 bool
