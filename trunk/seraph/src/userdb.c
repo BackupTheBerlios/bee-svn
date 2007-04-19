@@ -70,6 +70,7 @@ userdb_listJobs( const char * const uname, enum JobType job_type, GSList** jobs)
     int nbJobs=0;
     DIR* dit;
     struct dirent* dent;
+    char path[PATH_MAX]={0};
 
     if(job_type & JOB_ALL )
     {
@@ -79,7 +80,8 @@ userdb_listJobs( const char * const uname, enum JobType job_type, GSList** jobs)
     }
     if(job_type & JOB_PENDING )
     {
-        //dit = opendir(USERDB/uname/jobs/pending);
+        sprintf( path, "%s/%s/jobs/pending", USERDB, uname);
+        dit = opendir(path);
         while( dent=readdir(dit) )
         {
             if( !strstr(dent->d_name,".") || !strstr(dent->d_name, "..") ) continue;
@@ -90,7 +92,8 @@ userdb_listJobs( const char * const uname, enum JobType job_type, GSList** jobs)
     }
     if(job_type & JOB_RUNNING )
     {
-        //dit  = opendir(USERDB/uname/jobs/running);
+        sprintf( path, "%s/%s/jobs/running", USERDB, uname);
+        dit  = opendir(path);
         while( dent=readdir(dit) )
         {
             if( !strstr(dent->d_name, ".") || !strstr(dent->d_name,"..") ) continue;
@@ -101,7 +104,8 @@ userdb_listJobs( const char * const uname, enum JobType job_type, GSList** jobs)
     }
     if(job_type & JOB_COMPLETE )
     {
-        //dit = opendir(USERDB/uname/jobs/complete);
+        sprintf( path, "%s/%s/jobs/complete", USERDB, uname);
+        dit = opendir(path);
         while( dent=readdir(dit) )
         {
             if( !strstr(dent->d_name, ".") || !strstr(dent->d_name,"..") ) continue;
@@ -118,7 +122,7 @@ userdb_listJobs( const char * const uname, enum JobType job_type, GSList** jobs)
 
 
 bool
-userdb_checkSession(const char* const username,
+userdb_checkSession(const char* const uname,
                     const char* const cookie,
                     const char* const session,
                     const char* const ip )
@@ -131,9 +135,9 @@ userdb_setSession(  const char* const id,
                     const char* const ip){}
 
 bool
-userdb_checkLogin(  const char* const username,
+userdb_checkLogin(  const char* const uname,
                     const char* const password){}
 
 bool
-userdb_checkRemembered( const char* const username,
+userdb_checkRemembered( const char* const uname,
                         const char* const cookie ) {}
