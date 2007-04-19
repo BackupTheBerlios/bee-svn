@@ -127,12 +127,30 @@ userdb_checkSession(const char* const uname,
                     const char* const session,
                     const char* const ip )
 {
+    char path[PATH_MAX] = {0};
+    char _uname[40]={0}, _cookie[40]={0}, _session[40]={0}, _ip[40]={0};
+    FILE *f=NULL;
+
+    sprintf( path, "%s/%s/userdata", USERDB, uname);
+    if( !(f=fopen( path, "r")) )
+    {
+        printf("error opening userdata file for [%s]\n", uname);
+        return false;
+    }
+    fscanf( f, "%s:%s:%s:%s", _uname, _cookie, _session, _ip);
+    if( strstr(_uname, uname) && strstr(_cookie, cookie) && strstr(_ip, ip)
+    &&  strstr(_session, session)
+      )
+      return false;
+      return true;
 }
 
 bool
 userdb_setSession(  const char* const id,
                     const char* const session,
-                    const char* const ip){}
+                    const char* const ip)
+{
+}
 
 bool
 userdb_checkLogin(  const char* const uname,
@@ -140,4 +158,6 @@ userdb_checkLogin(  const char* const uname,
 
 bool
 userdb_checkRemembered( const char* const uname,
-                        const char* const cookie ) {}
+                        const char* const cookie )
+{
+}
