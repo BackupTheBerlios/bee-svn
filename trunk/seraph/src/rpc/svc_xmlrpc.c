@@ -358,6 +358,47 @@ x_checkCoreCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request,
     return XMLRPC_CreateValueString( NULL, "No core found", 0 );
 }
 
+
+
+    XMLRPC_VALUE
+x_registerUserCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request,
+        void *userData )
+{
+    testdb_register( name, email, username, password)
+}
+
+    XMLRPC_VALUE
+x_checkSessionCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request,
+        void *userData )
+{
+
+    testdb_checkSession( username, cookie, session, ip );
+
+}
+
+
+    XMLRPC_VALUE
+x_setSessionCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request,
+        void *userData )
+{
+    testdb_setSession( id, session, ip);
+}
+
+
+    XMLRPC_VALUE
+x_checkLoginCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request,
+        void *userData )
+{
+    testdb_checkLogin( username, password);
+}
+
+
+    XMLRPC_VALUE
+x_checkRemembered( XMLRPC_SERVER server, XMLRPC_REQUEST request,
+        void *userData )
+{
+    testdb_checkRemembered( username, cookie );
+}
 #if 0
 /**
  * \todo Replace this with a newer version 
