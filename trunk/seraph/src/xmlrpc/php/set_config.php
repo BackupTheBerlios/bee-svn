@@ -18,7 +18,7 @@ function setMachineConfig($cli)
     foreach ($_POST as $k => $v) {
         if( preg_match( "/SUT_/", $k) ) {
             echo "GOT: $k = $v\n";
-            $cfgLines[] = new XML_RPC_Value("$k = '$v'\n", 'string');
+            $cfgLines[] = new XML_RPC_Value("$k = '".stripslashes($v)."'\n", 'string');
         }
     }
     $xcfgLines = new XML_RPC_Value(  $cfgLines, 'array');
