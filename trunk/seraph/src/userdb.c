@@ -96,3 +96,33 @@ userdb_listJobs( int job_type, GSList** jobs)
     }
     return nbJobs;
 }
+
+
+bool
+testdb_register( const char* const name, const char* const email,
+                const char* const username, const char* const password)
+{
+    return true;
+}
+
+
+bool
+testdb_checkSession(const char* const username,
+                    const char* const cookie,
+                    const char* const session,
+                    const char* const ip )
+{
+}
+
+bool
+testdb_setSession(  const char* const id,
+                    const char* const session,
+                    const char* const ip){}
+
+bool
+testdb_checkLogin(  const char* const username,
+                    const char* const password){}
+
+bool
+testdb_checkRemembered( const char* const username,
+                        const char* const cookie ) {}
