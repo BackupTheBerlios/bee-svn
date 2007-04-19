@@ -3,10 +3,9 @@
 #include "strop.h"
 #include "socket.h"
 #include "sut.h"
-//#include <sys/types.h>
+#include "testdb.h"
 #include <sys/wait.h>
 #include <limits.h>
-//#include <glib.h>
 
 
 /*
@@ -44,7 +43,7 @@ x_listTestsCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void *userDat
     int nbTests=0;
     XMLRPC_VALUE rv;
 
-    testList = sut_listTests( "/home/groleo/tests", &nbTests);
+    testList = testdb_listTests( "/home/groleo/tests", &nbTests);
     rv = XMLRPC_CreateVector(NULL, xmlrpc_vector_array);
     while( nbTests-- ) {
         if(!XMLRPC_VectorAppendString( rv, NULL, testList[nbTests], 0 ))
@@ -63,7 +62,7 @@ x_listMachinesCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void *user
     int nbMachines=0;
     XMLRPC_VALUE rv;
 
-    testList = sut_listMachines( MACHINES, &nbMachines);
+    testList = testdb_listMachines( MACHINES, &nbMachines);
     rv = XMLRPC_CreateVector(NULL, xmlrpc_vector_array);
     while( nbMachines-- ) {
         if(!XMLRPC_VectorAppendString( rv, NULL, testList[nbMachines], 0 ))
@@ -90,7 +89,7 @@ x_getConfigCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void *userDat
     rv  = XMLRPC_CreateVector(NULL, xmlrpc_vector_struct);
 
     machine = XMLRPC_GetValueString( xIter );
-    symbList = sut_getConfig( machine , &nbSymbols);
+    symbList = testdb_getConfig( machine , &nbSymbols);
     debug("UserData:%p\n", userData);
     while( nbSymbols-- ) {
         tmp = (ConfigEntry*)g_slist_nth_data(symbList, nbSymbols);
@@ -250,7 +249,7 @@ x_addMachineCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request,
     OSVer = XMLRPC_VectorGetStringWithID(xIter, "sut_osver");
     IP    = XMLRPC_VectorGetStringWithID(xIter, "sut_mip");
 
-    sut_addMachine( name, OS, OSVer, IP );
+    testdb_addMachine( name, OS, OSVer, IP );
 
     return XMLRPC_CreateValueString( NULL, "Machine added", 0 );
 }

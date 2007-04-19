@@ -11,7 +11,7 @@ all: $(TARGETS)
 help:
 	echo "Targets are: seraph lib clean tar indent install"
 
-files = strop.o fileop.o sut.o socket.o wall.o scan.o debug.o
+files = strop.o fileop.o testdb.o sut.o socket.o wall.o scan.o debug.o
 
 
 objs=$(addprefix ./objs/,$(files))

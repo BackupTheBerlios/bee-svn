@@ -3,12 +3,6 @@
 
 #include <glib.h>
 
-typedef struct {
-    char* symbol;
-    char* value;
-} ConfigEntry ;
-
-
 bool sut_start( const int test_type,
                 const int timeout, const char* maillog,
                 const char* start, const char* host, const int port);
@@ -34,13 +28,6 @@ int  sut_runTests(const char* dir) ;
 
 char* sut_expandVars( char const * t1 );
 
-char** sut_listTests(const char* td, int* sz) ;
-char** sut_listMachines(const char* td, int* sz) ;
-GSList* sut_getConfig(const char* machine, int* sz) ;
-bool sut_addMachine(const char* mName,
-                    const char* mOS,
-                    const char* mOSVer,
-                    const char* mIP);
 int sut_setErrorlog( void );
 
 #else
