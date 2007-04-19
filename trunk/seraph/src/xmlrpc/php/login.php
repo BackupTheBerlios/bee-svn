@@ -19,6 +19,7 @@ class User {
         #connect to database
         mysql_connect ( $dbhost, $dbuser, $dbpass)or die("Could not connect: ".mysql_error());
         mysql_select_db($dbname) or die(mysql_error());
+        //$this->xmlrpc = new XML_RPC_Client('/RPCSERVER',  $host, $port);
         $this->date = gmdate("'Y-m-d'");
         //echo $date."<br>\n";
         if( !$_SESSION['logged'] )
@@ -45,6 +46,7 @@ class User {
             "(session = '$session') AND (ip = '$ip')";
         //echo "HERE<br>";
         $result = mysql_query($sql) or die(mysql_error());
+        //$this->xmlrpc->checkSession($username, $cookie, $session, $ip);
         if( mysql_num_rows($result) !=0 ) {
             $this->setSession($result, false, false);
         } else {
