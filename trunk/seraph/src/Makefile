@@ -39,7 +39,7 @@ bin/seraph: lib/libtbot.a lib/libtrpc.a
 
 tool:
 	make -C ./tools
-	touch tool
+	touch .tool
 
 install:
 	$(INSTALLDIR) $(BINDIR)
