@@ -15,7 +15,7 @@ extern char* useDebug_g ;
 extern FILE* logHandle ;
 
 #ifndef debug
-    #define debug(a,...) _debug( __FUNCTION__, __LINE__, __FILE__,a, ##__VA_ARGS__)
+    #define debug(...) _debug( __FUNCTION__, __LINE__, __FILE__,__VA_ARGS__)
 #endif
 
 /*! Use this macro to activate the calling of debug()*/

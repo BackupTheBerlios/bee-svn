@@ -33,6 +33,7 @@
 #include "rpc.h"
 #include "sut.h"
 #include "wall.h"
+#include "core.h"
 
 extern struct config_s cfg;
 extern char *optarg;
