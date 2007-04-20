@@ -6,6 +6,7 @@
 #include <glib.h>       //GSList
 #include "baseclass.h"
 #include "basedb.h"
+#include "userdb.h"
 
 
 bool
