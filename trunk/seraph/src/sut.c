@@ -432,8 +432,10 @@ void sut_sigpipe(  int sig)
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 void sut_sigint(  int sig)
 {
-    printf( "Bailing out\n" );
-    exit( EXIT_SUCCESS );
+    extern int running;
+    printf( "=============Bailing out++++++++++\n" );
+    running =0;
+    //exit( EXIT_SUCCESS );
 }
 
 

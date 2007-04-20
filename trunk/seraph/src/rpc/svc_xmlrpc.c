@@ -93,17 +93,21 @@ x_getConfigCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void *userDat
     machine = XMLRPC_GetValueString( xIter );
     symbList = testdb_getConfig( machine , &nbSymbols);
     debug("UserData:%p\n", userData);
-    while( nbSymbols-- ) {
+    while( nbSymbols-- )
+    {
         tmp = (ConfigEntry*)g_slist_nth_data(symbList, nbSymbols);
         if( (!tmp) || (!tmp->symbol) || (!tmp->value) ) continue;
+
         rv = XMLRPC_CreateVector(NULL, xmlrpc_vector_struct);
         XMLRPC_VectorAppendString( rv, "symbol", tmp->symbol, 0 );
         XMLRPC_VectorAppendString( rv, "val" , tmp->value, 0 );
         XMLRPC_AddValueToVector ( ret, rv);
-        //free(symbList[nbSymbols].symbol);
-        //free(symbList[nbSymbols].value);
+
+        free(tmp->symbol);
+        free(tmp->value);
+        free(tmp), tmp=NULL;
     }
-    //free(symbList);
+    free(symbList) ;
     return ret;
 }
 

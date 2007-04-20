@@ -1855,6 +1855,7 @@ scan_parseCfg( char* config_file, void* val )
     if(!yyin) { printf("E: Unable to open config file [%s]\n", config_file); exit(-1); }
     onLineParsedArg = val;
     yylex();
+    fclose(yyin);
     return 0;
 }
 
@@ -1864,6 +1865,7 @@ int srph_parseBat( char* bat_file )
     yyin = fopen( bat_file, "r" );
     if(!yyin) { printf("E: Unable to open file [%s]\n", bat_file); exit(-1); }
     yylex();
+    fclose(yyin);
     return 0;
 }
 

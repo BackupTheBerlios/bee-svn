@@ -43,6 +43,7 @@ testdb_listTests(const char* td, int* sz)
         strcpy(buf[i++], ent->d_name);
     }
     *sz = i;
+    closedir(dir);
     return buf;
 }/*------------------------------------------------------------------*/
 
@@ -72,6 +73,7 @@ testdb_listMachines(const char* td, int* sz)
         strcpy(buf[i++], ent->d_name);
     }
     *sz = i;
+    closedir(dir);
     return buf;
 }/*------------------------------------------------------------------*/
 

@@ -24,6 +24,7 @@ start_xmlrpc(const unsigned int port)
     }
 
     /* Daemon */
+#if 0
     pid = fork( );
 
     if( pid < 0 )
@@ -35,7 +36,6 @@ start_xmlrpc(const unsigned int port)
     if( pid > 0 )
     {   exit( EXIT_SUCCESS );
     }
-
     /* Child code */
     ( void )umask( 0 );
     sid = setsid(  );
@@ -46,17 +46,19 @@ start_xmlrpc(const unsigned int port)
     {   perror( "rsh: Can't change to /tmp" );
         exit( EXIT_FAILURE );
     }
-    if( signal( SIGINT, sut_sigint ) == SIG_ERR )
-    {   perror( "signal() error!" );
+#endif
+    if( signal( SIGHUP, sut_sigint ) == SIG_ERR )
+    {   printf( "1:signal() error!" );
         return 1;
     }
 
     if( signal( SIGPIPE, sut_sigpipe ) == SIG_ERR )
-    {   perror( "signal() error!" );
+    {   printf( "3:signal() error!" );
         return 1;
     }
 
     /* Daemon */
+#if 0
     long fdlimit = -1, i;
     int fderr, fdout,fdin;
 
@@ -85,6 +87,7 @@ start_xmlrpc(const unsigned int port)
         if (fderr > 2 )
             close (fderr);
     }
+#endif
     return callback_socket( port );
 }
 
@@ -126,8 +129,9 @@ static int callback_socket( int portno )
     {   int newsockfd=0;
         newsockfd = accept( sockfd, ( struct sockaddr * )&cli_addr, &clilen );
         if( newsockfd < 0 )
-        {   perror( "rsh: ERR on accept" );
-            exit( -1 );
+        {   printf( "rsh: ERR on accept" );
+            running=0;
+            break;
         }
         callback_command( newsockfd );
     }
