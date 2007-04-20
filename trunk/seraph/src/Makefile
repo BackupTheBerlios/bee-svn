@@ -3,21 +3,15 @@
 		   -Wdeclaration-after-statement
 
 TOP=.
-include system.mk
+files = strop.o fileop.o baseclass.o basedb.o userdb.o testdb.o core.o sut.o socket.o wall.o scan.o debug.o
 TARGETS=lib/libtrpc.a lib/libtbot.a bin/seraph  bin/mngrd tool
+include system.mk
 
 all: $(TARGETS)
 
 help:
 	echo "Targets are: seraph lib clean tar indent install"
 
-files = strop.o fileop.o baseclass.o basedb.o userdb.o testdb.o core.o sut.o socket.o wall.o scan.o debug.o
-
-
-objs=$(addprefix ./objs/,$(files))
-
-./objs/%.o: %.c
-	$(CC) -c $(CFLAGS) $(WARN) $< -o $@
 
 
 lib/libtbot.a: $(objs)

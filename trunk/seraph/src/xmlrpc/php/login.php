@@ -47,6 +47,16 @@ class User {
         //echo "HERE<br>";
         $result = mysql_query($sql) or die(mysql_error());
         //$this->xmlrpc->checkSession($username, $cookie, $session, $ip);
+        /*$req = new XML_RPC_Value(
+            array(
+                "sut_username" => "",
+                "sut_cookie"   => "",
+                "sut_session"  => "",
+                "sut_ip" => ""
+                ), "struct");
+        */
+        //$msg = XML_RPC_Message('checkSession', array($req));
+        //$rsp = $this->xmlrpc->send($msg);
         if( mysql_num_rows($result) !=0 ) {
             $this->setSession($result, false, false);
         } else {

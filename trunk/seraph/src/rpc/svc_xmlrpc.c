@@ -364,17 +364,36 @@ x_checkCoreCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request,
 x_registerUserCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request,
         void *userData )
 {
+    XMLRPC_VALUE xParams = XMLRPC_RequestGetData( request );
+    XMLRPC_VALUE xIter   = XMLRPC_VectorRewind( xParams );
+    bool ret=false;
+    //deserialize
     char *name, *email, *username, *password;
-    userdb_register( name, email, username, password);
+    name    = XMLRPC_VectorGetStringWithID(xIter, "sut_name");
+    email   = XMLRPC_VectorGetStringWithID(xIter, "sut_email");
+    username= XMLRPC_VectorGetStringWithID(xIter, "sut_username");
+    password= XMLRPC_VectorGetStringWithID(xIter, "sut_mip");
+    ret = userdb_register( name, email, username, password);
+
+    return XMLRPC_CreateValueString(NULL, ret ? "register success":"register failed", 0);
 }
 
     XMLRPC_VALUE
 x_checkSessionCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request,
         void *userData )
 {
+    XMLRPC_VALUE xParams = XMLRPC_RequestGetData( request );
+    XMLRPC_VALUE xIter   = XMLRPC_VectorRewind( xParams );
+    bool ret=false;
+    //deserialize
     char *username, *cookie, *session, *ip;
-    userdb_checkSession( username, cookie, session, ip );
+    username= XMLRPC_VectorGetStringWithID(xIter, "sut_username");
+    cookie  = XMLRPC_VectorGetStringWithID(xIter, "sut_cookie");
+    session = XMLRPC_VectorGetStringWithID(xIter, "sut_session");
+    ip      = XMLRPC_VectorGetStringWithID(xIter, "sut_ip");
+    ret = userdb_checkSession( username, cookie, session, ip );
 
+    return XMLRPC_CreateValueString(NULL, ret ? "session ok":"session failed", 0);
 }
 
 
@@ -382,8 +401,16 @@ x_checkSessionCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request,
 x_setSessionCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request,
         void *userData )
 {
+    XMLRPC_VALUE xParams = XMLRPC_RequestGetData( request );
+    XMLRPC_VALUE xIter   = XMLRPC_VectorRewind( xParams );
+    bool ret=false;
+    //deserialize
     char *id, *session, *ip;
+    id      = XMLRPC_VectorGetStringWithID(xIter, "sut_id");
+    session = XMLRPC_VectorGetStringWithID(xIter, "sut_session");
+    ip      = XMLRPC_VectorGetStringWithID(xIter, "sut_ip");
     userdb_setSession( id, session, ip);
+    return XMLRPC_CreateValueString(NULL, ret ? "setsession ok":"setsession failed", 0);
 }
 
 
@@ -391,8 +418,15 @@ x_setSessionCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request,
 x_checkLoginCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request,
         void *userData )
 {
+    XMLRPC_VALUE xParams = XMLRPC_RequestGetData( request );
+    XMLRPC_VALUE xIter   = XMLRPC_VectorRewind( xParams );
+    bool ret=false;
+    //deserialize
     char *username, *password;
+    username= XMLRPC_VectorGetStringWithID(xIter, "sut_username");
+    password= XMLRPC_VectorGetStringWithID(xIter, "sut_password");
     userdb_checkLogin( username, password);
+    return XMLRPC_CreateValueString(NULL, ret ? "checkLogin ok":"checkLogin failed", 0);
 }
 
 
@@ -400,8 +434,15 @@ x_checkLoginCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request,
 x_checkRemembered( XMLRPC_SERVER server, XMLRPC_REQUEST request,
         void *userData )
 {
+    XMLRPC_VALUE xParams = XMLRPC_RequestGetData( request );
+    XMLRPC_VALUE xIter   = XMLRPC_VectorRewind( xParams );
+    bool ret=false;
+    //deserialize
     char *username, *cookie;
+    username= XMLRPC_VectorGetStringWithID(xIter, "sut_username");
+    cookie  = XMLRPC_VectorGetStringWithID(xIter, "sut_cookie");
     userdb_checkRemembered( username, cookie );
+    return XMLRPC_CreateValueString(NULL, ret ? "checkRemembered ok":"checkRemembered failed", 0);
 }
 #if 0
 /**

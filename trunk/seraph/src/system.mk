@@ -31,3 +31,9 @@ WARN=
 CFLAGS = -I$(TOP)/include `pkg-config --cflags glib-2.0`
 LDFLAGS =
 endif
+
+objs=$(addprefix ./objs/,$(files))
+
+./objs/%.o: %.c
+	$(CC) -c $(CFLAGS) $(WARN) $< -o $@
+
