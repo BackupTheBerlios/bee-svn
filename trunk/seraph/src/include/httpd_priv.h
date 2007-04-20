@@ -14,7 +14,7 @@
 ** connection with the use or performance of this software.
 **
 **
-** $Id: httpd_priv.h,v 1.8 2004/09/24 06:24:50 bambi Exp $
+** $Id: httpd_priv.h,v 1.1.1.1 2007/04/20 08:20:03 groleo Exp $
 **
 */
 

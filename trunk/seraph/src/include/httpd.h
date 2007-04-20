@@ -14,7 +14,7 @@
 ** connection with the use or performance of this software.
 **
 **
-** $Id: httpd.h,v 1.16 2005/01/26 04:48:28 bambi Exp $
+** $Id: httpd.h,v 1.1.1.1 2007/04/20 08:20:03 groleo Exp $
 **
 */
 
