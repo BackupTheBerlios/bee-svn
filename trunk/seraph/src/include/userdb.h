@@ -1,4 +1,11 @@
 
+enum JobType {
+    JOB_PENDING,
+    JOB_RUNNING,
+    JOB_COMPLETE,
+    JOB_ALL
+};
+
 bool
 userdb_register( const char* const name, const char* const email,
                  const char* const uname, const char* const pass);

@@ -8,13 +8,6 @@
 #include "basedb.h"
 
 
-enum JobType {
-    JOB_PENDING,
-    JOB_RUNNING,
-    JOB_COMPLETE,
-    JOB_ALL
-};
-
 bool
 userdb_register( const char* const name, const char* const email,
                  const char* const uname, const char* const pass)
@@ -90,7 +83,7 @@ userdb_listJobs( const char * const uname, enum JobType job_type, GSList** jobs)
         {
             if( !strcmp(dent->d_name,".") || !strcmp(dent->d_name, "..") ) continue;
             ++nbJobs;
-            g_slist_append(*jobs, dent->d_name);
+            *jobs = g_slist_append(*jobs, dent->d_name);
         }
         closedir(dit);
     }
@@ -102,7 +95,7 @@ userdb_listJobs( const char * const uname, enum JobType job_type, GSList** jobs)
         {
             if( !strcmp(dent->d_name, ".") || !strcmp(dent->d_name,"..") ) continue;
             ++nbJobs;
-            g_slist_append(*jobs, dent->d_name);//TODO: use a copy of dent->d_name
+            *jobs = g_slist_append(*jobs, dent->d_name);//TODO: use a copy of dent->d_name
         }
         close( dit );
     }
@@ -114,7 +107,7 @@ userdb_listJobs( const char * const uname, enum JobType job_type, GSList** jobs)
         {
             if( !strcmp(dent->d_name, ".") || !strcmp(dent->d_name,"..") ) continue;
             ++nbJobs;
-            g_slist_append(*jobs, dent->d_name); //TODO: use a copy of dent->d_name
+            *jobs = g_slist_append(*jobs, dent->d_name); //TODO: use a copy of dent->d_name
         }
         close( dit );
     }
@@ -180,7 +173,6 @@ userdb_checkLogin(  const char* const uname,
     db_get(db, "pass", &p);
     db_close(db);
     return !( strcmp(uname, u) && strcmp(password, p) );
-
 }
 
 bool

@@ -3,7 +3,9 @@
 #include "strop.h"
 #include "socket.h"
 #include "sut.h"
+#include "core.h"
 #include "testdb.h"
+#include "userdb.h"
 #include <sys/wait.h>
 #include <limits.h>
 
@@ -259,7 +261,7 @@ x_addMachineCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request,
 x_runTestsCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void* userData )
 {
     XMLRPC_VALUE str;
-    const char* sut_build, *p, *os;
+    const char *sut_build=NULL, *p=NULL, *os=NULL;
     XMLRPC_VALUE oses, tests;
     XMLRPC_VALUE xIter ;
     XMLRPC_VALUE xStarted;
@@ -318,6 +320,7 @@ x_runTestsCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void* userData
         sleep(20);
         exit(EXIT_SUCCESS);
     }
+    return 0; //never reached
 }
 
 /* chechcore( core_srcDir, dbg_srcDir, axi_workDir, axi_cfgFile, crash_destDir ) */
@@ -368,7 +371,7 @@ x_registerUserCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request,
     XMLRPC_VALUE xIter   = XMLRPC_VectorRewind( xParams );
     bool ret=false;
     //deserialize
-    char *name, *email, *username, *password;
+    const char *name, *email, *username, *password;
     name    = XMLRPC_VectorGetStringWithID(xIter, "sut_name");
     email   = XMLRPC_VectorGetStringWithID(xIter, "sut_email");
     username= XMLRPC_VectorGetStringWithID(xIter, "sut_username");
@@ -386,7 +389,7 @@ x_checkSessionCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request,
     XMLRPC_VALUE xIter   = XMLRPC_VectorRewind( xParams );
     bool ret=false;
     //deserialize
-    char *username, *cookie, *session, *ip;
+    const char *username, *cookie, *session, *ip;
     username= XMLRPC_VectorGetStringWithID(xIter, "sut_username");
     cookie  = XMLRPC_VectorGetStringWithID(xIter, "sut_cookie");
     session = XMLRPC_VectorGetStringWithID(xIter, "sut_session");
@@ -405,11 +408,12 @@ x_setSessionCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request,
     XMLRPC_VALUE xIter   = XMLRPC_VectorRewind( xParams );
     bool ret=false;
     //deserialize
-    char *id, *session, *ip;
+    const char *id, *session, *ip, *username;
+    username= XMLRPC_VectorGetStringWithID(xIter, "sut_username");
     id      = XMLRPC_VectorGetStringWithID(xIter, "sut_id");
     session = XMLRPC_VectorGetStringWithID(xIter, "sut_session");
     ip      = XMLRPC_VectorGetStringWithID(xIter, "sut_ip");
-    userdb_setSession( id, session, ip);
+    userdb_setSession( username, id, session, ip);
     return XMLRPC_CreateValueString(NULL, ret ? "setsession ok":"setsession failed", 0);
 }
 
@@ -422,7 +426,7 @@ x_checkLoginCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request,
     XMLRPC_VALUE xIter   = XMLRPC_VectorRewind( xParams );
     bool ret=false;
     //deserialize
-    char *username, *password;
+    const char *username, *password;
     username= XMLRPC_VectorGetStringWithID(xIter, "sut_username");
     password= XMLRPC_VectorGetStringWithID(xIter, "sut_password");
     userdb_checkLogin( username, password);
@@ -438,7 +442,7 @@ x_checkRemembered( XMLRPC_SERVER server, XMLRPC_REQUEST request,
     XMLRPC_VALUE xIter   = XMLRPC_VectorRewind( xParams );
     bool ret=false;
     //deserialize
-    char *username, *cookie;
+    const char *username, *cookie;
     username= XMLRPC_VectorGetStringWithID(xIter, "sut_username");
     cookie  = XMLRPC_VectorGetStringWithID(xIter, "sut_cookie");
     userdb_checkRemembered( username, cookie );

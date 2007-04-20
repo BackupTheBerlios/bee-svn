@@ -93,7 +93,7 @@ int onLineParsed(const char *name, const char *value, void* arg)
 }
 
 
-GSList* testdb_getConfig(const char* machine, int* sz)
+GSList* testdb_getConfig(const char* machine, unsigned int* sz)
 {
     char path[PATH_MAX]={0};
     debug( "\nGETCONFIG\n" );

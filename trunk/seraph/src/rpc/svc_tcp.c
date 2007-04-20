@@ -3,6 +3,7 @@
 #include "strop.h"
 #include "socket.h"
 #include "sut.h"
+#include "core.h"
 
 /*
  * Server-side remote procedure call implemented over TCP.

@@ -9,7 +9,7 @@ typedef struct {
 
 char**  testdb_listTests    (const char* td, int* sz) ;
 char**  testdb_listMachines (const char* td, int* sz) ;
-GSList* testdb_getConfig    (const char* machine, int* sz) ;
+GSList* testdb_getConfig    (const char* machine, unsigned int* sz) ;
 bool    testdb_addMachine   (const char* mName, const char* mOS,
                              const char* mOSVer, const char* mIP);
 
