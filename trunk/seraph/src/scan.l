@@ -59,7 +59,7 @@ SPACE    [ \t\n]+
 %%
 
 int
-srph_parseCfg( char* config_file, void* val )
+scan_parseCfg( char* config_file, void* val )
 {
     is_cfg = 1;
     yyin = fopen( config_file, "r" );

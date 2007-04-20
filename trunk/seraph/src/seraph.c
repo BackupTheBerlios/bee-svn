@@ -50,6 +50,7 @@ static int onLineParsed(const char *name, const char *value, void* arg)
     debug("%s = %s\n", name, tmp);
     setenv(name, tmp,1);
     free(tmp);
+    return 1;
 }
 
 
@@ -83,7 +84,7 @@ int main( int argc, char *argv[] )
             if( cfg.start_xmlrpc) {
                 /*3. export any variable from config file */
                 cfg.takeAction = setenv;
-                srph_parseCfg( cfg.config_file,1 );
+                scan_parseCfg( cfg.config_file, (void*)1 );
 
                 /*4. check if the needed variables are exported */
                 srph_initEnv( &cfg );
@@ -100,7 +101,7 @@ int main( int argc, char *argv[] )
 
     /*3. export any variable from config file */
     cfg.takeAction = onLineParsed;
-    srph_parseCfg( cfg.config_file,1 );
+    scan_parseCfg( cfg.config_file, (void*)1);
 
     /*4. check if the needed variables are exported */
     srph_initEnv( &cfg );

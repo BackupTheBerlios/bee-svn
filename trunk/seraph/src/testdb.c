@@ -100,7 +100,7 @@ GSList* testdb_getConfig(const char* machine, unsigned int* sz)
     GSList*   cfgTable =  g_slist_alloc() ;
     cfg.takeAction = onLineParsed ;
     sprintf(path,"%s/%s", MACHINES, machine);
-    srph_parseCfg( path, &cfgTable);
+    scan_parseCfg( path, &cfgTable);
     *sz = g_slist_length(cfgTable);
     return cfgTable;
 }
