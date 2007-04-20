@@ -14,7 +14,7 @@
 ** connection with the use or performance of this software.
 **
 **
-** $Id: test_httpd.c,v 1.13 2004/05/09 18:06:24 bambi Exp $
+** $Id: mngrd1.c,v 1.1.1.1 2007/04/20 08:20:02 groleo Exp $
 **
 */
 

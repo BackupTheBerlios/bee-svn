@@ -4,6 +4,8 @@
 #include <sys/types.h>  //opendir
 #include <dirent.h>     //opendir
 #include <glib.h>       //GSList
+#include "baseclass.h"
+#include "basedb.h"
 
 
 enum JobType {
@@ -29,30 +31,33 @@ userdb_register( const char* const name, const char* const email,
         return false;
     }
     chdir(uname);
-    new(BaseDB);
-    if(db_open("userdata", DB_CREATE))
+
+    fclose(fopen("userdata","w"));
+    if(fclose(fopen("userdata","w")))
     {   debug("unable to create 'userdata' file: [%s]\n", strerror(errno));
         return false;
     }
-    db_put(dbp, "name", name);
-    db_put(dbp, "email", email);
-    db_put(dbp, "uname", uname);
-    db_put(dbp, "pass", pass);
-    db_close(dbp);
+    struct Class* db = new(BaseDB);
+    db_open( db, "userdata",0);
+    db_put(db, "name", name);
+    db_put(db, "email", email);
+    db_put(db, "uname", uname);
+    db_put(db, "pass", pass);
+    db_close(db);
     return true;
 }
 
 bool
 userdb_login( const char* uname, const char* pass)
 {
-    char* p=NULL; //md5sum
+    char p[33]={0}; //md5sum
 
-    new(BaseDB);
-    if(db_open(dbp, DB_OPEN, "%s/%s", USERDB, uname))
+    struct Class* db = new(BaseDB);
+    if(db_open(db, "%s/%s", USERDB, uname))
         return false;
 
-    db_get(dbp, "pass", &p);
-    db_close( dbp);
+    db_get(db, "pass", p);
+    db_close( db);
     return !( strcmp(p, pass) );
 }
 
@@ -126,53 +131,54 @@ userdb_checkSession(const char* const uname,
                     const char* const session,
                     const char* const ip )
 {
-    FILE *f=NULL;
     int ret =0;
-    char *
+    struct Class* db = new(BaseDB);
+    char u[33]={0}, c[33]={0}, i[33]={0}, s[33]={0};
 
-    new(BaseDB);
-    ret = db_open( &dbp, DB_OPEN, "%s/%s/userdata",USERDB, uname);
+    ret = db_open( db, "%s/%s",USERDB, uname);
     if(ret)
     {
         printf("error opening userdata file for [%s]\n", uname);
         return false;
     }
 
-    if( db_get(dbp, "user",   &user)
-    &&  db_get(dbp, "cookie", &cookie)
-    &&  db_get(dbp, "ip",     &ip)
-    &&  db_get(dbp, "session",&session)
+    if( db_get(db, "user",   &u)
+    &&  db_get(db, "cookie", &c)
+    &&  db_get(db, "ip",     &i)
+    &&  db_get(db, "session",&s)
       )
     {
-        db_close(dbp);
+        db_close(db);
         return false;
     }
-    db_close(dbp);
+    db_close(db);
+    //TODO: strcmp(uname, u) ...
     return true;
 }
 
 bool
-userdb_setSession(  const char* const id,
+userdb_setSession(  const char* const uname,
+                    const char* const id,
                     const char* const session,
                     const char* const ip)
 {
-    new(BaseDB);
-    db_open( &dbp, DB_OPEN, "%s/%s", USERDB, uname);
-    db_put(dbp, "session", session);
-    db_put(dbp, "ip", ip);
-    db_close(dbp);
+    struct Class* db = new(BaseDB);
+    db_open( db, "%s/%s", USERDB, uname);
+    db_put(db, "session", session);
+    db_put(db, "ip", ip);
+    db_close(db);
 }
 
 bool
 userdb_checkLogin(  const char* const uname,
                     const char* const password)
 {
-    char *u=NULL, *p=NULL;
-    new(BaseDB);
-    db_open( &dbp, DB_OPEN, "%s/%s", USERDB, uname);
-    db_get(dbp, "user", &u);
-    db_get(dbp, "pass", &p);
-    db_close(dbp);
+    char u[33]={0}, p[33]={0};
+    struct Class* db = new(BaseDB);
+    db_open( db, "%s/%s", USERDB, uname);
+    db_get(db, "user", &u);
+    db_get(db, "pass", &p);
+    db_close(db);
     return !( strcmp(uname, u) && strcmp(password, p) );
 
 }
@@ -181,9 +187,10 @@ bool
 userdb_checkRemembered( const char* const uname,
                         const char* const cookie )
 {
-    char *c;
+    char c[33]={0};
+    struct Class* db = new(BaseDB);
     new(BaseDB);
-    db_open( &dbp, DB_OPEN, "%s/%s", USERDB, uname );
-    db_get( dbp, "cookie", &c );
-    db_close(dbp);
+    db_open( db, "%s/%s", USERDB, uname );
+    db_get( db, "cookie", &c );
+    db_close(db);
 }

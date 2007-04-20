@@ -25,7 +25,7 @@ void delete (void * this)
     free(this);
 }
 
-/* generconst char* const DbOpenMode*/
+/* generic selectors */
 int differ (const void * this, const void * b)
 {   const struct Class * const * cp = this;
     assert(this && * cp && (* cp)->differ);
@@ -38,28 +38,5 @@ size_t sizeOf (const void * this)
     return (* cp)->size;
 }
 
-/* database selectors */
-int db_open(const void* this, const char* const dbName, ...)
-{   const struct Class * const * cp = this;
-    va_list ap;
-    assert(this && * cp && (* cp)->db_open);
-    va_start(ap, dbName);
-    (* cp)->db_open(this, dbName, &ap);
-    va_end(ap);
-}
-int db_put(const void* this, const char* key, const char* data)
-{   const struct Class * const * cp = this;
-    assert(this && * cp && (* cp)->db_put);
-    return (* cp)->db_put(this, key, data);
-}
-int db_get(const void* this, const char* key, char* *data)
-{   const struct Class * const * cp = this;
-    assert(this && * cp && (* cp)->db_get);
-    return (* cp)->db_get(this, key, data);
-}
-int db_close(const void* this)
-{   const struct Class * const * cp = this;
-    assert(this && * cp && (* cp)->db_close);
-    return (* cp)->db_close(this);
-}
+
 

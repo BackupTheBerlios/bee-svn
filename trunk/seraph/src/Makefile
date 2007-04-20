@@ -11,7 +11,7 @@ all: $(TARGETS)
 help:
 	echo "Targets are: seraph lib clean tar indent install"
 
-files = strop.o fileop.o userdb.o testdb.o core.o sut.o socket.o wall.o scan.o debug.o
+files = strop.o fileop.o baseclass.o basedb.o userdb.o testdb.o core.o sut.o socket.o wall.o scan.o debug.o
 
 
 objs=$(addprefix ./objs/,$(files))
@@ -30,7 +30,7 @@ lib/libtrpc.a:
 
 bin/mngrd: lib/libtbot.a
 	mkdir -p ./bin/tools
-	$(CC) $(CFLAGS) $(LDFLAGS) -lhttpd mngrd.c  -o $@
+	$(CC) $(CFLAGS) $(LDFLAGS)  mngrd.c  -o $@
 
 bin/seraph: lib/libtbot.a lib/libtrpc.a
 	mkdir -p ./bin/tools

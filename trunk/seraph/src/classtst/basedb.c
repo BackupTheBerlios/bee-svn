@@ -5,7 +5,6 @@
 #include <assert.h>
 #include <string.h>
 #include <fcntl.h>
-#include <limits.h>
 #include "baseclass.h"
 
 /*BaseDB class implementation*/
@@ -52,7 +51,9 @@ static int BaseDB_open(const void *_this, const char* const dbName, va_list*app)
     char path[PATH_MAX]={0};
     
 
-    vsprintf(path, dbName, *app);
+    va_start(app, dbName);
+        vsprintf(path, dbName, app);
+    va_end(app);
     printf("opening [%s]:%d\n", path);
     ret = fopen( path, "w");
     if(!ret)
