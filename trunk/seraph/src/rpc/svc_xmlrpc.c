@@ -79,30 +79,29 @@ x_listMachinesCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void *user
     XMLRPC_VALUE
 x_getConfigCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void *userData )
 {
-    XMLRPC_VALUE rv;
     GSList* symbList=NULL;
     ConfigEntry* tmp=NULL;
     unsigned int nbSymbols=0;
     const char* machine=NULL;
 
-    XMLRPC_VALUE xParams = XMLRPC_RequestGetData( request );
-    XMLRPC_VALUE xIter   = XMLRPC_VectorRewind( xParams );
-    XMLRPC_VALUE ret = XMLRPC_CreateVector(NULL, xmlrpc_vector_array);
-    rv  = XMLRPC_CreateVector(NULL, xmlrpc_vector_struct);
+    XMLRPC_VALUE xParams= XMLRPC_RequestGetData( request );
+    XMLRPC_VALUE xIter  = XMLRPC_VectorRewind( xParams );
+    XMLRPC_VALUE ret    = XMLRPC_CreateVector(NULL, xmlrpc_vector_array);
+    XMLRPC_VALUE tmpv ;
 
     machine = XMLRPC_GetValueString( xIter );
     symbList = testdb_getConfig( machine , &nbSymbols);
-    debug("UserData:%p\n", userData);
     while( nbSymbols-- )
     {
         tmp = (ConfigEntry*)g_slist_nth_data(symbList, nbSymbols);
         if( (!tmp) || (!tmp->symbol) || (!tmp->value) ) continue;
 
-        rv = XMLRPC_CreateVector(NULL, xmlrpc_vector_struct);
-        XMLRPC_VectorAppendString( rv, "symbol", tmp->symbol, 0 );
-        XMLRPC_VectorAppendString( rv, "val" , tmp->value, 0 );
-        XMLRPC_AddValueToVector ( ret, rv);
+        tmpv = XMLRPC_CreateVector(NULL, xmlrpc_vector_struct);
+        XMLRPC_VectorAppendString( tmpv, "symbol", tmp->symbol, 0 );
+        XMLRPC_VectorAppendString( tmpv, "val" , tmp->value, 0 );
+        XMLRPC_AddValueToVector ( ret, XMLRPC_CopyValue(tmpv));
 
+        XMLRPC_CleanupValue(tmpv);
         free(tmp->symbol);
         free(tmp->value);
         free(tmp), tmp=NULL;
