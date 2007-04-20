@@ -107,7 +107,7 @@ x_getConfigCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void *userDat
         free(tmp->value);
         free(tmp), tmp=NULL;
     }
-    free(symbList) ;
+    g_slist_free(symbList);
     return ret;
 }
 
