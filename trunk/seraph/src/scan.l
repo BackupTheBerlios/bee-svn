@@ -23,14 +23,14 @@ SPACE    [ \t\n]+
 
 #{SPACE}*axi_fi{SPACE}*={SPACE}[y|Y|n|N] {
     if(! is_bat ) return 0;
-    
+
     ;
 }
 
 {ID}{SPACE}*"="{SPACE}*"'"{ID}"'" {
     if( ! is_cfg ) return 0;
     char* val=0;
- 
+
     yytext[strlen(yytext)-1] = '\0';
     p1 = strchr( yytext, '=');
     *p1='\0';
@@ -46,7 +46,6 @@ SPACE    [ \t\n]+
     if ( cfg.verbose )
         debug("export '%s'='%s'\n", yytext, val);
     cfg.takeAction( yytext, val, onLineParsedArg );
-    //free(val);
 }
 
 

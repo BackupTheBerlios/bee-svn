@@ -29,7 +29,7 @@ start_xmlrpc(const unsigned int port)
 
     if( pid < 0 )
     {   debug( "Unable to fork(): %s\n", strerror(errno) );
-        exit( EXIT_FAILURE );
+        return EXIT_FAILURE ;
     }
 
     /* Parent */
