@@ -23,42 +23,28 @@ start_xmlrpc(const unsigned int port)
         return -1;
     }
 
-    /* Daemon */
 #if 0
+    /* Daemon */
     pid = fork( );
 
     if( pid < 0 )
-    {   fprintf( stderr, "rsh: Error while forking\n" );
+    {   debug( "Unable to fork(): %s\n", strerror(errno) );
         exit( EXIT_FAILURE );
     }
 
     /* Parent */
     if( pid > 0 )
-    {   exit( EXIT_SUCCESS );
-    }
+        exit( EXIT_SUCCESS );
+
     /* Child code */
     ( void )umask( 0 );
     sid = setsid(  );
     if( sid < 0 )
         exit( EXIT_FAILURE );
 
-    if( ( chdir( "/home/groleo" ) ) < 0 )
-    {   perror( "rsh: Can't change to /tmp" );
-        exit( EXIT_FAILURE );
-    }
-#endif
-    if( signal( SIGHUP, sut_sigint ) == SIG_ERR )
-    {   printf( "1:signal() error!" );
-        return 1;
-    }
-
-    if( signal( SIGPIPE, sut_sigpipe ) == SIG_ERR )
-    {   printf( "3:signal() error!" );
-        return 1;
-    }
-
+    if( ( chdir( "/tmp" ) ) < 0 )
+        debug( "Can't change to /tmp" );
     /* Daemon */
-#if 0
     long fdlimit = -1, i;
     int fderr, fdout,fdin;
 
@@ -88,6 +74,16 @@ start_xmlrpc(const unsigned int port)
             close (fderr);
     }
 #endif
+    if( signal( SIGINT, sut_sigint ) == SIG_ERR )
+    {   debug( "1:signal() error!" );
+        return 1;
+    }
+
+    if( signal( SIGPIPE, sut_sigpipe ) == SIG_ERR )
+    {   debug( "3:signal() error!" );
+        return 1;
+    }
+
     return callback_socket( port );
 }
 
