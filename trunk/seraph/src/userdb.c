@@ -29,32 +29,31 @@ userdb_register( const char* const name, const char* const email,
         return false;
     }
     chdir(uname);
-    if(! (f=fopen("metadata", "w")) )
-    {   debug("unable to create 'metadata' file: [%s]\n", strerror(errno));
+    new(BaseDB);
+    if(db_open("userdata", DB_CREATE))
+    {   debug("unable to create 'userdata' file: [%s]\n", strerror(errno));
         return false;
     }
-    fprintf(f, "%s", pass);
-    fclose(f);
+    db_put(dbp, "name", name);
+    db_put(dbp, "email", email);
+    db_put(dbp, "uname", uname);
+    db_put(dbp, "pass", pass);
+    db_close(dbp);
     return true;
 }
 
 bool
 userdb_login( const char* uname, const char* pass)
 {
-    char p[33]={0}; //md5sum
-    FILE* f=NULL;
-    char path[PATH_MAX]={0};
+    char* p=NULL; //md5sum
 
-    sprintf(path, "%s/%s", USERDB, uname);
-    if( !access(path, R_OK ) )
-        return false;
-    if(! (f=fopen(pass, "r")) )
+    new(BaseDB);
+    if(db_open(dbp, DB_OPEN, "%s/%s", USERDB, uname))
         return false;
 
-    fscanf(f, "%s", p );
-    if( strcmp(p, pass) )
-        return false;
-    return true;
+    db_get(dbp, "pass", &p);
+    db_close( dbp);
+    return !( strcmp(p, pass) );
 }
 
 int
@@ -84,7 +83,7 @@ userdb_listJobs( const char * const uname, enum JobType job_type, GSList** jobs)
         dit = opendir(path);
         while( dent=readdir(dit) )
         {
-            if( !strstr(dent->d_name,".") || !strstr(dent->d_name, "..") ) continue;
+            if( !strcmp(dent->d_name,".") || !strcmp(dent->d_name, "..") ) continue;
             ++nbJobs;
             g_slist_append(*jobs, dent->d_name);
         }
@@ -96,7 +95,7 @@ userdb_listJobs( const char * const uname, enum JobType job_type, GSList** jobs)
         dit  = opendir(path);
         while( dent=readdir(dit) )
         {
-            if( !strstr(dent->d_name, ".") || !strstr(dent->d_name,"..") ) continue;
+            if( !strcmp(dent->d_name, ".") || !strcmp(dent->d_name,"..") ) continue;
             ++nbJobs;
             g_slist_append(*jobs, dent->d_name);//TODO: use a copy of dent->d_name
         }
@@ -108,7 +107,7 @@ userdb_listJobs( const char * const uname, enum JobType job_type, GSList** jobs)
         dit = opendir(path);
         while( dent=readdir(dit) )
         {
-            if( !strstr(dent->d_name, ".") || !strstr(dent->d_name,"..") ) continue;
+            if( !strcmp(dent->d_name, ".") || !strcmp(dent->d_name,"..") ) continue;
             ++nbJobs;
             g_slist_append(*jobs, dent->d_name); //TODO: use a copy of dent->d_name
         }
@@ -127,22 +126,29 @@ userdb_checkSession(const char* const uname,
                     const char* const session,
                     const char* const ip )
 {
-    char path[PATH_MAX] = {0};
-    char _uname[40]={0}, _cookie[40]={0}, _session[40]={0}, _ip[40]={0};
     FILE *f=NULL;
+    int ret =0;
+    char *
 
-    sprintf( path, "%s/%s/userdata", USERDB, uname);
-    if( !(f=fopen( path, "r")) )
+    new(BaseDB);
+    ret = db_open( &dbp, DB_OPEN, "%s/%s/userdata",USERDB, uname);
+    if(ret)
     {
         printf("error opening userdata file for [%s]\n", uname);
         return false;
     }
-    fscanf( f, "%s:%s:%s:%s", _uname, _cookie, _session, _ip);
-    if( strstr(_uname, uname) && strstr(_cookie, cookie) && strstr(_ip, ip)
-    &&  strstr(_session, session)
+
+    if( db_get(dbp, "user",   &user)
+    &&  db_get(dbp, "cookie", &cookie)
+    &&  db_get(dbp, "ip",     &ip)
+    &&  db_get(dbp, "session",&session)
       )
-      return false;
-      return true;
+    {
+        db_close(dbp);
+        return false;
+    }
+    db_close(dbp);
+    return true;
 }
 
 bool
@@ -150,14 +156,34 @@ userdb_setSession(  const char* const id,
                     const char* const session,
                     const char* const ip)
 {
+    new(BaseDB);
+    db_open( &dbp, DB_OPEN, "%s/%s", USERDB, uname);
+    db_put(dbp, "session", session);
+    db_put(dbp, "ip", ip);
+    db_close(dbp);
 }
 
 bool
 userdb_checkLogin(  const char* const uname,
-                    const char* const password){}
+                    const char* const password)
+{
+    char *u=NULL, *p=NULL;
+    new(BaseDB);
+    db_open( &dbp, DB_OPEN, "%s/%s", USERDB, uname);
+    db_get(dbp, "user", &u);
+    db_get(dbp, "pass", &p);
+    db_close(dbp);
+    return !( strcmp(uname, u) && strcmp(password, p) );
+
+}
 
 bool
 userdb_checkRemembered( const char* const uname,
                         const char* const cookie )
 {
+    char *c;
+    new(BaseDB);
+    db_open( &dbp, DB_OPEN, "%s/%s", USERDB, uname );
+    db_get( dbp, "cookie", &c );
+    db_close(dbp);
 }
