@@ -97,8 +97,7 @@ static int callback_socket( int portno )
 
     sockfd = socket( AF_INET, SOCK_STREAM, 0 );
     if( sockfd < 0 )
-    {  fprintf( stderr, "rsh: ERR: opening socket: %s\n",
-                strerror( errno ) );
+    {  debug( "ERR: opening socket: %s\n", strerror( errno ) );
         return 1;
     }
     memset( ( char * )&serv_addr, '\0', sizeof( serv_addr ) );
@@ -108,13 +107,13 @@ static int callback_socket( int portno )
     serv_addr.sin_port = htons( portno );
     if( bind( sockfd, ( struct sockaddr * )&serv_addr, sizeof( serv_addr ) )
             < 0 )
-    {   debug( "rsh: ERR on binding: %s", strerror(errno) );
-        exit( -1 );
+    {   debug( "ERR on binding: %s", strerror(errno) );
+        return 1;
     }
     cod = listen( sockfd, 5 );
     if( cod < 0 )
-    {   debug( "rsh: ERR on listen %s", strerror(errno) );
-        exit( -1 );
+    {   debug( "ERR on listen %s", strerror(errno) );
+        return 1;
     }
     printf( "Running on port:%d\n", portno );
     clilen = sizeof( cli_addr );
