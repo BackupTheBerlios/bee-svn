@@ -39,12 +39,12 @@ size_t sizeOf (const void * this)
 }
 
 /* database selectors */
-int db_open(const void* this, const char* const dbName, ...)
+int db_open(const void* this, const char* const fmt, ...)
 {   const struct Class * const * cp = this;
     va_list ap;
     assert(this && * cp && (* cp)->db_open);
-    va_start(ap, dbName);
-    (* cp)->db_open(this, dbName, &ap);
+    va_start(ap, fmt);
+    (* cp)->db_open(this, fmt, &ap);
     va_end(ap);
 }
 int db_put(const void* this, const char* key, const char* data)

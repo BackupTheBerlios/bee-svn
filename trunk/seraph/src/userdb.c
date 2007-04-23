@@ -32,7 +32,7 @@ userdb_register( const char* const name, const char* const email,
         return false;
     }
     struct Class* db = new(BaseDB);
-    db_open( db, "userdata",0);
+    db_open( db, "%s/%s", USERDB,uname);
     db_put(db, "name", name);
     db_put(db, "email", email);
     db_put(db, "uname", uname);
@@ -130,6 +130,7 @@ userdb_checkSession(const char* const uname,
     char u[33]={0}, c[33]={0}, i[33]={0}, s[33]={0};
 
     ret = db_open( db, "%s/%s",USERDB, uname);
+    debug("will db_open(%s,%s)\n", USERDB, uname);
     if(ret)
     {
         printf("error opening userdata file for [%s]\n", uname);
@@ -143,16 +144,17 @@ userdb_checkSession(const char* const uname,
       )
     {
         db_close(db);
+        delete(db);
         return false;
     }
     db_close(db);
+    delete(db);
     //TODO: strcmp(uname, u) ...
     return true;
 }
 
 bool
 userdb_setSession(  const char* const uname,
-                    const char* const id,
                     const char* const session,
                     const char* const ip)
 {
@@ -161,6 +163,7 @@ userdb_setSession(  const char* const uname,
     db_put(db, "session", session);
     db_put(db, "ip", ip);
     db_close(db);
+    delete(db);
 }
 
 bool

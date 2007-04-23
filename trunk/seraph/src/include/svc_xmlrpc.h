@@ -17,6 +17,8 @@ XMLRPC_VALUE x_listMachinesCallback(XMLRPC_SERVER server, XMLRPC_REQUEST request
 XMLRPC_VALUE x_addMachineCallback(XMLRPC_SERVER server, XMLRPC_REQUEST request, void* userData);
 XMLRPC_VALUE x_getConfigCallback(XMLRPC_SERVER server, XMLRPC_REQUEST request, void* userData);
 XMLRPC_VALUE x_setConfigCallback(XMLRPC_SERVER server, XMLRPC_REQUEST request, void* userData);
+XMLRPC_VALUE x_checkSessionCallback(XMLRPC_SERVER server, XMLRPC_REQUEST request, void* userData);
+XMLRPC_VALUE x_setSessionCallback(XMLRPC_SERVER server, XMLRPC_REQUEST request, void* userData);
 
 #else
         #warning "*** Header allready included ***"

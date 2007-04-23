@@ -397,6 +397,7 @@ x_checkSessionCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request,
     cookie  = XMLRPC_VectorGetStringWithID(xIter, "sut_cookie");
     session = XMLRPC_VectorGetStringWithID(xIter, "sut_session");
     ip      = XMLRPC_VectorGetStringWithID(xIter, "sut_ip");
+    debug("user[%s]\n", username);
     ret = userdb_checkSession( username, cookie, session, ip );
 
     return XMLRPC_CreateValueString(NULL, ret ? "session ok":"session failed", 0);
@@ -411,12 +412,11 @@ x_setSessionCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request,
     XMLRPC_VALUE xIter   = XMLRPC_VectorRewind( xParams );
     bool ret=false;
     //deserialize
-    const char *id, *session, *ip, *username;
+    const char *session, *ip, *username;
     username= XMLRPC_VectorGetStringWithID(xIter, "sut_username");
-    id      = XMLRPC_VectorGetStringWithID(xIter, "sut_id");
     session = XMLRPC_VectorGetStringWithID(xIter, "sut_session");
     ip      = XMLRPC_VectorGetStringWithID(xIter, "sut_ip");
-    userdb_setSession( username, id, session, ip);
+    userdb_setSession( username, session, ip);
     return XMLRPC_CreateValueString(NULL, ret ? "setsession ok":"setsession failed", 0);
 }
 

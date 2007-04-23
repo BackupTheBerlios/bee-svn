@@ -5,7 +5,7 @@ require_once 'XML/RPC.php';
 function session_defaults() {
     $_SESSION['logged'] = false;
     $_SESSION['uid'] = 0;
-    $_SESSION['username'] = '';
+    $_SESSION['username'] = 'none';
     $_SESSION['cookie'] = 0;
     $_SESSION['remember'] = false;
 }

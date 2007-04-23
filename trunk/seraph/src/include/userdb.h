@@ -22,7 +22,6 @@ userdb_checkSession(const char* const uname,
                     const char* const ip );
 bool
 userdb_setSession(  const char* const uname,
-                    const char* const id,
                     const char* const session,
                     const char* const ip);
 bool

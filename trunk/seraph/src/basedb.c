@@ -7,6 +7,7 @@
 #include <fcntl.h>
 #include <limits.h>
 #include "baseclass.h"
+#include "debug.h"
 
 /*BaseDB class implementation*/
 extern const void * BaseDB;
@@ -46,20 +47,20 @@ static int BaseDB_differ (const void * _this, const void * _b)
 }
 
 
-static int BaseDB_open(const void *_this, const char* const dbName, va_list*app)
+static int BaseDB_open(const void *_this, const char* const fmt, va_list*app)
 {   const struct BaseDB * this = _this;
     FILE* ret=NULL;
     char path[PATH_MAX]={0};
-    
 
-    vsprintf(path, dbName, *app);
-    printf("opening [%s]:%d\n", path);
+    vsprintf(path, fmt, *app);
+    debug("fmt[%s] path[%s]\n", fmt, path);
+    strcat(path,"/userdata");
     ret = fopen( path, "w");
     if(!ret)
     {   printf("error opening database\n");
         return 1;
     }
-    strcpy(this -> dbName, dbName);
+    strcpy(this -> dbName, path);
     assert(this -> dbName);
     fclose(ret);
     return 0;
@@ -100,6 +101,10 @@ static int BaseDB_get(const void *_this, const char* key, char *data)
     char    line[1024]={0};
 
     fh = fopen( this->dbName , "r") ;
+    if(!fh) {
+        printf("Unable to open database [%s], in get\n", this->dbName);
+        return 0;
+    }
     br = fread( buf, 1, 1023, fh) ;
     fclose( fh ) ;
 /*

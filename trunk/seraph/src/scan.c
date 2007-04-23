@@ -805,7 +805,7 @@ YY_RULE_SETUP
 #line 24 "scan.l"
 {
     if(! is_bat ) return 0;
-    
+
     ;
 }
 	YY_BREAK
@@ -816,7 +816,7 @@ YY_RULE_SETUP
 {
     if( ! is_cfg ) return 0;
     char* val=0;
- 
+
     yytext[strlen(yytext)-1] = '\0';
     p1 = strchr( yytext, '=');
     *p1='\0';
@@ -832,32 +832,31 @@ YY_RULE_SETUP
     if ( cfg.verbose )
         debug("export '%s'='%s'\n", yytext, val);
     cfg.takeAction( yytext, val, onLineParsedArg );
-    //free(val);
 }
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 53 "scan.l"
+#line 52 "scan.l"
 fprintf( stderr, "Error on line %d\n", num_lines);
 	YY_BREAK
 case 4:
 /* rule 4 can match eol */
 YY_RULE_SETUP
-#line 55 "scan.l"
+#line 54 "scan.l"
 /* comment lines */
 	YY_BREAK
 case 5:
 /* rule 5 can match eol */
 YY_RULE_SETUP
-#line 57 "scan.l"
+#line 56 "scan.l"
 ++num_lines;
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 59 "scan.l"
+#line 58 "scan.l"
 ECHO;
 	YY_BREAK
-#line 861 "scan.c"
+#line 860 "scan.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1843,7 +1842,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 59 "scan.l"
+#line 58 "scan.l"
 
 
 
@@ -1856,6 +1855,7 @@ scan_parseCfg( char* config_file, void* val )
     onLineParsedArg = val;
     yylex();
     fclose(yyin);
+    yylex_destroy();
     return 0;
 }
 
@@ -1866,6 +1866,7 @@ int srph_parseBat( char* bat_file )
     if(!yyin) { printf("E: Unable to open file [%s]\n", bat_file); exit(-1); }
     yylex();
     fclose(yyin);
+    yylex_destroy();
     return 0;
 }
 

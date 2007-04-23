@@ -196,6 +196,7 @@ char* clientCallback( const char* filebuf )
     server = XMLRPC_ServerCreate(  );
 
     /* Register public methods with the server */
+    /* TODO: place these in a header file( and some macro magic ) */
     XMLRPC_ServerRegisterMethod( server, "start", x_startCallback );
     XMLRPC_ServerRegisterMethod( server, "stop", x_stopCallback );
     XMLRPC_ServerRegisterMethod( server, "rm", x_rmCallback );
@@ -208,6 +209,8 @@ char* clientCallback( const char* filebuf )
     XMLRPC_ServerRegisterMethod( server, "getConfig", x_getConfigCallback );
     XMLRPC_ServerRegisterMethod( server, "setConfig", x_setConfigCallback );
     XMLRPC_ServerRegisterMethod( server, "addMachine", x_addMachineCallback );
+    XMLRPC_ServerRegisterMethod( server, "checkSession", x_checkSessionCallback );
+    XMLRPC_ServerRegisterMethod( server, "setSession", x_setSessionCallback );
 
     request = XMLRPC_REQUEST_FromXML( filebuf, strlen(filebuf), NULL );
     if( !request ) {

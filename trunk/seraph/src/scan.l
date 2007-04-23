@@ -66,6 +66,7 @@ scan_parseCfg( char* config_file, void* val )
     onLineParsedArg = val;
     yylex();
     fclose(yyin);
+    yylex_destroy();
     return 0;
 }
 
@@ -76,5 +77,6 @@ int srph_parseBat( char* bat_file )
     if(!yyin) { printf("E: Unable to open file [%s]\n", bat_file); exit(-1); }
     yylex();
     fclose(yyin);
+    yylex_destroy();
     return 0;
 }

@@ -16,12 +16,10 @@ class User {
     $dbname = "website";
     $dbuser = "root";
     $dbpass = "19323165171";
-        #connect to database
-        mysql_connect ( $dbhost, $dbuser, $dbpass)or die("Could not connect: ".mysql_error());
-        mysql_select_db($dbname) or die(mysql_error());
-        //$this->xmlrpc = new XML_RPC_Client('/RPCSERVER',  $host, $port);
+    $host = "localhost";
+    $port = 5000;
+        $this->xmlrpc = new XML_RPC_Client('/RPCSERVER',  $host, $port);
         $this->date = gmdate("'Y-m-d'");
-        //echo $date."<br>\n";
         if( !$_SESSION['logged'] )
             $this->checkSession();
         elseif( isset($_COOKIE['mtwebLogin']) ) {}
@@ -34,51 +32,60 @@ class User {
         //echo "Bad login<br>";
     }
     function checkSession() {
-        $username = $_SESSION['username'];
+        $username = $_POST['username'];
         $cookie   = $_SESSION['cookie'];
         $session  = session_id();
         $ip       = $_SERVER['REMOTE_ADDR'];
 
-        //echo "$username, $cookie, $sess, $ip<br>\n";
-
-        $sql = "SELECT * FROM member WHERE " .
-            "(username = '$username') AND (cookie = '$cookie') AND " .
-            "(session = '$session') AND (ip = '$ip')";
-        //echo "HERE<br>";
-        $result = mysql_query($sql) or die(mysql_error());
-        //$this->xmlrpc->checkSession($username, $cookie, $session, $ip);
-        /*$req = new XML_RPC_Value(
+        echo "USERNAME:".$username;
+        $req = new XML_RPC_Value(
             array(
-                "sut_username" => "",
-                "sut_cookie"   => "",
-                "sut_session"  => "",
-                "sut_ip" => ""
+                "sut_username" => new XML_RPC_Value($username,'string'),
+                "sut_cookie"   => new XML_RPC_Value($cookie, 'string'),
+                "sut_session"  => new XML_RPC_Value($session,'string'),
+                "sut_ip" => new XML_RPC_Value($ip, 'string')
                 ), "struct");
-        */
-        //$msg = XML_RPC_Message('checkSession', array($req));
-        //$rsp = $this->xmlrpc->send($msg);
-        if( mysql_num_rows($result) !=0 ) {
-            $this->setSession($result, false, false);
-        } else {
+
+        $msg = new XML_RPC_Message('checkSession', array($req));
+        $rsp = $this->xmlrpc->send($msg);
+
+        if( hasErrors($rsp) ) {
+            echo "failed<br>";
             $this->logout();
+            return false;
+        }else
+        {
+            $this->setSession($result, false, true);
+            echo "result:".XML_RPC_decode($rsp->value());
         }
+
     }
-    function setSession( &$values, $remember, $init=true)
+    function setSession( &$vals, $remember, $init=true)
     {
-        $this->id = $values->id;
+        $this->id = $vals->id;
         $_SESSION['uid'] = $this->id;
-        $_SESSION['username'] = $values->username;
-        $_SESSION['cookie'] = $values->cookie;
+        $_SESSION['username'] = $vals->username;
+        $_SESSION['cookie'] = $vals->cookie;
         $_SESSION['logged'] = true;
         if($remember) {
-            $this->updateCookie($values->cookie, true);
+            $this->updateCookie($vals->cookie, true);
         }
         if($init) {
             $session = session_id();
             $ip = $_SERVER['REMOTE_ADDR'];
-            $sql = "UPDATE member SET session = '$session', ip = '$ip' WHERE " .
-                    "id = '$this->id'";
-            $result = mysql_query($sql) or die(mysql_error());
+            $req = new XML_RPC_Value( array(
+                    "sut_username"  => new XML_RPC_Value("user1",'string'),
+                    "sut_session"   => new XML_RPC_Value($session,'string'),
+                    "sut_ip"        => new XML_RPC_Value($ip, 'string'))
+                    , "struct");
+            $msg = new XML_RPC_Message('setSession', array($req));
+            $rsp = $this->xmlrpc->send($msg);
+
+            if( hasErrors($rsp) ) {
+                echo "failed";
+                $this->logout();
+                return false;
+            }
         }
     }
 
@@ -90,32 +97,34 @@ class User {
         }
     }
     function checkLogin($username, $password, $remember) {
-        //$username = $this->db->quote($username);
         $password = md5($password);
-        $sql = "SELECT * FROM member WHERE " .
-            "username = '$username' AND " .
-            "password = '$password'";
-        $result = mysql_query($sql) or die(mysql_error());
-        if( mysql_num_rows($result) !=0 ) {
-            $this->setSession($result, $remember);
-            return true;
-        } else {
-            $this->failed = true;
+        $req = new XML_RPC_Value(array(
+                    "sut_username" => new XML_RPC_Value($username,'string'),
+                    "sut_password" => new XML_RPC_Value($password, 'string')
+            ,'struct');
+        $msg = new XML_RPC_Message('checkLogin', array($req) );
+        $rsp = $this->xmlrpc->send($msg);
+        if(hasErrors($rsp) )
+        {
+            $this->failed = true ;
             $this->logout();
             return false;
         }
+        $this->setSession($result, $remember);
+        return true ;
     }
     function checkRemembered($cookie) {
         list($username, $cookie) = @unserialize($cookie);
         if (!$username or !$cookie) return;
-        //$username = $this->db->quote($username);
-        //$cookie = $this->db->quote($cookie);
-        $sql = "SELECT * FROM member WHERE " .
-            "(username = '$username') AND (cookie = '$cookie')";
-        $result = mysql_query($sql) or die(mysql_error());
-        if( mysql_num_rows($result) !=0 ) {
-            $this->setSession($result, true);
-        }
+        $req = new XML_RPC_Value(array(
+                    "sut_username"=> new XML_RPC_Value($username,'string'),
+                    "sut_cookie"=>   new XML_RPC_Value($cookie, 'string')),
+                    'struct');
+        $msg = new XML_RPC_Message('checkRemembered',array($req));
+        $rsp = $this->xmlrpc->send($msg);
+        if( hasErrors($rsp) )
+            return ;
+        $this->setSession($rsp, true);
     } 
 }
 if( !isset($_SESSION['uid']) )

@@ -24,7 +24,7 @@ extern FILE* logHandle ;
     #define DBG(afile) useDebug_g =getenv("DBG") ;\
     logHandle = fopen( afile, "a" ) ;\
     if( !logHandle ){ printf( "Can't open '%s' [%s]\n", afile, strerror(errno)) ;exit(0) ;} \
-    setlinebuf(logHandle);
+    setvbuf( logHandle, (char *)NULL, _IOLBF, 0);
 #endif
 
 #if !defined UNDBG
