@@ -19,6 +19,10 @@ XMLRPC_VALUE x_getConfigCallback(XMLRPC_SERVER server, XMLRPC_REQUEST request, v
 XMLRPC_VALUE x_setConfigCallback(XMLRPC_SERVER server, XMLRPC_REQUEST request, void* userData);
 XMLRPC_VALUE x_checkSessionCallback(XMLRPC_SERVER server, XMLRPC_REQUEST request, void* userData);
 XMLRPC_VALUE x_setSessionCallback(XMLRPC_SERVER server, XMLRPC_REQUEST request, void* userData);
+XMLRPC_VALUE x_setSessionCallback(XMLRPC_SERVER server, XMLRPC_REQUEST request, void* userData);
+XMLRPC_VALUE x_checkLoginCallback(XMLRPC_SERVER server, XMLRPC_REQUEST request, void* userData);
+XMLRPC_VALUE x_checkRememberedCallback(XMLRPC_SERVER server, XMLRPC_REQUEST request, void* userData);
+XMLRPC_VALUE x_listJobsCallback(XMLRPC_SERVER server, XMLRPC_REQUEST request, void* userData);
 
 #else
         #warning "*** Header allready included ***"

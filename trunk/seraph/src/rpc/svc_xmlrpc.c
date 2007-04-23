@@ -195,9 +195,7 @@ x_rmCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void *userData )
 
     sprintf( cmd, "/bin/rm -rf %s", path );
     rc = system( cmd );
-    rs = rc >
-        0 ? "Remove operation successfull" : "Remove operation failed";
-    return XMLRPC_CreateValueString( NULL, rs, 0 );
+    return XMLRPC_CreateValueBoolean( NULL, rc>0 );
 }
 
 
@@ -215,9 +213,9 @@ x_mkdirCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void *userData )
 
     if( mkdir( path, 0777 ) == -1 ) {
         printf( "mkdir: ERR:[%s]", strerror( errno ) );
-        return XMLRPC_CreateValueString( NULL, "mkdir FAILED", 0 );
+        return XMLRPC_CreateValueBoolean( NULL, false );
     }
-    return XMLRPC_CreateValueString( NULL, "mkdir OK", 0 );
+    return XMLRPC_CreateValueBoolean( NULL, true );
 }
 
 /**
@@ -245,6 +243,7 @@ x_addMachineCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request,
         void *userData )
 {
     const char *name, *OS, *OSVer, *IP;
+    bool ret=false;
 
     XMLRPC_VALUE xParams = XMLRPC_RequestGetData( request );
     XMLRPC_VALUE xIter = XMLRPC_VectorRewind( xParams );
@@ -254,9 +253,9 @@ x_addMachineCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request,
     OSVer = XMLRPC_VectorGetStringWithID(xIter, "sut_osver");
     IP    = XMLRPC_VectorGetStringWithID(xIter, "sut_mip");
 
-    testdb_addMachine( name, OS, OSVer, IP );
+    ret = testdb_addMachine( name, OS, OSVer, IP );
 
-    return XMLRPC_CreateValueString( NULL, "Machine added", 0 );
+    return XMLRPC_CreateValueBoolean( NULL, ret);
 }
 
 
@@ -361,7 +360,7 @@ x_checkCoreCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request,
             core_srcDir, dbg_srcDir, axi_workDir,
             axi_cfgFile, crash_destDir );
 
-    return XMLRPC_CreateValueString( NULL, "No core found", 0 );
+    return XMLRPC_CreateValueBoolean( NULL, rc );
 }
 
 
@@ -381,7 +380,7 @@ x_registerUserCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request,
     password= XMLRPC_VectorGetStringWithID(xIter, "sut_mip");
     ret = userdb_register( name, email, username, password);
 
-    return XMLRPC_CreateValueString(NULL, ret ? "register success":"register failed", 0);
+    return XMLRPC_CreateValueBoolean(NULL, ret);
 }
 
     XMLRPC_VALUE
@@ -400,7 +399,7 @@ x_checkSessionCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request,
     debug("user[%s]\n", username);
     ret = userdb_checkSession( username, cookie, session, ip );
 
-    return XMLRPC_CreateValueString(NULL, ret ? "session ok":"session failed", 0);
+    return XMLRPC_CreateValueBoolean(NULL, ret );
 }
 
 
@@ -417,7 +416,7 @@ x_setSessionCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request,
     session = XMLRPC_VectorGetStringWithID(xIter, "sut_session");
     ip      = XMLRPC_VectorGetStringWithID(xIter, "sut_ip");
     userdb_setSession( username, session, ip);
-    return XMLRPC_CreateValueString(NULL, ret ? "setsession ok":"setsession failed", 0);
+    return XMLRPC_CreateValueBoolean(NULL, ret);
 }
 
 
@@ -432,13 +431,13 @@ x_checkLoginCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request,
     const char *username, *password;
     username= XMLRPC_VectorGetStringWithID(xIter, "sut_username");
     password= XMLRPC_VectorGetStringWithID(xIter, "sut_password");
-    userdb_checkLogin( username, password);
-    return XMLRPC_CreateValueString(NULL, ret ? "checkLogin ok":"checkLogin failed", 0);
+    ret = userdb_checkLogin( username, password);
+    return XMLRPC_CreateValueBoolean(NULL, ret);
 }
 
 
     XMLRPC_VALUE
-x_checkRemembered( XMLRPC_SERVER server, XMLRPC_REQUEST request,
+x_checkRememberedCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request,
         void *userData )
 {
     XMLRPC_VALUE xParams = XMLRPC_RequestGetData( request );
@@ -448,9 +447,38 @@ x_checkRemembered( XMLRPC_SERVER server, XMLRPC_REQUEST request,
     const char *username, *cookie;
     username= XMLRPC_VectorGetStringWithID(xIter, "sut_username");
     cookie  = XMLRPC_VectorGetStringWithID(xIter, "sut_cookie");
-    userdb_checkRemembered( username, cookie );
-    return XMLRPC_CreateValueString(NULL, ret ? "checkRemembered ok":"checkRemembered failed", 0);
+    ret = userdb_checkRemembered( username, cookie );
+    return XMLRPC_CreateValueBoolean(NULL, ret);
 }
+
+    XMLRPC_VALUE
+x_listJobsCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void *userData )
+{
+    GSList*   jobList =NULL ;
+    int nbJobs=0;
+    XMLRPC_VALUE rv;
+    char *username, *cookie, *tmp;
+    XMLRPC_VALUE xParams = XMLRPC_RequestGetData( request );
+    XMLRPC_VALUE xIter   = XMLRPC_VectorRewind( xParams );
+
+    username= XMLRPC_VectorGetStringWithID(xIter, "sut_username");
+    cookie  = XMLRPC_VectorGetStringWithID(xIter, "sut_cookie");
+
+    nbJobs = userdb_listJobs( "user1", JOB_ALL, &jobList);
+    rv = XMLRPC_CreateVector(NULL, xmlrpc_vector_array);
+
+    while( nbJobs-- ) {
+        tmp = g_slist_nth_data( jobList, nbJobs);
+        if(!tmp) continue;
+        if(!XMLRPC_VectorAppendString( rv, NULL, tmp, 0 ))
+        {   return NULL; }
+  //      free(tmp), tmp=NULL;
+    }
+    //free(jobList);
+    return rv;
+}
+
+
 #if 0
 /**
  * \todo Replace this with a newer version 

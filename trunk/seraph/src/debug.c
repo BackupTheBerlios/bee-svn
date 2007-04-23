@@ -40,7 +40,7 @@ _debug( const char* function, int line, const char* fname, const char* fmt, ... 
     va_list vlist ;
     va_start( vlist, fmt ) ;
         fprintf( logHandle, "%15s %5d : [%10s] : ", fname, line, function ) ;
-        fprintf( stdout, "%15s %5d : [%10s] : ", fname, line, function ) ;
+        //fprintf( stdout, "%15s %5d : [%10s] : ", fname, line, function ) ;
         fflush( logHandle ) ;
         vfprintf( logHandle, fmt, vlist ) ;
     va_end( vlist ) ;

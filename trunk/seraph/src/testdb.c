@@ -94,7 +94,8 @@ int onLineParsed(const char *name, const char *value, void* arg)
     return 0;
 }
 
-
+/*
+ * TODO: figure out where to alloc the list( inside or out of the function)*/
 GSList* testdb_getConfig(const char* machine, unsigned int* sz)
 {
     char path[PATH_MAX]={0};

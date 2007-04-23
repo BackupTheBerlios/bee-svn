@@ -55,9 +55,9 @@ static int BaseDB_open(const void *_this, const char* const fmt, va_list*app)
     vsprintf(path, fmt, *app);
     debug("fmt[%s] path[%s]\n", fmt, path);
     strcat(path,"/userdata");
-    ret = fopen( path, "w");
+    ret = fopen( path, "r+");
     if(!ret)
-    {   printf("error opening database\n");
+    {   debug("error opening database [%s]\n", path);
         return 1;
     }
     strcpy(this -> dbName, path);
@@ -72,24 +72,35 @@ static int BaseDB_put(const void *_this, const char* const key, const char* data
     char    buf[1024]={0},*pc ;
     char    line[1024]={0};
 
+    debug("fopen [%s]\n", this->dbName);
     fh = fopen( this->dbName ,"r+") ;
-    if(!fh) {printf("error\n"); return 0;}
-    br = fread( buf, 1, 1023, fh) ;
+    if(!fh) {
+        debug("error\n");
+        return 0;
+    }
+    br = fread( (void*)buf, 1023, 1, fh) ;
+    /*if(!br) {
+        debug("error reading file[%s]\n", strerror(ferror(fh)) );
+        return 0;
+    }*/
 
+    debug("br[%d] searching in buf[%s]\n", br, buf);
     snprintf(line, 34, "%32s:", key);
     pc = strstr( buf, line) ;
     if( !pc )
     {
-        printf("Cant find key [%s]\n", line);
+        debug("Cant find key [%s]\n", line);
         fseek(fh, 0, SEEK_END);
         fprintf( fh, "%32s:%32s\n", key, data);
         fclose(fh);
         return 0 ;
     }
+    debug("key[%s] found\n", key);
     pc = strchr(pc, ':')+1;
-    snprintf( pc, 33, "%32s", data);
+    snprintf( pc, 34, "%32s\n", data);
     fseek(fh, 0, SEEK_SET);
     fprintf( fh, "%s", buf);
+    debug("write[%s]\n", buf);
     fclose(fh);
     return 0 ;
 }
@@ -107,22 +118,14 @@ static int BaseDB_get(const void *_this, const char* key, char *data)
     }
     br = fread( buf, 1, 1023, fh) ;
     fclose( fh ) ;
-/*
-    if( !br )
-    {
-        printf("trouble reading %s\n", this->dbName ) ;
-        return 1 ;
-    }
-    buf[br] = '\0' ;
-*/
     snprintf(line, 33, "%32s:", key);
     pc = strstr( buf, line) ;
     if( !pc )
     {
-        return 1 ;
+        return 0 ;
     }
     sscanf( strchr(pc,':')+1, "%s\n", data ) ;
-    return 0 ;
+    return 1 ;
 }
 static int BaseDB_close(const void *_this)
 {   const struct BaseDB * this = _this;

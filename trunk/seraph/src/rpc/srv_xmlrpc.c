@@ -75,12 +75,12 @@ start_xmlrpc(const unsigned int port)
     }
 #endif
     if( signal( SIGINT, sut_sigint ) == SIG_ERR )
-    {   debug( "1:signal() error!" );
+    {   debug( "1:signal() error!\n" );
         return 1;
     }
 
     if( signal( SIGPIPE, sut_sigpipe ) == SIG_ERR )
-    {   debug( "3:signal() error!" );
+    {   debug( "3:signal() error!\n" );
         return 1;
     }
 
@@ -107,12 +107,12 @@ static int callback_socket( int portno )
     serv_addr.sin_port = htons( portno );
     if( bind( sockfd, ( struct sockaddr * )&serv_addr, sizeof( serv_addr ) )
             < 0 )
-    {   debug( "ERR on binding: %s", strerror(errno) );
+    {   debug( "ERR on binding: %s\n", strerror(errno) );
         return 1;
     }
     cod = listen( sockfd, 5 );
     if( cod < 0 )
-    {   debug( "ERR on listen %s", strerror(errno) );
+    {   debug( "ERR on listen %s\n", strerror(errno) );
         return 1;
     }
     printf( "Running on port:%d\n", portno );
@@ -124,7 +124,7 @@ static int callback_socket( int portno )
     {   int newsockfd=0;
         newsockfd = accept( sockfd, ( struct sockaddr * )&cli_addr, &clilen );
         if( newsockfd < 0 )
-        {   printf( "rsh: ERR on accept" );
+        {   debug( "rsh: ERR on accept\n" );
             running=0;
             break;
         }
@@ -211,6 +211,9 @@ char* clientCallback( const char* filebuf )
     XMLRPC_ServerRegisterMethod( server, "addMachine", x_addMachineCallback );
     XMLRPC_ServerRegisterMethod( server, "checkSession", x_checkSessionCallback );
     XMLRPC_ServerRegisterMethod( server, "setSession", x_setSessionCallback );
+    XMLRPC_ServerRegisterMethod( server, "checkLogin", x_checkLoginCallback );
+    XMLRPC_ServerRegisterMethod( server, "checkRemembered", x_checkRememberedCallback );
+    XMLRPC_ServerRegisterMethod( server, "listJobs", x_listJobsCallback );
 
     request = XMLRPC_REQUEST_FromXML( filebuf, strlen(filebuf), NULL );
     if( !request ) {

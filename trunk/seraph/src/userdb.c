@@ -69,7 +69,9 @@ userdb_listJobs( const char * const uname, enum JobType job_type, GSList** jobs)
     DIR* dit;
     struct dirent* dent;
     char path[PATH_MAX]={0};
+    *jobs =  g_slist_alloc() ;
 
+    debug("JobType: [%d]\n", job_type);
     if(job_type & JOB_ALL )
     {
         job_type |= JOB_PENDING;
@@ -79,36 +81,40 @@ userdb_listJobs( const char * const uname, enum JobType job_type, GSList** jobs)
     if(job_type & JOB_PENDING )
     {
         sprintf( path, "%s/%s/jobs/pending", USERDB, uname);
+        debug("JOBS_PENDING path[%s]\n", path);
+
         dit = opendir(path);
         while( dent=readdir(dit) )
         {
             if( !strcmp(dent->d_name,".") || !strcmp(dent->d_name, "..") ) continue;
             ++nbJobs;
-            *jobs = g_slist_append(*jobs, dent->d_name);
+            *jobs = g_slist_append(*jobs, strdup(dent->d_name) );
         }
         closedir(dit);
     }
     if(job_type & JOB_RUNNING )
     {
         sprintf( path, "%s/%s/jobs/running", USERDB, uname);
+        debug("JOBS_RUNNING path[%s]\n", path);
         dit  = opendir(path);
         while( dent=readdir(dit) )
         {
             if( !strcmp(dent->d_name, ".") || !strcmp(dent->d_name,"..") ) continue;
             ++nbJobs;
-            *jobs = g_slist_append(*jobs, dent->d_name);//TODO: use a copy of dent->d_name
+            *jobs = g_slist_append(*jobs, strdup(dent->d_name) );
         }
         close( dit );
     }
     if(job_type & JOB_COMPLETE )
     {
         sprintf( path, "%s/%s/jobs/complete", USERDB, uname);
+        debug("JOBS_COMPLETE path[%s]\n", path);
         dit = opendir(path);
         while( dent=readdir(dit) )
         {
             if( !strcmp(dent->d_name, ".") || !strcmp(dent->d_name,"..") ) continue;
             ++nbJobs;
-            *jobs = g_slist_append(*jobs, dent->d_name); //TODO: use a copy of dent->d_name
+            *jobs = g_slist_append(*jobs, strdup(dent->d_name) );
         }
         close( dit );
     }
@@ -130,17 +136,16 @@ userdb_checkSession(const char* const uname,
     char u[33]={0}, c[33]={0}, i[33]={0}, s[33]={0};
 
     ret = db_open( db, "%s/%s",USERDB, uname);
-    debug("will db_open(%s,%s)\n", USERDB, uname);
+    debug("USERDB[%s] uname[%s]\n", USERDB, uname);
     if(ret)
     {
         printf("error opening userdata file for [%s]\n", uname);
         return false;
     }
 
-    if( db_get(db, "user",   &u)
-    &&  db_get(db, "cookie", &c)
-    &&  db_get(db, "ip",     &i)
-    &&  db_get(db, "session",&s)
+    if( !db_get(db, "cookie", &c)
+    &&  !db_get(db, "ip",     &i)
+    &&  !db_get(db, "session",&s)
       )
     {
         db_close(db);
@@ -159,6 +164,8 @@ userdb_setSession(  const char* const uname,
                     const char* const ip)
 {
     struct Class* db = new(BaseDB);
+
+    debug("uname[%s] session[%s] ip[%s]\n", uname, session, ip);
     db_open( db, "%s/%s", USERDB, uname);
     db_put(db, "session", session);
     db_put(db, "ip", ip);
@@ -172,11 +179,12 @@ userdb_checkLogin(  const char* const uname,
 {
     char u[33]={0}, p[33]={0};
     struct Class* db = new(BaseDB);
+
+    debug("uname[%s] password[%s]\n", uname, password);
     db_open( db, "%s/%s", USERDB, uname);
-    db_get(db, "user", &u);
     db_get(db, "pass", &p);
     db_close(db);
-    return !( strcmp(uname, u) && strcmp(password, p) );
+    return !( strcmp(password, p) );
 }
 
 bool
@@ -185,6 +193,8 @@ userdb_checkRemembered( const char* const uname,
 {
     char c[33]={0};
     struct Class* db = new(BaseDB);
+
+    debug("uname[%s] cookie[%s]\n", uname, cookie);
     new(BaseDB);
     db_open( db, "%s/%s", USERDB, uname );
     db_get( db, "cookie", &c );

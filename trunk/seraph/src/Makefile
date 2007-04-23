@@ -4,7 +4,7 @@
 
 TOP=.
 files = strop.o fileop.o baseclass.o basedb.o userdb.o testdb.o core.o sut.o socket.o wall.o scan.o debug.o
-TARGETS=lib/libtrpc.a lib/libtbot.a bin/seraph  bin/mngrd tool
+TARGETS=lib/libtrpc.a lib/libtbot.a bin/seraph  bin/mngrd .tool
 include system.mk
 
 all: $(TARGETS)
@@ -31,7 +31,7 @@ bin/seraph: lib/libtbot.a lib/libtrpc.a
 	$(CC) $(CFLAGS) $(LDFLAGS) seraph.c  -o $@
 
 
-tool:
+.tool:
 	make -C ./tools
 	touch .tool
 
@@ -50,7 +50,7 @@ install:
 
 
 clean:
-	rm -rf $(TARGETS) $(objs) *.o *.lob
+	rm -rf $(TARGETS) $(objs) *.o *.lob *.debug
 	make -C rpc clean
 	make -C tools clean
 
@@ -62,7 +62,7 @@ jab:
 	-o test-lm  -lglib-2.0   -lloudmouth-1 -lresolv -lnsl  -lssl -lcrypto
 
 tar:
-	tar cvf seraph.tar .
+	cd .. && tar czvf seraph.tar.gz src
 
 indent:
 	indent -br -brs -cdw -ce -l80 -nut -ncs -prs -nsai -npcs -nsaf -nsaw -kr -i8 *.c
