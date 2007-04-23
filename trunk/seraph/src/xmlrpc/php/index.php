@@ -107,9 +107,33 @@ class Index {
 
         $i = $resp->value()->arraysize();
         echo "NbJobs:$i<br>";
+
         while($i--) {
-            echo "<div><span style='background-color:#cceedd;'>".XML_RPC_decode($resp->value()->arraymem($i))
-            ."</span></div>";
+        echo "<div class='job_running_err'>";
+        echo "<a href='http://google.com'>";
+            echo "<span>1000</span>";
+            echo "<span>Running</span>";
+            echo "<span>".XML_RPC_decode($resp->value()->arraymem($i)) ."</span>";
+        echo "</a>";
+        echo "</div>";
+        }
+        while($i++<3) {
+        echo "<div class='job_running_ok'>";
+        echo "<a href='http://google.com'>";
+            echo "<span>1000</span>";
+            echo "<span>Running</span>";
+            echo "<span>".XML_RPC_decode($resp->value()->arraymem($i)) ."</span>";
+        echo "</a>";
+        echo "</div>";
+        }
+        while($i++<6) {
+        echo "<div class='job_pending'>";
+        echo "<a href='http://google.com'>";
+            echo "<span>1000</span>";
+            echo "<span>Pending</span>";
+            echo "<span>".XML_RPC_decode($resp->value()->arraymem($i)) ."</span>";
+        echo "</a>";
+        echo "</div>";
         }
     }
 

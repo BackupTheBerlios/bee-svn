@@ -9,6 +9,14 @@ div.head_menu {
     text-decoration: none;
 }
 
+
+div.head_menu a {
+    color:white;
+    text-decoration:none;
+}
+
+
+
 div.head_menu li {
     display: inline;
     list-style-type: none;
@@ -29,13 +37,80 @@ div.head_menu li a:hover {
 div.head_menu ul{
     text-decoration: none;
 }
-   div.machines {
-   background-color: #6666FF ;
-   border-top: solid #000 1px;
-   border-bottom: solid #000 1px;
-   text-decoration: none;
 
-   }
+
+
+div.job_running_err {
+    background-color: #ffa0a0 ;
+    border-top: solid #000 1px;
+    border-bottom: solid #000 1px;
+    text-decoration: none;
+    padding: 3px;
+}
+
+div.job_running_err span {
+    margin-right: 0.5em;
+    border-left:2px solid #000;
+    padding: 2px 20px 0 0;
+    width:30px;
+}
+
+div.job_running_err a {
+    color: black;
+    text-decoration:none;
+}
+
+
+/*--------------------*/
+
+div.job_running_ok {
+    background-color: #cceedd ;
+    border-top: solid #000 1px;
+    border-bottom: solid #000 1px;
+    text-decoration: none;
+    padding: 3px;
+}
+
+div.job_running_ok span {
+    margin-right: 0.5em;
+    border-left:2px solid #000;
+    padding: 2px 20px 0 0;
+    width:30px;
+}
+
+div.job_running_ok a {
+    color: black;
+    text-decoration:none;
+}
+/*----------------------*/
+
+
+div.job_pending {
+    background-color: #c8c8ff ;
+    border-top: solid #000 1px;
+    border-bottom: solid #000 1px;
+    text-decoration: none;
+    padding: 3px;
+}
+
+div.job_pending span {
+    margin-right: 0.5em;
+    padding: 2px 20px 0 0;
+    border-left:2px solid #000;
+}
+
+div.job_pending a {
+    color: black;
+    text-decoration:none;
+}
+
+/*---------------------*/
+div.machines {
+    background-color: #6666FF ;
+    border-top: solid #000 1px;
+    border-bottom: solid #000 1px;
+    text-decoration: none;
+}
 li.machines {
     background-color: #6666FF ;
     border-top: solid #000 1px;
@@ -71,14 +146,6 @@ textarea.console {
     background-color:black;
     color:white;
 }
-
-a {
-    color:white;
-    text-decoration:none;
-}
-
-
-
 /* COPY PASTE */
 #menu {
     position:relative;
