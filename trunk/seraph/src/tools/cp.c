@@ -4,156 +4,169 @@
  *
  */
 #include <strings.h>
-#include <libgen.h>
+#include <libgen.h>      /*basename*/
 #include "config.h"
 #include "fileop.h"
 #include "socket.h"
 #include "strop.h"
 #include "sut.h"
 
-struct config_s cfg;
+/* TODO: get rid of this */
+#define DIM_BUFF 8192
+
+struct     config_s cfg;
 static int cp_parseArgs( int argc, char *argv[] );
-
-#define DIM_BUFF 8192           // todo get rid of this
-
-static int sndfile( int sock, char *src_file )
-{
-        int f = open( src_file, O_RDONLY );
-        if( f < 0 ) {
-                fprintf( stderr, "! cp: Cannot open source file [%s] : %s\n",
-                         src_file, strerror( errno ) );
-                return errno;
-        }
-        char buff[DIM_BUFF];
-        int t, w, q;
-
-        while( ( w = read( f, buff, DIM_BUFF ) ) > 0 ) {
-                t = 0;
-                while( t < w ) {
-                        if( ( q = write( sock, buff + t, w - t ) ) < 0 ) {
-                                fprintf( stderr,
-                                         "! cp: Can't send file [%s]: %s\n",
-                                         src_file, strerror( errno ) );
-                        }
-                        t += q;
-                }
-        }
-        close( f );
-        return 0;
-}
 
 
 /*
  * Send a file to socket.
  */
-static int copy_remote( char *host, int port, char *src_file, char *dest_dir )
+static bool sndfile( int sock, char *src_file )
 {
-        int cod;
-        char cmd[LINE_MAX] = { 0 };
-        char *bname, sockfd;
+    char buff[DIM_BUFF]={0};
+    int t=0, r=0, w=0;
 
-        sockfd = sock_connectTo( host, port );
+    int f = open( src_file, O_RDONLY );
+    if( f < 0 ) {
+        fprintf( stderr, "E: cp: Cannot open source file [%s] : %s\n",
+                src_file, strerror( errno ) );
+        return false;
+    }
 
-        int l = fop_fileSize( src_file );
-        if( l == -1 ) {
+    while( (r = read( f, buff, DIM_BUFF)) != -1 ) {
+        t = 0;
+        while( t < r ) {
+            if( ( w = write( sock, buff + t, r - t ) ) < 0 ) {
                 fprintf( stderr,
-                         "! cp: [%s] source file is not a regular file\n",
-                         src_file );
-                exit( -1 );
+                        "E: cp: Can't send file [%s]: %s\n",
+                        src_file, strerror( errno ) );
+            }
+            t += w;
         }
-        bname = ( char * )basename( src_file );
-        sprintf( cmd, "COPY %s %s %d", bname, dest_dir, l );
-        sock_sendLine( sockfd, cmd );
-        cod = sndfile( sockfd, src_file );
+    }
+    close( f );
+    return true;
+}
 
-        cod = sock_getStatus( sockfd );
 
-        if( cod != TRUE ) {
-                fprintf( stderr,
-                         "! cp: Didn't Received command confirmation!\n" );
-                close( sockfd );
-                exit( -1 );
-                return 1;
-        }
-        return 0;
+static bool copy_remote( char *host, int port, char *src_file, char *dest_dir )
+{
+    int ret;
+    char cmd[LINE_MAX] = { 0 };
+    char *bname=NULL, sockfd;
+
+    sockfd = sock_connectTo( host, port );
+
+    int l = fop_fileSize( src_file );
+    if( l == -1 ) {
+        fprintf( stderr,
+                "E: cp: [%s] source file is not a regular file\n",
+                src_file );
+        shutdown( sockfd, 2);
+        close(sockfd);
+        return false ;
+    }
+    bname = basename( src_file );
+    sprintf( cmd, "COPY %s %s %d", bname, dest_dir, l );
+    sock_sendLine( sockfd, cmd );
+    ret = sndfile( sockfd, src_file );
+    if(!ret) {
+        shutdown( sockfd, 2);
+        close(sockfd);
+        return false;
+    }
+
+
+    ret = sock_getStatus( sockfd );
+    if( !ret ) {
+        fprintf( stderr,"E: cp: Didn't Received command[cp] confirmation!\n" );
+        shutdown( sockfd, 2);
+        close( sockfd );
+        return false ;
+    }
+    shutdown( sockfd, 2);
+    close(sockfd);
+    return true;
 }
 
 
 
-// o sa fie cp sursa destinatie
 int main( int argc, char *argv[] )
 {
-        // char *type;
-        char *type;
-        char *str;
+    char *type="local";
+    int ret=0;
 
-        if( argc < 2 ) {
-                printf( "! cp: missing file operand\n" );
-                printf( "Try `cp -h` for more information.\n" );
-                return 1;
-        }
-        cp_parseArgs( argc, argv );
-        str_isEnv( SUT_TTYPE );
-        type = getenv( SUT_TTYPE );
+    if( argc < 2 ) {
+        printf( "E: cp: missing file operand\n" );
+        printf( "Try `cp -h` for more information.\n" );
+        exit(EXIT_FAILURE);
+    }
+    DBG("cp.debug");
+    cp_parseArgs( argc, argv );
+    str_isEnv( SUT_TTYPE );
+    type = getenv( SUT_TTYPE );
 
-        if( !strcmp( type, "local" ) ) {
-                str = ( char * )malloc( strlen( argv[1] ) + strlen( argv[2] ) +
-                                        5 );
-                sprintf( str, "/bin/cp -R %s %s", argv[1], argv[2] );
-                return system( str );
-        } else if( !strcmp( type, "remote" ) ) {
-                char *host;
-                int port;
+    if( !strcmp( type, "local" ) ) {
+        char *cp_cmd=NULL;
+        cp_cmd = (char*)malloc( strlen(argv[optind]) + strlen(argv[optind+1]) + 13 );
+        sprintf( cp_cmd, "/bin/cp -R %s %s", argv[optind], argv[optind+1] );
+        ret = system( cp_cmd );
+        free(cp_cmd);
+        UNDBG;
+        exit( ret );
+    } else if( !strcmp( type, "remote" ) ) {
+        char *host=NULL;
+        int port=0;
 
-                str_isEnv( SUT_HOST );
-                str_isEnv( SUT_PORT );
-                host = getenv( SUT_HOST );
-                port = atoi( getenv( SUT_PORT ) );
-                return copy_remote( host, port, argv[optind],
-                                    argv[optind + 1] );
-        } else
-                printf( "cp: ERR: Invalid $axi_ttype\n" );
-        return 1;
+        str_isEnv( SUT_HOST );
+        str_isEnv( SUT_PORT );
+        host = getenv( SUT_HOST );
+        port = atoi( getenv( SUT_PORT ) );
+        ret = copy_remote( host, port, argv[optind], argv[optind + 1] );
+        UNDBG;
+        ret ? exit(EXIT_SUCCESS):exit(EXIT_FAILURE);
+    } else
+        printf( "E: cp: Invalid test type $SUT_TTYPE\n" );
+    UNDBG;
+    exit(EXIT_FAILURE);
 }
 
 void cp_usage( void )
 {
 
-        printf( "Usage: cp [OPTION] COMMAND...\n" );
-        printf( "Copy SOURCE to DEST\n" );
-        printf( "\n" );
-        printf
-            ( "  -v, --verbose     print a message for each action executed\n" );
-        printf( "  -h, --help        display this help and exit\n" );
-        printf( "  -H hostname\n" );
-        printf( "  -P port\n" );
-        printf( "  -t testType\n" );
-        exit( 0 );
+    printf( "Usage: cp [OPTION] COMMAND...\n" );
+    printf( "Copy SOURCE to DEST\n" );
+    printf( "\n" );
+    printf( "  -v, --verbose     print a message for each action executed\n" );
+    printf( "  -h, --help        display this help and exit\n" );
+    printf( "  -H hostname\n" );
+    printf( "  -P port\n" );
+    printf( "  -t testType\n" );
+    exit( EXIT_SUCCESS );
 }
 
 
 static int cp_parseArgs( int argc, char *argv[] )
 {
-        int c;
-        while( ( c = getopt( argc, argv, "t:H:P:hv" ) ) != -1 ) {
-                switch ( c ) {
-                case 't':
-                        if( !strcasecmp( optarg, "remote" )
-                            || ( !strcasecmp( optarg, "local" ) ) )
-                                setenv( "axi_ttype", optarg, 1 );
-                        break;
-                case 'H':
-                        setenv( "axi_host", optarg, 1 );
-                        break;
-                case 'P':
-                        setenv( "axi_port", optarg, 1 );
-                        break;
-                case 'h':
-                        cp_usage(  );
-                case 'v':
-                        cfg.verbose = TRUE;
-                        break;
-                }
+    int c;
+    while( ( c = getopt( argc, argv, "t:H:P:hv" ) ) != -1 ) {
+        switch ( c ) {
+            case 't':
+                if( !strcasecmp( optarg, "remote" ) || ( !strcasecmp( optarg, "local" ) ) )
+                    setenv( SUT_TTYPE, optarg, 1 );
+                break;
+            case 'H':
+                setenv( SUT_HOST, optarg, 1 );
+                break;
+            case 'P':
+                setenv( SUT_PORT, optarg, 1 );
+                break;
+            case 'h':
+                cp_usage(  );
+            case 'v':
+                cfg.verbose = TRUE;
+                break;
         }
-        return TRUE;
+    }
+    return TRUE;
 }
