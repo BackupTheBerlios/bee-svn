@@ -11,7 +11,7 @@
 
 
 struct config_s cfg;
-char *axi_param = NULL;
+char *stop_cmd = NULL;
 static int rc_parseArgs( int argc, char *argv[] );
 
 static void stop_usage( int status );
@@ -25,8 +25,8 @@ int main( int argc, char *argv[] )
         str_isEnv( SUT_TTYPE );
         tc = getenv( SUT_TTYPE );
 
-        if( !axi_param ) {
-                fprintf( stderr, "! stop: -c flag is mandatory\n" );
+        if( !stop_cmd ) {
+                fprintf( stderr, "E: stop: -c flag is mandatory\n" );
                 stop_usage( EXIT_FAILURE );
         }
         //! @todo replace 5
@@ -42,10 +42,10 @@ int main( int argc, char *argv[] )
                 cfg.port = atoi( getenv( SUT_PORT ) );
                 test_type = TEST_REMOTE;
         } else {
-                printf( "! stop : Invalid $axi_ttype\n" );
+                printf( "E: stop : Invalid test type $SUT_TTYPE\n" );
                 return EXIT_FAILURE;
         }
-        sut_stop( test_type, 5, getenv( SUT_SYSLOG ), axi_param, cfg.hostname,
+        sut_stop( test_type, 5, getenv( SUT_SYSLOG ), stop_cmd, cfg.hostname,
                   cfg.port );
         return EXIT_SUCCESS;
 }
@@ -56,8 +56,7 @@ static void stop_usage( int status )
         printf( "Usage: start [OPTION] COMMAND...\n" );
         printf( "Stop.\n" );
         printf( "\n" );
-        printf
-            ( "  -v, --verbose     print a message for each action executed\n" );
+        printf( "  -v, --verbose     print a message for each action executed\n" );
         printf( "  -h, --help        display this help and exit\n" );
         printf( "  -H hostname\n" );
         printf( "  -P port\n" );
@@ -76,24 +75,24 @@ static int rc_parseArgs( int argc, char *argv[] )
                 switch ( c ) {
                 case 't':
                         if( !strcasecmp( optarg, "remote" ) ) {
-                                setenv( "axi_ttype", optarg, 1 );
+                                setenv( SUT_TTYPE, optarg, 1 );
                                 cfg.test_type = TEST_REMOTE;
                         }
                         if( !strcasecmp( optarg, "local" ) ) {
-                                setenv( "axi_ttype", optarg, 1 );
+                                setenv( SUT_TTYPE, optarg, 1 );
                                 cfg.test_type = TEST_LOCAL;
                         }
                         break;
                 case 'H':
-                        setenv( "axi_host", optarg, 1 );
+                        setenv( SUT_HOST, optarg, 1 );
                         cfg.hostname = optarg;
                         break;
                 case 'P':
-                        setenv( "axi_port", optarg, 1 );
+                        setenv( SUT_PORT, optarg, 1 );
                         cfg.port = atoi( optarg );
                         break;
                 case 'c':
-                        axi_param = optarg;
+                        stop_cmd = optarg;
                         break;
                 case 'h':
                         stop_usage( EXIT_SUCCESS );
