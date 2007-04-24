@@ -46,7 +46,7 @@ str_search( const char *hay_stack, int hay_size, const char *needle,
 
 
 
-int str_isEnv( int verbose, char *var_name )
+int str_isEnv( char *var_name )
 {
         if( !var_name )
                 return FALSE;
@@ -54,8 +54,7 @@ int str_isEnv( int verbose, char *var_name )
                 debug( "$%s not exported.\n", var_name );
                 exit( -1 );
         }
-        if( verbose == TRUE )
-                printf( "$%s=%s\n", var_name, getenv( var_name ) );
+        verbose( "$%s=%s\n", var_name, getenv( var_name ) );
         return 0;
 }
 

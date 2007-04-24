@@ -168,14 +168,14 @@ int mngrd_initEnv( struct config_s *config )
     char *path = 0;
 
     /* Is the environment well set ? */
-    str_isEnv( config->verbose, SUT_TOOL );
-    str_isEnv( config->verbose, SUT_STOP );
-    str_isEnv( config->verbose, SUT_START );
-    str_isEnv( config->verbose, SUT_DBGDIR );
-    str_isEnv( config->verbose, SUT_SYSLOG );
-    str_isEnv( config->verbose, SUT_COREDIR );
-    str_isEnv( config->verbose, SUT_CFGFILE );
-    str_isEnv( config->verbose, SUT_WORKDIR );
+    str_isEnv( SUT_TOOL );
+    str_isEnv( SUT_STOP );
+    str_isEnv( SUT_START );
+    str_isEnv( SUT_DBGDIR );
+    str_isEnv( SUT_SYSLOG );
+    str_isEnv( SUT_COREDIR );
+    str_isEnv( SUT_CFGFILE );
+    str_isEnv( SUT_WORKDIR );
     /* build the PATH like $HOME/seraph/tools:$PATH
      * so the system() will use our cp, rm, mkdir */
     st = getenv( SUT_TOOL );

@@ -53,11 +53,8 @@ static int onLineParsed(const char *name, const char *value, void* arg)
     return 1;
 }
 
-
 int main( int argc, char *argv[] )
 {
-
-
     DBG("seraph.debug");
 
     if( argc == 1 )
@@ -84,14 +81,13 @@ int main( int argc, char *argv[] )
         srph_usage( EXIT_FAILURE );
     }
 
-    if( cfg.test_type == TEST_LOCAL && cfg.verbose == TRUE ) {
-        debug( "* seraph: Tests will be done LOCALLY.\n" );
+    if( cfg.test_type == TEST_LOCAL ) {
+        verbose( "* seraph: Tests will be done LOCALLY.\n" );
     }
     if( cfg.test_type == TEST_REMOTE ) {
-        str_isEnv( cfg.verbose, SUT_HOST );
-        str_isEnv( cfg.verbose, SUT_PORT );
-        if( cfg.verbose == TRUE )
-            debug( "* seraph: Tests will be done REMOTE.\n" );
+        str_isEnv( SUT_HOST );
+        str_isEnv( SUT_PORT );
+        verbose( "* seraph: Tests will be done REMOTE.\n" );
     }
     core_runTests( cfg.test_dir );
     srph_free( &cfg );
@@ -216,14 +212,14 @@ int srph_initEnv( struct config_s *config )
     char *st = 0;
     char *path = 0;
     /* Is the environment well set ? */
-    str_isEnv( config->verbose, SUT_STOP );
-    str_isEnv( config->verbose, SUT_START );
-    str_isEnv( config->verbose, SUT_TTYPE );
-    str_isEnv( config->verbose, SUT_DBGDIR );
-    str_isEnv( config->verbose, SUT_SYSLOG );
-    str_isEnv( config->verbose, SUT_COREDIR );
-    str_isEnv( config->verbose, SUT_CFGFILE );
-    str_isEnv( config->verbose, SUT_WORKDIR );
+    str_isEnv( SUT_STOP );
+    str_isEnv( SUT_START );
+    str_isEnv( SUT_TTYPE );
+    str_isEnv( SUT_DBGDIR );
+    str_isEnv( SUT_SYSLOG );
+    str_isEnv( SUT_COREDIR );
+    str_isEnv( SUT_CFGFILE );
+    str_isEnv( SUT_WORKDIR );
 
     /* build the PATH like $HOME/seraph/tools:$PATH
      * so the system() will use our cp, rm, mkdir */

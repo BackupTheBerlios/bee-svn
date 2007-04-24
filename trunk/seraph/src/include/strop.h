@@ -3,7 +3,7 @@ int
 str_search( const char *hay_stack, int hay_size, const char *needle,
               int needle_size );
 int
-str_isEnv( int verbose, char *var_name );
+str_isEnv( char *var_name );
 
 int
 str_startsWith( char *str, char *exp ) ;

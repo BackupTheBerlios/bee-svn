@@ -65,15 +65,15 @@ int main( int argc, char *argv[] )
                 return EXIT_FAILURE;
         }
 
-        str_isEnv( verbose, SUT_TTYPE );
+        str_isEnv( SUT_TTYPE );
         ttype = getenv( SUT_TTYPE );
 
          /*LOCAL*/ if( !strcasecmp( ttype, "local" ) ) {
                 cod = system( argv[optind] );
                 exit( WEXITSTATUS( cod ) );
         } else if( !strcasecmp( ttype, "remote" ) ) {
-                str_isEnv( verbose, SUT_HOST );
-                str_isEnv( verbose, SUT_PORT );
+                str_isEnv( SUT_HOST );
+                str_isEnv( SUT_PORT );
                 hostname = getenv( SUT_HOST );
                 port = atoi( getenv( SUT_PORT ) );
                 cod = cli_main( hostname, port, argv[optind] );

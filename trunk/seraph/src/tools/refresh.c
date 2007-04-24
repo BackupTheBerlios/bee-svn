@@ -89,18 +89,18 @@ int main( int argc, char *argv[] )
         int test_type = TEST_LOCAL;
 
         rc_parseArgs( argc, argv );
-        str_isEnv( 1, SUT_TTYPE );
-        str_isEnv( 1, SUT_STOP );
-        str_isEnv( 1, SUT_START );
-        str_isEnv( 1, SUT_DEFDOM );
-        str_isEnv( 1, SUT_WORKDIR );
+        str_isEnv( SUT_TTYPE );
+        str_isEnv( SUT_STOP );
+        str_isEnv( SUT_START );
+        str_isEnv( SUT_DEFDOM );
+        str_isEnv( SUT_WORKDIR );
         tc = getenv( SUT_TTYPE );
 
         if( !strcasecmp( tc, "local" ) )
                 test_type = TEST_LOCAL;
         else if( !strcasecmp( tc, "remote" ) ) {
-                str_isEnv( 1, SUT_HOST );
-                str_isEnv( 1, SUT_PORT );
+                str_isEnv( SUT_HOST );
+                str_isEnv( SUT_PORT );
                 test_type = TEST_REMOTE;
                 cfg.hostname = getenv( SUT_HOST );
                 cfg.port = atoi( getenv( SUT_PORT ) );

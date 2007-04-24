@@ -22,7 +22,7 @@ int main( int argc, char *argv[] )
         int test_type;
 
         rc_parseArgs( argc, argv );
-        str_isEnv( cfg.verbose, SUT_TTYPE );
+        str_isEnv( SUT_TTYPE );
         tc = getenv( SUT_TTYPE );
 
         if( !axi_param ) {
@@ -35,8 +35,8 @@ int main( int argc, char *argv[] )
                 test_type = TEST_LOCAL;
         } else if( !strcasecmp( tc, "remote" ) ) {
                 printf( "* stop: Working remote\n" );
-                str_isEnv( cfg.verbose, SUT_HOST );
-                str_isEnv( cfg.verbose, SUT_PORT );
+                str_isEnv( SUT_HOST );
+                str_isEnv( SUT_PORT );
 
                 cfg.hostname = getenv( SUT_HOST );
                 cfg.port = atoi( getenv( SUT_PORT ) );

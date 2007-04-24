@@ -384,8 +384,7 @@ static int core_setupTmp( char const *source_bat, char *tmpDir )
                 tmpDir, strerror( errno ) );
         exit( EXIT_FAILURE );
     }
-    if( cfg.verbose == TRUE )
-        printf( "# seraph: Copying [%s] to [%s]\n", s, tmpDir );
+    verbose("Copying [%s] to [%s]\n", s, tmpDir );
     sprintf( cmd, "/bin/cp -R %s/* %s/", dirname( s ), tmpDir );
 
     status = system( cmd );

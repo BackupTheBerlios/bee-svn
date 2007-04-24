@@ -86,7 +86,6 @@ int main( int argc, char *argv[] )
         // char *type;
         char *type;
         char *str;
-        int verbose = 1;
 
         if( argc < 2 ) {
                 printf( "! cp: missing file operand\n" );
@@ -94,7 +93,7 @@ int main( int argc, char *argv[] )
                 return 1;
         }
         cp_parseArgs( argc, argv );
-        str_isEnv( verbose, SUT_TTYPE );
+        str_isEnv( SUT_TTYPE );
         type = getenv( SUT_TTYPE );
 
         if( !strcmp( type, "local" ) ) {
@@ -106,8 +105,8 @@ int main( int argc, char *argv[] )
                 char *host;
                 int port;
 
-                str_isEnv( verbose, SUT_HOST );
-                str_isEnv( verbose, SUT_PORT );
+                str_isEnv( SUT_HOST );
+                str_isEnv( SUT_PORT );
                 host = getenv( SUT_HOST );
                 port = atoi( getenv( SUT_PORT ) );
                 return copy_remote( host, port, argv[optind],

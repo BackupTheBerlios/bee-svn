@@ -27,7 +27,7 @@ int main( int argc, char *argv[] )
                 return 1;
         }
         rm_parseArgs( argc, argv );
-        str_isEnv( cfg.verbose, SUT_TTYPE );
+        str_isEnv( SUT_TTYPE );
         tc = getenv( SUT_TTYPE );
         if( argc < 2 ) {
                 fprintf( stderr, "! mkdir: invalid syntax" );
