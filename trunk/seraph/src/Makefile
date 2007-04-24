@@ -3,7 +3,7 @@
 		   -Wdeclaration-after-statement
 
 TOP=.
-files = strop.o fileop.o baseclass.o basedb.o userdb.o testdb.o core.o sut.o socket.o wall.o scan.o debug.o
+files = str.o fileop.o baseclass.o basedb.o userdb.o testdb.o core.o sut.o sock.o wall.o scan.o debug.o
 TARGETS=lib/libtrpc.a lib/libtbot.a bin/srph  bin/mngrd .tool
 include system.mk
 
