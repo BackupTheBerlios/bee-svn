@@ -50,7 +50,7 @@ install:
 
 
 clean:
-	rm -rf $(TARGETS) $(objs) *.o *.lob *.debug
+	rm -rf $(TARGETS) $(objs) *.o *.lob *.debug scan.c
 	make -C rpc clean
 	make -C tools clean
 
@@ -62,7 +62,7 @@ jab:
 	-o test-lm  -lglib-2.0   -lloudmouth-1 -lresolv -lnsl  -lssl -lcrypto
 
 tar:
-	cd .. && tar czvf seraph.tar.gz src
+	cd .. && tar czvf seraph-`date +%Y%m%d`.tar.gz src
 
 indent:
 	indent -br -brs -cdw -ce -l80 -nut -ncs -prs -nsai -npcs -nsaf -nsaw -kr -i8 *.c
