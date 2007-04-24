@@ -11,9 +11,6 @@
 #include "strop.h"
 #include "sut.h"
 
-/* TODO: get rid of this */
-#define DIM_BUFF 8192
-
 struct     config_s cfg;
 static int cp_parseArgs( int argc, char *argv[] );
 
@@ -23,7 +20,9 @@ static int cp_parseArgs( int argc, char *argv[] );
  */
 static bool sndfile( int sock, char *src_file )
 {
-    char buff[DIM_BUFF]={0};
+    #define BUFF_SZ 8192
+
+    char buff[BUFF_SZ]={0};
     int t=0, r=0, w=0;
 
     int f = open( src_file, O_RDONLY );
@@ -33,7 +32,7 @@ static bool sndfile( int sock, char *src_file )
         return false;
     }
 
-    while( (r = read( f, buff, DIM_BUFF)) != -1 ) {
+    while( (r = read( f, buff, BUFF_SZ)) != -1 ) {
         t = 0;
         while( t < r ) {
             if( ( w = write( sock, buff + t, r - t ) ) < 0 ) {
