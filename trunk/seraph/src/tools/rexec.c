@@ -4,7 +4,6 @@
  *   \date Thu Aug 17 17:38:13 2006
  *
  */
-/*#define _POSIX_SOURCE*/
 
 #include <stdlib.h>
 #include <wait.h>
@@ -78,7 +77,7 @@ int main( int argc, char *argv[] )
                 port = atoi( getenv( SUT_PORT ) );
                 cod = cli_main( hostname, port, argv[optind] );
         } else
-                printf( "* rexec: Invalid test type\n" );
+                printf( "E: rexec: Invalid test type\n" );
 
         return -2;
 }
@@ -116,6 +115,7 @@ static int rex_parseArgs( int argc, char *argv[] )
                 case 'h':
                         rex_usage( EXIT_SUCCESS );
                 case 'v':
+                        cfg.verbose=true;
                         break;
                 }
         }

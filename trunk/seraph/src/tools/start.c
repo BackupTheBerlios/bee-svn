@@ -11,7 +11,7 @@
 
 //! @todo use sut_binpath to look for serverUnderTest
 struct config_s cfg;
-char *axi_param = NULL;
+char *start_cmd = NULL;
 static int rc_parseArgs( int argc, char *argv[] );
 
 static void start_usage( int status );
@@ -25,8 +25,8 @@ int main( int argc, char *argv[] )
         str_isEnv( SUT_TTYPE );
         tc = getenv( SUT_TTYPE );
 
-        if( !axi_param ) {
-                fprintf( stderr, "! start: -c flag is mandatory\n" );
+        if( !start_cmd ) {
+                fprintf( stderr, "E: start: -c flag is mandatory\n" );
                 start_usage( EXIT_FAILURE );
         }
 
@@ -42,10 +42,10 @@ int main( int argc, char *argv[] )
                 cfg.hostname = getenv( SUT_HOST );
                 cfg.port = atoi( getenv( SUT_PORT ) );
         } else {
-                printf( "! start : Invalid $axi_ttype\n" );
+                printf( "E: start : Invalid test type $SUT_TTYPE\n" );
                 return 1;
         }
-        sut_start( test_type, 5, getenv( SUT_SYSLOG ), axi_param,
+        sut_start( test_type, 5, getenv( SUT_SYSLOG ), start_cmd,
                    cfg.hostname, cfg.port );
         return EXIT_SUCCESS;
 }
@@ -76,24 +76,24 @@ static int rc_parseArgs( int argc, char *argv[] )
                 switch ( c ) {
                 case 't':
                         if( !strcasecmp( optarg, "remote" ) ) {
-                                setenv( "axi_ttype", optarg, 1 );
+                                setenv( SUT_TTYPE, optarg, 1 );
                                 cfg.test_type = TEST_REMOTE;
                         }
                         if( !strcasecmp( optarg, "local" ) ) {
-                                setenv( "axi_ttype", optarg, 1 );
+                                setenv( SUT_TTYPE, optarg, 1 );
                                 cfg.test_type = TEST_LOCAL;
                         }
                         break;
                 case 'H':
-                        setenv( "axi_host", optarg, 1 );
+                        setenv( SUT_HOST, optarg, 1 );
                         cfg.hostname = optarg;
                         break;
                 case 'P':
-                        setenv( "axi_port", optarg, 1 );
+                        setenv( SUT_PORT, optarg, 1 );
                         cfg.port = atoi( optarg );
                         break;
                 case 'c':
-                        axi_param = optarg;
+                        start_cmd = optarg;
                         break;
                 case 'h':
                         start_usage( EXIT_SUCCESS );

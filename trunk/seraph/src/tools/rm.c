@@ -30,7 +30,7 @@ int main( int argc, char *argv[] )
         str_isEnv( SUT_TTYPE );
         tc = getenv( SUT_TTYPE );
         if( argc < 2 ) {
-                fprintf( stderr, "! mkdir: invalid syntax" );
+                fprintf( stderr, "E: mkdir: Invalid syntax" );
                 return 1;
         }
 
@@ -39,7 +39,7 @@ int main( int argc, char *argv[] )
         else if( !strcmp( tc, "remote" ) )
                 test_type = TEST_REMOTE;
         else
-                printf( "! mkdir: Invalid $axi_ttype\n" );
+                printf( "E: mkdir: Invalid test type $SUT_TTYPE\n" );
         fop_rm( test_type, argv[optind], host, port );
         return 1;
 }
@@ -70,13 +70,13 @@ static int rm_parseArgs( int argc, char *argv[] )
                 case 't':
                         if( !strcasecmp( optarg, "remote" )
                             || ( !strcasecmp( optarg, "local" ) ) )
-                                setenv( "axi_ttype", optarg, 1 );
+                                setenv( SUT_TTYPE, optarg, 1 );
                         break;
                 case 'H':
-                        setenv( "axi_host", optarg, 1 );
+                        setenv( SUT_HOST, optarg, 1 );
                         break;
                 case 'P':
-                        setenv( "axi_port", optarg, 1 );
+                        setenv( SUT_PORT, optarg, 1 );
                         break;
                 case 'h':
                         rm_usage( EXIT_SUCCESS );
