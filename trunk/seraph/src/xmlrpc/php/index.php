@@ -6,10 +6,18 @@ include 'base_lib.php' ;
 class Index {
 
     var $xmlrpc;
+    var $job_pending;
+    var $job_running;
+    var $job_complete;
+    var $job_all;
 
     function Index( $host, $port )
     {
         $this->xmlrpc = new XML_RPC_Client('/RPCSERVER', $host, $port );
+        $this->job_pending=1;
+        $this->job_running=2;
+        $this->job_complete=4;
+        $this->job_all=8;
         /* check for errors */
         //$this->xmlrpc->setDebug(1);
     }
@@ -96,9 +104,10 @@ class Index {
     function listJobs()
     {
         echo " List of Jobs:(Opens log on click)<br>";
+        /*-------------------------------------------*/
         $req = new XML_RPC_Value( array(
-                            "sut_username" =>"user1",
-                            "sut_cookie"   =>"cookie")
+                            "sut_username" => new XML_RPC_Value( "user1",'string'),
+                            "job_type"   => new XML_RPC_Value( $this->job_pending,'int'))
                     , "struct");
 
         $msg = new XML_RPC_Message('listJobs', array($req));
@@ -109,14 +118,16 @@ class Index {
         echo "NbJobs:$i<br>";
 
         while($i--) {
-        echo "<div class='job_running_err'>";
+        echo "<div class='job_pending'>";
         echo "<a href='http://google.com'>";
             echo "<span>1000</span>";
-            echo "<span><b >Running</b></span>";
+            echo "<span><b >pending</b></span>";
             echo "<span>".XML_RPC_decode($resp->value()->arraymem($i)) ."</span>";
         echo "</a>";
         echo "</div>";
         }
+        /*---------------------------------------------*/
+        /*
         while($i++<3) {
         echo "<div class='job_running_ok'>";
         echo "<a href='http://google.com'>";
@@ -134,7 +145,7 @@ class Index {
             echo "<span>".XML_RPC_decode($resp->value()->arraymem($i)) ."</span>";
         echo "</a>";
         echo "</div>";
-        }
+        }*/
     }
 
 

@@ -455,16 +455,16 @@ x_checkRememberedCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request,
 x_listJobsCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void *userData )
 {
     GSList*   jobList =NULL ;
-    int nbJobs=0;
+    int nbJobs=0, job_type;
     XMLRPC_VALUE rv;
-    char *username, *cookie, *tmp;
+    char *username, *tmp;
     XMLRPC_VALUE xParams = XMLRPC_RequestGetData( request );
     XMLRPC_VALUE xIter   = XMLRPC_VectorRewind( xParams );
 
     username= XMLRPC_VectorGetStringWithID(xIter, "sut_username");
-    cookie  = XMLRPC_VectorGetStringWithID(xIter, "sut_cookie");
+    job_type  = XMLRPC_VectorGetIntWithID(xIter, "job_type");
 
-    nbJobs = userdb_listJobs( "user1", 1, &jobList);
+    nbJobs = userdb_listJobs( username, job_type, &jobList);
     rv = XMLRPC_CreateVector(NULL, xmlrpc_vector_array);
     debug("VectorAppendString [%d] times\n", nbJobs);
     nbJobs++; /*g_slist_nth_data is one-based*/
