@@ -8,7 +8,7 @@ bool core_checkCore(  const int test_type,
 
 int   core_checkTools(const char* tools_path) ;
 char* core_expandVars( char const * t1 );
-int   core_setErrorlog( void );
+int   core_setErrorlog( const char* const username );
 int   core_runTests(const char* dir) ;
 
 #else

@@ -313,7 +313,7 @@ x_runTestsCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void* userData
             debug("Run tests from directory: '%s/%s' \n", cfg.test_dir,p);
             sprintf(tDir, "%s/%s", cfg.test_dir,p);
             sprintf(tCfg, "%s/%s", MACHINES,os);
-            sprintf(cmd,"/home/groleo/code/seraph/src/bin/seraph -C %s -d %s -t local -r n -k"
+            sprintf(cmd,"/home/groleo/code/seraph/src/bin/seraph -V -C %s -d %s -t local -r n -k"
             ,tCfg, tDir
             );
             system(cmd);

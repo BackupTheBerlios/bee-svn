@@ -44,7 +44,6 @@ static int core_cleanupTmp( const char *tmpDir );
 
 static int core_runRecursive( const char *srcName );
 
-int core_setErrorlog( void );
 
 
 
@@ -546,7 +545,7 @@ char* core_expandVars( const char *t1 )
  * Export axi_errorlog=$CWD/errors/$HOST-$PID
  */
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
-int core_setErrorlog(  )
+int core_setErrorlog( const char* const uname )
 {
     char rez[PATH_MAX] = "";
     struct tm *t = 0;
@@ -555,7 +554,7 @@ int core_setErrorlog(  )
 
     time( &now );
     t = localtime( &now );
-    sprintf( rez, "%s/running/%s-%d-%02d:%02d", JOBS,
+    sprintf( rez, "%s/%s/jobs/running%s-%d-%02d:%02d", USERDB, uname,
             strrchr(cfg.config_file,'/'), getpid(  ),
             t->tm_hour, t->tm_min );
 

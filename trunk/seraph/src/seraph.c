@@ -258,7 +258,7 @@ int srph_initEnv( struct config_s *config )
     /* build the PATH like $HOME/seraph/tools:$PATH
      * so the system() will use our cp, rm, mkdir */
     st = getenv( SUT_TOOL );
-    if(!st) { st = LIBDIR ; setenv(SUT_TOOL, LIBDIR, 1); }
+    if(!st || st[0] == '\0') { st = LIBDIR ; setenv(SUT_TOOL, LIBDIR, 1); }
     path = getenv( "PATH" );
 
     config->cur_path = calloc( 1, strlen( st ) + strlen( path ) + 2 );
@@ -267,7 +267,7 @@ int srph_initEnv( struct config_s *config )
 
     setenv( "PERLLIB", getenv( SUT_TOOL ), 1 );
     setenv( "PERL5LIB", getenv( SUT_TOOL ), 1 );
-    core_setErrorlog(  );
+    core_setErrorlog( "user1" ); /* TODO:hardcoded username */
 
     config->axi_workDir = getenv( SUT_WORKDIR );
     config->axi_cfgFile = getenv( SUT_CFGFILE );
