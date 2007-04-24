@@ -52,8 +52,7 @@ void rm_usage( int status )
         printf( "Usage: rm [OPTION] FILE...\n" );
         printf( "Remove (unlink) the FILE(s).\n" );
         printf( "\n" );
-        printf
-            ( "  -v, --verbose     print a message for each action executed\n" );
+        printf( "  -v, --verbose     print a message for each action executed\n" );
         printf( "  -h, --help        display this help and exit\n" );
         printf( "  -H hostname\n" );
         printf( "  -P port\n" );

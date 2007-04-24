@@ -151,6 +151,7 @@ static int cp_parseArgs( int argc, char *argv[] )
                 case 'h':
                         cp_usage(  );
                 case 'v':
+                        cfg.verbose = TRUE;
                         break;
                 }
         }

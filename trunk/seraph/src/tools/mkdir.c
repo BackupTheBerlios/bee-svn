@@ -97,7 +97,7 @@ static int md_parseArgs( int argc, char *argv[] )
                 case 'h':
                         md_usage(  );
                 case 'v':
-                        //glob.verbose = TRUE;
+                        cfg.verbose = TRUE;
                         break;
                 }
         }
