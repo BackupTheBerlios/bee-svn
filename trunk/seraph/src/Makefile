@@ -42,7 +42,7 @@ install:
 	$(INSTALLDIR) $(JOBS)/complete
 	$(INSTALLDIR) $(JOBS)/running
 	$(INSTALLDIR) $(JOBS)/pending
-	$(INSTALLDIR) $(USERS)
+	$(INSTALLDIR) $(USERDB)
 	$(INSTALL) -m $(DATA_MODE) ./cfg_template $(MACHINES)
 	$(INSTALL) -m $(BIN_MODE) ./bin/mngrd $(BINDIR)
 	$(INSTALL) -m $(BIN_MODE) ./bin/seraph $(BINDIR)
