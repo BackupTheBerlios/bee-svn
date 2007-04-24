@@ -1,9 +1,9 @@
 
 enum JobType {
-    JOB_PENDING,
-    JOB_RUNNING,
-    JOB_COMPLETE,
-    JOB_ALL
+    JOB_PENDING=1,
+    JOB_RUNNING=2,
+    JOB_COMPLETE=4,
+    JOB_ALL=8
 };
 
 bool

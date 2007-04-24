@@ -84,11 +84,13 @@ userdb_listJobs( const char * const uname, enum JobType job_type, GSList** jobs)
         debug("JOBS_PENDING path[%s]\n", path);
 
         dit = opendir(path);
-        while( dent=readdir(dit) )
+        while( (dent=readdir(dit)) != NULL )
         {
             if( !strcmp(dent->d_name,".") || !strcmp(dent->d_name, "..") ) continue;
-            ++nbJobs;
+            debug("job_append[%s]\n", dent->d_name);
             *jobs = g_slist_append(*jobs, strdup(dent->d_name) );
+            ++nbJobs;
+            debug("jobsInQueue[%d]\n", nbJobs);
         }
         closedir(dit);
     }
@@ -100,8 +102,9 @@ userdb_listJobs( const char * const uname, enum JobType job_type, GSList** jobs)
         while( dent=readdir(dit) )
         {
             if( !strcmp(dent->d_name, ".") || !strcmp(dent->d_name,"..") ) continue;
-            ++nbJobs;
+            debug("job_append[%s]\n", dent->d_name);
             *jobs = g_slist_append(*jobs, strdup(dent->d_name) );
+            ++nbJobs;
         }
         close( dit );
     }
@@ -113,11 +116,13 @@ userdb_listJobs( const char * const uname, enum JobType job_type, GSList** jobs)
         while( dent=readdir(dit) )
         {
             if( !strcmp(dent->d_name, ".") || !strcmp(dent->d_name,"..") ) continue;
-            ++nbJobs;
+            debug("job_append[%s]\n", dent->d_name);
             *jobs = g_slist_append(*jobs, strdup(dent->d_name) );
+            ++nbJobs;
         }
         close( dit );
     }
+    debug("return nbJobs[%d]\n", nbJobs);
     return nbJobs;
 }
 

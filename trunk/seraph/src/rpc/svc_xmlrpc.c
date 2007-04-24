@@ -464,12 +464,14 @@ x_listJobsCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void *userData
     username= XMLRPC_VectorGetStringWithID(xIter, "sut_username");
     cookie  = XMLRPC_VectorGetStringWithID(xIter, "sut_cookie");
 
-    nbJobs = userdb_listJobs( "user1", JOB_ALL, &jobList);
+    nbJobs = userdb_listJobs( "user1", 1, &jobList);
     rv = XMLRPC_CreateVector(NULL, xmlrpc_vector_array);
-
+    debug("VectorAppendString [%d] times\n", nbJobs);
+    nbJobs++; /*g_slist_nth_data is one-based*/
     while( nbJobs-- ) {
         tmp = g_slist_nth_data( jobList, nbJobs);
-        if(!tmp) continue;
+        if(!tmp) { debug("continue\n"); continue;}
+        debug("Vector<<Job [%d]\n", nbJobs);
         if(!XMLRPC_VectorAppendString( rv, NULL, tmp, 0 ))
         {   return NULL; }
   //      free(tmp), tmp=NULL;
