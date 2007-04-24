@@ -4,13 +4,13 @@
 
 TOP=.
 files = strop.o fileop.o baseclass.o basedb.o userdb.o testdb.o core.o sut.o socket.o wall.o scan.o debug.o
-TARGETS=lib/libtrpc.a lib/libtbot.a bin/seraph  bin/mngrd .tool
+TARGETS=lib/libtrpc.a lib/libtbot.a bin/srph  bin/mngrd .tool
 include system.mk
 
 all: $(TARGETS)
 
 help:
-	echo "Targets are: seraph lib clean tar indent install"
+	echo "Targets are: srph lib clean tar indent install"
 
 
 
@@ -26,9 +26,9 @@ bin/mngrd: lib/libtbot.a
 	mkdir -p ./bin/tools
 	$(CC) $(CFLAGS) $(LDFLAGS)  mngrd.c  -o $@
 
-bin/seraph: lib/libtbot.a lib/libtrpc.a
+bin/srph: lib/libtbot.a lib/libtrpc.a
 	mkdir -p ./bin/tools
-	$(CC) $(CFLAGS) $(LDFLAGS) seraph.c  -o $@
+	$(CC) $(CFLAGS) $(LDFLAGS) srph.c  -o $@
 
 
 .tool:
@@ -45,7 +45,7 @@ install:
 	$(INSTALLDIR) $(USERDB)
 	$(INSTALL) -m $(DATA_MODE) ./cfg_template $(MACHINES)
 	$(INSTALL) -m $(BIN_MODE) ./bin/mngrd $(BINDIR)
-	$(INSTALL) -m $(BIN_MODE) ./bin/seraph $(BINDIR)
+	$(INSTALL) -m $(BIN_MODE) ./bin/srph $(BINDIR)
 	make -C tools install
 
 
@@ -62,11 +62,11 @@ jab:
 	-o test-lm  -lglib-2.0   -lloudmouth-1 -lresolv -lnsl  -lssl -lcrypto
 
 tar:
-	cd .. && tar czvf seraph-`date +%Y%m%d`.tar.gz src
+	cd .. && tar czvf srph-`date +%Y%m%d`.tar.gz src
 
 indent:
 	indent -br -brs -cdw -ce -l80 -nut -ncs -prs -nsai -npcs -nsaf -nsaw -kr -i8 *.c
 
 rmtinst:
-	scp ./seraph root@gigi:/home/seraph
+	scp ./srph root@gigi:/home/srph
 	make -C ./tools rmtinst
