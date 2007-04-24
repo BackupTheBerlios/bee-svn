@@ -2,44 +2,53 @@ body.bheader { margin: 0px;}
 div.header { vertical-align: top; color: white; background-color: rgb(50,0,210); }
 font.header {font-size:xx-large ;}
 
+.column span {
+    margin: 0 15px;
+    float:left;
+    line-height:1.5em;
+    background-color: #e5ecf9;
+    margin-top:10px;
+    border:1px dashed #00e1ff;
+    padding: 10px 3px 3px 10px;
+}
+
+
+/*--------------------------------------------------*/
+/*                 Class head_menu                  */
+/*--------------------------------------------------*/
 div.head_menu {
     background-color: #36c ;
     border-top: solid #000 1px;
     border-bottom: solid #000 1px;
     text-decoration: none;
 }
-
-
 div.head_menu a {
     color:white;
     text-decoration:none;
 }
-
-
-
 div.head_menu li {
     display: inline;
     list-style-type: none;
 }
-
 div.head_menu li a{
     text-decoration: none;
     padding: 5px 10px;
 }
-
 div.head_menu li a:hover {
     background-color: #3366FF;
     border-top: solid #000 1px;
     border-bottom: solid #000 1px;
-
 }
-
 div.head_menu ul{
     text-decoration: none;
 }
+/*++++++++++++++++++++++++++++++++++++++++++++++++++*/
 
 
 
+/*--------------------------------------------------*/
+/*              Class job_running_err               */
+/*--------------------------------------------------*/
 div.job_running_err {
     background-color: #ffa0a0 ;
     border-top: solid #000 1px;
@@ -47,22 +56,22 @@ div.job_running_err {
     text-decoration: none;
     padding: 3px;
 }
-
 div.job_running_err span{
     margin-right: 0.5em;
     border-left:2px solid #000;
     padding: 2px 20px 0 0;
     width:60em;
 }
-
 div.job_running_err a {
-    color: black;
     text-decoration:none;
 }
+/*++++++++++++++++++++++++++++++++++++++++++++++++++*/
 
 
-/*--------------------*/
 
+/*--------------------------------------------------*/
+/*               Class job_running_ok               */
+/*--------------------------------------------------*/
 div.job_running_ok {
     background-color: #cceedd ;
     border-top: solid #000 1px;
@@ -70,21 +79,22 @@ div.job_running_ok {
     text-decoration: none;
     padding: 3px;
 }
-
 div.job_running_ok span {
     margin-right: 0.5em;
     border-left:2px solid #000;
     padding: 2px 20px 0 0;
     width:30px;
 }
-
 div.job_running_ok a {
     color: black;
     text-decoration:none;
 }
-/*----------------------*/
+/*++++++++++++++++++++++++++++++++++++++++++++++++++*/
 
 
+/*--------------------------------------------------*/
+/*               Class job_pending                  */
+/*--------------------------------------------------*/
 div.job_pending {
     background-color: #c8c8ff ;
     border-top: solid #000 1px;
@@ -92,21 +102,22 @@ div.job_pending {
     text-decoration: none;
     padding: 3px;
 }
-
 div.job_pending span {
-    /*margin-right: 1em;
-    padding: 2px 20px 0 0;
+    margin-right: 0.5em;
+    /*padding: 2px 20px 0 0;*/
     border-left:2px solid #000;
-    */
     width:100em;
 }
-/*
 div.job_pending a {
-    color: black;
     text-decoration:none;
-}*/
+}
+/*++++++++++++++++++++++++++++++++++++++++++++++++++*/
 
-/*---------------------*/
+
+
+/*--------------------------------------------------*/
+/*               Class machines                     */
+/*--------------------------------------------------*/
 div.machines {
     background-color: #6666FF ;
     border-top: solid #000 1px;
@@ -132,23 +143,13 @@ li.machines a:hover {
     border-bottom: solid #000 1px;
 
 }
+/*++++++++++++++++++++++++++++++++++++++++++++++++++*/
 
-.column span {
-    margin: 0 15px;
-    float:left;
-    line-height:1.5em;
-    background-color: #e5ecf9;
-    /*margin-top:10px;*/
-    border:1px dashed #00e1ff;
-    padding: 10px 3px 3px 10px;
-}
 
-textarea.console {
-    border:1px;
-    background-color:black;
-    color:white;
-}
-/* COPY PASTE */
+
+/*--------------------------------------------------*/
+/*                  ID menu                         */
+/*--------------------------------------------------*/
 #menu {
     position:relative;
     padding:0;
@@ -173,39 +174,17 @@ textarea.console {
 #menu p span {
     display:none;
 }
-#menu p:hover {
-    font-weight:bold;
-    border:1px solid #000;
-    background-color:#3366FF;
-    color: #fff;
-}
 #menu p:hover span {
     display:block;
-    position:absolute; 
+    position:absolute;
     left:10em;
     top:0;
     text-align:left;
     padding:0.5em;
     width:30em;
-    background-color:#eee;
-    color:#000; 
-    border:1px solid #808;
-}
-
-#menu p:hover input {
-  padding-left: 10%;
-  vertical-align: middle;
-  }
-  /*
-#menu p:hover span:first-line {
-font-weight:bold; 
-font-size:1.2em;
-color:#808;
-}*/
-#menu img {
-border:1px solid #000; 
-float:left; 
-margin:0.25em 1em 0.5em 0;
+    color:#000;
+    background-color: #e5ecf9;
+    border:1px dashed #00e1ff;
 }
 #menu b{
     border:1px solid #000;
@@ -218,16 +197,14 @@ margin:0.25em 1em 0.5em 0;
     clear:both;
     font-weight:normal;
 }
-#menu a b {
+#menu a {
     text-decoration:none;
-
     text-align: left;
-    color: red;
+    color: white;
     padding-bottom:2px;
-    font-weight:normal;
+    font-weight:bold;
 }
-a em.butt {
-    color:red;
+#menu a em.butt {
     float:left;
     width:8em;
     border:1px solid #000;
@@ -237,17 +214,17 @@ a em.butt {
     font-style: normal;
     text-align: center;
     margin-bottom: 3px;
+    font-weight: bold;
 }
-a:hover em.butt {
+
+#menu a:hover em.butt {
     background-color: #3366FF;
-  }
-#menu a:hover b {
-    background-color: blue;
 }
 #menu input {
     border-width:1px;
+    border-color:black;
     float: right;
     height:1.4em;
     width:16.81em;
-    /*background: #e5ecf9;*/
 }
+/*++++++++++++++++++++++++++++++++++++++++++++++++++*/
