@@ -48,11 +48,11 @@ div.job_running_err {
     padding: 3px;
 }
 
-div.job_running_err span {
+div.job_running_err span{
     margin-right: 0.5em;
     border-left:2px solid #000;
     padding: 2px 20px 0 0;
-    width:30px;
+    width:60em;
 }
 
 div.job_running_err a {
@@ -94,15 +94,17 @@ div.job_pending {
 }
 
 div.job_pending span {
-    margin-right: 0.5em;
+    /*margin-right: 1em;
     padding: 2px 20px 0 0;
     border-left:2px solid #000;
+    */
+    width:100em;
 }
-
+/*
 div.job_pending a {
     color: black;
     text-decoration:none;
-}
+}*/
 
 /*---------------------*/
 div.machines {

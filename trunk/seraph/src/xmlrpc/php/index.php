@@ -112,7 +112,7 @@ class Index {
         echo "<div class='job_running_err'>";
         echo "<a href='http://google.com'>";
             echo "<span>1000</span>";
-            echo "<span>Running</span>";
+            echo "<span><b >Running</b></span>";
             echo "<span>".XML_RPC_decode($resp->value()->arraymem($i)) ."</span>";
         echo "</a>";
         echo "</div>";
@@ -121,7 +121,7 @@ class Index {
         echo "<div class='job_running_ok'>";
         echo "<a href='http://google.com'>";
             echo "<span>1000</span>";
-            echo "<span>Running</span>";
+            echo "<span><b style='width:200px'>Running</b></span>";
             echo "<span>".XML_RPC_decode($resp->value()->arraymem($i)) ."</span>";
         echo "</a>";
         echo "</div>";
@@ -130,7 +130,7 @@ class Index {
         echo "<div class='job_pending'>";
         echo "<a href='http://google.com'>";
             echo "<span>1000</span>";
-            echo "<span>Pending</span>";
+            echo "<span><em >Pending</em></span>";
             echo "<span>".XML_RPC_decode($resp->value()->arraymem($i)) ."</span>";
         echo "</a>";
         echo "</div>";
