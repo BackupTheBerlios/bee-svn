@@ -102,14 +102,14 @@ div.job_pending {
     text-decoration: none;
     padding: 3px;
 }
-div.job_pending span {
-    margin-right: 0.5em;
-    /*padding: 2px 20px 0 0;*/
-    border-left:2px solid #000;
-    width:100em;
-}
 div.job_pending a {
     text-decoration:none;
+}
+div.job_pending a span {
+    width: 100em;
+    margin-right: 0.5em;
+    padding: 2px 20px 0 0;
+    border-left:2px solid #000;
 }
 /*++++++++++++++++++++++++++++++++++++++++++++++++++*/
 
@@ -206,7 +206,7 @@ li.machines a:hover {
 }
 #menu a em.butt {
     float:left;
-    width:8em;
+    width:12em;
     border:1px solid #000;
     margin-right:1px;
     background-color: #36c;

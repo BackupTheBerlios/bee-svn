@@ -95,7 +95,7 @@ function drawMachines()
         <a href='javascript:;' onclick='addEvent(\"span$m\", \"sName$m\", \"sValue$m\");'><em class='butt'>Add</em></a>
         <input type='submit' value='Save'>
 
-        <input id='sName$m'  type='text' value='SUT_NAME' style='text-align:right; clear:both; float:left; width:12em;'/>
+        <input id='sName$m'  type='text' value='SUT_NAME' style='text-align:right; clear:both; float:left; width:12.1em;'/>
         <input id='sValue$m' type='text' value='Value'/>";
         $params = array(new XML_RPC_Value( ($m), 'string') );
         $msg    = new XML_RPC_Message('getConfig', $params);
