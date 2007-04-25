@@ -1,8 +1,5 @@
 /**
  *   \brief    Handles the refreshing of ptgen state(users/domains).
- *   \see      ptgenhost.c 
- *   \date     Thu Aug 17 17:38:13 2006
- *
  */
 #include <strings.h>
 #include "config.h"
@@ -11,10 +8,14 @@
 #include "sut.h"
 
 
+
 struct config_s cfg;
 static int rc_parseArgs( int argc, char *argv[] );
 
-int main( int argc, char *argv[] )
+
+
+int
+main( int argc, char *argv[] )
 {
         char *tc;
         int test_type = TEST_LOCAL;

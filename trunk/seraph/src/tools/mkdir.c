@@ -21,7 +21,6 @@
  *   \brief    Wraps around mkdir cmd.
  */
 #include <strings.h>
-#include "debug.h"
 #include "config.h"
 #include "socket.h"
 #include "strop.h"

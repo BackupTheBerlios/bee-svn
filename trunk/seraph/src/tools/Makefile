@@ -27,7 +27,7 @@ stop:
 start:
 	$(CC) $(CFLAGS) start.c $(LIB) -o $(BIN)/start
 clean:
-	rm -rf $(BIN)/*
+	rm -rf $(BIN)/* core *.debug
 
 
 tar:

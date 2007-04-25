@@ -35,12 +35,13 @@ static int cp_parseArgs( int argc, char *argv[] );
 /*
  * Send a file to socket.
  */
-static bool sndfile( int sock, char *src_file )
+static bool
+sndfile( int sock, char *src_file )
 {
     #define BUFF_SZ 8192
 
-    char buff[BUFF_SZ]={0};
-    int t=0, r=0, w=0;
+    char    buff[BUFF_SZ]={0};
+    int     t=0, r=0, w=0;
 
     int f = open( src_file, O_RDONLY );
     if( f < 0 )
@@ -65,11 +66,12 @@ static bool sndfile( int sock, char *src_file )
 }
 
 
-static bool copy_remote( char *host, int port, char *src_file, char *dest_dir )
+static bool
+copy_remote( char *host, int port, char *src_file, char *dest_dir )
 {
-    int ret=0,l=0;
-    char cmd[LINE_MAX] = { 0 };
-    char *bname=NULL, sockfd;
+    int     ret=0,l=0;
+    char    cmd[LINE_MAX] = { 0 };
+    char    *bname=NULL, sockfd;
 
     sockfd = sock_connectTo( host, port );
 
@@ -82,6 +84,7 @@ static bool copy_remote( char *host, int port, char *src_file, char *dest_dir )
         close(sockfd);
         return false ;
     }
+
     bname = basename( src_file );
     sprintf( cmd, "COPY %s %s %d", bname, dest_dir, l );
     sock_sendLine( sockfd, cmd );
@@ -91,7 +94,6 @@ static bool copy_remote( char *host, int port, char *src_file, char *dest_dir )
         close(sockfd);
         return false;
     }
-
 
     ret = sock_getStatus( sockfd );
     if( !ret )
@@ -107,16 +109,18 @@ static bool copy_remote( char *host, int port, char *src_file, char *dest_dir )
 
 
 
-int main( int argc, char *argv[] )
+int
+main( int argc, char *argv[] )
 {
-    char *type="local";
-    int ret=0;
+    char    *type="local";
+    int     ret=0;
 
     if( argc < 2 )
     {   printf( "E: cp: missing file operand\n" );
         printf( "Try `cp -h` for more information.\n" );
         exit(EXIT_FAILURE);
     }
+
     DBG("cp.debug");
     cp_parseArgs( argc, argv );
     str_isEnv( SUT_TTYPE );
@@ -147,9 +151,9 @@ int main( int argc, char *argv[] )
     exit(EXIT_FAILURE);
 }
 
-void cp_usage( void )
+void
+cp_usage( void )
 {
-
     printf( "Usage: cp [OPTION] COMMAND...\n" );
     printf( "Copy SOURCE to DEST\n" );
     printf( "\n" );
@@ -162,9 +166,10 @@ void cp_usage( void )
 }
 
 
-static int cp_parseArgs( int argc, char *argv[] )
+static int
+cp_parseArgs( int argc, char *argv[] )
 {
-    int c;
+    int     c;
     while( ( c = getopt( argc, argv, "t:H:P:hv" ) ) != -1 )
     {   switch ( c ) {
             case 't':
@@ -178,11 +183,11 @@ static int cp_parseArgs( int argc, char *argv[] )
                 setenv( SUT_PORT, optarg, 1 );
                 break;
             case 'h':
-                cp_usage(  );
+                cp_usage( );
             case 'v':
-                cfg.verbose = TRUE;
+                cfg.verbose = true;
                 break;
         }
     }
-    return TRUE;
+    return true;
 }
