@@ -1,7 +1,24 @@
+/*
+ * Copyright (C) 2006, 2007 Free Software Foundation, Inc.
+ * Written by Negreanu Marius <groleo@gmail.com>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * this program; see the file COPYING.  If not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
 /**
  *   \brief     Wraps around copy operations.
- *   \date      Thu Aug 17 17:38:13 2006
- *
  */
 #include <strings.h>
 #include <libgen.h>      /*basename*/
@@ -26,17 +43,17 @@ static bool sndfile( int sock, char *src_file )
     int t=0, r=0, w=0;
 
     int f = open( src_file, O_RDONLY );
-    if( f < 0 ) {
-        fprintf( stderr, "E: cp: Cannot open source file [%s] : %s\n",
+    if( f < 0 )
+    {   fprintf( stderr, "E: cp: Cannot open source file [%s] : %s\n",
                 src_file, strerror( errno ) );
         return false;
     }
 
-    while( (r = read( f, buff, BUFF_SZ)) != -1 ) {
-        t = 0;
-        while( t < r ) {
-            if( ( w = write( sock, buff + t, r - t ) ) < 0 ) {
-                fprintf( stderr,
+    while( (r = read( f, buff, BUFF_SZ)) != -1 )
+    {   t = 0;
+        while( t < r )
+        {   if( ( w = write( sock, buff + t, r - t ) ) < 0 )
+            {   fprintf( stderr,
                         "E: cp: Can't send file [%s]: %s\n",
                         src_file, strerror( errno ) );
             }
@@ -50,15 +67,15 @@ static bool sndfile( int sock, char *src_file )
 
 static bool copy_remote( char *host, int port, char *src_file, char *dest_dir )
 {
-    int ret;
+    int ret=0,l=0;
     char cmd[LINE_MAX] = { 0 };
     char *bname=NULL, sockfd;
 
     sockfd = sock_connectTo( host, port );
 
-    int l = fop_fileSize( src_file );
-    if( l == -1 ) {
-        fprintf( stderr,
+    l = fop_fileSize( src_file );
+    if( l == -1 )
+    {   fprintf( stderr,
                 "E: cp: [%s] source file is not a regular file\n",
                 src_file );
         shutdown( sockfd, 2);
@@ -69,16 +86,16 @@ static bool copy_remote( char *host, int port, char *src_file, char *dest_dir )
     sprintf( cmd, "COPY %s %s %d", bname, dest_dir, l );
     sock_sendLine( sockfd, cmd );
     ret = sndfile( sockfd, src_file );
-    if(!ret) {
-        shutdown( sockfd, 2);
+    if(!ret)
+    {   shutdown( sockfd, 2);
         close(sockfd);
         return false;
     }
 
 
     ret = sock_getStatus( sockfd );
-    if( !ret ) {
-        fprintf( stderr,"E: cp: Didn't Received command[cp] confirmation!\n" );
+    if( !ret )
+    {   fprintf( stderr,"E: cp: Didn't Received command[cp] confirmation!\n" );
         shutdown( sockfd, 2);
         close( sockfd );
         return false ;
@@ -95,8 +112,8 @@ int main( int argc, char *argv[] )
     char *type="local";
     int ret=0;
 
-    if( argc < 2 ) {
-        printf( "E: cp: missing file operand\n" );
+    if( argc < 2 )
+    {   printf( "E: cp: missing file operand\n" );
         printf( "Try `cp -h` for more information.\n" );
         exit(EXIT_FAILURE);
     }
@@ -105,16 +122,16 @@ int main( int argc, char *argv[] )
     str_isEnv( SUT_TTYPE );
     type = getenv( SUT_TTYPE );
 
-    if( !strcmp( type, "local" ) ) {
-        char *cp_cmd=NULL;
+    if( !strcmp(type, "local") )
+    {   char *cp_cmd=NULL;
         cp_cmd = (char*)malloc( strlen(argv[optind]) + strlen(argv[optind+1]) + 13 );
         sprintf( cp_cmd, "/bin/cp -R %s %s", argv[optind], argv[optind+1] );
         ret = system( cp_cmd );
         free(cp_cmd);
         UNDBG;
         exit( ret );
-    } else if( !strcmp( type, "remote" ) ) {
-        char *host=NULL;
+    } else if( !strcmp(type, "remote") )
+    {   char *host=NULL;
         int port=0;
 
         str_isEnv( SUT_HOST );
@@ -148,8 +165,8 @@ void cp_usage( void )
 static int cp_parseArgs( int argc, char *argv[] )
 {
     int c;
-    while( ( c = getopt( argc, argv, "t:H:P:hv" ) ) != -1 ) {
-        switch ( c ) {
+    while( ( c = getopt( argc, argv, "t:H:P:hv" ) ) != -1 )
+    {   switch ( c ) {
             case 't':
                 if( !strcasecmp( optarg, "remote" ) || ( !strcasecmp( optarg, "local" ) ) )
                     setenv( SUT_TTYPE, optarg, 1 );
