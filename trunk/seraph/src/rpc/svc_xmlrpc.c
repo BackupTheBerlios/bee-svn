@@ -450,6 +450,17 @@ x_checkRememberedCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request,
     return XMLRPC_CreateValueBoolean(NULL, ret);
 }
 
+
+XMLRPC_VALUE
+x_getErrorLogCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request,
+        void *userData )
+{
+    char    *b64;
+    b64 = userdb_getErrorLog();
+    free(b64);
+    return XMLRPC_CreateValueBase64();
+}
+
     XMLRPC_VALUE
 x_listJobsCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void *userData )
 {

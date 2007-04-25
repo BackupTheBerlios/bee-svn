@@ -62,6 +62,31 @@ userdb_addJob( int job_type )
 }
 
 
+char*
+userdb_getErrorLog( const char * uname, int job_type, const char*const log)
+{
+    struct  stat s;
+    int     fd=-1;
+    char    *rb=NULL;
+    char    path[PATH_MAX]={0};
+    buffer_st b64;
+    char    *ret=NULL;
+
+    sprintf( path, "%s/%s/jobs/running/%s", USERDB, user, log);
+    fd = open(path,"r");
+    if( fd <0)
+        return NULL;
+    fstat( fd, &s);
+    rb = (char*)malloc(s.st_size);
+    read( fd, rb, s.st_size);
+    base64_encode( &b64, rb, s.st_size);
+    free(rb);
+    close(fd);
+    ret = strdup(b64.data);
+    buffer_delete(&b64);
+    return ret;
+}
+
 int
 userdb_listJobs( const char * const uname, enum JobType job_type, GSList** jobs)
 {

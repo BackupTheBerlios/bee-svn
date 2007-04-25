@@ -214,6 +214,7 @@ char* clientCallback( const char* filebuf )
     XMLRPC_ServerRegisterMethod( server, "checkLogin", x_checkLoginCallback );
     XMLRPC_ServerRegisterMethod( server, "checkRemembered", x_checkRememberedCallback );
     XMLRPC_ServerRegisterMethod( server, "listJobs", x_listJobsCallback );
+    XMLRPC_ServerRegisterMethod( server, "getErrorLog", x_getErrorLogCallback );
 
     request = XMLRPC_REQUEST_FromXML( filebuf, strlen(filebuf), NULL );
     if( !request ) {
