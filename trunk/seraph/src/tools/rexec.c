@@ -1,10 +1,25 @@
-/**
- *   \brief  execute a given parameter, either on local machine, or remote
- *   \see    socket.c
- *   \date Thu Aug 17 17:38:13 2006
+/*
+ * Copyright (C) 2006, 2007 Free Software Foundation, Inc.
+ * Written by Negreanu Marius <groleo@gmail.com>
  *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * this program; see the file COPYING.  If not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/**
+ *   \brief  execute a given parameter, either on local machine, or remote
+ */
 #include <stdlib.h>
 #include <wait.h>
 #include <strings.h>
@@ -15,109 +30,124 @@
 #include "strop.h"
 #include "fileop.h"
 
-static int rex_parseArgs( int argc, char *argv[] );
-struct config_s cfg;
+static int  rexec_parseArgs( int argc, char *argv[] );
+struct      config_s cfg;
 
 extern char *optarg;
-extern int optind;
+extern int  optind;
 
-static int cli_main( char *host, int port, char *c )
+static bool
+rexec_remote( char *host, int port, char *c )
 {
-        int cod, sockfd;
-        char cmd[LINE_MAX] = { 0 };
+    int     ret, sockfd;
+    char    cmd[LINE_MAX] = { 0 };
 
-         /*REMOTE*/ sockfd = sock_connectTo( host, port );
+    cmd = (char*)malloc( strlen(c) + 10);
+    sockfd = sock_connectTo( host, port );
+    sprintf( cmd, "EXECUTE %s", c );
+    verbose( "[%s]\n", cmd );
+    sock_sendLine( sockfd, cmd );
+    ret = sock_getStatus( sockfd );
+    if( ret < 0 ) {
+        fputs( "E: rexec: No remote confirmation!\n", stderr );
+        free(cmd);
+        return false;
+    }
 
-        sprintf( cmd, "EXECUTE %s", c );
-        printf( "[%s]\n", cmd );
-        sock_sendLine( sockfd, cmd );
-        cod = sock_getStatus( sockfd );
-        if( cod < 0 ) {
-                fputs( "! rexec: No remote confirmation!\n", stderr );
-                return errno;
-        }
-        if( cod > 0 ) {
-                fprintf( stderr, "! rexec: Error: '%s'\n", strerror( cod ) );
-                fprintf( stderr, "! rexec: Can't execute : '%s'\n", c );
-                close( sockfd );
-                return 1;
-        }
+    if( ret > 0 ) {
+        fprintf( stderr, "E: rexec: Error: '%s'\n", strerror( ret ) );
+        fprintf( stderr, "E: rexec: Can't execute : '%s'\n", c );
+        free(cmd);
+        shutdown( sockfd, 2);
         close( sockfd );
-        return 0;
+        return false;
+    }
+    free(cmd);
+    shutdown( sockfd, 2);
+    close( sockfd );
+    return true;
 }
 
 
 int main( int argc, char *argv[] )
 {
-        char *hostname = 0, *ttype = 0;
-        int port = 0;
-        int cod = -1;
-        int verbose = 1;
-        if( argc < 2 ) {
-                printf( "! rexec: missing operand\n" );
-                printf( "Try `rexec -h` for more information.\n" );
-                return EXIT_FAILURE;
-        }
-        rex_parseArgs( argc, argv );
-        if( signal( SIGINT, sut_sigint ) == SIG_ERR ) {
-                perror( "! rexec: Signal error!" );
-                return EXIT_FAILURE;
-        }
+    char    *host = 0, *ttype = 0;
+    int     port = 0;
+    int     ret = -1;
+    int     verbose = 1;
 
-        str_isEnv( SUT_TTYPE );
-        ttype = getenv( SUT_TTYPE );
+    if( argc < 2 )
+    {   printf( "E: rexec: missing operand\n" );
+        printf( "Try `rexec -h` for more information.\n" );
+        exit( EXIT_FAILURE);
+    }
 
-         /*LOCAL*/ if( !strcasecmp( ttype, "local" ) ) {
-                cod = system( argv[optind] );
-                exit( WEXITSTATUS( cod ) );
-        } else if( !strcasecmp( ttype, "remote" ) ) {
-                str_isEnv( SUT_HOST );
-                str_isEnv( SUT_PORT );
-                hostname = getenv( SUT_HOST );
-                port = atoi( getenv( SUT_PORT ) );
-                cod = cli_main( hostname, port, argv[optind] );
-        } else
-                printf( "E: rexec: Invalid test type\n" );
+    rexec_parseArgs( argc, argv );
+    if( signal( SIGINT, sut_sigint ) == SIG_ERR )
+    {   perror( "E: rexec: Signal error!" );
+        exit( EXIT_FAILURE);
+    }
 
-        return -2;
+    str_isEnv( SUT_TTYPE );
+    ttype = getenv( SUT_TTYPE );
+
+    if( !strcasecmp(ttype, "local") )
+    {   ret = system( argv[optind] );
+        exit( WEXITSTATUS( ret ) );
+    } else if( !strcasecmp( ttype, "remote" ) )
+    {   str_isEnv( SUT_HOST );
+        str_isEnv( SUT_PORT );
+        host = getenv( SUT_HOST );
+        port = atoi( getenv( SUT_PORT ) );
+        ret  = rexec_remote( host, port, argv[optind] );
+        ret?exit(EXIT_SUCCESS): exit(EXIT_FAILURE);
+    } else
+        printf( "E: rexec: Invalid test type\n" );
+    exit(EXIT_FAILURE);
 }
 
-void rex_usage( int status )
-{
 
-        printf( "Usage: rexec [OPTION] COMMAND...\n" );
-        printf( "Send a COMMAND to the seraph daemon\n" );
-        printf( "\n" );
-        printf
-            ( "  -v, --verbose     print a message for each action executed\n" );
-        printf( "  -h, --help        display this help and exit\n" );
-        printf( "  -H hostname       Host to connect to\n" );
-        printf( "  -P port           Port\n" );
-        printf( "  -t testType\n" );
-        exit( status );
-}
-static int rex_parseArgs( int argc, char *argv[] )
+
+void
+rexec_usage( int status )
 {
-        int c;
-        while( ( c = getopt( argc, argv, "t:H:P:hv" ) ) != -1 ) {
-                switch ( c ) {
-                case 't':
-                        if( !strcasecmp( optarg, "remote" )
-                            || ( !strcasecmp( optarg, "local" ) ) )
-                                setenv( "axi_ttype", optarg, 1 );
-                        break;
-                case 'H':
-                        setenv( "axi_host", optarg, 1 );
-                        break;
-                case 'P':
-                        setenv( "axi_port", optarg, 1 );
-                        break;
-                case 'h':
-                        rex_usage( EXIT_SUCCESS );
-                case 'v':
-                        cfg.verbose=true;
-                        break;
-                }
+    printf( "Usage: rexec [OPTION] COMMAND...\n" );
+    printf( "Send a COMMAND to the seraph daemon\n" );
+    printf( "\n" );
+    printf( "  -v, --verbose     print a message for each action executed\n" );
+    printf( "  -h, --help        display this help and exit\n" );
+    printf( "  -H host           Host to connect to\n" );
+    printf( "  -P port           Port\n" );
+    printf( "  -t testType\n" );
+    exit( status );
+}
+
+
+
+static int
+rexec_parseArgs( int argc, char *argv[] )
+{
+    int     c;
+    while( ( c = getopt( argc, argv, "t:H:P:hv" ) ) != -1 )
+    {   switch ( c ) {
+            case 't':
+                if( !strcasecmp( optarg, "remote" )
+                        || ( !strcasecmp( optarg, "local" ) ) )
+                    setenv( "axi_ttype", optarg, 1 );
+                break;
+            case 'H':
+                setenv( "axi_host", optarg, 1 );
+                break;
+            case 'P':
+                setenv( "axi_port", optarg, 1 );
+                break;
+            case 'h':
+                rexec_usage( EXIT_SUCCESS );
+                break;
+            case 'v':
+                cfg.verbose=true;
+                break;
         }
-        return TRUE;
+    }
+    return true;
 }
