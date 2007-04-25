@@ -34,7 +34,7 @@ static int  mkdir_parseArgs( int argc, char *argv[] );
 
 
 static bool
-client_mkdir( char *host, int port, char *path )
+mkdir_remote( char *host, int port, char *path )
 {
     char    *cmd=NULL;
     int     ret = 0, sockfd = -1;
@@ -95,7 +95,7 @@ main( int argc, char *argv[] )
         host = getenv( SUT_HOST);
         port = atoi( getenv(SUT_PORT) );
         if(argv[optind])
-            ret = client_mkdir( host, port, argv[optind]);
+            ret = mkdir_remote( host, port, argv[optind]);
         UNDBG;
         ret? exit(EXIT_SUCCESS): exit(EXIT_FAILURE);
     } else

@@ -51,28 +51,6 @@ int fop_fileSize( char *name )
 }
 
 
-#if 0
-int fop_rm( char *srcName )
-{
-        struct stat statbuf;
-
-        recursiveFlag = 1;
-        forceFlag = TRUE;
-        if( forceFlag == TRUE && lstat( srcName, &statbuf ) != 0
-            && errno == ENOENT ) {
-                /* do not reports errors for non-existent files if -f, just skip them */
-        } else {
-                if( recursiveAction( srcName, recursiveFlag, FALSE,
-                                     TRUE, rm_fileAction, rm_dirAction,
-                                     NULL ) == FALSE ) {
-                        exit( FALSE );
-                }
-        }
-        return 1;
-}
-#endif
-
-/* To be implemented*/
 int fop_rm( const int test_type, const char *path,const char *host,const int port )
 {
         if( test_type == TEST_LOCAL )
@@ -83,10 +61,31 @@ int fop_rm( const int test_type, const char *path,const char *host,const int por
 }
 
 
-static int fop_rmRemote( const char *path,const char *host, const int port )
+static int
+fop_rmRemote( const char *path,const char *host, const int port )
 {
-        printf("%s %s %d\n", path, host, port);
-        return 0;
+    char    *cmd=NULL;
+    int     ret = 0, sockfd = -1;
+
+    debug("path(%s) host(%s) port(%d)\n", path, host, port);
+    cmd = (char*)malloc(strlen(path)+8);
+    sockfd = sock_connectTo( host, port);
+    sprintf( cmd, "RMDIR %s", path);
+    sock_sendLine( sockfd, cmd);
+    ret = sock_getStatus( sockfd);
+    if( ret )
+    {   fprintf( stderr,
+                "E: rm: cannot create directory [%s]: %s\n", path, strerror(ret) );
+        shutdown( sockfd, 2);
+        close( sockfd);
+        free( cmd);
+        return false;
+    }
+    debug("rm: Directory [%s] created ok\n", path);
+    free( cmd);
+    shutdown( sockfd, 2);
+    close( sockfd );
+    return true;
 }
 
 static int fop_rmLocal( const char *path )
