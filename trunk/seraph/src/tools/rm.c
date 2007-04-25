@@ -60,12 +60,18 @@ main( int argc, char *argv[] )
     if( !strcmp(tc, "local") )
         test_type = TEST_LOCAL;
     else if( !strcmp(tc, "remote") )
+    {   str_isEnv( SUT_HOST);
+        str_isEnv( SUT_PORT);
+
+        host = getenv( SUT_HOST);
+        port = atoi( getenv(SUT_PORT));
         test_type = TEST_REMOTE;
+    }
     else
         printf( "E: rm: Invalid test type $SUT_TTYPE\n" );
 
-    UNDBG;
     ret = fop_rm( test_type, argv[optind], host, port );
+    UNDBG;
     exit( ret);
 }
 

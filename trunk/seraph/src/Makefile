@@ -4,7 +4,7 @@
 
 TOP=.
 files = str.o fileop.o baseclass.o basedb.o userdb.o testdb.o core.o sut.o sock.o wall.o scan.o debug.o
-TARGETS=lib/libtrpc.a lib/libtbot.a bin/srph  bin/mngrd .tool
+TARGETS=$(TOP)/lib/$(OS)/libtrpc.a $(TOP)/lib/$(OS)/libtbot.a bin/srph  bin/mngrd .tool
 include system.mk
 
 all: $(TARGETS)
@@ -14,15 +14,15 @@ help:
 
 
 
-lib/libtbot.a: $(objs)
+$(TOP)/lib/$(OS)/libtbot.a: $(objs)
 	flex -oscan.c scan.l
-	ar cr ./lib/libtbot.a $(objs)
-	ranlib ./lib/libtbot.a
+	ar cr $(TOP)/lib/$(OS)/libtbot.a $(objs)
+	ranlib $(TOP)/lib/$(OS)/libtbot.a
 
-lib/libtrpc.a:
+$(TOP)/lib/$(OS)/libtrpc.a:
 	make -C rpc
 
-bin/mngrd: lib/libtbot.a
+bin/mngrd: $(TOP)/lib/$(OS)/libtbot.a
 	mkdir -p ./bin/tools
 	$(CC) $(CFLAGS) $(LDFLAGS)  mngrd.c  -o $@
 

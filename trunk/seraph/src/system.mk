@@ -1,3 +1,5 @@
+OS:=$(shell uname -s)
+
 BIN_MODE=755
 DATA_MODE=644
 
@@ -24,7 +26,7 @@ WARN=	-W -Wimplicit -Wreturn-type -Wswitch -Wcomment \
 
 CFLAGS = $(WARN) $(XOPEN_SOURCE) -g -Os -DMACHINES=\"$(MACHINES)\" -DJOBS=\"$(JOBS)\" \
 	-DUSE_DEBUG -DUSERDB=\"$(USERDB)\" -DLIBDIR=\"$(LIBDIR)\" -I$(TOP)/include `pkg-config --cflags glib-2.0`
-LDFLAGS = -lglib-2.0 -Llib -Wl,-whole-archive -ltrpc -ltbot -Wl,-no-whole-archive -lxmlrpc
+LDFLAGS = -lglib-2.0 -L$(TOP)/lib/$(OS) -Wl,-whole-archive -ltrpc -ltbot -Wl,-no-whole-archive -lxmlrpc
 else
 CC = flint
 WARN=

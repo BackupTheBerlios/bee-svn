@@ -29,6 +29,8 @@
 
 #define LINE_SIZE 8191
 
+extern struct config_s cfg;
+
 static int recursiveFlag = 0;
 static int forceFlag = 0;
 
@@ -67,7 +69,7 @@ fop_rmRemote( const char *path,const char *host, const int port )
     char    *cmd=NULL;
     int     ret = 0, sockfd = -1;
 
-    debug("path(%s) host(%s) port(%d)\n", path, host, port);
+    verbose("rmRemote: path(%s) host(%s) port(%d)\n", path, host, port);
     cmd = (char*)malloc(strlen(path)+8);
     sockfd = sock_connectTo( host, port);
     sprintf( cmd, "RMDIR %s", path);
@@ -75,13 +77,13 @@ fop_rmRemote( const char *path,const char *host, const int port )
     ret = sock_getStatus( sockfd);
     if( ret )
     {   fprintf( stderr,
-                "E: rm: cannot create directory [%s]: %s\n", path, strerror(ret) );
+                "E: rm: cannot delete directory [%s]: %s\n", path, strerror(ret) );
         shutdown( sockfd, 2);
         close( sockfd);
         free( cmd);
         return false;
     }
-    debug("rm: Directory [%s] created ok\n", path);
+    verbose("rm: Directory [%s] deleted ok\n", path);
     free( cmd);
     shutdown( sockfd, 2);
     close( sockfd );

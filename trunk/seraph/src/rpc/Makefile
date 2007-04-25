@@ -5,12 +5,12 @@ include $(TOP)/system.mk
 
 ifndef FLINT
 all: $(objs)
-	ar cr ../lib/libtrpc.a $(objs)
-	ranlib ../lib/libtrpc.a
+	ar cr $(TOP)/lib/$(OS)/libtrpc.a $(objs)
+	ranlib $(TOP)/lib/$(OS)/libtrpc.a
 else
 all: $(lobs)
 	flint -oolibtrpc.lob $(lobs)
 endif
 
 clean:
-	rm -rf objs/* ../lib/libtrpc.a *.lob
+	rm -rf objs/* $(TOP)/lib/$(OS)/libtrpc.a *.lob
