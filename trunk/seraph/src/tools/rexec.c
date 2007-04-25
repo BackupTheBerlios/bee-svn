@@ -106,7 +106,7 @@ int main( int argc, char *argv[] )
         UNDBG;
         ret?exit(EXIT_SUCCESS): exit(EXIT_FAILURE);
     } else
-        printf( "E: rexec: Invalid test type\n" );
+        printf( "E: rexec: Invalid test type $SUT_TTYPE\n" );
     UNDBG;
     exit(EXIT_FAILURE);
 }
@@ -137,14 +137,15 @@ rexec_parseArgs( int argc, char *argv[] )
     {   switch ( c ) {
             case 't':
                 if( !strcasecmp( optarg, "remote" )
-                        || ( !strcasecmp( optarg, "local" ) ) )
-                    setenv( "axi_ttype", optarg, 1 );
+                || (!strcasecmp( optarg, "local" ))
+                  )
+                    setenv( SUT_TTYPE, optarg, 1 );
                 break;
             case 'H':
-                setenv( "axi_host", optarg, 1 );
+                setenv( SUT_HOST, optarg, 1 );
                 break;
             case 'P':
-                setenv( "axi_port", optarg, 1 );
+                setenv( SUT_PORT, optarg, 1 );
                 break;
             case 'h':
                 UNDBG;

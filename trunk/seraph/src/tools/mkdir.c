@@ -75,18 +75,19 @@ main( int argc, char *argv[] )
 
     DBG("mkdir.debug");
     mkdir_parseArgs( argc, argv );
-    debug("1\n");
     str_isEnv( SUT_TTYPE );
-    debug("2\n");
     tc = getenv( SUT_TTYPE );
 
     if( !strcmp(tc, "local") )
-    {   char *cmd = (char*)malloc( strlen(argv[optind]) + 8);
-        sprintf( cmd, "mkdir %s", argv[optind]);
-        ret = system( cmd);
-        free( cmd);
+    {   if(mkdir( argv[optind], 0755))
+        {   printf("E: mkdir: cannot create directory [%s]: %s\n",
+                    argv[optind], strerror(errno) );
+            UNDBG;
+            exit(EXIT_FAILURE);
+        }
+        verbose( "mkdir: [%s] created\n", argv[optind]);
         UNDBG;
-        exit( ret);
+        exit( EXIT_SUCCESS);
     } else if( !strcmp(tc, "remote") )
     {   str_isEnv( SUT_HOST);
         str_isEnv( SUT_PORT);
@@ -96,7 +97,7 @@ main( int argc, char *argv[] )
         UNDBG;
         ret? exit(EXIT_SUCCESS): exit(EXIT_FAILURE);
     } else
-        printf( "E: mkdir: Invalid $axi_ttype\n" );
+        printf( "E: mkdir: Invalid test type $SUT_TTYPE\n" );
     UNDBG;
     exit(EXIT_FAILURE);
 }
