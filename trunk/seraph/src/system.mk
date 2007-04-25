@@ -34,6 +34,10 @@ CFLAGS = -I$(TOP)/include `pkg-config --cflags glib-2.0`
 LDFLAGS =
 endif
 
+ifeq ($(OS),NetBSD)
+LDFLAGS +=-L/usr/pkg/lib
+endif 
+
 objs=$(addprefix ./objs/,$(files))
 
 ./objs/%.o: %.c

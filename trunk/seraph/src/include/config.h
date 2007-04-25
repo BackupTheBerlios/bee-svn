@@ -24,7 +24,7 @@
 #include <ctype.h>
 #include <limits.h>
 #include <stdbool.h>
-#include <linux/limits.h>
+#include <limits.h>
 #include <signal.h>
 
 #include "debug.h"

@@ -21,7 +21,7 @@
  *   \brief  execute a given parameter, either on local machine, or remote
  */
 #include <stdlib.h>
-#include <wait.h>
+#include <sys/wait.h>
 #include <strings.h>
 #include <unistd.h>
 #include "config.h"

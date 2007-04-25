@@ -473,10 +473,10 @@ static int sut_sutRefresh( int refresh, const char *bat_file )
         }
     }
 
-    cod = sut_parseBat( bat_file );
+    /*cod = sut_parseBat( bat_file );
     if( cod == OPT_NO )
         return 0;
-
+    */
     /* We excluded all NO's, so we're left with the yes. */
     /* Try to restore the default ptgen state --groleo */
     debug("refresh\n");
