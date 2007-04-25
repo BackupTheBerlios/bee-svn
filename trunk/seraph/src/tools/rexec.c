@@ -82,9 +82,11 @@ int main( int argc, char *argv[] )
         exit( EXIT_FAILURE);
     }
 
+    DBG("rexec.debug");
     rexec_parseArgs( argc, argv );
     if( signal( SIGINT, sut_sigint ) == SIG_ERR )
     {   perror( "E: rexec: Signal error!" );
+        UNDBG;
         exit( EXIT_FAILURE);
     }
 
@@ -93,6 +95,7 @@ int main( int argc, char *argv[] )
 
     if( !strcasecmp(ttype, "local") )
     {   ret = system( argv[optind] );
+        UNDBG;
         exit( WEXITSTATUS( ret ) );
     } else if( !strcasecmp( ttype, "remote" ) )
     {   str_isEnv( SUT_HOST );
@@ -100,9 +103,11 @@ int main( int argc, char *argv[] )
         host = getenv( SUT_HOST );
         port = atoi( getenv( SUT_PORT ) );
         ret  = rexec_remote( host, port, argv[optind] );
+        UNDBG;
         ret?exit(EXIT_SUCCESS): exit(EXIT_FAILURE);
     } else
         printf( "E: rexec: Invalid test type\n" );
+    UNDBG;
     exit(EXIT_FAILURE);
 }
 

@@ -40,6 +40,7 @@ main( int argc, char *argv[] )
     int     test_type = TEST_LOCAL;
     int     ret;
 
+    DBG("refresh.debug");
     rc_parseArgs( argc, argv );
     str_isEnv( SUT_TTYPE );
     str_isEnv( SUT_STOP );
@@ -58,6 +59,7 @@ main( int argc, char *argv[] )
         cfg.port = atoi( getenv(SUT_PORT) );
     } else
     {   printf( "E: refresh : Invalid test type $SUT_TTYPE\n" );
+        UNDBG;
         exit(EXIT_FAILURE);
     }
 
@@ -65,6 +67,7 @@ main( int argc, char *argv[] )
     sut_refresh( test_type, getenv( SUT_DEFDOM ),
             getenv( SUT_WORKDIR ), cfg.hostname, cfg.port );
     ret = system( getenv(SUT_START) );
+    UNDBG;
     exit( ret);
 }
 

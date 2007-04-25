@@ -35,10 +35,10 @@ main( int argc, char *argv[] )
 {
     char    *tc=NULL;
     char    *host=NULL;
-    int port=0, test_type=TEST_LOCAL;
+    int     port=0, test_type=TEST_LOCAL;
 
     if( argc < 2 )
-    {       printf( "! rm: missing file operand\n" );
+    {   printf( "! rm: missing file operand\n" );
         printf( "Try `rm -h` for more information.\n" );
         return 1;
     }
@@ -64,7 +64,6 @@ main( int argc, char *argv[] )
 
 void rm_usage( int status )
 {
-
     printf( "Usage: rm [OPTION] FILE...\n" );
     printf( "Remove (unlink) the FILE(s).\n" );
     printf( "\n" );
@@ -80,9 +79,9 @@ void rm_usage( int status )
 
 static int rm_parseArgs( int argc, char *argv[] )
 {
-    int c;
-    while( ( c = getopt( argc, argv, "t:H:P:hv" ) ) != -1 ) {
-        switch ( c ) {
+    int     c;
+    while( ( c = getopt( argc, argv, "t:H:P:hv" ) ) != -1 )
+    {   switch ( c ) {
             case 't':
                 if( !strcasecmp( optarg, "remote" )
                         || ( !strcasecmp( optarg, "local" ) ) )
@@ -97,9 +96,9 @@ static int rm_parseArgs( int argc, char *argv[] )
             case 'h':
                 rm_usage( EXIT_SUCCESS );
             case 'v':
-                cfg.verbose = TRUE;
+                cfg.verbose = true;
                 break;
         }
     }
-    return TRUE;
+    return true;
 }
