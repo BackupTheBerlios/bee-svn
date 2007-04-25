@@ -20,8 +20,8 @@
 /** @file  Debug.cpp
  *  @brief Usefull in debugging. */
 #include "debug.h"
-#include <stdio.h>  //printf, fprintf
-#include <stdarg.h> //va_list
+#include <stdio.h>  /*printf, fprintf*/
+#include <stdarg.h> /*va_list*/
 
 
 char* useDebug_g=(char*)1 ;    //!< Decide if debug() will be called. Set by DBG_ENV. @see DBG_ENV
