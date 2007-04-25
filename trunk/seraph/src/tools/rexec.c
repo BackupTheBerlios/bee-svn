@@ -147,6 +147,7 @@ rexec_parseArgs( int argc, char *argv[] )
                 setenv( "axi_port", optarg, 1 );
                 break;
             case 'h':
+                UNDBG;
                 rexec_usage( EXIT_SUCCESS );
                 break;
             case 'v':

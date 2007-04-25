@@ -110,6 +110,7 @@ static bool rc_parseArgs( int argc, char *argv[] )
                 cfg.port = atoi( optarg );
                 break;
             case 'h':
+                UNDBG;
                 rc_usage( EXIT_SUCCESS );
             case 'v':
                 cfg.verbose = true;

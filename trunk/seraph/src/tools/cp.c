@@ -183,6 +183,7 @@ cp_parseArgs( int argc, char *argv[] )
                 setenv( SUT_PORT, optarg, 1 );
                 break;
             case 'h':
+                UNDBG;
                 cp_usage( );
             case 'v':
                 cfg.verbose = true;

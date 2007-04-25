@@ -138,6 +138,7 @@ mkdir_parseArgs( int argc, char *argv[] )
                 setenv( SUT_PORT, optarg, 1 );
                 break;
             case 'h':
+                UNDBG;
                 mkdir_usage( );
                 break;
             case 'v':
