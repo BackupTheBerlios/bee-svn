@@ -40,7 +40,7 @@ static bool
 rexec_remote( char *host, int port, char *c )
 {
     int     ret, sockfd;
-    char    cmd[LINE_MAX] = { 0 };
+    char    *cmd=NULL;
 
     cmd = (char*)malloc( strlen(c) + 10);
     sockfd = sock_connectTo( host, port );
