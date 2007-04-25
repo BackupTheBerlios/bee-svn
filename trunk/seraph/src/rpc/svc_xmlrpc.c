@@ -455,8 +455,8 @@ XMLRPC_VALUE
 x_getErrorLogCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request,
         void *userData )
 {
-    char    *b64;
-    b64 = userdb_getErrorLog();
+    char    *b64, *log;
+    b64 = userdb_getErrorLog("user1", 2, log);
     free(b64);
     return XMLRPC_CreateValueBase64();
 }
