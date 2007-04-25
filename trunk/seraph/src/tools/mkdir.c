@@ -46,12 +46,13 @@ client_mkdir( char *host, int port, char *path )
     ret = sock_getStatus( sockfd);
     if( ret )
     {   fprintf( stderr,
-                "E: mkdir: Could not create directory [%s]: %s\n", path, strerror(ret) );
+                "E: mkdir: cannot create directory [%s]: %s\n", path, strerror(ret) );
         shutdown( sockfd, 2);
         close( sockfd);
         free( cmd);
         return false;
     }
+    verbose("mkdir: Directory [%s] created ok\n", path);
     free( cmd);
     shutdown( sockfd, 2);
     close( sockfd );
@@ -65,7 +66,7 @@ main( int argc, char *argv[] )
 {
     char    *tc=NULL, *host=NULL;
     int     port=0;
-    bool    ret;
+    bool    ret=false;
 
     if( argc < 2 )
     {   printf( "E: mkdir: missing operand\n" );
@@ -93,7 +94,8 @@ main( int argc, char *argv[] )
         str_isEnv( SUT_PORT);
         host = getenv( SUT_HOST);
         port = atoi( getenv(SUT_PORT) );
-        ret = client_mkdir( host, port, argv[optind]);
+        if(argv[optind])
+            ret = client_mkdir( host, port, argv[optind]);
         UNDBG;
         ret? exit(EXIT_SUCCESS): exit(EXIT_FAILURE);
     } else

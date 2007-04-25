@@ -15,7 +15,7 @@ extern char* useDebug_g ;
 extern FILE* logHandle ;
 
 #define verbose(...)\
-if(cfg.verbose == true) printf("I:"), printf(__VA_ARGS__);
+if(cfg.verbose == true) printf("I: "), printf(__VA_ARGS__);
 
 #ifndef debug
     #define debug(...) _debug( __FUNCTION__, __LINE__, __FILE__,__VA_ARGS__)
