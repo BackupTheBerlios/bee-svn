@@ -50,7 +50,7 @@ sndfile( int sock, char *src_file )
         return false;
     }
 
-    while( (r = read( f, buff, BUFF_SZ)) != -1 )
+    while( (r = read( f, buff, BUFF_SZ)) >0 )
     {   t = 0;
         while( t < r )
         {   if( ( w = write( sock, buff + t, r - t ) ) < 0 )
@@ -59,6 +59,7 @@ sndfile( int sock, char *src_file )
                         src_file, strerror( errno ) );
             }
             t += w;
+            debug("left to write:%d\n", r-t);
         }
     }
     close( f );

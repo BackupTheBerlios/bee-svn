@@ -64,7 +64,12 @@ int main( int argc, char *argv[] )
 
     /* Start xmlrpc */
     if( cfg.start_xmlrpc) {
-        start_xmlrpc(cfg.port);
+        start_xmlrpc(cfg.xmlport);
+        UNDBG;
+        return 0;
+    }
+    if( cfg.start_rawrpc) {
+        start_rawrpc(cfg.rawport);
         UNDBG;
         return 0;
     }
@@ -105,7 +110,7 @@ int mngrd_parseArgs( struct config_s *cfg, int argc, char *argv[] )
                 break;
             case 'X':
                 cfg->start_xmlrpc = true;
-                cfg->port = atoi( optarg );
+                cfg->xmlport = atoi( optarg );
                 break;
                 case 'J':
                     cfg->start_jabber = true ;
@@ -116,7 +121,7 @@ int mngrd_parseArgs( struct config_s *cfg, int argc, char *argv[] )
                 break;
             case 'R':
                 cfg->start_rawrpc = true;
-                cfg->port = atoi( optarg );
+                cfg->rawport = atoi( optarg );
                 break;
             case 'd':
                 cfg->test_dir = optarg;
@@ -140,7 +145,8 @@ int mngrd_initCfg( struct config_s *c, int argc, char *argv[] )
     c->argv = argv;
     c->argc = argc;
     c->test_dir = NULL;
-    c->port = 0;
+    c->rawport = 0;
+    c->xmlport = 0;
     c->hostname = "localhost";
     c->start_rawrpc = false ;
     c->start_xmlrpc = false ;

@@ -56,7 +56,7 @@ main( int argc, char *argv[] )
         str_isEnv( SUT_PORT );
         test_type = TEST_REMOTE;
         cfg.hostname = getenv( SUT_HOST );
-        cfg.port = atoi( getenv(SUT_PORT) );
+        cfg.rawport = atoi( getenv(SUT_PORT) );
     } else
     {   printf( "E: refresh : Invalid test type $SUT_TTYPE\n" );
         UNDBG;
@@ -65,7 +65,7 @@ main( int argc, char *argv[] )
 
     system( getenv(SUT_STOP) );
     sut_refresh( test_type, getenv( SUT_DEFDOM ),
-            getenv( SUT_WORKDIR ), cfg.hostname, cfg.port );
+            getenv( SUT_WORKDIR ), cfg.hostname, cfg.rawport );
     ret = system( getenv(SUT_START) );
     UNDBG;
     exit( ret);
@@ -107,7 +107,7 @@ static bool rc_parseArgs( int argc, char *argv[] )
                 break;
             case 'P':
                 setenv( SUT_PORT, optarg, 1 );
-                cfg.port = atoi( optarg );
+                cfg.rawport = atoi( optarg );
                 break;
             case 'h':
                 UNDBG;

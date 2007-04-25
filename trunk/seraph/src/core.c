@@ -99,7 +99,7 @@ core_checkCoreRemote( const char *core_srcDir, const char *dbg_srcDir,
     int rc = 0;
     int sock;
 
-    sock = sock_connectTo( cfg.hostname, cfg.port );
+    sock = sock_connectTo( cfg.hostname, cfg.rawport );
     sprintf( cmd, "CHECKCORE %s %s %s %s %s",
             core_srcDir, dbg_srcDir, axi_workDir,
             axi_cfgFile, crash_destDir );

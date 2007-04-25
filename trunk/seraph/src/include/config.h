@@ -69,7 +69,8 @@ struct config_s {
     char**  argv ;
     int     argc ;
     int     refresh ;
-    int     port ;
+    int     rawport ;
+    int     xmlport ;
     char    tmp_dir[FILENAME_MAX];
     char    cur_dir[FILENAME_MAX];      /* retine directorul curent, inainte k sa il schimb in /tmp/pid*/
     char    cur_test[FILENAME_MAX];

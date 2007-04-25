@@ -59,7 +59,7 @@ main( int argc, char *argv[] )
         str_isEnv( SUT_PORT );
 
         cfg.hostname = getenv( SUT_HOST );
-        cfg.port = atoi( getenv( SUT_PORT ) );
+        cfg.rawport = atoi( getenv( SUT_PORT ) );
         test_type = TEST_REMOTE;
     } else {
         printf( "E: stop : Invalid test type $SUT_TTYPE\n" );
@@ -67,7 +67,7 @@ main( int argc, char *argv[] )
         exit( EXIT_FAILURE);
     }
     ret = sut_stop( test_type, 5, getenv( SUT_SYSLOG ), stop_cmd, cfg.hostname,
-            cfg.port );
+            cfg.rawport );
     UNDBG;
     exit( ret);
 }
@@ -111,7 +111,7 @@ rc_parseArgs( int argc, char *argv[] )
                 break;
             case 'P':
                 setenv( SUT_PORT, optarg, 1 );
-                cfg.port = atoi( optarg );
+                cfg.rawport = atoi( optarg );
                 break;
             case 'c':
                 stop_cmd = optarg;

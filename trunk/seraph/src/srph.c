@@ -155,10 +155,6 @@ int srph_parseArgs( struct config_s *cfg, int argc, char *argv[] )
                 printf("%s\n", optarg);
                 cfg->config_file = optarg;
                 break;
-            case 'X':
-                cfg->start_xmlrpc = true;
-                cfg->port = atoi( optarg );
-                break;
             case 'R':
                 cfg->start_rawrpc = true;
                 break;
@@ -167,7 +163,7 @@ int srph_parseArgs( struct config_s *cfg, int argc, char *argv[] )
                 setenv( SUT_HOST, optarg, 1 );
                 break;
             case 'P':
-                cfg->port = atoi( optarg );     /* FIXME: invalid param */
+                cfg->rawport = atoi( optarg );     /* FIXME: invalid param */
                 setenv( SUT_PORT, optarg, 1 );
                 break;
             case 'd':
@@ -195,14 +191,11 @@ int srph_parseArgs( struct config_s *cfg, int argc, char *argv[] )
                 exit( EXIT_SUCCESS );
                 break;
             case 'V':
-                cfg->verbose = TRUE;
-                break;
-            case 'D':
-                cfg->behaviour = TB_BE_DAEMON;
+                cfg->verbose = true;
                 break;
         }
     }
-    return TRUE;
+    return true;
 }
 
 
@@ -254,7 +247,7 @@ int srph_free( struct config_s *config )
 
 int srph_initCfg( struct config_s *config, int argc, char *argv[] )
 {
-    config->port = 0;
+    config->rawport = 0;
     config->test_type = TEST_UNSET; /* 0:not set. 1:local 2:remote */
     config->test_dir = NULL;
     config->hostname = "localhost";
