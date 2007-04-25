@@ -97,12 +97,19 @@ copy_remote( char *host, int port, char *src_file, char *dest_dir )
     }
 
     ret = sock_getStatus( sockfd );
-    if( !ret )
+    if( ret==-1 )
     {   fprintf( stderr,"E: cp: Didn't Received command[cp] confirmation!\n" );
         shutdown( sockfd, 2);
         close( sockfd );
         return false ;
     }
+    if(ret)
+    {   fprintf( stderr,"E: cp: Error while copying [%s]!\n", strerror(ret) );
+        shutdown( sockfd, 2);
+        close( sockfd );
+        return false ;
+    }
+    verbose("cp: file [%s] copied ok\n", src_file);
     shutdown( sockfd, 2);
     close(sockfd);
     return true;

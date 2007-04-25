@@ -125,8 +125,9 @@ int t_copyCallback( int sock, char *buf )
                 sock_sendStatus( sock, errno );
                 return errno;
         }
-        while( len > 0 && ( bw = read( sock, buff, PATH_MAX - 1 ) ) ) {
-                int ret = write( f, buff, bw < len ? bw : len );
+        while( len > 0 && ( bw = read( sock, buff, PATH_MAX - 1 ) ) )
+        {       int ret = write( f, buff, bw < len ? bw : len );
+                debug("len(%d) bw(%d)\n", len, bw);
                 if( bw < 0 ) {
                         perror( "Transmission error" );
                         close( f );

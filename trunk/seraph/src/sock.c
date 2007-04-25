@@ -79,6 +79,7 @@ int sock_sendStatus( const int sock, const int cod )
         char str[PATH_MAX] = { 0 };
         ssize_t t = 0;
 
+        debug("cod(%d)\n", cod);
         if( !cod ) {
                 sprintf( str, "O:\r\n" );
         } else {
@@ -95,14 +96,16 @@ int sock_sendStatus( const int sock, const int cod )
 
 int sock_getStatus( const int sock )
 {
-        char buf[PATH_MAX + 1] = { 0 };
-        int status = 0;
-        read( sock, buf, PATH_MAX );
-        if( buf[0] == 'O' )
-                return 0;
-        if( buf[0] == 'E' )
-                sscanf( buf, "E:%d\r\n", &status );
-        return status;
+    char buf[PATH_MAX + 1] = { 0 };
+    int status = 0;
+    if( read( sock, buf, PATH_MAX ) ==-1)
+        return -1;
+
+    if( buf[0] == 'O' )
+        return 0;
+    if( buf[0] == 'E' )
+        sscanf( buf, "E:%d\r\n", &status );
+    return status;
 }
 
 int sock_sendLine( const int sock, const char *line )
