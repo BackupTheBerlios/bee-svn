@@ -55,7 +55,7 @@ static int onLineParsed(const char *name, const char *value, void* arg)
 
 int main( int argc, char *argv[] )
 {
-    DBG("seraph.debug");
+    DBG("srph.debug");
 
     if( argc == 1 )
         srph_usage( EXIT_FAILURE );
@@ -82,12 +82,12 @@ int main( int argc, char *argv[] )
     }
 
     if( cfg.test_type == TEST_LOCAL ) {
-        verbose( "* seraph: Tests will be done LOCALLY.\n" );
+        dbg_verbose( "* seraph: Tests will be done LOCALLY.\n" );
     }
     if( cfg.test_type == TEST_REMOTE ) {
         str_isEnv( SUT_HOST );
         str_isEnv( SUT_PORT );
-        verbose( "* seraph: Tests will be done REMOTE.\n" );
+        dbg_verbose( "* seraph: Tests will be done REMOTE.\n" );
     }
     core_runTests( cfg.test_dir );
     srph_free( &cfg );
@@ -98,14 +98,10 @@ int main( int argc, char *argv[] )
 void srph_usage( int status )
 {
     printf( "Usage: seraph [<options> ...]\n\n" );
-    printf( "  -D|--daemon                      Act as daemon.\n" );
-    printf( "  -R|--rawrpc                      Start RAWRPC service.\n" );
     printf( "  -H|--host <name>                 Host on which RAWRPC runs.\n" );
     printf( "  -P|--port <number>               Port on which RAWRPC listens.\n" );
     printf( "  -I|--ignore <name>               Ignore tests in directory 'name'\n" );
     printf( "  -d|--directory <name>            Run only the tests in directory 'name'\n" );
-    printf( "  -J|--jabber                      Start Jabber remote control service.\n" );
-    printf( "  -U|--jabberuser                  \n" );
     printf( "  -M|--mail <name(s)>              Whom to mail the results to\n" );
     printf( "  -S|--setup <machine>             Install seraph on <machine>\n\t\tEx:machine openbsd#user@192.168.x.y:/home/userX/seraph\n" );
     printf( "  -T|--timeout <number>            Timeout until child is killed\n" );
@@ -124,8 +120,8 @@ void srph_usage( int status )
 
 int srph_parseArgs( struct config_s *cfg, int argc, char *argv[] )
 {
-    int c;
-    while( ( c = getopt( argc, argv, "DRX:C:S:t:T:H:P:d:r:hvVk" ) ) != -1 ) {
+    int     c;
+    while( ( c = getopt( argc, argv, "C:S:t:T:H:P:d:r:hvVk" ) ) != -1 ) {
         switch ( c ) {
             case 'h':
                 srph_usage( EXIT_SUCCESS );
@@ -152,7 +148,7 @@ int srph_parseArgs( struct config_s *cfg, int argc, char *argv[] )
                 cfg->machine = optarg;
                 break;
             case 'C':
-                printf("%s\n", optarg);
+                printf("using [%s] as config\n", optarg);
                 cfg->config_file = optarg;
                 break;
             case 'R':
@@ -233,6 +229,8 @@ int srph_initEnv( struct config_s *config )
     config->axi_coreDir = getenv( SUT_COREDIR );
     config->axi_dbgDir = getenv( SUT_DBGDIR );
     config->axi_syslog = getenv( SUT_SYSLOG );
+    config->rawport = getenv(SUT_PORT)!=NULL?atoi(getenv(SUT_PORT)):0;
+    config->hostname = getenv(SUT_HOST)!=NULL?getenv(SUT_HOST):"localhost";
     return 0;
 }
 
@@ -247,10 +245,8 @@ int srph_free( struct config_s *config )
 
 int srph_initCfg( struct config_s *config, int argc, char *argv[] )
 {
-    config->rawport = 0;
     config->test_type = TEST_UNSET; /* 0:not set. 1:local 2:remote */
     config->test_dir = NULL;
-    config->hostname = "localhost";
     config->argv = argv;
     config->argc = argc;
     config->axi_syslog = "/var/log/maillog";
@@ -282,14 +278,14 @@ static int srph_checkTools( const char *tools_path )
     int i, rc;
 
     if( !tools_path ) {
-        debug("Using default path to the tools");
+        dbg_verbose("Using default path to the tools");
         tools_path = LIBDIR ;
     }
     for( i = 0; i < NB_TOOLS; ++i ) {
         sprintf( buf, "%s/%s", tools_path, tools[i] );
         rc = stat( buf, &s );
         if( rc == -1 ) {
-            debug( "Can't find tool [%s/%s] : [%s]\n",
+            dbg_error( "Can't find tool [%s/%s] : [%s]\n",
                     tools_path, tools[i], strerror( errno ) );
             exit( EXIT_FAILURE );
         }

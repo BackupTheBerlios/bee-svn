@@ -43,7 +43,7 @@ SPACE    [ \t\n]+
     /* variables will be expanded inside takeAction function pointer */
     /*val = sut_expandVars(p1);*/
     val = p1;
-    verbose("export '%s'='%s'\n", yytext, val);
+    dbg_verbose("export '%s'='%s'\n", yytext, val);
     cfg.takeAction( yytext, val, onLineParsedArg );
 }
 

@@ -36,10 +36,10 @@ endif
 
 ifeq ($(OS),NetBSD)
 LDFLAGS +=-L/usr/pkg/lib
-endif 
+endif
 
-objs=$(addprefix ./objs/,$(files))
+objs=$(addprefix objs/,$(files))
 
-./objs/%.o: %.c
+objs/%.o: %.c
 	$(CC) -c $(CFLAGS) $(WARN) $< -o $@
 

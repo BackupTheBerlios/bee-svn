@@ -19,7 +19,7 @@ start_xmlrpc(const unsigned int port)
     pid_t pid=-1, sid=-1;
 
     if( (port == 0U) || (port > 65535U) ) {
-        debug( "Cant bind port: %u : Illegal value.\n", port );
+        dbg_error( "xmlrpc: Cant bind port: %u : Illegal value.\n", port );
         return -1;
     }
 
@@ -97,7 +97,7 @@ static int callback_socket( int portno )
 
     sockfd = socket( AF_INET, SOCK_STREAM, 0 );
     if( sockfd < 0 )
-    {  debug( "ERR: opening socket: %s\n", strerror( errno ) );
+    {   dbg_error( "xmlrpc: opening socket: %s\n", strerror( errno ) );
         return 1;
     }
     memset( ( char * )&serv_addr, '\0', sizeof( serv_addr ) );
@@ -107,12 +107,12 @@ static int callback_socket( int portno )
     serv_addr.sin_port = htons( portno );
     if( bind( sockfd, ( struct sockaddr * )&serv_addr, sizeof( serv_addr ) )
             < 0 )
-    {   debug( "ERR on binding: %s\n", strerror(errno) );
+    {   dbg_error( "xmlrpc: Can't bind socket: %s\n", strerror(errno) );
         return 1;
     }
     cod = listen( sockfd, 5 );
     if( cod < 0 )
-    {   debug( "ERR on listen %s\n", strerror(errno) );
+    {   dbg_error( "xmlrpc: Can't listen %s\n", strerror(errno) );
         return 1;
     }
     printf( "Running on port:%d\n", portno );
@@ -124,7 +124,7 @@ static int callback_socket( int portno )
     {   int newsockfd=0;
         newsockfd = accept( sockfd, ( struct sockaddr * )&cli_addr, &clilen );
         if( newsockfd < 0 )
-        {   debug( "rsh: ERR on accept\n" );
+        {   dbg_error( "accept[%s]\n", strerror(errno) );
             running=0;
             break;
         }

@@ -69,7 +69,7 @@ fop_rmRemote( const char *path,const char *host, const int port )
     char    *cmd=NULL;
     int     ret = 0, sockfd = -1;
 
-    verbose("rmRemote: path(%s) host(%s) port(%d)\n", path, host, port);
+    dbg_verbose("rmRemote: path(%s) host(%s) port(%d)\n", path, host, port);
     cmd = (char*)malloc(strlen(path)+8);
     sockfd = sock_connectTo( host, port);
     sprintf( cmd, "RMDIR %s", path);
@@ -83,7 +83,7 @@ fop_rmRemote( const char *path,const char *host, const int port )
         free( cmd);
         return false;
     }
-    verbose("rm: Directory [%s] deleted ok\n", path);
+    dbg_verbose("rm: Directory [%s] deleted ok\n", path);
     free( cmd);
     shutdown( sockfd, 2);
     close( sockfd );
@@ -238,7 +238,6 @@ recursiveAction( const char *fileName,
 static int
 rm_fileAction( const char *fileName, struct stat *statbuf, void *junk )
 {
-        debug("%p %p\n", (void*)statbuf, (void*)junk);
         if( unlink( fileName ) < 0 ) {
                 perror( fileName );
                 return ( FALSE );

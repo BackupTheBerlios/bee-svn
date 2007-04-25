@@ -51,10 +51,10 @@ int str_isEnv( char *var_name )
         if( !var_name )
                 return FALSE;
         if( !getenv( var_name ) ) {
-                verbose( "$%s not exported.\n", var_name );
+                dbg_verbose( "$%s not exported.\n", var_name );
                 exit( -1 );
         }
-        verbose( "$%s=%s\n", var_name, getenv( var_name ) );
+        dbg_verbose( "$%s=%s\n", var_name, getenv( var_name ) );
         return 0;
 }
 

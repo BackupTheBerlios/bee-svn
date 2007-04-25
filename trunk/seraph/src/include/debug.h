@@ -14,7 +14,12 @@
 extern char* useDebug_g ;
 extern FILE* logHandle ;
 
-#define verbose(...)\
+
+#define dbg_error(...)\
+fprintf( stderr, "E: "), fprintf(stderr, __VA_ARGS__);
+
+
+#define dbg_verbose(...)\
 if(cfg.verbose == true) printf("I: "), printf(__VA_ARGS__);
 
 #ifndef debug

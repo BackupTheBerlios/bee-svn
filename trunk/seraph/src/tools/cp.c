@@ -109,7 +109,7 @@ copy_remote( char *host, int port, char *src_file, char *dest_dir )
         close( sockfd );
         return false ;
     }
-    verbose("cp: file [%s] copied ok\n", src_file);
+    dbg_verbose("cp: file [%s] copied ok\n", src_file);
     shutdown( sockfd, 2);
     close(sockfd);
     return true;

@@ -105,7 +105,7 @@ class Index {
     {
         echo " List of Jobs:(Opens log on click)<br>";
         /*-------------------------------------------*/
-        $state = "job_pending";
+        $state = "job_running";
 
         $req = new XML_RPC_Value( array(
                             "sut_username" => new XML_RPC_Value( "user1",'string'),
@@ -120,13 +120,14 @@ class Index {
         echo "NbJobs:$i<br>";
 
         while($i--) {
-        echo "<div class='$state'>";
-        echo "<a href='http://google.com'>";
+            $log = XML_RPC_decode($resp->value()->arraymem($i));
+            echo "<div class='$state'>";
+            echo "<a href='view.php?log=$log'>";
             echo "<span>1000</span>";
             echo "<span><b >$state</b></span>";
-            echo "<span>".XML_RPC_decode($resp->value()->arraymem($i)) ."</span>";
-        echo "</a>";
-        echo "</div>";
+            echo "<span>$log</span>";
+            echo "</a>";
+            echo "</div>";
         }
         /*---------------------------------------------*/
         /*

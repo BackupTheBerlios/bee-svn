@@ -133,6 +133,16 @@ int mngrd_parseArgs( struct config_s *cfg, int argc, char *argv[] )
             case 'V':
                 cfg->verbose = TRUE;
                 break;
+            case '?':
+                if (isprint (optopt))
+                    {dbg_error("Unknown option `-%c'.\n", optopt);}
+                else
+                    dbg_error("Unknown option character `\\x%x'.\n", optopt);
+                mngrd_usage( EXIT_FAILURE);
+                break;
+           default:
+                mngrd_usage( EXIT_FAILURE);
+                break;
         }
     }
     return TRUE;
@@ -161,7 +171,7 @@ int mngrd_initCfg( struct config_s *c, int argc, char *argv[] )
     c->behaviour = TB_BE_TESTER;
     getcwd( c->seraph_path, FILENAME_MAX );
     if( !getcwd( c->tmp_dir, FILENAME_MAX ) ) {
-        debug( "! seraph: Can't get current directory: %s",strerror(errno) );
+        dbg_error( "seraph: Can't get current directory: %s",strerror(errno) );
         exit(EXIT_FAILURE);
     }
     return 0;

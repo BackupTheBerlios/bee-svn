@@ -54,10 +54,10 @@ void sig_handler( int sig )
     switch ( sig ) {
         case SIGCHLD:
             while( waitpid( -1, &status, WNOHANG ) > 0 )
-                if( WEXITSTATUS( status ) == 69 )
+                if(  WIFEXITED(status) && (WEXITSTATUS( status ) == 69) )
                     printf( "* seraph: PASS\n" );
                 else
-                    printf( "* seraph: FAIL [%d]\n", status );
+                    printf( "* seraph: FAIL [%d]\n", WEXITSTATUS(status) );
             break;
         case SIGALRM:
             fprintf( stderr, "timeout\n" );
@@ -258,7 +258,7 @@ static int core_runBat( const char *bat_name, int timeout )
     struct sigaction act;
     printf( "\n\n" );
     printf( "*-------------------------.\n" );
-    printf( "* seraph: Running script : [%s]\n", bat_name );
+    printf( "* seraph: Running script  : [%s]\n", bat_name );
     printf( "*-------------------------'\n" );
 
     act.sa_handler = sig_handler;
@@ -268,11 +268,11 @@ static int core_runBat( const char *bat_name, int timeout )
     if( ( pid = fork(  ) ) == 0 ) {
         int rc = 0;
         rc = system( bat_name );
-        exit( rc );
+        exit( WEXITSTATUS(rc) );
     } else if( pid > 0 ) {
         while( 1 ) {
             sleep( cfg.script_tout );
-            if( waitpid( -1, &hasAlarm, WNOHANG ) )
+            if( waitpid( pid, &hasAlarm, WNOHANG ) )
                 break;
             if( cfg.allways_kill ) {
                 kill( pid, 9 );
@@ -384,7 +384,7 @@ static int core_setupTmp( char const *source_bat, char *tmpDir )
                 tmpDir, strerror( errno ) );
         exit( EXIT_FAILURE );
     }
-    verbose("Copying [%s] to [%s]\n", s, tmpDir );
+    dbg_verbose("Copying [%s] to [%s]\n", s, tmpDir );
     sprintf( cmd, "/bin/cp -R %s/* %s/", dirname( s ), tmpDir );
 
     status = system( cmd );
@@ -594,7 +594,7 @@ int core_runTests( const char *dir )
         printf( "! seraph: The directory [%s] doesn't exist.\n", dir );
         return 0;
     }
-    debug("Running tests\n");
+    dbg_verbose("Running tests from [%s]\n", dir);
     getcwd( curDir, FILENAME_MAX );
     if( -1 == chdir( dir ) ) {
         fprintf( stderr, "! seraph: Can't change to [%s] : [%s]\n",

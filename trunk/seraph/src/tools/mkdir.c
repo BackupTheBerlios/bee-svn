@@ -52,7 +52,7 @@ mkdir_remote( char *host, int port, char *path )
         free( cmd);
         return false;
     }
-    verbose("mkdir: Directory [%s] created ok\n", path);
+    dbg_verbose("mkdir: Directory [%s] created ok\n", path);
     free( cmd);
     shutdown( sockfd, 2);
     close( sockfd );
@@ -86,7 +86,7 @@ main( int argc, char *argv[] )
             UNDBG;
             exit(EXIT_FAILURE);
         }
-        verbose( "mkdir: [%s] created\n", argv[optind]);
+        dbg_verbose( "mkdir: [%s] created\n", argv[optind]);
         UNDBG;
         exit( EXIT_SUCCESS);
     } else if( !strcmp(tc, "remote") )
