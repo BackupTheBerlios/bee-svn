@@ -21,12 +21,12 @@ extern struct config_s cfg;
 int running ;
 static bool
 core_checkCoreRemote( const char *core_srcDir, const char *dbg_srcDir,
-		     const char *axi_workDir, const char *axi_cfgFile,
-		     const char *crash_destDir );
+                      const char *axi_workDir, const char *axi_cfgFile,
+                      const char *crash_destDir );
 static bool
 core_checkCoreLocal( const char *core_srcDir, const char *dbg_srcDir,
-		    const char *workDir, const char *cfgFile,
-		    const char *crash_destDir );
+                     const char *workDir, const char *cfgFile,
+                     const char *crash_destDir );
 
 static int core_runBat( const char *bat_name, int timeout );
 
@@ -35,10 +35,10 @@ static int core_setupTmp( char const *source_bat, char *tmpDir );
 static int core_parseBat( const char *filename );
 
 static int core_dirAction( const char *fileName, struct stat *statbuf,
-			  void *junk );
+                           void *junk );
 
 static int core_fileAction( const char *fileName, struct stat *statbuf,
-			   void *junk );
+                            void *junk );
 
 static int core_cleanupTmp( const char *tmpDir );
 
@@ -57,10 +57,10 @@ void sig_handler( int sig )
                 if(  WIFEXITED(status) && (WEXITSTATUS( status ) == 69) )
                     printf( "* seraph: PASS\n" );
                 else
-                    printf( "* seraph: FAIL [%d]\n", WEXITSTATUS(status) );
+                    dbg_error( "seraph: FAIL [%d]\n", WEXITSTATUS(status) );
             break;
         case SIGALRM:
-            fprintf( stderr, "timeout\n" );
+            dbg_error( stderr, "timeout\n" );
             break;
     }
 }
@@ -121,8 +121,7 @@ core_setupDstDir( char *dst, char *coreName,
 {
     sprintf( dst, "%s/dumps/%s-%s", core_dstDir, cfg.cur_test, coreName );
     if( mkdir( dst, 0777 ) == -1 ) {
-        fprintf( stderr,
-                "! seraph: Can't create coreDstDir %s : %s\n",
+        dbg_error("srph: Can't create coreDstDir %s : %s\n",
                 dst, strerror( errno ) );
         return false;
     }
@@ -139,7 +138,7 @@ static bool core_moveCore( char *src, char *dst )
     sprintf( cmd, "/bin/mv %s %s", src, dst );
     status = system( cmd );
     if( -1 == status || 0 != WEXITSTATUS( status ) ) {
-        fprintf( stderr, "! sut: Unable to move [%s] to [%s]: [%s]\n",
+        dbg_error("srph: Unable to move [%s] to [%s]: [%s]\n",
                 src, dst, strerror( errno ) );
         return false;
     }
@@ -157,8 +156,7 @@ static bool core_moveDebugs( const char *srcDir, char *dst )
     struct dirent *entry;
 
     if( !( dir = opendir( srcDir ) ) ) {
-        fprintf( stderr,
-                "! seraph: Can't open dbgSrcDir [%s] : %s\n",
+        dbg_error("srph: Can't open dbgSrcDir [%s] : %s\n",
                 srcDir, strerror( errno ) );
         return false;
     }
@@ -171,7 +169,7 @@ static bool core_moveDebugs( const char *srcDir, char *dst )
         system( cmd );
     }
     if( -1 == closedir( dir ) ) {
-        fprintf( stderr, "Unable to close dir [%s]: [%s]\n",
+        dbg_error("srph: Unable to close dir [%s]: [%s]\n",
                 srcDir, strerror( errno ) );
         return false;
     }
@@ -206,7 +204,7 @@ static bool core_copyCfg( const char *cfgFile, char *dst )
  * For the moment, this works local only.
  * Have to implement the same function in host.c*/
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
-bool
+    bool
 core_checkCoreLocal( const char *core_srcDir, const char *dbg_srcDir,
         const char *workDir, const char *cfgFile,
         const char *core_dstDir )
@@ -241,7 +239,7 @@ core_checkCoreLocal( const char *core_srcDir, const char *dbg_srcDir,
         }
     }
     if( -1 == closedir( dir ) ) {
-        fprintf( stderr, "Unable to close dir [%s]: [%s]\n",
+        dbg_error("Unable to close dir [%s]: [%s]\n",
                 core_srcDir, strerror( errno ) );
         return false;
     }
@@ -258,7 +256,7 @@ static int core_runBat( const char *bat_name, int timeout )
     struct sigaction act;
     printf( "\n\n" );
     printf( "*-------------------------.\n" );
-    printf( "* seraph: Running script  : [%s]\n", bat_name );
+    printf( "* srph:   Running script  :[%s]\n", bat_name );
     printf( "*-------------------------'\n" );
 
     act.sa_handler = sig_handler;
@@ -286,14 +284,14 @@ static int core_runBat( const char *bat_name, int timeout )
             } while( c != 'y' && c != 'n' );
             if( c == 'y' ) {
                 if( -1 == kill( pid, 9 ) ) {
-                    perror
-                        ( "! seraph: Unable to kill child script" );
+                    dbg_error( "srph: Unable to kill child script: [%s]\n"
+                            ,strerror(errno));
                 }
                 break;
             }
         }
     } else
-        perror( "! seraph: fork() failed" );
+        dbg_error( "srph: fork() failed" );
     return 0;
 }
 
@@ -317,12 +315,12 @@ core_fileAction( const char *fileName, struct stat *statbuf, void *junk )
     //sut_sutRefresh( cfg.refresh, fileName );
     core_setupTmp( fileName, tmpDir );
     if( NULL == getcwd( curDir, FILENAME_MAX ) ) {
-        perror( "! seraph: Unable to get current directory" );
+        dbg_error( "srph: Unable to get current directory: [%s]"
+                , strerror(errno));
     }
 
     if( -1 == chdir( tmpDir ) ) {
-        fprintf( stderr,
-                "! seraph: Unable to change directory to [%s]:[%s]\n",
+        dbg_error("srph: Unable to change directory to [%s]:[%s]\n",
                 tmpDir, strerror( errno ) );
         return FALSE;
     }
@@ -332,8 +330,7 @@ core_fileAction( const char *fileName, struct stat *statbuf, void *junk )
     core_cleanupTmp( tmpDir );
     sleep( 1 );
     if( -1 == chdir( curDir ) ) {
-        fprintf( stderr,
-                "! seraph: Unable to change directory to [%s]:[%s]\n",
+        dbg_error("srph: Unable to change directory to [%s]:[%s]\n",
                 curDir, strerror( errno ) );
         return FALSE;
     }
@@ -356,7 +353,7 @@ static int core_runRecursive( const char *srcName )
     if( recursiveAction( srcName, 1, FALSE,
                 TRUE, core_fileAction, core_dirAction,
                 NULL ) == FALSE ) {
-        printf( "error in runRecursive\n" );
+        dbg_error( "runRecursive: [%s]\n",strerror(errno) );
         exit( EXIT_FAILURE );
     }
     return TRUE;
@@ -379,8 +376,7 @@ static int core_setupTmp( char const *source_bat, char *tmpDir )
 
     sprintf( tmpDir, "/tmp/%d", getpid(  ) );
     if( -1 == mkdir( tmpDir, 0755 ) ) {
-        fprintf( stderr,
-                "! seraph: Can't make directory [%s]: [%s]\n",
+        dbg_error("srph: Can't make directory [%s]: [%s]\n",
                 tmpDir, strerror( errno ) );
         exit( EXIT_FAILURE );
     }
@@ -391,8 +387,7 @@ static int core_setupTmp( char const *source_bat, char *tmpDir )
     free( s );
     s = strdup( source_bat );
     if( -1 == status || 0 != WEXITSTATUS( status ) ) {
-        fprintf( stderr,
-                "! seraph: Unable to copy [%s] to [%s]: [%s]\n",
+        dbg_error("srph: Unable to copy [%s] to [%s]: [%s]\n",
                 dirname( s ), tmpDir, strerror( errno ) );
     }
     free( s );
@@ -403,7 +398,7 @@ static int core_setupTmp( char const *source_bat, char *tmpDir )
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 static int core_cleanupTmp( const char *tmpDir )
 {
-    printf( "# seraph: Removing [%s]\n", tmpDir );
+    dbg_verbose( "Removing [%s]\n", tmpDir );
     fop_rm( TEST_LOCAL, tmpDir, 0, 0 );
     return 0;
 }
@@ -496,7 +491,7 @@ char* core_expandVars( const char *t1 )
             s = p++;        /* saving position of $ */
             /*printf("[%c][%d]\n", *p, *p ) ; */
             if( *p != '{' ) {
-                printf( "Error expanding %s\n", text );
+                dbg_error( "Error expanding [%s]\n", text );
                 return 0;
             }
 
@@ -508,12 +503,12 @@ char* core_expandVars( const char *t1 )
                 /*printf("[%c][%d]\n", *p, *p ) ; */
             }
             if( *p == '\0' ) {
-                printf( "Unmatched bracket in %s\n", text );
+                dbg_error( "Unmatched bracket in [%s]\n", text );
                 return 0;
             }
             p++;
             if( NULL == getenv( id ) ) {
-                debug( "Can't expand [%s] : Not exported\n", id );
+                dbg_error( "Can't expand [%s] : [Not exported]\n", id );
                 memset( id, 0, 512 );
                 i = 0;  /* Reset ID pointer and ID size counter */
                 continue;
@@ -557,24 +552,24 @@ int core_setErrorlog( const char* const uname )
             strrchr(cfg.config_file,'/'), getpid(  ),
             t->tm_hour, t->tm_min );
 
-    debug( "I: Log is: [%s]\n", rez );
+    dbg_verbose( "Log is: [%s]\n", rez );
     setenv( SUT_ERRLOG, rez, 1 );
 
     /* Create ./errors in case it doesn't exists */
     strcpy(dn,rez);
     p = dirname(dn);
     if( -1 == access( p, F_OK ) ) {
-        debug( "E: %s doesn't exist\n", dirname( rez ) );
+        dbg_error( "[%s] doesn't exist\n", dirname( rez ) );
         if( -1 == mkdir( p, 0777 ) ) {
-            debug( "E: Unable to create [%s]: [%s]\n", p,strerror( errno ) );
+            dbg_error( "Unable to create [%s]: [%s]\n", p,strerror( errno ) );
             exit( EXIT_FAILURE );
         }
-        debug( "I: %s created\n", p );
+        dbg_verbose( "Directory [%s] created\n", p );
     }
 
     /* If it exists, but we dont have write permissions */
     if( -1 == access( p, W_OK ) ) {
-        debug( "E: %s doesn't have write permissions\n", p );
+        dbg_error( "Directory [%s] doesn't have write permissions\n", p );
         exit( EXIT_FAILURE );
     }
     return 0;
@@ -591,13 +586,13 @@ int core_runTests( const char *dir )
     char curDir[FILENAME_MAX] = { 0 };
 
     if( stat( dir, &inf ) < 0 ) {
-        printf( "! seraph: The directory [%s] doesn't exist.\n", dir );
+        dbg_error( "srph: [%s] : [%s].\n", dir, strerror(errno) );
         return 0;
     }
     dbg_verbose("Running tests from [%s]\n", dir);
     getcwd( curDir, FILENAME_MAX );
     if( -1 == chdir( dir ) ) {
-        fprintf( stderr, "! seraph: Can't change to [%s] : [%s]\n",
+        dbg_error("srph: Can't change to [%s] : [%s]\n",
                 dir, strerror( errno ) );
         exit( EXIT_FAILURE );
     }
