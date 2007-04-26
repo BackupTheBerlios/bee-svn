@@ -83,8 +83,8 @@ userdb_getErrorLog( const char * uname, int job_type, const char*const log, char
     }
     rb = (char*)malloc(s.st_size);
     printf("filesize [%d]\n", s.st_size);
-    memset( rb, 0, s.st_size);
-    read( fd, rb, s.st_size);
+    len = read( fd, rb, s.st_size);
+    rb[len]='\0';
     printf("read from log [%s]\n", rb);
     *ret = rb;
     return s.st_size;
