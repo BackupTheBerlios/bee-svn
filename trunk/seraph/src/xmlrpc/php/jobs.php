@@ -1,6 +1,6 @@
 <?php
 session_start();
-include 'base_lib.php'; 
+require_once 'base_lib.php';
     function listJobs()
     {
     $job_pending =1;
@@ -13,7 +13,7 @@ include 'base_lib.php';
         $state = "job_running";
 
         $req = new XML_RPC_Value( array(
-                            "sut_username" => new XML_RPC_Value( "user1",'string'),
+                            "sut_username" => new XML_RPC_Value( $_SESSION["username"],'string'),
                             "job_type"   => new XML_RPC_Value( $job_running,'int'))
                     , "struct");
 

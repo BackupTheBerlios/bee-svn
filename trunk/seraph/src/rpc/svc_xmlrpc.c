@@ -414,7 +414,7 @@ x_setSessionCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request,
     username= XMLRPC_VectorGetStringWithID(xIter, "sut_username");
     session = XMLRPC_VectorGetStringWithID(xIter, "sut_session");
     ip      = XMLRPC_VectorGetStringWithID(xIter, "sut_ip");
-    userdb_setSession( username, session, ip);
+    ret = userdb_setSession( username, session, ip);
     return XMLRPC_CreateValueBoolean(NULL, ret);
 }
 

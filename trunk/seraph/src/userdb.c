@@ -172,7 +172,7 @@ userdb_checkSession(const char* const uname,
     debug("USERDB[%s] uname[%s]\n", USERDB, uname);
     if(ret)
     {
-        printf("error opening userdata file for [%s]\n", uname);
+        debug("error opening userdata file for [%s]\n", uname);
         return false;
     }
 
@@ -204,6 +204,7 @@ userdb_setSession(  const char* const uname,
     db_put(db, "ip", ip);
     db_close(db);
     delete(db);
+    return true;
 }
 
 bool
@@ -212,12 +213,21 @@ userdb_checkLogin(  const char* const uname,
 {
     char u[33]={0}, p[33]={0};
     struct Class* db = new(BaseDB);
+    int ret=1;
 
     debug("uname[%s] password[%s]\n", uname, password);
-    db_open( db, "%s/%s", USERDB, uname);
-    db_get(db, "pass", &p);
+    ret = db_open( db, "%s/%s", USERDB, uname);
+    debug("USERDB[%s] uname[%s]\n", USERDB, uname);
+    if(ret)
+    {
+        debug("error opening userdata file for [%s]\n", uname);
+        return false;
+    }
+    db_get(db, "password", &p);
     db_close(db);
-    return !( strcmp(password, p) );
+    ret = strcmp(password, p);
+    printf("isPasswordOk?[%d]\n", !ret);
+    return !( ret );
 }
 
 bool

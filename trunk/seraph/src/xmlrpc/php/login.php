@@ -2,7 +2,6 @@
 require_once 'XML/RPC.php';
 require_once 'base_lib.php';
 session_start();
-
 class User {
     var $xmlrpc=null;
     var $failed = false;
@@ -19,20 +18,20 @@ class User {
             $this->checkSession();
         elseif( isset($_COOKIE['mtwebLogin']) ) {}
             //echo "ERR<br>\n";
-
     }
 
 
     function logout()
     {
-        session_unregister("username");
+        //session_unregister("username");
         //echo "Bad login<br>";
+        $_SESSION["username"]="";
     }
 
 
     function checkSession()
     {
-        $username = $_POST['username'];
+        $username = $_SESSION['username'];
         $cookie   = $_SESSION['cookie'];
         $session  = session_id();
         $ip       = $_SERVER['REMOTE_ADDR'];
@@ -52,7 +51,8 @@ class User {
             return false;
         }
         $ret = XML_RPC_decode($rsp->value()) ;
-        if( !$ret ) {
+        if( !$ret )
+        {
             $this->logout();
             return false;
         }
@@ -64,14 +64,14 @@ class User {
 
     function setSession( &$vals, $remember, $init=true)
     {
-        $this->id = $vals->id;
+        $this->id = $vals['id'];
         $_SESSION['uid'] = $this->id;
-        $_SESSION['username'] = $vals->username;
-        $_SESSION['cookie'] = $vals->cookie;
+        $_SESSION['username'] = $vals['username'];
+        $_SESSION['cookie'] = $vals['cookie'];
         $_SESSION['logged'] = true;
 
         if($remember) {
-            $this->updateCookie($vals->cookie, true);
+            $this->updateCookie($vals['cookie'], true);
         }
 
         if($init) {
@@ -90,11 +90,13 @@ class User {
                 $this->logout();
                 return false;
             }
+
             if( !XML_RPC_decode($rsp->value()) ) {
-                //echo "setSession failed cause(access denied)<br>";
+                echo "setSession failed cause(access denied)<br>";
                 $this->logout();
                 return false;
             }
+
         }
     }
 
@@ -123,6 +125,12 @@ class User {
             $this->logout();
             return false;
         }
+        if(!XML_RPC_decode($rsp->value()))
+        {
+            $this->failed = true ;
+            $this->logout();
+            return false;
+        }
         $result = array("username"=>$username, "password"=>$password);
         $this->setSession(&$result, $remember);
         return true ;
@@ -145,8 +153,11 @@ class User {
     }
 }
 if( !isset($_SESSION['uid']) )
+{
     session_defaults();
+}
 $user = new User();
+//echo "USER#".$_SESSION['username'];
 $user->checkLogin($_POST['username'], $_POST['password'], true);
 header('location:index.php');
 ?>

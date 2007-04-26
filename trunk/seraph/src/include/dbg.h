@@ -11,7 +11,7 @@
 
 
 /*! Decide if debug() will be called. Set by DBG_ENV. @see DBG_ENV */
-extern char* useDebug_g ;
+extern int useDebug_g ;
 extern FILE* logHandle ;
 
 
@@ -29,7 +29,7 @@ if(cfg.verbose == true) printf("I: "), printf(__VA_ARGS__);
 /*! Use this macro to activate the calling of debug()*/
 #if defined USE_DEBUG
 #if !defined DBG
-    #define DBG(afile) useDebug_g =getenv("DBG") ;\
+    #define DBG(afile) useDebug_g =atoi(getenv("DBG")) ;\
     logHandle = fopen( afile, "a" ) ;\
     if( !logHandle ){ printf( "Can't open '%s' [%s]\n", afile, strerror(errno)) ;exit(0) ;} \
     setvbuf( logHandle, (char *)NULL, _IOLBF, 0);

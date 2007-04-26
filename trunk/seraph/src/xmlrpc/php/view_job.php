@@ -1,6 +1,6 @@
 <?php
 require_once 'XML/RPC.php';
-include 'base_lib.php' ;
+require_once 'base_lib.php' ;
 echo "test test test";
 
 $cli = new XML_RPC_Client('/RPCSERVER', "localhost", 5000 );

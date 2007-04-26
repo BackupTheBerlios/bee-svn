@@ -101,7 +101,7 @@ div.job_running span.id {
     width: 2em;
 }
 div.job_running span.state {
-    width: 5em;
+    width: 6em;
 }
 
 div.job_running a {
@@ -170,7 +170,7 @@ li.machines a:hover {
 /*                  Class menu                      */
 /*--------------------------------------------------*/
 ul.menu {
-    position:relative;
+    /*position:relative;*/
     padding:0;
     margin:0;
     width:0;
@@ -193,7 +193,7 @@ ul.menu p span {
     display:none;
     position:absolute;
     left:10em;
-    top:0;
+    top: 11em;
     text-align:left;
     padding:0.5em;
     width:30em;

@@ -1,6 +1,6 @@
 <?php
 session_start();
-include 'base_lib.php'
+require_once 'base_lib.php'
 ?>
 <html>
 <head>

@@ -24,7 +24,7 @@
 #include <stdarg.h> /*va_list*/
 
 
-char* useDebug_g=(char*)1 ;    //!< Decide if debug() will be called. Set by DBG_ENV. @see DBG_ENV
+int useDebug_g=0 ;    //!< Decide if debug() will be called. Set by DBG_ENV. @see DBG_ENV
 FILE* logHandle =0 ;
 
 /** Print debug information in this.log.
@@ -40,9 +40,11 @@ _debug( const char* function, int line, const char* fname, const char* fmt, ... 
     va_list vlist ;
     va_start( vlist, fmt ) ;
         fprintf( logHandle, "%15s %5d : [%10s] : ", fname, line, function ) ;
-        //fprintf( stdout, "%15s %5d : [%10s] : ", fname, line, function ) ;
+        if( 2== useDebug_g) fprintf( stdout, "DBG: %15s %5d : [%10s] : ", fname, line, function ) ;
         fflush( logHandle ) ;
         vfprintf( logHandle, fmt, vlist ) ;
+        if( 2== useDebug_g) vfprintf( stdout, fmt, vlist ) ;
+        fflush( stdout);
     va_end( vlist ) ;
     fflush( logHandle ) ;
 }

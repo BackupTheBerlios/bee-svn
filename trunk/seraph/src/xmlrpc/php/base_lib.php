@@ -1,7 +1,6 @@
 <?php
 require_once 'XML/RPC.php';
 
-
 function session_defaults() {
     $_SESSION['logged'] = false;
     $_SESSION['uid'] = 0;
@@ -9,6 +8,7 @@ function session_defaults() {
     $_SESSION['cookie'] = 0;
     $_SESSION['remember'] = false;
 }
+
 
 
 function hasErrors($resp)
@@ -55,6 +55,7 @@ function drawMenu() {
         </div>
         <div class='head_menu'>
         <ul>";
+
     if ( $_SESSION['logged'] == false ) {
             echo "<li><a href='.'>Home</a></li>";
             echo "<li><a href='login_form.php'>Login</a></li>";
@@ -92,7 +93,7 @@ function drawMachines()
         echo "<form name='$m' action='set_config.php?SUT_MACHINE=$m' method='post'>
         <ul class='menu' >
         <li >
-        <p  ondblclick='javascript:toggleSpan(\"span$m\");' >$m<span id='span$m'>
+        <p  onclick='javascript:toggleSpan(\"span$m\");' >$m<span id='span$m'>
         <a href='javascript:;' onclick='addEvent(\"span$m\", \"sName$m\", \"sValue$m\");'><em class='butt'>Add</em></a>
         <input type='submit' value='Save'>
 

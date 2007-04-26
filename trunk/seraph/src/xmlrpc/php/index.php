@@ -1,10 +1,10 @@
 <?php
-session_start();
 require_once 'XML/RPC.php';
-include 'base_lib.php' ;
+require_once 'base_lib.php' ;
+session_start();
+
 
 class Index {
-
     var $xmlrpc;
     var $job_pending;
     var $job_running;
@@ -41,65 +41,6 @@ class Index {
         }
         echo "</select>" ;
     }
-/*
-<table cellspacing='1' width='60%'>
-<tr bgcolor="#c8c8ff">
-        <td class="center" valign="top" width ="0" nowrap>
-        <span class="small">
-        <a href="view_job.php?SUT_jobid=1036" title="[assigned] aSfasfaSF">00001</a><br />&nbsp;     </span>
-    </td>
-
-        <td class="left" valign="top" width="100%">
-
-        <span class="small">
-        [cli, hsp, html]<br/>
-        [2.0] [machine1] [2007-04-12 05:02] [ 0 of 120]
-        </span>
-    </td>
-    <td>
-    <span>
-    Pending
-    </span>
-    </td>
-</tr>
-<tr bgcolor="#ffa0a0">
-        <td class="center" valign="top" width ="0" nowrap>
-        <span class="small">
-        <a href="view_job.php?SUT_jobid=1036" title="[assigned] aSfasfaSF">00002</a><br />&nbsp;     </span>
-    </td>
-
-        <td class="left" valign="top" width="100%">
-
-        <span class="small">
-        [cli, hsp, html]<br/>
-        [2.0] [machine1] [2007-04-12 05:02] [120 of 120]
-    <td>
-    <span> Complete
-    </span>
-    </td>
-        </span>
-    </td>
-</tr>
-<tr bgcolor="#cceedd">
-        <td class="center" valign="top" width ="0" nowrap>
-        <span class="small">
-        <a href="view_job.php?SUT_jobid=1036" title="[assigned] aSfasfaSF">00003</a><br />&nbsp;     </span>
-    </td>
-
-        <td class="left" valign="top" width="100%">
-
-        <span class="small">
-        [cli, hsp, html]<br/>
-        [2.0] [machine1] [2007-04-12 05:02] [ 12 of 120]
-        </span>
-    <td>
-    <span> Running
-    </span>
-    </td>
-</tr>
-</table>
-*/
-
 
 
     function listJobs()
@@ -108,8 +49,9 @@ class Index {
         /*-------------------------------------------*/
         $state = "job_running";
 
+
         $req = new XML_RPC_Value( array(
-                            "sut_username" => new XML_RPC_Value( "user1",'string'),
+                            "sut_username" => new XML_RPC_Value( $_SESSION['username'],'string'),
                             "job_type"   => new XML_RPC_Value( $this->$state,'int'))
                     , "struct");
 
@@ -118,10 +60,11 @@ class Index {
         if( hasErrors($resp) ) return false;
 
         $i = $resp->value()->arraysize();
+
         /*echo "NbJobs:$i<br>";*/
-/*
-        <div class="progress400">
+        /*<div class="progress400">
         </div>*/
+
         while($i--) {
             $log = XML_RPC_decode($resp->value()->arraymem($i));
             echo "<div class='$state'>";
@@ -133,6 +76,7 @@ class Index {
             echo "</a>";
             echo "</div>";
         }
+
         /*---------------------------------------------*/
         /*
         while($i++<3) {

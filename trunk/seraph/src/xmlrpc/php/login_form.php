@@ -1,6 +1,6 @@
 <?php
 require_once 'XML/RPC.php';
-include 'base_lib.php' ;
+require_once 'base_lib.php' ;
 ?>
 <html>
 <head>
@@ -17,9 +17,11 @@ include 'base_lib.php' ;
         <div style="width:23em;"class="header">
             <span><b>Login</b></span>
         </div>
-        <div id="menu" style="height: 3em;width:23em">
-            <b style="width:6em">Username</b><input type="text" name="username"/>
-            <b style="width:6em">Password</b><input type="password" name="password"></b>
+        <div class="menu" style="height: 3em;width:23em">
+        <ul>
+            <li><b style="width:6em">Username</b><input type="text" name="username"/></li>
+            <li><b style="width:6em">Password</b><input type="password" name="password"></b></li>
+        </ul>
         </div>
         <div style="width:23em;"class="header">
             <span>&nbsp;</span>

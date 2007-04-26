@@ -34,12 +34,7 @@ function toggleSpan( id )
 {
     var spans = document.getElementsByTagName("span");
     var el = document.getElementById( id );
-    var toset ="block";
 
-    if( el.style.display =="block" )
-    {
-        toset = "none";
-    }
     for( var i=0; i < spans.length; i++)
     {
         if(spans[i].style.display == "block")
@@ -47,7 +42,8 @@ function toggleSpan( id )
             spans[i].style.display = "none";
         }
     }
-    el.style.display = toset;
+    el.style.display = "block";
+    this.style.background="red";// #e5ecf9;
 }
 
 </script>
