@@ -3,7 +3,7 @@
 		   -Wdeclaration-after-statement
 
 TOP=.
-files = base64.o str.o fileop.o baseclass.o basedb.o userdb.o testdb.o core.o sut.o sock.o scan.o debug.o #wall.o 
+files = str.o fileop.o baseclass.o basedb.o userdb.o testdb.o core.o sut.o sock.o scan.o debug.o #wall.o 
 TARGETS=$(TOP)/lib/$(OS)/libtrpc.a $(TOP)/lib/$(OS)/libtbot.a bin/srph  bin/mngrd .tool
 include system.mk
 

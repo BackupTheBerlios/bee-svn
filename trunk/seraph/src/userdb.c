@@ -7,7 +7,6 @@
 #include "baseclass.h"
 #include "basedb.h"
 #include "userdb.h"
-#include "base64.h"
 
 
 bool
@@ -70,7 +69,6 @@ userdb_getErrorLog( const char * uname, int job_type, const char*const log, char
     int     fd=-1, len=0;
     char    *rb=NULL;
     char    path[PATH_MAX]={0};
-    struct buffer_st b64;
 
     sprintf( path, "%s/%s/jobs/running/%s", USERDB, uname, log);
     printf("encoding [%s]\n", path);
@@ -90,15 +88,6 @@ userdb_getErrorLog( const char * uname, int job_type, const char*const log, char
     printf("read from log [%s]\n", rb);
     *ret = rb;
     return s.st_size;
-    /*
-    base64_encode( &b64, rb, s.st_size);
-    printf("encoded buffer [%s]\n", b64.data);
-    free(rb);
-    close(fd);
-    ret = strdup(b64.data);
-    len = b64.length;
-    buffer_delete(&b64);
-    return len;*/
 }
 
 int

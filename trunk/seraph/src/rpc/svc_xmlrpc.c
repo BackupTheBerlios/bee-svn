@@ -462,8 +462,7 @@ x_getErrorLogCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request,
     //deserialize
     log= XMLRPC_GetValueString(xIter);
     b64Len = userdb_getErrorLog("user1", 2, log, &b64);
-    printf("CreateValueBase64(%s)\n", b64);
-    //free(b64);
+    free(b64);
     return XMLRPC_CreateValueBase64( NULL, b64, b64Len);
 }
 
