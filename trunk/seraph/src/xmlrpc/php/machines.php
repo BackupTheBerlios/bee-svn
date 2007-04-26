@@ -55,10 +55,7 @@ function toggleSpan( id )
     if( !drawMenu() ){
         echo "</body></html>";
         return;
-    }
-    drawMachines() ;?>
-
-    <hr/>
+    }?>
     <form name="add_machine" method="post" action="add_machine.php">
         <div class='column' style="width:22em">
             <br>
@@ -72,5 +69,10 @@ function toggleSpan( id )
             <br>
             <input type='submit' value='Add'/>
         </form>
+        <br style='clear:both;'>
+        <hr/>
+    <?php drawMachines() ;?>
+
+
 </body>
 </html>
