@@ -92,8 +92,7 @@ function drawMachines()
         echo "<form name='$m' action='set_config.php?SUT_MACHINE=$m' method='post'>
         <ul class='menu' >
         <li >
-        <p onclick='javascript:toggleSpan(\"span$m\");' >$m
-        <span id='span$m'>
+        <p  ondblclick='javascript:toggleSpan(\"span$m\");' >$m<span id='span$m'>
         <a href='javascript:;' onclick='addEvent(\"span$m\", \"sName$m\", \"sValue$m\");'><em class='butt'>Add</em></a>
         <input type='submit' value='Save'>
 
