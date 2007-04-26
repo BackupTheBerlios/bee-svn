@@ -76,14 +76,34 @@ div.job_running {
     background-color: #cceedd ;
     border: solid #000 1px;
     text-decoration: none;
-    padding: 3px;
-    width:40%;
+    padding: 0px;
+    width:90%;
+    height:2em;
 }
 div.job_running span {
-    display:inline;
+
+    display:block;
     border-right:2px solid #000;
-    padding: 4px 10px 4px 10px;
+    padding: 0px 10px 0px 10px;
+    position: relative;
+    text-align: left;
+    font-weight: normal;
+    color: #333;
+    height: 2em;
+    line-height: 2em;
+    width:150px;
+    float:left;
 }
+div.job_running span.bar {
+    background: #6bba70;
+}
+div.job_running span.id {
+    width: 2em;
+}
+div.job_running span.state {
+    width: 5em;
+}
+
 div.job_running a {
     color: black;
     text-decoration:none;
@@ -223,3 +243,8 @@ ul.menu input {
     width:16.81em;
 }
 /*++++++++++++++++++++++++++++++++++++++++++++++++++*/
+.progress400{
+    position: relative;
+    width: 400px;
+    border: 1px solid #d7d7d7;
+    margin-top: 1em; margin-bottom: 1em; padding: 1px; }

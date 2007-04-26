@@ -104,7 +104,7 @@ class Index {
 
     function listJobs()
     {
-        echo " List of Jobs:(Opens log on click)<br>";
+        echo " List of Jobs:(click to open errorlog)<br>";
         /*-------------------------------------------*/
         $state = "job_running";
 
@@ -118,15 +118,18 @@ class Index {
         if( hasErrors($resp) ) return false;
 
         $i = $resp->value()->arraysize();
-        echo "NbJobs:$i<br>";
-
+        /*echo "NbJobs:$i<br>";*/
+/*
+        <div class="progress400">
+        </div>*/
         while($i--) {
             $log = XML_RPC_decode($resp->value()->arraymem($i));
             echo "<div class='$state'>";
             echo "<a href='view.php?log=$log'>";
-            echo "<span>1000</span>";
-            echo "<span>$state</span>";
+            echo "<span class='id'>1000</span>";
+            echo "<span class='state'>$state</span>";
             echo "<span>$log</span>";
+            echo '<span class="bar" style="width: 60%;">60%</span>';
             echo "</a>";
             echo "</div>";
         }
