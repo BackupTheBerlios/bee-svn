@@ -147,19 +147,19 @@ li.machines a:hover {
 
 
 /*--------------------------------------------------*/
-/*                  ID menu                         */
+/*                  Class menu                      */
 /*--------------------------------------------------*/
-#menu {
+ul.menu {
     position:relative;
     padding:0;
     margin:0;
     width:0;
 }
-#menu li {
+ul.menu li {
     list-style-type:none;
     margin:0 0 0 0;
 }
-#menu p {
+ul.menu p {
     display:block;
     width:9.5em;
     border:1px dashed #00e1ff;
@@ -170,11 +170,8 @@ li.machines a:hover {
     background: #e5ecf9;
     padding:0.18em;
 }
-#menu p span {
+ul.menu p span {
     display:none;
-}
-#menu p:hover span {
-    display:block;
     position:absolute;
     left:10em;
     top:0;
@@ -185,7 +182,7 @@ li.machines a:hover {
     background-color: #e5ecf9;
     border:1px dashed #00e1ff;
 }
-#menu b{
+ul.menu b{
     border:1px solid #000;
     text-align:right; 
     float: left;
@@ -196,14 +193,14 @@ li.machines a:hover {
     clear:both;
     font-weight:normal;
 }
-#menu a {
+ul.menu a {
     text-decoration:none;
     text-align: left;
     color: white;
     padding-bottom:2px;
     font-weight:bold;
 }
-#menu a em.butt {
+ul.menu a em.butt {
     float:left;
     width:12em;
     border:1px solid #000;
@@ -216,10 +213,10 @@ li.machines a:hover {
     font-weight: bold;
 }
 
-#menu a:hover em.butt {
+ul.menu a:hover em.butt {
     background-color: #3366FF;
 }
-#menu input {
+ul.menu input {
     border-width:1px;
     border-color:black;
     float: right;

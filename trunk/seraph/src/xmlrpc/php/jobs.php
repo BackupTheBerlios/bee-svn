@@ -23,7 +23,40 @@ include 'base_lib.php';
 
         $i = $resp->value()->arraysize();
         echo "NbJobs:$i<br>";
+/*
+<table class="width100" cellspacing="1">
+<tr>
+        <td class="form-title" colspan="2">
+        <a class="subtle" href="view_all_set.php?type=1&amp;temporary=y&amp;handler_id=[none]&amp;hide_status=90">Unassigned</a> [<a class="subtle" href="view_all_set.php?type=1&amp;temporary=y&amp;handler_id=[none]&amp;hide_status=90" target="_blank">^</a>]      (1 - 10 / 16)   </td>
 
+</tr>
+
+
+<tr bgcolor="#ffa0a0">
+        <td class="center" valign="top" width ="0" nowrap>
+        <span class="small">
+        <a href="view.php?id=1099" title="[new] Inserting 15 new fish breaks the hyperdrive">0001099</a><br /><img src="http://www.futureware.biz/mantisdemo/images/priority_2.gif" alt="" title="urgent" />        </span>
+    </td>
+
+        <td class="left" valign="top" width="100%">
+
+        <span class="small">
+        Inserting 15 new fish breaks the hyperdrive     <br />
+        [Demo] GUI - <b>2007-04-26 00:36</b>        </span>
+    </td>
+</tr>
+*/
+/*
+    echo "<table cellspacing='1' bgcolor='red' border='solid'>";
+    while($i--)
+    {
+        $log = XML_RPC_decode($resp->value()->arraymem($i));
+        echo "<tr> <td>1000</td>";
+        echo "<td>$state</td>";
+        echo "<td>$log</td></tr>";
+    }
+        echo "</table>";
+*/
         while($i--) {
             $log = XML_RPC_decode($resp->value()->arraymem($i));
             echo "<div class='$state'>";

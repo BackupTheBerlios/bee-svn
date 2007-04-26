@@ -15,6 +15,7 @@ include 'base_lib.php'
     }
 ?>
 
+Not available yet;
 <div>
 <input type='button' value='Add'/>
 Notification emails:

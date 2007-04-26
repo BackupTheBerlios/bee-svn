@@ -64,9 +64,9 @@ function drawMenu() {
     }
     echo "<li><a href='.'>Home</a></li>
             <li><a href='machines.php'>Machines</a></li>
-            <li><a href='settings.php'>Settings</a></li>
             <li><a href='jobs.php'>Jobs</a></li>
-            <li><a href='docs.php'>Documentation</a></li> ";
+            <li><a href='docs.php'>Documentation</a></li>
+            <li><a href='settings.php'>Settings</a></li>";
     echo "<li><a href='./logout.php'>Logout</a></li>";
     echo "</ul></div><br>";
     return true;
@@ -89,8 +89,10 @@ function drawMachines()
     #$i = 1;
     while( $i-- )
     {   $m = XML_RPC_decode( $machines->arraymem($i) );
-        echo "<form name='$m' action='set_config.php?SUT_MACHINE=$m' method='post'> <ul id='menu'>
-        <li ><p>$m
+        echo "<form name='$m' action='set_config.php?SUT_MACHINE=$m' method='post'>
+        <ul class='menu' >
+        <li >
+        <p onclick='javascript:toggleSpan(\"span$m\");' >$m
         <span id='span$m'>
         <a href='javascript:;' onclick='addEvent(\"span$m\", \"sName$m\", \"sValue$m\");'><em class='butt'>Add</em></a>
         <input type='submit' value='Save'>

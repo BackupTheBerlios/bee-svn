@@ -29,6 +29,27 @@ function removeEvent(divNum)
     d.removeChild(olddiv);
 }
 
+
+function toggleSpan( id )
+{
+    var spans = document.getElementsByTagName("span");
+    var el = document.getElementById( id );
+    var toset ="block";
+
+    if( el.style.display =="block" )
+    {
+        toset = "none";
+    }
+    for( var i=0; i < spans.length; i++)
+    {
+        if(spans[i].style.display == "block")
+        {
+            spans[i].style.display = "none";
+        }
+    }
+    el.style.display = toset;
+}
+
 </script>
 </head>
 
