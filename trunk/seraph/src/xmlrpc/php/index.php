@@ -125,7 +125,7 @@ class Index {
             echo "<div class='$state'>";
             echo "<a href='view.php?log=$log'>";
             echo "<span>1000</span>";
-            echo "<span><b >$state</b></span>";
+            echo "<span>$state</span>";
             echo "<span>$log</span>";
             echo "</a>";
             echo "</div>";

@@ -92,7 +92,7 @@ static int callback_socket( int portno )
 {
     unsigned int clilen;
     struct sockaddr_in serv_addr, cli_addr;
-    int cod, sockfd;
+    int cod, sockfd, opt=1;
 
 
     sockfd = socket( AF_INET, SOCK_STREAM, 0 );
@@ -100,11 +100,15 @@ static int callback_socket( int portno )
     {   dbg_error( "xmlrpc: opening socket: %s\n", strerror( errno ) );
         return 1;
     }
-    memset( ( char * )&serv_addr, '\0', sizeof( serv_addr ) );
 
+    memset( ( char * )&serv_addr, '\0', sizeof( serv_addr ) );
     serv_addr.sin_family = AF_INET;
-    serv_addr.sin_addr.s_addr = INADDR_ANY;
+    //serv_addr.sin_addr.s_addr = INADDR_ANY;
     serv_addr.sin_port = htons( portno );
+
+    cod = setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+    if( cod == -1 ) dbg_error("setsockopt reuseaddr:%s\n", strerror(errno));
+
     if( bind( sockfd, ( struct sockaddr * )&serv_addr, sizeof( serv_addr ) )
             < 0 )
     {   dbg_error( "xmlrpc: Can't bind socket: %s\n", strerror(errno) );
@@ -121,13 +125,15 @@ static int callback_socket( int portno )
     extern int running ;
     if (-1 == fcntl(sockfd, F_SETOWN, (int) getpid())) return -1;
     while( running )
-    {   int newsockfd=0;
+    {   int newsockfd=0,cod;
         newsockfd = accept( sockfd, ( struct sockaddr * )&cli_addr, &clilen );
         if( newsockfd < 0 )
         {   dbg_error( "accept[%s]\n", strerror(errno) );
             running=0;
             break;
         }
+        cod = setsockopt( newsockfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+        if( cod == -1 ) dbg_error("setsockopt reuseaddr:%s\n", strerror(errno));
         callback_command( newsockfd );
     }
     close( sockfd);
@@ -144,8 +150,8 @@ static int callback_command( int sckt )
     char *rsp=NULL;
     int n;//, i;
     char banner[8192]={0};;
-    while( true ) {
-        //char *p = NULL;
+    while( true )
+    {   //char *p = NULL;
         memset( buf, 0, 8192 );
         n = read( sckt, buf, 8191 );
 
@@ -155,14 +161,13 @@ static int callback_command( int sckt )
             break;
         }
         /* Client closed socket */
-        if( n == 0 ) {
-            close( sckt );
+        if( n == 0 )
             break;
-        }
+
         buf[( unsigned int )n] = '\0';
         buf1 = strstr(buf, "\r\n\r\n");
-        if(buf1){
-            buf1+=4;
+        if(buf1)
+        {   buf1+=4;
             debug("BODY:[%s]\n", buf1);
             if (-1 == fcntl(sckt, F_SETOWN, (int) getpid())) return -1;
             rsp = clientCallback(buf1);
@@ -176,11 +181,10 @@ static int callback_command( int sckt )
             write(sckt, rsp, strlen(rsp));
             free(rsp);
             rsp=0;
-            shutdown(sckt,2);
-            close(sckt);
-            return 0;
+            break;
         }
     } /*while */
+    shutdown(sckt,2);
     close(sckt);
     return 0;
 }

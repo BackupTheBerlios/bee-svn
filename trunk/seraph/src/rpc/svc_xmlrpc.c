@@ -459,11 +459,13 @@ x_getErrorLogCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request,
     size_t  b64Len=0;
     XMLRPC_VALUE xParams = XMLRPC_RequestGetData( request );
     XMLRPC_VALUE xIter   = XMLRPC_VectorRewind( xParams );
+    XMLRPC_VALUE ret;
     //deserialize
     log= XMLRPC_GetValueString(xIter);
     b64Len = userdb_getErrorLog("user1", 2, log, &b64);
+    ret = XMLRPC_CreateValueBase64( NULL, b64, b64Len);
     free(b64);
-    return XMLRPC_CreateValueBase64( NULL, b64, b64Len);
+    return ret;
 }
 
     XMLRPC_VALUE
