@@ -21,3 +21,6 @@
 [5] Add warm-refresh: server is not restarted, but the SUT state
      is restored using protocol commands( IMAP/POP3 ).
      Maybe a sniffing library would be helpfull.
+export EXTRA_INCLUDE=" /home/${USER}/code/flint/co-gnu3.lnt /home/${USER}/code/flint/lib-stl.lnt /home/${USER}/code/flint/e
+export LINT="${EXTRA_INCLUDE} -zero -u -oo -w2 +wlib(0) +libclass( angle ) +libdir(/usr/include)"
+export INCLUDE="/usr/include:/usr/include/linux:/usr/lib/gcc/i486-linux-gnu/4.1.2/include/:/usr/include/c++/4.1:/usr/includ
