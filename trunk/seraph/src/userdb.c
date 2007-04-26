@@ -7,6 +7,7 @@
 #include "baseclass.h"
 #include "basedb.h"
 #include "userdb.h"
+#include "base64.h"
 
 
 bool
@@ -62,29 +63,42 @@ userdb_addJob( int job_type )
 }
 
 
-char*
-userdb_getErrorLog( const char * uname, int job_type, const char*const log)
+size_t
+userdb_getErrorLog( const char * uname, int job_type, const char*const log, char* *ret)
 {
     struct  stat s;
-    int     fd=-1;
+    int     fd=-1, len=0;
     char    *rb=NULL;
     char    path[PATH_MAX]={0};
-    buffer_st b64;
-    char    *ret=NULL;
+    struct buffer_st b64;
 
-    sprintf( path, "%s/%s/jobs/running/%s", USERDB, user, log);
-    fd = open(path,"r");
+    sprintf( path, "%s/%s/jobs/running/%s", USERDB, uname, log);
+    printf("encoding [%s]\n", path);
+    fd = open(path, O_RDONLY);
     if( fd <0)
         return NULL;
-    fstat( fd, &s);
+    if(fstat( fd, &s))
+    {
+        printf("error fstating\n");
+        *ret = NULL;
+        return 0;
+    }
     rb = (char*)malloc(s.st_size);
+    printf("filesize [%d]\n", s.st_size);
+    memset( rb, 0, s.st_size);
     read( fd, rb, s.st_size);
+    printf("read from log [%s]\n", rb);
+    *ret = rb;
+    return s.st_size;
+    /*
     base64_encode( &b64, rb, s.st_size);
+    printf("encoded buffer [%s]\n", b64.data);
     free(rb);
     close(fd);
     ret = strdup(b64.data);
+    len = b64.length;
     buffer_delete(&b64);
-    return ret;
+    return len;*/
 }
 
 int

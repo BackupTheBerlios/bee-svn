@@ -30,3 +30,5 @@ userdb_checkLogin(  const char* const uname,
 bool
 userdb_checkRemembered( const char* const uname,
                         const char* const cookie );
+size_t
+userdb_getErrorLog( const char * uname, int job_type, const char*const log, char* *ret);

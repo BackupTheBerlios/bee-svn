@@ -14,6 +14,7 @@ class Index {
     function Index( $host, $port )
     {
         $this->xmlrpc = new XML_RPC_Client('/RPCSERVER', $host, $port );
+        //$this->xmlrpc->setDebug(1);
         $this->job_pending=1;
         $this->job_running=2;
         $this->job_complete=4;
