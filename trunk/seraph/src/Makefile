@@ -3,7 +3,7 @@
 		   -Wdeclaration-after-statement
 
 TOP=.
-files = str.o fileop.o baseclass.o basedb.o userdb.o testdb.o core.o sut.o sock.o scan.o debug.o #wall.o 
+files = str.o fileop.o baseclass.o basedb.o userdb.o testdb.o core.o sut.o sock.o scan.o dbg.o #wall.o 
 TARGETS=$(TOP)/lib/$(OS)/libtrpc.a $(TOP)/lib/$(OS)/libtbot.a bin/srph  bin/mngrd .tool
 include system.mk
 
@@ -50,7 +50,7 @@ install:
 
 
 clean:
-	rm -rf $(TARGETS) $(objs) *.o *.lob *.debug scan.c
+	rm -rf $(TARGETS) $(objs) *.o *.lob *.debug scan.c core
 	make -C rpc clean
 	make -C tools clean
 

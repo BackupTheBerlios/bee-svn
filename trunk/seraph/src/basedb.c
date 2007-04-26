@@ -7,7 +7,7 @@
 #include <fcntl.h>
 #include <limits.h>
 #include "baseclass.h"
-#include "debug.h"
+#include "dbg.h"
 
 /*BaseDB class implementation*/
 extern const void * BaseDB;

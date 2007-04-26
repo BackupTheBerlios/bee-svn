@@ -3,6 +3,60 @@ session_start();
 require_once 'XML/RPC.php';
 require_once 'base_lib.php';
 
+    function listJobs()
+    {
+    $job_pending =1;
+    $job_running=2;
+    $job_complete=4;
+    $job_all=8;
+        $xmlrpc = new XML_RPC_Client('/RPCSERVER', "localhost", 5000 );
+        echo " List of Jobs:(Opens log on click)<br>";
+        /*-------------------------------------------*/
+        $state = "job_running";
+
+        $req = new XML_RPC_Value( array(
+                            "sut_username" => new XML_RPC_Value( "user1",'string'),
+                            "job_type"   => new XML_RPC_Value( $job_running,'int'))
+                    , "struct");
+
+        $msg = new XML_RPC_Message('listJobs', array($req));
+        $resp = $xmlrpc->send($msg);
+        if( hasErrors($resp) ) return false;
+
+        $i = $resp->value()->arraysize();
+        echo "NbJobs:$i<br>";
+
+        while($i--) {
+            $log = XML_RPC_decode($resp->value()->arraymem($i));
+            echo "<div class='$state'>";
+            echo "<a href='view.php?log=$log'>";
+            echo "<span>1000</span>";
+            echo "<span><b >$state</b></span>";
+            echo "<span>$log</span>";
+            echo "</a>";
+            echo "</div>";
+        }
+        /*---------------------------------------------*/
+        /*
+        while($i++<3) {
+        echo "<div class='job_running_ok'>";
+        echo "<a href='http://google.com'>";
+            echo "<span>1000</span>";
+            echo "<span><b >Running</b></span>";
+            echo "<span>".XML_RPC_decode($resp->value()->arraymem($i)) ."</span>";
+        echo "</a>";
+        echo "</div>";
+        }
+        while($i++<6) {
+        echo "<div class='job_pending'>";
+        echo "<a href='http://google.com'>";
+            echo "<span>1000</span>";
+            echo "<span><b >Pending</b></span>";
+            echo "<span>".XML_RPC_decode($resp->value()->arraymem($i)) ."</span>";
+        echo "</a>";
+        echo "</div>";
+        }*/
+    }
 function runTests($cli)
 {
 
@@ -62,63 +116,8 @@ function runTests($cli)
     drawMenu() ;
     runTests($cli);
     #showInfo();
-    echo "STARTED";?>
-<table cellspacing='1' width='60%'>
-<tr bgcolor="#c8c8ff">
-        <td class="center" valign="top" width ="0" nowrap>
-        <span class="small">
-        <a href="view_job.php?SUT_jobid=1036" title="[assigned] aSfasfaSF">00001</a><br />&nbsp;     </span>
-    </td>
-
-        <td class="left" valign="top" width="100%">
-
-        <span class="small">
-        [cli, hsp, html]<br/>
-        [2.0] [machine1] [2007-04-12 05:02] [ 0 of 120]
-        </span>
-    </td>
-    <td>
-    <span>
-    Pending
-    </span>
-    </td>
-</tr>
-<tr bgcolor="#ffa0a0">
-        <td class="center" valign="top" width ="0" nowrap>
-        <span class="small">
-        <a href="view_job.php?SUT_jobid=1036" title="[assigned] aSfasfaSF">00002</a><br />&nbsp;     </span>
-    </td>
-
-        <td class="left" valign="top" width="100%">
-
-        <span class="small">
-        [cli, hsp, html]<br/>
-        [2.0] [machine1] [2007-04-12 05:02] [120 of 120]
-    <td>
-    <span> Complete
-    </span>
-    </td>
-        </span>
-    </td>
-</tr>
-<tr bgcolor="#cceedd">
-        <td class="center" valign="top" width ="0" nowrap>
-        <span class="small">
-        <a href="view_job.php?SUT_jobid=1036" title="[assigned] aSfasfaSF">00003</a><br />&nbsp;     </span>
-    </td>
-
-        <td class="left" valign="top" width="100%">
-
-        <span class="small">
-        [cli, hsp, html]<br/>
-        [2.0] [machine1] [2007-04-12 05:02] [ 12 of 120]
-        </span>
-    <td>
-    <span> Running
-    </span>
-    </td>
-</tr>
-</table>
+    echo "STARTED";
+    listJobs();?>
     <br>
 </body>
 </html>

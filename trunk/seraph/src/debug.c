@@ -19,7 +19,7 @@
 
 /** @file  Debug.cpp
  *  @brief Usefull in debugging. */
-#include "debug.h"
+#include "dbg.h"
 #include <stdio.h>  //printf, fprintf
 #include <stdarg.h> //va_list
 

@@ -19,7 +19,7 @@
 #include <strings.h>
 #include <limits.h>
 
-#include "debug.h"
+#include "dbg.h"
 #include "config.h"
 #include "strop.h"
 

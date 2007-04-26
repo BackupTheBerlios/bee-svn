@@ -26,7 +26,7 @@
 
 #include "seraph.h"
 #include "rshd.h"
-#include "debug.h"
+#include "dbg.h"
 #include "socket.h"
 #include "strop.h"
 #include "fileop.h"

@@ -21,7 +21,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <sys/wait.h>
-#include "debug.h"
+#include "dbg.h"
 #include "config.h"
 #include "strop.h"
 #include "fileop.h"

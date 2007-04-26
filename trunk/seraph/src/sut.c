@@ -24,7 +24,7 @@
 #include "sut.h"
 #include "socket.h"
 #include "strop.h"
-#include "debug.h"
+#include "dbg.h"
 #include "rshd.h"
 #include "strop.h"
 #include "fileop.h"

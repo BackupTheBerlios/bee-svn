@@ -27,7 +27,7 @@
 #include <limits.h>
 #include <signal.h>
 
-#include "debug.h"
+#include "dbg.h"
 
 #define SUT_TTYPE   "SUT_TTYPE"
 #define SUT_HOST    "SUT_HOST"

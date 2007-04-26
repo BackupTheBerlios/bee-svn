@@ -29,7 +29,7 @@
 #include <limits.h>
 #include <time.h>
 #include "rpc.h"
-#include "debug.h"
+#include "dbg.h"
 #include "seraph.h"
 #include "rshd.h"
 #include "socket.h"

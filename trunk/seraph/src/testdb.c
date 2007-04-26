@@ -5,7 +5,7 @@
 #include "sut.h"
 #include "socket.h"
 #include "strop.h"
-#include "debug.h"
+#include "dbg.h"
 #include "rshd.h"
 #include "strop.h"
 #include "fileop.h"
@@ -68,7 +68,7 @@ testdb_listMachines(const char* td, int* sz)
         return NULL ;
     }
     while( ( ent = readdir( dir ) ) ) {
-        if( !strcmp(ent->d_name,".") || !strcmp(ent->d_name,"..") ) continue;
+        if( !strcmp(ent->d_name,".") || !strcmp(ent->d_name,"..") || !strcmp(ent->d_name, "cfg_template") ) continue;
         buf[i] = (char*)calloc(512, sizeof(char));
         strcpy(buf[i++], ent->d_name);
     }
