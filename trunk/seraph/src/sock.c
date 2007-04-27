@@ -107,7 +107,7 @@ int sock_getStatus( const int sock )
         sscanf( buf, "E:%d\r\n", &status );
     return status;
 }
-
+/* TODO: revise this */
 int sock_sendLine( const int sock, const char *line )
 {
         int t;
@@ -118,7 +118,7 @@ int sock_sendLine( const int sock, const char *line )
         if( t < 0 || t < strlen( tr ) ) {
                 fprintf( stderr, "ERROR writing on socket : %s\n",
                          strerror( errno ) );
-                exit( -1 );
+                return false;
         }
-        return 0;
+        return true;
 }

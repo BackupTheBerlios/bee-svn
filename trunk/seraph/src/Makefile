@@ -1,37 +1,35 @@
-#CFLAGS = -g -Wall -Werror -ansi -std=c99 -Wbad-function-cast  -Wmissing-declarations -Wmissing-prototypes \
-           -Wnested-externs  -Wold-style-definition -Wstrict-prototypes \
-		   -Wdeclaration-after-statement
-
 TOP=.
+
 files = str.o fileop.o baseclass.o basedb.o userdb.o testdb.o core.o sut.o sock.o scan.o dbg.o #wall.o 
 TARGETS=$(TOP)/lib/$(OS)/libtrpc.a $(TOP)/lib/$(OS)/libtbot.a bin/srph  bin/mngrd .tool
+
 include system.mk
 
 all: $(TARGETS)
 
-help:
-	echo "Targets are: srph lib clean tar indent install"
 
-
-
-$(TOP)/lib/$(OS)/libtbot.a: $(objs)
+$(TOP)/lib/$(OS)/libtbot.a: $(objs) $(lobs)
 	flex -oscan.c scan.l
 	ar cr $(TOP)/lib/$(OS)/libtbot.a $(objs)
 	ranlib $(TOP)/lib/$(OS)/libtbot.a
+	flint $(lobs) -oo\($(TOP)/lib/$(OS)/libtbot.lob\) >> libtbot.lint
+
 
 $(TOP)/lib/$(OS)/libtrpc.a:
 	make -C rpc
 
 bin/mngrd: $(TOP)/lib/$(OS)/libtbot.a
-	mkdir -p ./bin/tools
 	$(CC) $(CFLAGS) $(LDFLAGS)  mngrd.c  -o $@
+	flint $(TOP)/lib/$(OS)/libtbot.lob mngrd.c >> mngrd.lint
 
 bin/srph: $(TOP)/lib/$(OS)/libtbot.a $(TOP)/lib/$(OS)/libtrpc.a
 	mkdir -p ./bin/tools
 	$(CC) $(CFLAGS) $(LDFLAGS) srph.c  -o $@
+	flint $(TOP)/lib/$(OS)/libtbot.lob $(TOP)/lib/$(OS)/libtrpc.lob  srph.c >> srph.lint
 
 
 .tool:
+	mkdir -p ./bin/tools
 	make -C ./tools
 	touch .tool
 
@@ -50,7 +48,7 @@ install:
 
 
 clean:
-	rm -rf $(TARGETS) $(objs) *.o *.lob *.debug scan.c core
+	rm -rf $(TARGETS) $(objs) *.o *.lob *.debug scan.c core *.lint
 	make -C rpc clean
 	make -C tools clean
 
@@ -70,3 +68,9 @@ indent:
 rmtinst:
 	scp ./srph root@gigi:/home/srph
 	make -C ./tools rmtinst
+
+help:
+	echo "Targets are: srph lib clean tar indent install"
+
+
+

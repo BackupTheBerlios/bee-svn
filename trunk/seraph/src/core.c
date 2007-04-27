@@ -1,22 +1,12 @@
 #include "config.h"
-#include <sys/wait.h>
-#include <sys/types.h>
-
+#include "core.h"
 #include "sut.h"
 #include "socket.h"
 #include "strop.h"
-#include "dbg.h"
 #include "rshd.h"
-#include "strop.h"
 #include "fileop.h"
 #include "wall.h"
-
-#include <glib.h>
 #include <libgen.h>
-#include <sys/wait.h>
-#include <limits.h>
-#include <time.h>
-#include "core.h"
 extern struct config_s cfg;
 int running ;
 static bool
@@ -96,20 +86,18 @@ core_checkCoreRemote( const char *core_srcDir, const char *dbg_srcDir,
         const char *crash_destDir )
 {
     char cmd[PATH_MAX] = { 0 };     /* Max line should therefore be 3 times the length of FILENAME_MAX */
-    int rc = 0;
+    int ret = 0;
     int sock;
 
     sock = sock_connectTo( cfg.hostname, cfg.rawport );
     sprintf( cmd, "CHECKCORE %s %s %s %s %s",
             core_srcDir, dbg_srcDir, axi_workDir,
             axi_cfgFile, crash_destDir );
-    sock_sendLine( sock, cmd );
-    rc = sock_getStatus( sock );
+    ret = sock_sendLine( sock, cmd ); if( !ret ) return false ;
+    ret = sock_getStatus( sock );
     close( sock );
-    if( rc ) {
-        return true;
-    }
-    return false;
+    if( !ret ) return false;
+    return true;
 }/*------------------------------------------------------------------*/
 
 
@@ -146,7 +134,7 @@ static bool core_moveCore( char *src, char *dst )
 }
 
 
-
+/* TODO: eliminate static arrays and the use of system */
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 static bool core_moveDebugs( const char *srcDir, char *dst )
 {
@@ -154,6 +142,7 @@ static bool core_moveDebugs( const char *srcDir, char *dst )
     char src[FILENAME_MAX] = { 0 };
     char cmd[2 * FILENAME_MAX + 32] = { 0 };
     struct dirent *entry;
+    int ret;
 
     if( !( dir = opendir( srcDir ) ) ) {
         dbg_error("srph: Can't open dbgSrcDir [%s] : %s\n",
@@ -162,22 +151,25 @@ static bool core_moveDebugs( const char *srcDir, char *dst )
     }
     while( ( entry = readdir( dir ) ) ) {
         if( !strcmp( entry->d_name, "." )
-                || !strcmp( entry->d_name, ".." ) )
+        ||  !strcmp( entry->d_name, ".." ) )
             continue;
         sprintf( src, "%s/%s", srcDir, entry->d_name );
         sprintf( cmd, "/bin/mv %s %s", src, dst );
-        system( cmd );
+        ret = system( cmd );
+        if( -1 == ret || 0 != WEXITSTATUS(ret) )
+        {   dbg_error("srph: Unable to move [%s] to [%s] : [%s]\n",
+                        src, dst, strerror(errno));
+            closedir(dir);
+            return false;
+        }
     }
-    if( -1 == closedir( dir ) ) {
-        dbg_error("srph: Unable to close dir [%s]: [%s]\n",
-                srcDir, strerror( errno ) );
-        return false;
-    }
+    closedir( dir ) ;
     return true;
 }
 
 
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+/* TODO: no more system */
 static bool core_moveLog( const char *workDir, char *dst )
 {
     char src[FILENAME_MAX] = { 0 };
@@ -190,6 +182,7 @@ static bool core_moveLog( const char *workDir, char *dst )
 
 
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+/* TODO: no more system */
 static bool core_copyCfg( const char *cfgFile, char *dst )
 {
     char cmd[2 * FILENAME_MAX + 32] = { 0 };
@@ -230,10 +223,12 @@ core_checkCoreLocal( const char *core_srcDir, const char *dbg_srcDir,
             if( !rc )
                 return false;
 
-            core_moveCore( src, dst );
-            core_moveDebugs( dbg_srcDir, dst );
-            core_moveLog( workDir, dst );
-            core_copyCfg( cfgFile, dst );
+            if( !core_moveCore(src, dst)
+            ||  !core_moveDebugs(dbg_srcDir, dst)
+            ||  !core_moveLog(workDir, dst)
+            ||  !core_copyCfg(cfgFile, dst)
+            )
+                return false;
 
             return true;
         }

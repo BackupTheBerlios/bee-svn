@@ -1,13 +1,8 @@
-#include <stdlib.h>
-#include <errno.h>
-#include <stdio.h>
-#include <stdarg.h>
-#include <assert.h>
+#include "dbg.h"
 #include <string.h>
 #include <fcntl.h>
 #include <limits.h>
 #include "baseclass.h"
-#include "dbg.h"
 
 /*BaseDB class implementation*/
 extern const void * BaseDB;
