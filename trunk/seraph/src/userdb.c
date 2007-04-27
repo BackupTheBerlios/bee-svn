@@ -29,20 +29,16 @@ bool
 userdb_register( const char* const name, const char* const email,
                  const char* const uname, const char* const pass)
 {
-    FILE* f=NULL;
     if(chdir(USERDB))
     {
         debug("unable to chdir to %s\n", USERDB, strerror(errno));
         return false;
     }
-    if( mkdir(uname, 0755) )
-    {
-        debug("unable to register user: [%s]\n", strerror(errno) );
+    if( mkdir(uname, 0755) || chdir(uname))
+    {   debug("unable to register user: [%s]\n", strerror(errno) );
         return false;
     }
-    chdir(uname);
 
-    fclose(fopen("userdata","w"));
     if(fclose(fopen("userdata","w")))
     {   debug("unable to create 'userdata' file: [%s]\n", strerror(errno));
         return false;
@@ -56,10 +52,12 @@ userdb_register( const char* const name, const char* const email,
     db_close(db);
     delete(db);
     /* TODO check return values */
-    mkJobDir(uname, "jobs");
-    mkJobDir(uname, "jobs/complete");
-    mkJobDir(uname, "jobs/running");
-    mkJobDir(uname, "jobs/pending");
+    if( !mkJobDir(uname, "jobs")
+    ||  !mkJobDir(uname, "jobs/complete")
+    ||  !mkJobDir(uname, "jobs/running")
+    ||  !mkJobDir(uname, "jobs/pending")
+    )
+        return false;
     return true;
 }
 
@@ -69,7 +67,7 @@ userdb_login( const char* uname, const char* pass)
     char p[33]={0}; //md5sum
 
     struct Class* db = new(BaseDB);
-    if(db_open(db, "%s/%s", USERDB, uname))
+    if( db_open(db, "%s/%s", USERDB, uname) )
         return false;
 
     db_get(db, "pass", p);
@@ -124,13 +122,10 @@ userdb_listJobs( const char * const uname, enum JobType job_type, GSList** jobs)
     *jobs =  g_slist_alloc() ;
 
     debug("JobType: [%d]\n", job_type);
-    if(job_type & JOB_ALL )
-    {
-        job_type |= JOB_PENDING;
-        job_type |= JOB_RUNNING;
-        job_type |= JOB_COMPLETE;
-    }
-    if(job_type & JOB_PENDING )
+    if( job_type == JOB_ALL )
+        job_type += JOB_PENDING + JOB_RUNNING + JOB_COMPLETE;
+    
+    if( job_type & JOB_PENDING )
     {
         sprintf( path, "%s/%s/jobs/pending", USERDB, uname);
         debug("JOBS_PENDING path[%s]\n", path);
@@ -146,7 +141,7 @@ userdb_listJobs( const char * const uname, enum JobType job_type, GSList** jobs)
         }
         closedir(dit);
     }
-    if(job_type & JOB_RUNNING )
+    if( job_type & JOB_RUNNING )
     {
         sprintf( path, "%s/%s/jobs/running", USERDB, uname);
         debug("JOBS_RUNNING path[%s]\n", path);
@@ -160,7 +155,7 @@ userdb_listJobs( const char * const uname, enum JobType job_type, GSList** jobs)
         }
         closedir( dit );
     }
-    if(job_type & JOB_COMPLETE )
+    if( job_type & JOB_COMPLETE )
     {
         sprintf( path, "%s/%s/jobs/complete", USERDB, uname);
         debug("JOBS_COMPLETE path[%s]\n", path);
@@ -190,7 +185,7 @@ userdb_checkSession(const char* const uname,
 {
     int ret =0;
     struct Class* db = new(BaseDB);
-    char u[33]={0}, c[33]={0}, i[33]={0}, s[33]={0};
+    char c[33]={0}, i[33]={0}, s[33]={0};
 
     ret = db_open( db, "%s/%s",USERDB, uname);
     debug("USERDB[%s] uname[%s]\n", USERDB, uname);
@@ -265,8 +260,9 @@ userdb_checkRemembered( const char* const uname,
     struct Class* db = new(BaseDB);
 
     debug("uname[%s] cookie[%s]\n", uname, cookie);
-    new(BaseDB);
     db_open( db, "%s/%s", USERDB, uname );
     db_get( db, "cookie", &c );
     db_close(db);
+    delete(db);
+    return false; /*TODO*/
 }
