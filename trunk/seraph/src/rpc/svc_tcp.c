@@ -28,7 +28,7 @@ int t_startCallback( int sock, char *buf )
                 return FALSE;
         }
 
-        printf( "START %d [%s][%s]\n", timeout, maillog, startCmd );
+        printf( "START timeout[%d] maillog[%s] startCmd[%s]\n", timeout, maillog, startCmd );
         sut_start( TEST_LOCAL, timeout, maillog, startCmd, 0, 0 );
         sock_sendStatus( sock, 0 );
         return TRUE;            /* @todo pls return a proper value(sendStatus) */
@@ -53,7 +53,7 @@ int t_stopCallback( int sock, char *buf )
                 printf( "Invalid syntax for STOP\n" );
                 return FALSE;
         }
-        printf( "STOP %d [%s][%s]\n", timeout, maillog, stopCmd );
+        printf( "STOP timeout[%d] maillog[%s] stopCmd[%s]\n", timeout, maillog, stopCmd );
         sut_stop( TEST_LOCAL, timeout, maillog, stopCmd, 0, 0 );
         sock_sendStatus( sock, 0 );
         return TRUE;
@@ -188,7 +188,7 @@ int t_mkdirCallback( int sock, char *buf )
         }
 
         if( mkdir( path, 0777 ) == -1 ) {
-                printf( "mkdir: ERR:[%s]", strerror( errno ) );
+                printf( "mkdir: ERR:[%s]\n", strerror( errno ) );
                 sock_sendStatus( sock, errno );
                 return errno;
         }
@@ -233,7 +233,7 @@ int t_checkCoreCallback( int sock, char *buf )
         sscanf( buf, "%s %s %s %s %s",
                 core_srcDir, dbg_srcDir, axi_workDir,
                 axi_cfgFile, crash_destDir );
-        printf( "CORE %s %s %s %s %s",
+        printf( "CORE core_srcDir[%s] dbg_srcDir[%s] axi_workDir[%s] axi_cfgFile[%s] crash_destDir[%s]\n",
                 core_srcDir, dbg_srcDir, axi_workDir,
                 axi_cfgFile, crash_destDir );
         rc = core_checkCore( TEST_LOCAL,

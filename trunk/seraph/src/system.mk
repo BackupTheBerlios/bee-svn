@@ -20,13 +20,13 @@ CC = gcc
 XOPEN_SOURCE=-D_POSIX_C_SOURCE=200112L -D_XOPEN_SOURCE=600 -D_XOPEN_SOURCE_EXTENDED=1 -U_BSD_SOURCE
 
 WARN=	-W -Wimplicit -Wreturn-type -Wswitch -Wcomment \
-	-Wtrigraphs -Wformat -Wchar-subscripts \
-	-Wparentheses -pedantic -Wuninitialized -std=c99
+		-Wtrigraphs -Wformat -Wchar-subscripts \
+		-Wparentheses -pedantic -Wuninitialized -std=c99
 
 INCLUDES=-I$(TOP)/include `pkg-config --cflags glib-2.0`
 
 DEFINES=-DMACHINES=\"$(MACHINES)\" -DJOBS=\"$(JOBS)\" \
-	-DUSE_DEBUG -DUSERDB=\"$(USERDB)\" -DLIBDIR=\"$(LIBDIR)\"
+		-DUSE_DEBUG -DUSERDB=\"$(USERDB)\" -DLIBDIR=\"$(LIBDIR)\"
 
 CFLAGS = $(WARN) $(XOPEN_SOURCE) -g -Os $(INCLUDES) $(DEFINES)
 LDFLAGS = -lglib-2.0 -L$(TOP)/lib/$(OS) -Wl,-whole-archive -ltrpc -ltbot -Wl,-no-whole-archive -lxmlrpc

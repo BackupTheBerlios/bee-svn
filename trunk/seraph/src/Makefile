@@ -8,24 +8,33 @@ include system.mk
 all: $(TARGETS)
 
 
-$(TOP)/lib/$(OS)/libtbot.a: $(objs) $(lobs)
+$(TOP)/lib/$(OS)/libtbot.a: $(objs) _lints
 	flex -oscan.c scan.l
 	ar cr $(TOP)/lib/$(OS)/libtbot.a $(objs)
 	ranlib $(TOP)/lib/$(OS)/libtbot.a
-	flint $(lobs) -oo\($(TOP)/lib/$(OS)/libtbot.lob\) >> libtbot.lint
 
+ifdef USEFLINT
+_lints: $(lobs)
+	flint $(lobs) -oo\($(TOP)/lib/$(OS)/libtbot.lob\) >> libtbot.lint
+else
+_lints:
+endif
 
 $(TOP)/lib/$(OS)/libtrpc.a:
 	make -C rpc
 
 bin/mngrd: $(TOP)/lib/$(OS)/libtbot.a
 	$(CC) $(CFLAGS) $(LDFLAGS)  mngrd.c  -o $@
+ifdef USEFLINT
 	flint $(TOP)/lib/$(OS)/libtbot.lob mngrd.c >> mngrd.lint
+endif
 
 bin/srph: $(TOP)/lib/$(OS)/libtbot.a $(TOP)/lib/$(OS)/libtrpc.a
 	mkdir -p ./bin/tools
 	$(CC) $(CFLAGS) $(LDFLAGS) srph.c  -o $@
+ifdef USEFLINT
 	flint $(TOP)/lib/$(OS)/libtbot.lob $(TOP)/lib/$(OS)/libtrpc.lob  srph.c >> srph.lint
+endif
 
 
 .tool:
