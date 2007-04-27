@@ -3,6 +3,8 @@
 
 #include <glib.h>
 
+bool
+sut_refresh( const int test_type, const char *source, const char *dest, const char *host, const int port );
 bool sut_start( const int test_type,
                 const int timeout, const char* maillog,
                 const char* start, const char* host, const int port);

@@ -45,7 +45,7 @@ main( int argc, char *argv[] )
     str_isEnv( SUT_TTYPE );
     str_isEnv( SUT_STOP );
     str_isEnv( SUT_START );
-    str_isEnv( SUT_DEFDOM );
+    str_isEnv( SUT_DEFWD );
     str_isEnv( SUT_WORKDIR );
     tc = getenv( SUT_TTYPE );
 
@@ -64,7 +64,7 @@ main( int argc, char *argv[] )
     }
 
     system( getenv(SUT_STOP) );
-    sut_refresh( test_type, getenv( SUT_DEFDOM ),
+    sut_refresh( test_type, getenv( SUT_DEFWD ),
             getenv( SUT_WORKDIR ), cfg.hostname, cfg.rawport );
     ret = system( getenv(SUT_START) );
     UNDBG;

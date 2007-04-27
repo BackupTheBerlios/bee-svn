@@ -270,9 +270,12 @@ x_runTestsCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void* userData
     extern struct config_s cfg;
     pid_t pid;
     int status=0;
+    char* sut_refresh=NULL;
 
 
     str = XMLRPC_VectorRewind(XMLRPC_RequestGetData(request));
+
+    sut_refresh = XMLRPC_VectorGetStringWithID(str, "sut_refresh");
 
     /* Extract SUT Build */
     sut_build = XMLRPC_VectorGetStringWithID(str, "sut_build");
@@ -313,8 +316,8 @@ x_runTestsCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void* userData
             debug("Run tests from directory: '%s/%s' \n", cfg.test_dir,p);
             sprintf(tDir, "%s/%s", cfg.test_dir,p);
             sprintf(tCfg, "%s/%s", MACHINES,os);
-            sprintf(cmd,"/home/groleo/sand/bin/srph -V -C %s -d %s -t remote -r n -k"
-                   ,tCfg, tDir);
+            sprintf(cmd,"/home/groleo/sand/bin/srph -V -C %s -d %s -t remote -r %s -k"
+                   ,tCfg, tDir, sut_refresh);
             system(cmd);
             xIter = XMLRPC_VectorNext(tests);
         }

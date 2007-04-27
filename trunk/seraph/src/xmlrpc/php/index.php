@@ -29,7 +29,7 @@ class Index {
 
         $i = $resp->value()->arraysize();
 
-        echo "<select name='sut_tests[]' multiple size='5'><option>ALL</option>";
+        echo "<select name='sut_tests[]' multiple size='5'>";
         while($i--) {
             echo "<option>"
                 .XML_RPC_decode($resp->value()->arraymem($i))
@@ -49,7 +49,7 @@ class Index {
         if( hasErrors($resp)) return false;
         $i = $resp->value()->arraysize();
 
-        echo "<select name='sut_os[]' multiple size='5'><option>ALL</option>" ;
+        echo "<select name='sut_os[]' multiple size='5'>" ;
         while($i--) {
             echo "<option>"
                 .XML_RPC_decode($resp->value()->arraymem($i))
@@ -81,6 +81,11 @@ class Index {
             <!--<input valign='top' value='0.0' name='sut_build' type='text' size='3'/>-->
             ";
     }
+    function refreshAfterRunnedTest()
+    {
+        echo "Refresh after each test?";
+        echo "<input type='checkbox' name='refresh' value='y'/>";
+    }
 }
 ?>
 
@@ -111,6 +116,7 @@ class Index {
         <div class='column'>
             <span > <?php $index->listTests(); ?> &nbsp;</span>
             <span > <?php $index->listOSes(); ?> &nbsp;</span>
+            <span ><?php $index->refreshAfterRunnedTest(); ?></span>
             <!--<span > <?php $index->listSUTVersions(); ?> &nbsp;</span> -->
             <!--<span > <?php $index->listSchedules(); ?> &nbsp;</span> -->
             <input type='submit' value='Run'/>

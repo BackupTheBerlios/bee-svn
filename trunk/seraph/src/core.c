@@ -307,7 +307,8 @@ core_fileAction( const char *fileName, struct stat *statbuf, void *junk )
 
     if( strcmp( bn, "runtest.bat" ) || access( fileName, X_OK ) )
         return TRUE;
-    //sut_sutRefresh( cfg.refresh, fileName );
+    sut_refresh( cfg.test_type, cfg.sutDefWD,
+                 cfg.axi_workDir, cfg.hostname,cfg.rawport );
     core_setupTmp( fileName, tmpDir );
     if( NULL == getcwd( curDir, FILENAME_MAX ) ) {
         dbg_error( "srph: Unable to get current directory: [%s]"

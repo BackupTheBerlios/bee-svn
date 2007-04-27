@@ -31,8 +31,7 @@ Month / year / day <br>
 </select>
 
 <select name="start_year">
-<option value="2007" selected="selected"> 2007 </option><option value="2006"> 2006 </option><option value="2005"> 2005 </option><option value="2004"> 2004 </option><option value="2003"> 2003 </option><option value="2002"> 2002 </option><option value="2001"> 2001 </option><option value="2000"> 2000 </option>
-</select></span>
+<option value="2007" selected="selected"> 2007 </option></select></span>
 <span>
 Hour:Minutes<br>
 <select name="start_hour">

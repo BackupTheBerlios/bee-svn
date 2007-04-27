@@ -209,6 +209,10 @@ int srph_initEnv( struct config_s *config )
     str_isEnv( SUT_COREDIR );
     str_isEnv( SUT_CFGFILE );
     str_isEnv( SUT_WORKDIR );
+    if( config->refresh == OPT_YES)
+    {   str_isEnv( SUT_DEFWD );
+        config->sutDefWD = getenv(SUT_DEFWD);
+    }
 
     /* build the PATH like $HOME/seraph/tools:$PATH
      * so the system() will use our cp, rm, mkdir */

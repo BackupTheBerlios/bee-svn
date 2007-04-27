@@ -325,10 +325,10 @@ static bool sut_refreshLocal( const char *source, const char *dest )
     struct stat buf;
     printf( "* refresh: Removing %s\n", dest );
     sprintf( cmd, "/bin/rm -rf %s", dest );
-    if( system( cmd ) ) {
+    /*if( system( cmd ) ) {
         printf( "! refresh: [%s] not deleted\n", dest );
         return false;
-    }
+    }*/
     cod = stat( source, &buf );
     if( cod != 0 ) {
         fprintf( stderr, "* refresh: ERR: %s: %s\n", source,

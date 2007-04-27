@@ -34,13 +34,18 @@ function runTests($cli)
     $xtests = new XML_RPC_Value($tests, "array");
     /*--------------------------------------------*/
 
+    $refresh = "n";
+    if( $_REQUEST['refresh'] )
+        $refresh="y";
+
     /* Serialize Method parameter ++++++++++++++++*/
     $request = new XML_RPC_Value(
             array(
                 "sut_tests"     => $xtests,
                 "sut_versions"  => $xversions,
                 "sut_os"        => $xoses,
-                "sut_build"     => new XML_RPC_Value($_GET['sut_build'], 'string')
+                "sut_build"     => new XML_RPC_Value($_GET['sut_build'], 'string'),
+                "sut_refresh"   => new XML_RPC_Value($refresh, 'string')
                 ), "struct");
     $params=array($request);
     $msg = new XML_RPC_Message('runTests', $params);
@@ -50,6 +55,7 @@ function runTests($cli)
     if( hasErrors($resp) ) return;
 }
     $cli = new XML_RPC_Client('/RPCSERVER','localhost',5000);
+    showInfo();
     runTests($cli);
     sleep(1); /* avoid hitting refresh to see the newly launched job ( maybe there is a sleep in
                 the backend*/
