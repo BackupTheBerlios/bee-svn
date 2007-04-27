@@ -83,7 +83,7 @@ class Index {
     }
     function refreshAfterRunnedTest()
     {
-        echo "Refresh after each test?";
+        echo "Refresh ?";
         echo "<input type='checkbox' name='refresh' value='y'/>";
     }
 }

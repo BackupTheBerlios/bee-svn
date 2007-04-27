@@ -55,7 +55,6 @@ function runTests($cli)
     if( hasErrors($resp) ) return;
 }
     $cli = new XML_RPC_Client('/RPCSERVER','localhost',5000);
-    showInfo();
     runTests($cli);
     sleep(1); /* avoid hitting refresh to see the newly launched job ( maybe there is a sleep in
                 the backend*/
