@@ -24,6 +24,7 @@ XMLRPC_VALUE x_checkLoginCallback(XMLRPC_SERVER server, XMLRPC_REQUEST request, 
 XMLRPC_VALUE x_checkRememberedCallback(XMLRPC_SERVER server, XMLRPC_REQUEST request, void* userData);
 XMLRPC_VALUE x_listJobsCallback(XMLRPC_SERVER server, XMLRPC_REQUEST request, void* userData);
 XMLRPC_VALUE x_getErrorLogCallback(XMLRPC_SERVER server, XMLRPC_REQUEST request, void* userData);
+XMLRPC_VALUE x_registerUserCallback(XMLRPC_SERVER server, XMLRPC_REQUEST request, void* userData);
 
 #else
         #warning "*** Header allready included ***"

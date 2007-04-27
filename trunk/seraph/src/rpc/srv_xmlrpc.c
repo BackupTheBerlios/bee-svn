@@ -215,6 +215,7 @@ char* clientCallback( const char* filebuf )
     XMLRPC_ServerRegisterMethod( server, "addMachine", x_addMachineCallback );
     XMLRPC_ServerRegisterMethod( server, "checkSession", x_checkSessionCallback );
     XMLRPC_ServerRegisterMethod( server, "setSession", x_setSessionCallback );
+    XMLRPC_ServerRegisterMethod( server, "registerUser", x_registerUserCallback );
     XMLRPC_ServerRegisterMethod( server, "checkLogin", x_checkLoginCallback );
     XMLRPC_ServerRegisterMethod( server, "checkRemembered", x_checkRememberedCallback );
     XMLRPC_ServerRegisterMethod( server, "listJobs", x_listJobsCallback );

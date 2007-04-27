@@ -3,60 +3,6 @@ session_start();
 require_once 'XML/RPC.php';
 require_once 'base_lib.php';
 
-    function listJobs()
-    {
-    $job_pending =1;
-    $job_running=2;
-    $job_complete=4;
-    $job_all=8;
-        $xmlrpc = new XML_RPC_Client('/RPCSERVER', "localhost", 5000 );
-        echo " List of Jobs:(Opens log on click)<br>";
-        /*-------------------------------------------*/
-        $state = "job_running";
-
-        $req = new XML_RPC_Value( array(
-                            "sut_username" => new XML_RPC_Value( $_SESSION["username"],'string'),
-                            "job_type"   => new XML_RPC_Value( $job_running,'int'))
-                    , "struct");
-
-        $msg = new XML_RPC_Message('listJobs', array($req));
-        $resp = $xmlrpc->send($msg);
-        if( hasErrors($resp) ) return false;
-
-        $i = $resp->value()->arraysize();
-        echo "NbJobs:$i<br>";
-
-        while($i--) {
-            $log = XML_RPC_decode($resp->value()->arraymem($i));
-            echo "<div class='$state'>";
-            echo "<a href='view.php?log=$log'>";
-            echo "<span>1000</span>";
-            echo "<span><b >$state</b></span>";
-            echo "<span>$log</span>";
-            echo "</a>";
-            echo "</div>";
-        }
-        /*---------------------------------------------*/
-        /*
-        while($i++<3) {
-        echo "<div class='job_running_ok'>";
-        echo "<a href='http://google.com'>";
-            echo "<span>1000</span>";
-            echo "<span><b >Running</b></span>";
-            echo "<span>".XML_RPC_decode($resp->value()->arraymem($i)) ."</span>";
-        echo "</a>";
-        echo "</div>";
-        }
-        while($i++<6) {
-        echo "<div class='job_pending'>";
-        echo "<a href='http://google.com'>";
-            echo "<span>1000</span>";
-            echo "<span><b >Pending</b></span>";
-            echo "<span>".XML_RPC_decode($resp->value()->arraymem($i)) ."</span>";
-        echo "</a>";
-        echo "</div>";
-        }*/
-    }
 function runTests($cli)
 {
 
@@ -117,7 +63,7 @@ function runTests($cli)
     runTests($cli);
     #showInfo();
     echo "STARTED";
-    listJobs();?>
+    listJobs(2);?>
     <br>
 </body>
 </html>

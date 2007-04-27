@@ -8,6 +8,22 @@
 #include "basedb.h"
 #include "userdb.h"
 
+static bool
+mkJobDir( const char* const uname, const char* const jobType)
+{
+    char *path=NULL;
+    path=(char*) malloc(strlen(USERDB)+strlen(uname)+strlen(jobType)+8);
+    sprintf( path, "%s/%s/%s", USERDB, uname, jobType);
+    if( mkdir(path, 0755) )
+    {
+        debug("unable to register user: [%s]\n", strerror(errno) );
+        free(path);
+        return false;
+    }
+    debug("mkdir(%s)\n", path);
+    free(path);
+    return true;
+}
 
 bool
 userdb_register( const char* const name, const char* const email,
@@ -36,8 +52,14 @@ userdb_register( const char* const name, const char* const email,
     db_put(db, "name", name);
     db_put(db, "email", email);
     db_put(db, "uname", uname);
-    db_put(db, "pass", pass);
+    db_put(db, "password", pass);
     db_close(db);
+    delete(db);
+    /* TODO check return values */
+    mkJobDir(uname, "jobs");
+    mkJobDir(uname, "jobs/complete");
+    mkJobDir(uname, "jobs/running");
+    mkJobDir(uname, "jobs/pending");
     return true;
 }
 
@@ -79,6 +101,7 @@ userdb_getErrorLog( const char * uname, int job_type, const char*const log, char
     {
         printf("error fstating\n");
         *ret = NULL;
+        close(fd);
         return 0;
     }
     rb = (char*)malloc(s.st_size);
@@ -87,6 +110,7 @@ userdb_getErrorLog( const char * uname, int job_type, const char*const log, char
     rb[len]='\0';
     printf("read from log [%s]\n", rb);
     *ret = rb;
+    close(fd);
     return s.st_size;
 }
 
@@ -134,7 +158,7 @@ userdb_listJobs( const char * const uname, enum JobType job_type, GSList** jobs)
             *jobs = g_slist_append(*jobs, strdup(dent->d_name) );
             ++nbJobs;
         }
-        close( dit );
+        closedir( dit );
     }
     if(job_type & JOB_COMPLETE )
     {
@@ -148,7 +172,7 @@ userdb_listJobs( const char * const uname, enum JobType job_type, GSList** jobs)
             *jobs = g_slist_append(*jobs, strdup(dent->d_name) );
             ++nbJobs;
         }
-        close( dit );
+        closedir( dit );
     }
     debug("return nbJobs[%d]\n", nbJobs);
     return nbJobs;
@@ -173,6 +197,7 @@ userdb_checkSession(const char* const uname,
     if(ret)
     {
         debug("error opening userdata file for [%s]\n", uname);
+        delete(db);
         return false;
     }
 
@@ -221,10 +246,12 @@ userdb_checkLogin(  const char* const uname,
     if(ret)
     {
         debug("error opening userdata file for [%s]\n", uname);
+        delete(db);
         return false;
     }
     db_get(db, "password", &p);
     db_close(db);
+    delete(db);
     ret = strcmp(password, p);
     printf("isPasswordOk?[%d]\n", !ret);
     return !( ret );

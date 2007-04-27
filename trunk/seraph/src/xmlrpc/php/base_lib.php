@@ -9,6 +9,62 @@ function session_defaults() {
     $_SESSION['remember'] = false;
 }
 
+function listJobs($job_type)
+{
+    $xmlrpc = new XML_RPC_Client('/RPCSERVER', "localhost", 5000 );
+    echo " List of Jobs:(click to open errorlog)<br>";
+    /*-------------------------------------------*/
+    $state = "job_running";
+
+
+    $req = new XML_RPC_Value( array(
+                        "sut_username" => new XML_RPC_Value( $_SESSION['username'],'string'),
+                        "job_type"   => new XML_RPC_Value( $job_type,'int'))
+                , "struct");
+
+    $msg = new XML_RPC_Message('listJobs', array($req));
+    $resp = $xmlrpc->send($msg);
+    if( hasErrors($resp) ) return false;
+
+    $i = $resp->value()->arraysize();
+
+    /*echo "NbJobs:$i<br>";*/
+    /*<div class="progress400">
+    </div>*/
+
+    while($i--) {
+        $log = XML_RPC_decode($resp->value()->arraymem($i));
+        echo "<div class='$state'>";
+        echo "<a href='view.php?log=$log'>";
+        echo "<span class='id'>1000</span>";
+        echo "<span class='state'>$state</span>";
+        echo "<span>$log</span>";
+        echo '<span class="bar" style="width: 60%;">60%</span>';
+        echo "</a>";
+        echo "</div>";
+    }
+
+    /*---------------------------------------------*/
+    /*
+    while($i++<3) {
+    echo "<div class='job_running_ok'>";
+    echo "<a href='http://google.com'>";
+        echo "<span>1000</span>";
+        echo "<span><b >Running</b></span>";
+        echo "<span>".XML_RPC_decode($resp->value()->arraymem($i)) ."</span>";
+    echo "</a>";
+    echo "</div>";
+    }
+    while($i++<6) {
+    echo "<div class='job_pending'>";
+    echo "<a href='http://google.com'>";
+        echo "<span>1000</span>";
+        echo "<span><b >Pending</b></span>";
+        echo "<span>".XML_RPC_decode($resp->value()->arraymem($i)) ."</span>";
+    echo "</a>";
+    echo "</div>";
+    }*/
+}
 
 
 function hasErrors($resp)
@@ -73,50 +129,6 @@ function drawMenu() {
     return true;
 }
 
-function drawMachines()
-{
-    $cli = new XML_RPC_Client('/RPCSERVER', 'localhost', 5000);
-
-    #$cli->setDebug(1);
-    $cli->setCredentials("user1","user1");
-
-
-    $msg = new XML_RPC_Message('listMachines');
-    $resp = $cli->send($msg);
-    if( hasErrors($resp) ) return;
-
-    $machines = $resp->value();
-    $i = $machines->arraysize();
-    #$i = 1;
-    while( $i-- )
-    {   $m = XML_RPC_decode( $machines->arraymem($i) );
-        echo "<form name='$m' action='set_config.php?SUT_MACHINE=$m' method='post'>
-        <ul class='menu' >
-        <li >
-        <p  onclick='javascript:toggleSpan(\"span$m\");' >$m<span id='span$m'>
-        <a href='javascript:;' onclick='addEvent(\"span$m\", \"sName$m\", \"sValue$m\");'><em class='butt'>Add</em></a>
-        <input type='submit' value='Save'>
-
-        <input id='sName$m'  type='text' value='SUT_NAME' style='text-align:right; clear:both; float:left; width:12.1em;'/>
-        <input id='sValue$m' type='text' value='Value'/>";
-        $params = array(new XML_RPC_Value( ($m), 'string') );
-        $msg    = new XML_RPC_Message('getConfig', $params);
-        $resp   = $cli->send($msg);
-        if( hasErrors($resp) ) return ;
-        $cfgTable = $resp->value();
-        $j = $cfgTable->arraysize();
-        while($j--){
-            $cfgEntry=$cfgTable->arraymem($j);
-            $cfgEntry->structreset();
-            $symbol = XML_RPC_decode($cfgEntry->structmem("symbol")) ;
-            $value  = XML_RPC_decode($cfgEntry->structmem("val")) ;
-            echo "<b>$symbol</b>";
-            echo "<input type='text' name='$symbol' value='$value' /><br>\n";
-        }
-        echo " </span></p>
-            </li> </ul> </form>";
-    }
-}
 function showInfo()
 {
     print "<pre>\n";

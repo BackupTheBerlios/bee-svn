@@ -1,93 +1,6 @@
 <?php
 session_start();
 require_once 'base_lib.php';
-    function listJobs()
-    {
-    $job_pending =1;
-    $job_running=2;
-    $job_complete=4;
-    $job_all=8;
-        $xmlrpc = new XML_RPC_Client('/RPCSERVER', "localhost", 5000 );
-        echo " List of Jobs:(Opens log on click)<br>";
-        /*-------------------------------------------*/
-        $state = "job_running";
-
-        $req = new XML_RPC_Value( array(
-                            "sut_username" => new XML_RPC_Value( $_SESSION["username"],'string'),
-                            "job_type"   => new XML_RPC_Value( $job_running,'int'))
-                    , "struct");
-
-        $msg = new XML_RPC_Message('listJobs', array($req));
-        $resp = $xmlrpc->send($msg);
-        if( hasErrors($resp) ) return false;
-
-        $i = $resp->value()->arraysize();
-        echo "NbJobs:$i<br>";
-/*
-<table class="width100" cellspacing="1">
-<tr>
-        <td class="form-title" colspan="2">
-        <a class="subtle" href="view_all_set.php?type=1&amp;temporary=y&amp;handler_id=[none]&amp;hide_status=90">Unassigned</a> [<a class="subtle" href="view_all_set.php?type=1&amp;temporary=y&amp;handler_id=[none]&amp;hide_status=90" target="_blank">^</a>]      (1 - 10 / 16)   </td>
-
-</tr>
-
-
-<tr bgcolor="#ffa0a0">
-        <td class="center" valign="top" width ="0" nowrap>
-        <span class="small">
-        <a href="view.php?id=1099" title="[new] Inserting 15 new fish breaks the hyperdrive">0001099</a><br /><img src="http://www.futureware.biz/mantisdemo/images/priority_2.gif" alt="" title="urgent" />        </span>
-    </td>
-
-        <td class="left" valign="top" width="100%">
-
-        <span class="small">
-        Inserting 15 new fish breaks the hyperdrive     <br />
-        [Demo] GUI - <b>2007-04-26 00:36</b>        </span>
-    </td>
-</tr>
-*/
-/*
-    echo "<table cellspacing='1' bgcolor='red' border='solid'>";
-    while($i--)
-    {
-        $log = XML_RPC_decode($resp->value()->arraymem($i));
-        echo "<tr> <td>1000</td>";
-        echo "<td>$state</td>";
-        echo "<td>$log</td></tr>";
-    }
-        echo "</table>";
-*/
-        while($i--) {
-            $log = XML_RPC_decode($resp->value()->arraymem($i));
-            echo "<div class='$state'>";
-            echo "<a href='view.php?log=$log'>";
-            echo "<span>1000</span>";
-            echo "<span><b >$state</b></span>";
-            echo "<span>$log</span>";
-            echo "</a>";
-            echo "</div>";
-        }
-        /*---------------------------------------------*/
-        /*
-        while($i++<3) {
-        echo "<div class='job_running_ok'>";
-        echo "<a href='http://google.com'>";
-            echo "<span>1000</span>";
-            echo "<span><b >Running</b></span>";
-            echo "<span>".XML_RPC_decode($resp->value()->arraymem($i)) ."</span>";
-        echo "</a>";
-        echo "</div>";
-        }
-        while($i++<6) {
-        echo "<div class='job_pending'>";
-        echo "<a href='http://google.com'>";
-            echo "<span>1000</span>";
-            echo "<span><b >Pending</b></span>";
-            echo "<span>".XML_RPC_decode($resp->value()->arraymem($i)) ."</span>";
-        echo "</a>";
-        echo "</div>";
-        }*/
-    }
 ?>
 <html>
 <head>
@@ -134,6 +47,6 @@ Hour:Minutes<br>
 <hr>
 
 Current Schedules:<br>
-<?php listJobs(); ?>
+<?php listJobs(2); ?>
 </body>
 </html>

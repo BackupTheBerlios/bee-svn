@@ -6,10 +6,6 @@ session_start();
 
 class Index {
     var $xmlrpc;
-    var $job_pending;
-    var $job_running;
-    var $job_complete;
-    var $job_all;
 
     function Index( $host, $port )
     {
@@ -43,62 +39,6 @@ class Index {
     }
 
 
-    function listJobs()
-    {
-        echo " List of Jobs:(click to open errorlog)<br>";
-        /*-------------------------------------------*/
-        $state = "job_running";
-
-
-        $req = new XML_RPC_Value( array(
-                            "sut_username" => new XML_RPC_Value( $_SESSION['username'],'string'),
-                            "job_type"   => new XML_RPC_Value( $this->$state,'int'))
-                    , "struct");
-
-        $msg = new XML_RPC_Message('listJobs', array($req));
-        $resp = $this->xmlrpc->send($msg);
-        if( hasErrors($resp) ) return false;
-
-        $i = $resp->value()->arraysize();
-
-        /*echo "NbJobs:$i<br>";*/
-        /*<div class="progress400">
-        </div>*/
-
-        while($i--) {
-            $log = XML_RPC_decode($resp->value()->arraymem($i));
-            echo "<div class='$state'>";
-            echo "<a href='view.php?log=$log'>";
-            echo "<span class='id'>1000</span>";
-            echo "<span class='state'>$state</span>";
-            echo "<span>$log</span>";
-            echo '<span class="bar" style="width: 60%;">60%</span>';
-            echo "</a>";
-            echo "</div>";
-        }
-
-        /*---------------------------------------------*/
-        /*
-        while($i++<3) {
-        echo "<div class='job_running_ok'>";
-        echo "<a href='http://google.com'>";
-            echo "<span>1000</span>";
-            echo "<span><b >Running</b></span>";
-            echo "<span>".XML_RPC_decode($resp->value()->arraymem($i)) ."</span>";
-        echo "</a>";
-        echo "</div>";
-        }
-        while($i++<6) {
-        echo "<div class='job_pending'>";
-        echo "<a href='http://google.com'>";
-            echo "<span>1000</span>";
-            echo "<span><b >Pending</b></span>";
-            echo "<span>".XML_RPC_decode($resp->value()->arraymem($i)) ."</span>";
-        echo "</a>";
-        echo "</div>";
-        }*/
-    }
-
 
     function listOSes()
     {
@@ -127,9 +67,7 @@ class Index {
             <option>2.0</option>
             <option>3.0</option>
             <option selected>4.0</option>
-            </select>
-            <input style='float:left'value='0.0' name='sut_build' type='text' size='3'/>
-            ";
+            </select> <input style='float:left'value='0.0' name='sut_build' type='text' size='3'/>";
     }
     function listSchedules( )
     {
@@ -181,7 +119,7 @@ class Index {
         </form>
         <br style='clear:both'>
         <hr>
-        <?php $index->listJobs(); ?>
+        <?php listJobs($index->job_running); ?>
 </body>
 </html>
 

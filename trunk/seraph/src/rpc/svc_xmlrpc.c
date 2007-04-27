@@ -376,7 +376,7 @@ x_registerUserCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request,
     name    = XMLRPC_VectorGetStringWithID(xIter, "sut_name");
     email   = XMLRPC_VectorGetStringWithID(xIter, "sut_email");
     username= XMLRPC_VectorGetStringWithID(xIter, "sut_username");
-    password= XMLRPC_VectorGetStringWithID(xIter, "sut_mip");
+    password= XMLRPC_VectorGetStringWithID(xIter, "sut_password");
     ret = userdb_register( name, email, username, password);
 
     return XMLRPC_CreateValueBoolean(NULL, ret);

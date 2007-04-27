@@ -1,34 +1,28 @@
 <?php
+require_once 'XML/RPC.php';
+require_once 'base_lib.php';
 session_start();
-# database information
-$dbhost = "localhost";
-$dbname = "website";
-$dbuser = "root";
-$dbpass = "";
-mysql_connect ( $dbhost, $dbuser, $dbpass)or die("Could not connect: ".mysql_error());
-mysql_select_db($dbname) or die(mysql_error());
-
 # collect information from the post
-$username = NULL ;
-$password = NULL ;
 $username = $_POST['username'];
+$name = $_POST['name'];
+$email = $_POST['email'];
 $password = md5($_POST['password']);
-
-# check if user allready registred
-$checkuser = mysql_query("SELECT username FROM member WHERE username='$username'");
-$username_exist = mysql_num_rows($checkuser);
-
-if($username_exist > 0){
+echo "pass:".$password."<br>";
+$xmlrpc = new XML_RPC_Client('/RPCSERVER', "localhost", 5000);
+$req = new XML_RPC_Value( array(
+                    "sut_username" => new XML_RPC_Value($username,'string'),
+                    "sut_name" => new XML_RPC_Value($name,'string'),
+                    "sut_email" => new XML_RPC_Value($email,'string'),
+                    "sut_password" => new XML_RPC_Value($password,'string'))
+            , "struct");
+$msg = new XML_RPC_Message('registerUser', array($req) );
+$rsp = $xmlrpc->send($msg);
+echo "Returned:".XML_RPC_decode($rsp->value())."<br>";
+if(hasErrors($rsp) || !(XML_RPC_decode($rsp->value())) )
+{
     echo "I'm sorry but the username you specified has already been taken.  Please pick another one.";
-    unset($username);
-    include 'register.html';
-    exit();
+    return 0;
 }
-
-# register user
-$query = "INSERT INTO member (username, password) VALUES('$username', '$password')";
-mysql_query($query) or die(mysql_error());
-mysql_close();
 
 echo "You have successfully Registered";
 ?>
