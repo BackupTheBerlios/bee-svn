@@ -39,7 +39,7 @@ function listJobs($job_type)
         echo "<span class='id'>1000</span>";
         echo "<span class='state'>$state</span>";
         echo "<span>$log</span>";
-        echo '<span class="bar" style="width: 60%;">60%</span>';
+        echo '<span class="bar" style="width: 10%;">TODO</span>';
         echo "</a>";
         echo "</div>";
     }

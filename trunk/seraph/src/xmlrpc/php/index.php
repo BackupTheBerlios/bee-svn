@@ -110,9 +110,9 @@ class Index {
     <form action='run_tests.php' method='get' name='sut_pretest'>
         <div class='column'>
             <span > <?php $index->listTests(); ?> &nbsp;</span>
-            <span > <?php $index->listSUTVersions(); ?> &nbsp;</span>
             <span > <?php $index->listOSes(); ?> &nbsp;</span>
-            <span > <?php $index->listSchedules(); ?> &nbsp;</span>
+            <!--<span > <?php $index->listSUTVersions(); ?> &nbsp;</span> -->
+            <!--<span > <?php $index->listSchedules(); ?> &nbsp;</span> -->
             <input type='submit' value='Run'/>
             <input type='submit' value='Setup'/>
             </div>
