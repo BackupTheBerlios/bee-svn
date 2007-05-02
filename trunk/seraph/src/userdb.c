@@ -7,7 +7,6 @@
 #include "baseclass.h"
 #include "basedb.h"
 #include "userdb.h"
-
 static bool
 mkJobDir( const char* const uname, const char* const jobType)
 {
@@ -44,7 +43,7 @@ userdb_register( const char* const name, const char* const email,
         return false;
     }
     struct Class* db = new(BaseDB);
-    db_open( db, "%s/%s", USERDB,uname);
+    db_open( db, "%s/%s/%s", USERDB,uname,"userdata");
     db_put(db, "name", name);
     db_put(db, "email", email);
     db_put(db, "uname", uname);
@@ -67,7 +66,7 @@ userdb_login( const char* uname, const char* pass)
     char p[33]={0}; //md5sum
 
     struct Class* db = new(BaseDB);
-    if( db_open(db, "%s/%s", USERDB, uname) )
+    if( db_open(db, "%s/%s/%s", USERDB, uname, "userdata") )
         return false;
 
     db_get(db, "pass", p);
@@ -119,12 +118,13 @@ userdb_listJobs( const char * const uname, enum JobType job_type, GSList** jobs)
     DIR* dit;
     struct dirent* dent;
     char path[PATH_MAX]={0};
+    struct job* job;
     *jobs =  g_slist_alloc() ;
 
     debug("JobType: [%d]\n", job_type);
     if( job_type == JOB_ALL )
         job_type += JOB_PENDING + JOB_RUNNING + JOB_COMPLETE;
-    
+
     if( job_type & JOB_PENDING )
     {
         sprintf( path, "%s/%s/jobs/pending", USERDB, uname);
@@ -143,6 +143,9 @@ userdb_listJobs( const char * const uname, enum JobType job_type, GSList** jobs)
     }
     if( job_type & JOB_RUNNING )
     {
+        struct Class* db = new(BaseDB);
+        char *data=malloc(34);
+
         sprintf( path, "%s/%s/jobs/running", USERDB, uname);
         debug("JOBS_RUNNING path[%s]\n", path);
         dit  = opendir(path);
@@ -150,13 +153,35 @@ userdb_listJobs( const char * const uname, enum JobType job_type, GSList** jobs)
         {
             if( !strcmp(dent->d_name, ".") || !strcmp(dent->d_name,"..") ) continue;
             debug("job_append[%s]\n", dent->d_name);
-            *jobs = g_slist_append(*jobs, strdup(dent->d_name) );
+            db_open(db, "%s/%s/jobs/running/%s", USERDB, uname, dent->d_name);
+            job =(struct job*)malloc(sizeof(struct job));
+
+            /* Fill in the struct */
+            job->name = strdup(dent->d_name) ;
+
+            db_get( db, "date", data);
+            job->date = strdup(data);
+
+            db_get( db, "time", data);
+            job->time = strdup(data);
+
+            db_get( db, "tests", data);
+            job->tests= strdup(data);
+
+            db_get( db, "ctest", data);
+            job->ctest= strdup(data);
+
+            *jobs = g_slist_append(*jobs, job );
             ++nbJobs;
+            db_close(db);
         }
         closedir( dit );
+        free(data);
+        delete(db);
     }
     if( job_type & JOB_COMPLETE )
     {
+        struct job* job=NULL;
         sprintf( path, "%s/%s/jobs/complete", USERDB, uname);
         debug("JOBS_COMPLETE path[%s]\n", path);
         dit = opendir(path);
@@ -187,7 +212,7 @@ userdb_checkSession(const char* const uname,
     struct Class* db = new(BaseDB);
     char c[33]={0}, i[33]={0}, s[33]={0};
 
-    ret = db_open( db, "%s/%s",USERDB, uname);
+    ret = db_open( db, "%s/%s/%s",USERDB, uname, "userdata");
     debug("USERDB[%s] uname[%s]\n", USERDB, uname);
     if(ret)
     {
@@ -219,7 +244,7 @@ userdb_setSession(  const char* const uname,
     struct Class* db = new(BaseDB);
 
     debug("uname[%s] session[%s] ip[%s]\n", uname, session, ip);
-    db_open( db, "%s/%s", USERDB, uname);
+    db_open( db, "%s/%s/%s", USERDB, uname, "userdata");
     db_put(db, "session", session);
     db_put(db, "ip", ip);
     db_close(db);
@@ -236,7 +261,7 @@ userdb_checkLogin(  const char* const uname,
     int ret=1;
 
     debug("uname[%s] password[%s]\n", uname, password);
-    ret = db_open( db, "%s/%s", USERDB, uname);
+    ret = db_open( db, "%s/%s/%s", USERDB, uname, "userdata");
     debug("USERDB[%s] uname[%s]\n", USERDB, uname);
     if(ret)
     {
@@ -260,7 +285,7 @@ userdb_checkRemembered( const char* const uname,
     struct Class* db = new(BaseDB);
 
     debug("uname[%s] cookie[%s]\n", uname, cookie);
-    db_open( db, "%s/%s", USERDB, uname );
+    db_open( db, "%s/%s/%s", USERDB, uname,"userdata" );
     db_get( db, "cookie", &c );
     db_close(db);
     delete(db);

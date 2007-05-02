@@ -110,6 +110,50 @@ x_getConfigCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void *userDat
     return ret;
 }
 
+    XMLRPC_VALUE
+x_listJobsCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void *userData )
+{
+    GSList*   jobList =NULL ;
+    int nbJobs=0, job_type;
+    XMLRPC_VALUE ret;
+    char *username;
+    struct job* tmp;
+    XMLRPC_VALUE tmpv;
+    XMLRPC_VALUE xParams = XMLRPC_RequestGetData( request );
+    XMLRPC_VALUE xIter   = XMLRPC_VectorRewind( xParams );
+
+    username= XMLRPC_VectorGetStringWithID(xIter, "sut_username");
+    job_type  = XMLRPC_VectorGetIntWithID(xIter, "job_type");
+
+    nbJobs = userdb_listJobs( username, job_type, &jobList);
+    ret = XMLRPC_CreateVector(NULL, xmlrpc_vector_array);
+    debug("VectorAppendString [%d] times\n", nbJobs);
+    nbJobs++; /*g_slist_nth_data is one-based*/
+    while( nbJobs-- ) {
+        tmp = (struct job*)g_slist_nth_data( jobList, nbJobs);
+
+        if(!tmp) { debug("continue\n"); continue;}
+        debug("Vector<<Job [%d]\n", nbJobs);
+        printf("NAME: %s\n", tmp->name);
+        tmpv = XMLRPC_CreateVector( NULL, xmlrpc_vector_struct);
+        XMLRPC_VectorAppendString( tmpv, "job_name", tmp->name, 0 );
+        XMLRPC_VectorAppendString( tmpv, "job_date", tmp->date, 0 );
+        XMLRPC_VectorAppendString( tmpv, "job_time", tmp->time, 0 );
+        XMLRPC_VectorAppendString( tmpv, "job_tests", tmp->tests, 0 );
+        XMLRPC_VectorAppendString( tmpv, "job_ctest", tmp->ctest, 0 );
+        XMLRPC_AddValueToVector( ret, XMLRPC_CopyValue(tmpv) );
+
+        XMLRPC_CleanupValue(tmpv);
+        free(tmp->name);
+        free(tmp->date);
+        free(tmp->time);
+        free(tmp->tests);
+        free(tmp->ctest);
+        free(tmp), tmp=NULL;
+    }
+    return ret;
+}
+
 
     XMLRPC_VALUE
 x_setConfigCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void *userData )
@@ -469,35 +513,6 @@ x_getErrorLogCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request,
     ret = XMLRPC_CreateValueBase64( NULL, b64, b64Len);
     free(b64);
     return ret;
-}
-
-    XMLRPC_VALUE
-x_listJobsCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void *userData )
-{
-    GSList*   jobList =NULL ;
-    int nbJobs=0, job_type;
-    XMLRPC_VALUE rv;
-    char *username, *tmp;
-    XMLRPC_VALUE xParams = XMLRPC_RequestGetData( request );
-    XMLRPC_VALUE xIter   = XMLRPC_VectorRewind( xParams );
-
-    username= XMLRPC_VectorGetStringWithID(xIter, "sut_username");
-    job_type  = XMLRPC_VectorGetIntWithID(xIter, "job_type");
-
-    nbJobs = userdb_listJobs( username, job_type, &jobList);
-    rv = XMLRPC_CreateVector(NULL, xmlrpc_vector_array);
-    debug("VectorAppendString [%d] times\n", nbJobs);
-    nbJobs++; /*g_slist_nth_data is one-based*/
-    while( nbJobs-- ) {
-        tmp = g_slist_nth_data( jobList, nbJobs);
-        if(!tmp) { debug("continue\n"); continue;}
-        debug("Vector<<Job [%d]\n", nbJobs);
-        if(!XMLRPC_VectorAppendString( rv, NULL, tmp, 0 ))
-        {   return NULL; }
-  //      free(tmp), tmp=NULL;
-    }
-    //free(jobList);
-    return rv;
 }
 
 

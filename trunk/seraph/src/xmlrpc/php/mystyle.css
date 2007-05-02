@@ -235,6 +235,7 @@ ul.menu a em.butt {
 ul.menu a:hover em.butt {
     background-color: #3366FF;
 }
+
 ul.menu input {
     border-width:1px;
     border-color:black;
@@ -247,4 +248,5 @@ ul.menu input {
     position: relative;
     width: 400px;
     border: 1px solid #d7d7d7;
-    margin-top: 1em; margin-bottom: 1em; padding: 1px; }
+    margin-top: 1em; margin-bottom: 1em; padding: 1px;
+}

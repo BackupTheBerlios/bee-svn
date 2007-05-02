@@ -49,10 +49,10 @@ static int BaseDB_open(const void *_this, const char* const fmt, va_list*app)
 
     vsprintf(path, fmt, *app);
     debug("fmt[%s] path[%s]\n", fmt, path);
-    strcat(path,"/userdata");
+    //strcat(path,"/userdata");
     ret = fopen( path, "r+");
     if(!ret)
-    {   debug("error opening database [%s]\n", path);
+    {   dbg_error("error opening database [%s]\n", path);
         return 1;
     }
     strcpy(this -> dbName, path);

@@ -7,6 +7,7 @@
 #include "fileop.h"
 #include "wall.h"
 #include <libgen.h>
+#include "basedb.h"
 extern struct config_s cfg;
 int running ;
 static bool
@@ -50,7 +51,7 @@ void sig_handler( int sig )
                     dbg_error( "seraph: FAIL [%d]\n", WEXITSTATUS(status) );
             break;
         case SIGALRM:
-            dbg_error( stderr, "timeout\n" );
+            dbg_error( "timeout\n" );
             break;
     }
 }
@@ -529,46 +530,96 @@ char* core_expandVars( const char *t1 )
     return text;
 }
 
+static int testCounter;
 
+static int
+countTests_fileAction( const char* fileName, struct stat* statbuf, void* junk)
+{
+        if( strcmp( basename(fileName), "runtest.bat") )
+            return ( FALSE );
+        if( statbuf->st_mode & S_IXGRP | S_IXOTH | S_IXUSR )
+        {
+            ++testCounter;
+            debug("found runtest.bat\n");
+            return ( TRUE );
+        }
+
+        return ( FALSE );
+}
+
+static int countTests( const char* const path)
+{
+        struct stat statbuf;
+        //recursiveFlag = 1;
+        //forceFlag = FALSE;
+        #if 0
+        if( lstat( path, &statbuf ) != 0 && errno == ENOENT ) {
+            /* do not reports errors for non-existent files if -f, just skip them */
+        } else
+#endif
+        {
+            if( recursiveAction( path, 1, FALSE,
+                        TRUE, countTests_fileAction, NULL,
+                        NULL ) == FALSE ) {
+                exit( FALSE );
+            }
+        }
+        return testCounter;
+    return 0;
+}
 
 /*
  * Export axi_errorlog=$CWD/errors/$HOST-$PID
  */
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
-int core_setErrorlog( const char* const uname )
+int core_setErrorlog( const char* const uname, const char* const test_dir )
 {
-    char rez[PATH_MAX] = "";
-    struct tm *t = 0;
     time_t now;
-    char dn[PATH_MAX]={0}, *p=0;
+    struct tm *tm = 0;
+    struct Class* db=NULL;
+    char *dupname=NULL, *fname=NULL, *machine=NULL, *dir=NULL;
 
-    time( &now );
-    t = localtime( &now );
-    sprintf( rez, "%s/%s/jobs/running%s-%d-%02d:%02d", USERDB, uname,
-            strrchr(cfg.config_file,'/'), getpid(  ),
-            t->tm_hour, t->tm_min );
+    machine = strrchr( cfg.config_file, '/');
+    fname = (char*)malloc( strlen(USERDB) + strlen(uname) + strlen(machine) + 24);
+    sprintf( fname, "%s/%s/jobs/running%s-%d", USERDB, uname, machine, getpid()) ;
+    dbg_verbose( "LogFile is: [%s]\n", fname );
 
-    dbg_verbose( "Log is: [%s]\n", rez );
-    setenv( SUT_ERRLOG, rez, 1 );
-
-    /* Create ./errors in case it doesn't exists */
-    strcpy(dn,rez);
-    p = dirname(dn);
-    if( -1 == access( p, F_OK ) ) {
-        dbg_error( "[%s] doesn't exist\n", dirname( rez ) );
-        if( -1 == mkdir( p, 0777 ) ) {
-            dbg_error( "Unable to create [%s]: [%s]\n", p,strerror( errno ) );
-            exit( EXIT_FAILURE );
+    /* Create target directory in case it doesn't exists.
+     * This should not be the case if this is a registred user */
+    dupname = strdup( fname);
+    dir = dirname( dupname);
+    if( -1 == access( dir, F_OK ) )
+    {   dbg_error( "[%s] doesn't exist\n", dir );
+        if( -1 == mkdir( dir, 0777 ) )
+        {   dbg_error( "Unable to create [%s]: [%s]\n", dir, strerror(errno) );
+            free( dupname);
+            free( fname);
+            return false;
         }
-        dbg_verbose( "Directory [%s] created\n", p );
     }
+    dbg_verbose( "Directory [%s] created\n", dir );
+    fclose(fopen(fname, "w"));
+    setenv( SUT_ERRLOG, fname, 1 );
 
-    /* If it exists, but we dont have write permissions */
-    if( -1 == access( p, W_OK ) ) {
-        dbg_error( "Directory [%s] doesn't have write permissions\n", p );
-        exit( EXIT_FAILURE );
-    }
-    return 0;
+    db = new(BaseDB);
+    time( &now );
+    tm = localtime( &now );
+    db_open( db, "%s", fname);
+
+    sprintf( fname, "%d-%d-%d", 1900+tm->tm_year, tm->tm_mon, tm->tm_mday );
+    db_put( db, "date", fname);
+
+    sprintf( fname, "%d.%d.%d", tm->tm_hour, tm->tm_min, tm->tm_sec );
+    db_put( db, "time", fname);
+
+    sprintf( fname, "%d", countTests(test_dir) );
+    db_put( db, "tests", fname);
+    db_put( db, "ctest", "0");
+    db_close( db );
+    delete(db);
+    free( dupname);
+    free( fname);
+    return true;
 }
 
 

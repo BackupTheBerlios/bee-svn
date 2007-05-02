@@ -102,11 +102,6 @@ class Index {
 <?php
     $index = new Index('localhost', 5000);
     if( !drawMenu() ){
-        echo "TEST:";
-        echo "<a href='machines.php'>Machines</a>
-            <a href='settings.php'>Settings</a>
-            <a href='docs.php'>Documentation</a>
-            ";
         echo "</body></html>";
         return;
     }

@@ -12,7 +12,16 @@ function session_defaults() {
 function listJobs($job_type)
 {
     $xmlrpc = new XML_RPC_Client('/RPCSERVER', "localhost", 5000 );
-    echo " List of Jobs:(click to open errorlog)<br>";
+    #$xmlrpc->setDebug(1);
+    echo "List of Jobs:(click to open errorlog)<br>";
+    echo "<div class='job_running'>";
+    echo "<span class='id'>Id</span>";
+    echo "<span class='state'>Job State</span>";
+    echo "<span >Machine Name</span>";
+    echo "<span >Start date</span>";
+    echo "<span >Start time</span>";
+    echo "Progress";
+    echo "</div>";
     /*-------------------------------------------*/
     $state = "job_running";
 
@@ -33,13 +42,18 @@ function listJobs($job_type)
     </div>*/
 
     while($i--) {
-        $log = XML_RPC_decode($resp->value()->arraymem($i));
+        $log = $resp->value()->arraymem($i);
+        $date = XML_RPC_decode($log->structmem("job_date") );
+        $time = XML_RPC_decode($log->structmem("job_time") );
+        $name = XML_RPC_decode($log->structmem("job_name") );
+        $ctest= XML_RPC_decode($log->structmem("job_ctest"));
         echo "<div class='$state'>";
-        echo "<a href='view.php?log=$log'>";
+        echo "<a href='view.php?log=$name'>";
         echo "<span class='id'>1000</span>";
         echo "<span class='state'>$state</span>";
-        echo "<span>$log</span>";
-        echo '<span class="bar" style="width: 10%;">TODO</span>';
+        echo "<span>$name</span>";
+        echo "<span>$date</span><span>$time</span>";
+        echo "<span class='bar' style='width: 10%;'>$ctest</span>";
         echo "</a>";
         echo "</div>";
     }
@@ -114,8 +128,8 @@ function drawMenu() {
 
     if ( $_SESSION['logged'] == false ) {
             echo "<li><a href='.'>Home</a></li>";
-            echo "<li><a href='login_form.php'>Login</a></li>";
-            echo "<li><a href='register_form.php'>Register</a></li>";
+            echo "<li><a href='form_login.php'>Login</a></li>";
+            echo "<li><a href='form_register.php'>Register</a></li>";
             echo "</ul></div><br>";
             return false;
     }

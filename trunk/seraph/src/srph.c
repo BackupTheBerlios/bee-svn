@@ -55,6 +55,7 @@ static int onLineParsed(const char *name, const char *value, void* arg)
 
 int main( int argc, char *argv[] )
 {
+    bool ret=false;
     DBG("srph.debug");
 
     if( argc == 1 )
@@ -70,16 +71,21 @@ int main( int argc, char *argv[] )
     cfg.takeAction = onLineParsed;
     scan_parseCfg( cfg.config_file, (void*)1);
 
-    /*4. check if the needed variables are exported */
-    srph_initEnv( &cfg );
-
-    /*5. check if the proper tools are installed */
-    srph_checkTools( getenv( SUT_TOOL ) );
-
     if( !cfg.test_dir ) {
         printf( "! seraph: Provide the test directory.\n" );
         srph_usage( EXIT_FAILURE );
     }
+
+    /*4. check if the needed variables are exported */
+    ret = srph_initEnv( &cfg );
+    if(!ret)
+    {
+        UNDBG;
+        exit(EXIT_FAILURE);
+    }
+
+    /*5. check if the proper tools are installed */
+    srph_checkTools( getenv( SUT_TOOL ) );
 
     if( cfg.test_type == TEST_LOCAL ) {
         dbg_verbose( "* seraph: Tests will be done LOCALLY.\n" );
@@ -92,7 +98,7 @@ int main( int argc, char *argv[] )
     core_runTests( cfg.test_dir );
     srph_free( &cfg );
     UNDBG;
-    return 0;
+    exit(EXIT_SUCCESS);
 }
 
 void srph_usage( int status )
@@ -200,6 +206,8 @@ int srph_initEnv( struct config_s *config )
 {
     char *st = 0;
     char *path = 0;
+    bool ret=false;
+
     /* Is the environment well set ? */
     str_isEnv( SUT_STOP );
     str_isEnv( SUT_START );
@@ -226,7 +234,9 @@ int srph_initEnv( struct config_s *config )
 
     setenv( "PERLLIB", getenv( SUT_TOOL ), 1 );
     setenv( "PERL5LIB", getenv( SUT_TOOL ), 1 );
-    core_setErrorlog( "user1" ); /* TODO:hardcoded username */
+    ret = core_setErrorlog( "user1", config->test_dir ); /* TODO:hardcoded username */
+    if(!ret)
+        return false;
 
     config->axi_workDir = getenv( SUT_WORKDIR );
     config->axi_cfgFile = getenv( SUT_CFGFILE );
@@ -235,7 +245,7 @@ int srph_initEnv( struct config_s *config )
     config->axi_syslog = getenv( SUT_SYSLOG );
     config->rawport = getenv(SUT_PORT)!=NULL?atoi(getenv(SUT_PORT)):0;
     config->hostname = getenv(SUT_HOST)!=NULL?getenv(SUT_HOST):"localhost";
-    return 0;
+    return true;
 }
 
 /*

@@ -6,6 +6,16 @@ enum JobType {
     JOB_ALL=8
 };
 
+struct job {
+    char *name ;
+    char *date;
+    char *time ;
+    char *tests;
+    char *ctest;
+};
+
+
+
 bool
 userdb_register( const char* const name, const char* const email,
                  const char* const uname, const char* const pass);
