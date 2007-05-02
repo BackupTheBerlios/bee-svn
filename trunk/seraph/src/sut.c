@@ -356,10 +356,14 @@ static bool sut_refreshRemote( const char *host, const int port, const char *sur
     int cod, sockfd;
 
     sockfd = sock_connectTo( host, port );
-    if(sockfd==-1)
+    if(sockfd==-1 || !sursa || !dest)
+    {   dbg_error("Invalid parameters: sockfd[%s] sursa[%s] dest[%s]\n",
+        sockfd, sursa, dest);
         return false;
+    }
 
     sprintf( command, "REFRESH %s %s", sursa, dest );
+    debug("run [%s]\n", command);
     sock_sendLine( sockfd, command );
     cod = sock_getStatus( sockfd );
     if( cod < 0 ) {

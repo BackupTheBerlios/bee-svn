@@ -6,8 +6,9 @@
 #include "rshd.h"
 #include "fileop.h"
 #include "wall.h"
-#include <libgen.h>
 #include "basedb.h"
+#include <sys/wait.h>
+#include <libgen.h>
 extern struct config_s cfg;
 int running ;
 static bool

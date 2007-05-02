@@ -105,7 +105,7 @@ userdb_getErrorLog( const char * uname, int job_type, const char*const log, char
     printf("filesize [%d]\n", s.st_size);
     len = read( fd, rb, s.st_size);
     rb[len]='\0';
-    printf("read from log [%s]\n", rb);
+    debug("read from log [%s]\n", rb);
     *ret = rb;
     close(fd);
     return s.st_size;

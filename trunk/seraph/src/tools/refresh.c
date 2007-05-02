@@ -64,8 +64,7 @@ main( int argc, char *argv[] )
     }
 
     system( getenv(SUT_STOP) );
-    sut_refresh( test_type, getenv( SUT_DEFWD ),
-            getenv( SUT_WORKDIR ), cfg.hostname, cfg.rawport );
+    sut_refresh( test_type, getenv( SUT_DEFWD ), getenv( SUT_WORKDIR ), cfg.hostname, cfg.rawport );
     ret = system( getenv(SUT_START) );
     UNDBG;
     exit( ret);

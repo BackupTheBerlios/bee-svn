@@ -1,3 +1,4 @@
+#include <stdarg.h>
 struct Class {
     size_t size;
     void * (* ctor) (void * this, va_list * app);
