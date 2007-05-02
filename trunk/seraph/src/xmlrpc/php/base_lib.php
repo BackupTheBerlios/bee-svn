@@ -47,13 +47,16 @@ function listJobs($job_type)
         $time = XML_RPC_decode($log->structmem("job_time") );
         $name = XML_RPC_decode($log->structmem("job_name") );
         $ctest= XML_RPC_decode($log->structmem("job_ctest"));
+        $tests= XML_RPC_decode($log->structmem("job_tests"));
+        $pct  = 4+100*(int)$ctest/((int)$tests*5);
         echo "<div class='$state'>";
         echo "<a href='view.php?log=$name'>";
         echo "<span class='id'>1000</span>";
         echo "<span class='state'>$state</span>";
         echo "<span>$name</span>";
-        echo "<span>$date</span><span>$time</span>";
-        echo "<span class='bar' style='width: 10%;'>$ctest</span>";
+        echo "<span>$date</span>";
+        echo "<span>$time</span>";
+        echo "<span class='bar' style='width: $pct%;'>$ctest of $tests</span>";
         echo "</a>";
         echo "</div>";
     }

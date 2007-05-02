@@ -609,7 +609,7 @@ int core_setErrorlog( const char* const uname, const char* const test_dir )
     sprintf( fname, "%d-%d-%d", 1900+tm->tm_year, tm->tm_mon, tm->tm_mday );
     db_put( db, "date", fname);
 
-    sprintf( fname, "%d.%d.%d", tm->tm_hour, tm->tm_min, tm->tm_sec );
+    sprintf( fname, "%02d.%02d.%02d", tm->tm_hour, tm->tm_min, tm->tm_sec );
     db_put( db, "time", fname);
 
     sprintf( fname, "%d", countTests(test_dir) );
