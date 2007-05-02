@@ -91,6 +91,8 @@ core_checkCoreRemote( const char *core_srcDir, const char *dbg_srcDir,
     int sock;
 
     sock = sock_connectTo( cfg.hostname, cfg.rawport );
+    if(sock==-1)
+        return false;
     sprintf( cmd, "CHECKCORE %s %s %s %s %s",
             core_srcDir, dbg_srcDir, axi_workDir,
             axi_cfgFile, crash_destDir );
@@ -248,8 +250,10 @@ core_checkCoreLocal( const char *core_srcDir, const char *dbg_srcDir,
 static int core_runBat( const char *bat_name, int timeout )
 {
     char c;
-    int pid = 0, hasAlarm;
+    int pid = 0, hasAlarm, ictest;
     struct sigaction act;
+    char ctest[33]={0};
+    struct Class* db;
     printf( "\n\n" );
     printf( "*-------------------------.\n" );
     printf( "* srph:   Running script  :[%s]\n", bat_name );
@@ -258,6 +262,16 @@ static int core_runBat( const char *bat_name, int timeout )
     act.sa_handler = sig_handler;
     act.sa_flags = SA_NOCLDSTOP;
     sigaction( SIGCHLD, &act, 0 );
+
+    db = new(BaseDB);
+    db_open( db, getenv( SUT_ERRLOG) ); //TODO: no more getenv
+    db_get( db, "ctest", &ctest);
+    ictest = atoi(ctest);
+    ++ictest;
+    sprintf(ctest, "%d", ictest);
+    db_put( db, "ctest", ctest);
+    db_close();
+    delete(db);
 
     if( ( pid = fork(  ) ) == 0 ) {
         int rc = 0;
@@ -606,7 +620,7 @@ int core_setErrorlog( const char* const uname, const char* const test_dir )
     tm = localtime( &now );
     db_open( db, "%s", fname);
 
-    sprintf( fname, "%d-%d-%d", 1900+tm->tm_year, tm->tm_mon, tm->tm_mday );
+    sprintf( fname, "%d-%02d-%02d", 1900+tm->tm_year, tm->tm_mon, tm->tm_mday );
     db_put( db, "date", fname);
 
     sprintf( fname, "%02d.%02d.%02d", tm->tm_hour, tm->tm_min, tm->tm_sec );

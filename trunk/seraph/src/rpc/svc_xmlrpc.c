@@ -134,7 +134,6 @@ x_listJobsCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void *userData
 
         if(!tmp) { debug("continue\n"); continue;}
         debug("Vector<<Job [%d]\n", nbJobs);
-        printf("NAME: %s\n", tmp->name);
         tmpv = XMLRPC_CreateVector( NULL, xmlrpc_vector_struct);
         XMLRPC_VectorAppendString( tmpv, "job_name", tmp->name, 0 );
         XMLRPC_VectorAppendString( tmpv, "job_date", tmp->date, 0 );

@@ -41,6 +41,8 @@ mkdir_remote( char *host, int port, char *path )
 
     cmd = (char*)malloc(strlen(path)+8);
     sockfd = sock_connectTo( host, port);
+    if(sockfd==-1)
+        return false;
     sprintf( cmd, "MKDIR %s", path);
     sock_sendLine( sockfd, cmd);
     ret = sock_getStatus( sockfd);

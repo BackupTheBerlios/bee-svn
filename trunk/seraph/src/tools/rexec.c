@@ -44,6 +44,8 @@ rexec_remote( char *host, int port, char *c )
 
     cmd = (char*)malloc( strlen(c) + 10);
     sockfd = sock_connectTo( host, port );
+    if(sockfd==-1)
+        return false;
     sprintf( cmd, "EXECUTE %s", c );
     dbg_verbose( "[%s]\n", cmd );
     sock_sendLine( sockfd, cmd );

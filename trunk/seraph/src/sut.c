@@ -92,6 +92,8 @@ sut_startRemote( const int timeout, const char *maillog,
     char cmd[FILENAME_MAX] = { 0 };
 
     sockfd = sock_connectTo( hostname, port );
+    if(sockfd==-1)
+        return false;
     sprintf( cmd, "START %d %s %s", timeout, maillog, start );
     sock_sendLine( sockfd, cmd );
     close( sockfd );
@@ -227,6 +229,8 @@ sut_stopRemote( const int timeout,
     int sockfd = -1;
     char cmd[FILENAME_MAX] = { 0 };
     sockfd = sock_connectTo( hostname, port );
+    if(sockfd==-1)
+        return false;
     sprintf( cmd, "STOP %d %s %s", timeout, maillog, stop );
     sock_sendLine( sockfd, cmd );
     close( sockfd );
@@ -308,7 +312,7 @@ sut_refresh( const int test_type, const char *source, const char *dest, const ch
 
     if( test_type == TEST_REMOTE ) {
         if( !sut_refreshRemote( host, port, source, dest ) ) {
-            printf( "* refresh: ERR: Could not make refresh!!!\n" );
+            dbg_error( "refresh: Could not make refresh.\n" );
             return false;
         }
         return true;
@@ -352,6 +356,8 @@ static bool sut_refreshRemote( const char *host, const int port, const char *sur
     int cod, sockfd;
 
     sockfd = sock_connectTo( host, port );
+    if(sockfd==-1)
+        return false;
 
     sprintf( command, "REFRESH %s %s", sursa, dest );
     sock_sendLine( sockfd, command );

@@ -154,7 +154,7 @@ int srph_parseArgs( struct config_s *cfg, int argc, char *argv[] )
                 cfg->machine = optarg;
                 break;
             case 'C':
-                printf("using [%s] as config\n", optarg);
+                printf("I: Using [%s] as config\n", optarg);
                 cfg->config_file = optarg;
                 break;
             case 'R':

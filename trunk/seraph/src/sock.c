@@ -38,19 +38,19 @@ int sock_connectTo( const char *host, const int port )
 
 
         if( !host || !port ) {
-                printf( "SOCKET:Cant connect to host(%s) port(%d)\n", host, port );
+                dbg_error( "NULL parameters : host[%s] port[%d]\n", host, port );
                 return -1;
         }
         /* socket create */
         sockfd = socket( AF_INET, SOCK_STREAM, 0 );
         if( sockfd == -1 ) {
-                perror( "ERR: can't create socket" );
+                dbg_error( "Can't create socket: [%s]\n", strerror(errno) );
                 return -1;
         }
         /* connected with server */
         server = gethostbyname( host );
         if( server == NULL ) {
-                fprintf( stderr, "Error, no such host\n" );
+                dbg_error("No such host : [%s]\n", host );
                 return -1;
         }
 
@@ -60,11 +60,8 @@ int sock_connectTo( const char *host, const int port )
                server->h_length );
         serv_addr.sin_port = htons( port );
 
-        if( connect
-            ( sockfd, ( const struct sockaddr * )&serv_addr,
-              sizeof( serv_addr ) )
-            < 0 ) {
-                perror( "Socket Error" );
+        if( connect(sockfd, (const struct sockaddr*)&serv_addr, sizeof(serv_addr) ) < 0 ) {
+                dbg_error( "Can't connect to : host[%s] port[%d] [%s]\n", host, port, strerror(errno) );
                 return -1;
         }
         return sockfd;

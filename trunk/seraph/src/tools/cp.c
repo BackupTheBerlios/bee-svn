@@ -75,6 +75,8 @@ copy_remote( char *host, int port, char *src_file, char *dest_dir )
     char    *bname=NULL, sockfd;
 
     sockfd = sock_connectTo( host, port );
+    if(sockfd==-1)
+        return false;
 
     l = fop_fileSize( src_file );
     if( l == -1 )

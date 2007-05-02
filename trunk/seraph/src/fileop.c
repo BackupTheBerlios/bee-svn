@@ -72,6 +72,9 @@ fop_rmRemote( const char *path,const char *host, const int port )
     dbg_verbose("rmRemote: path(%s) host(%s) port(%d)\n", path, host, port);
     cmd = (char*)malloc(strlen(path)+8);
     sockfd = sock_connectTo( host, port);
+    if(sockfd==-1)
+        return false;
+
     sprintf( cmd, "RMDIR %s", path);
     sock_sendLine( sockfd, cmd);
     ret = sock_getStatus( sockfd);
