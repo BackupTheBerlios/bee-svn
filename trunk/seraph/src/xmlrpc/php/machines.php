@@ -18,12 +18,12 @@ function drawMachines()
         echo "<form name='$m' action='set_config.php?SUT_MACHINE=$m' method='post'>
         <ul class='menu' >
         <li >
-        <p  onclick='javascript:toggleSpan(\"span$m\");' >$m<span id='span$m'>
+        <p  onclick='javascript:toggleSpan(\"span$m\");' >$m<br/><span id='span$m'>
         <a href='javascript:;' onclick='addEvent(\"span$m\", \"sName$m\", \"sValue$m\");'><em class='butt'>Add</em></a>
-        <input type='submit' value='Save'>
+        <input type='submit' value='Save'><br>
 
         <input id='sName$m'  type='text' value='SUT_NAME' style='text-align:right; clear:both; float:left; width:12.1em;'/>
-        <input id='sValue$m' type='text' value='Value'/>";
+        <input id='sValue$m' type='text' value='Value'/><br>";
         $params = array(new XML_RPC_Value( ($m), 'string') );
         $msg    = new XML_RPC_Message('getConfig', $params);
         $resp   = $cli->send($msg);
