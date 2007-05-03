@@ -95,6 +95,7 @@ class Index {
 <head>
     <LINK href="mystyle.css" rel="stylesheet" type="text/css">
     <LINK REL="SHORTCUT ICON" href="seraph.ico">
+    <title>seraph test runner</title>
     </head>
 
 <body class='bheader' >

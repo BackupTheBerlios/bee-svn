@@ -20,12 +20,12 @@ require_once 'base_lib.php' ;
         <div class="menu" style="height: 3em;width:23em">
         <ul>
             <li><b style="width:6em">Username</b><input type="text" name="username"/></li>
-            <li><b style="width:6em">Password</b><input type="password" name="password"></b></li>
+            <li><b style="width:6em">Password</b><input type="password" name="password"/></li>
         </ul>
         </div>
         <div style="width:23em;"class="header">
             <span>&nbsp;</span>
         </div>
-        <input type="submit" name="submit" value="Submit"></p>
+        <input type="submit" name="submit" value="Submit"/>
 </form>
 </body></html>

@@ -46,6 +46,7 @@ function drawMachines()
 
 <html>
 <head>
+<title>Testing machines</title>
 <link href='mystyle.css' rel='stylesheet' type='text/css'>
 <script type="text/javascript">
 

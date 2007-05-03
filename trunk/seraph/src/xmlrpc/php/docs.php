@@ -1,6 +1,7 @@
 <?php session_start(); ?>
 <html>
 <head>
+<title>Seraph documentation</title>
 <link href='mystyle.css' rel='stylesheet' type='text/css'>
 </head>
 <body class='bheader'>
