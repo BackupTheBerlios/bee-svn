@@ -1,7 +1,8 @@
-#include "dbg.h"
 #include <string.h>
 #include <fcntl.h>
 #include <limits.h>
+#include <stdio.h>
+#include "dbg.h"
 #include "baseclass.h"
 
 /*BaseDB class implementation*/
@@ -124,6 +125,7 @@ static int BaseDB_get(const void *_this, const char* key, char *data)
 }
 static int BaseDB_close(const void *_this)
 {   const struct BaseDB * this = _this;
+    return 0;
 }
 /* */
 

@@ -42,10 +42,13 @@ size_t sizeOf (const void * this)
 int db_open(const void* this, const char* const fmt, ...)
 {   const struct Class * const * cp = this;
     va_list ap;
+    int ret=0;
+
     assert(this && * cp && (* cp)->db_open);
     va_start(ap, fmt);
-    (* cp)->db_open(this, fmt, &ap);
+    ret = (* cp)->db_open(this, fmt, &ap);
     va_end(ap);
+    return ret;
 }
 int db_put(const void* this, const char* key, const char* data)
 {   const struct Class * const * cp = this;

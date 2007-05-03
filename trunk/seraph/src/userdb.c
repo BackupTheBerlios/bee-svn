@@ -1,8 +1,5 @@
-//#include "userdb.h"
 #include "config.h"
 #include <unistd.h>     //chdir
-#include <sys/types.h>  //opendir
-#include <dirent.h>     //opendir
 #include <glib.h>       //GSList
 #include "baseclass.h"
 #include "basedb.h"
@@ -42,7 +39,7 @@ userdb_register( const char* const name, const char* const email,
     {   debug("unable to create 'userdata' file: [%s]\n", strerror(errno));
         return false;
     }
-    struct Class* db = new(BaseDB);
+    struct Class* db = (struct Class*)new(BaseDB);
     db_open( db, "%s/%s/%s", USERDB,uname,"userdata");
     db_put(db, "name", name);
     db_put(db, "email", email);

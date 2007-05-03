@@ -1,4 +1,5 @@
-
+#ifndef _USERDB_H_
+#define _USERDB_H_
 enum JobType {
     JOB_PENDING=1,
     JOB_RUNNING=2,
@@ -42,3 +43,4 @@ userdb_checkRemembered( const char* const uname,
                         const char* const cookie );
 size_t
 userdb_getErrorLog( const char * uname, int job_type, const char*const log, char* *ret);
+#endif
