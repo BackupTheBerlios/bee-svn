@@ -87,13 +87,13 @@ userdb_getErrorLog( const char * uname, int job_type, const char*const log, char
     struct  stat s;
     int     fd=-1, len=0;
     char    *rb=NULL;
-    char    path[PATH_MAX]={0};
+    char    path[PATH_MAX]={0}; /*TODO: use malloc*/
 
     sprintf( path, "%s/%s/jobs/running/%s", USERDB, uname, log);
     printf("encoding [%s]\n", path);
     fd = open(path, O_RDONLY);
-    if( fd <0)
-        return NULL;
+    if( fd <0) return 0;
+
     if(fstat( fd, &s))
     {
         printf("error fstating\n");
@@ -153,10 +153,12 @@ userdb_listJobs( const char * const uname, enum JobType job_type, GSList** jobs)
         {
             if( !strcmp(dent->d_name, ".") || !strcmp(dent->d_name,"..") ) continue;
             debug("job_append[%s]\n", dent->d_name);
+            /* TODO: Check retval*/
             db_open(db, "%s/%s/jobs/running/%s", USERDB, uname, dent->d_name);
             job =(struct job*)malloc(sizeof(struct job));
-
+            if(!job) break ;
             /* Fill in the struct */
+            /* TODO: what to do if db_get fails ? */
             job->name = strdup(dent->d_name) ;
 
             db_get( db, "date", data);

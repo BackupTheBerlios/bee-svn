@@ -345,7 +345,7 @@ static bool sut_refreshRemote( const char *host, const int port, const char *sur
 
     sockfd = sock_connectTo( host, port );
     if(sockfd==-1 || !sursa || !dest)
-    {   dbg_error("Invalid parameters: sockfd[%s] sursa[%s] dest[%s]\n",
+    {   dbg_error("Invalid parameters: sockfd[%d] sursa[%s] dest[%s]\n",
         sockfd, sursa, dest);
         return false;
     }

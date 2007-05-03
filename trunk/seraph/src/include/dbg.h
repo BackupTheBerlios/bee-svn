@@ -9,7 +9,6 @@
 #include <errno.h>
 #include <assert.h>
 
-
 /*! Decide if debug() will be called. Set by DBG_ENV. @see DBG_ENV */
 extern int useDebug_g ;
 extern FILE* logHandle ;

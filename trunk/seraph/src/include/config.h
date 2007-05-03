@@ -5,8 +5,8 @@
  *
  *   Copyright (c)  
  */
-#if !defined( GLOBAL_H )
-#define GLOBAL_H
+#if !defined( _CONFIG_H_ )
+#define _CONFIG_H_
 
 
 #include <ctype.h>
