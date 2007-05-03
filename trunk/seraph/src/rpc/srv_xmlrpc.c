@@ -121,9 +121,7 @@ static int callback_socket( int portno )
     if (-1 == fcntl(sockfd, F_SETOWN, (int) getpid())) return -1;
     while( 0!=daemon_running )
     {   int newsockfd=0,cod;
-        printf("running[%d]\n", daemon_running);
         newsockfd = accept( sockfd, ( struct sockaddr * )&cli_addr, &clilen );
-        printf("newsockfd[%d]\n", newsockfd);
         if( newsockfd < 0 )
         {   dbg_error( "accept[%s]\n", strerror(errno) );
             daemon_running=0;
