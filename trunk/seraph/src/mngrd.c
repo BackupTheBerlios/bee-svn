@@ -26,17 +26,15 @@
  */
 #include <libgen.h>
 #include <sys/wait.h>
-#include <limits.h>
 #include <time.h>
 #include "rpc.h"
 #include "dbg.h"
 #include "seraph.h"
-#include "rshd.h"
-#include "socket.h"
+#include "sock.h"
 #include "strop.h"
 #include "fileop.h"
 #include "sut.h"
-#include "wall.h"
+//#include "wall.h"
 
 struct config_s cfg;
 extern char *optarg;

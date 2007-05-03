@@ -10,9 +10,7 @@ class User {
 
     function User()
     {
-    $host = "localhost";
-    $port = 5000;
-        $this->xmlrpc = new XML_RPC_Client('/RPCSERVER',  $host, $port);
+        $this->xmlrpc = new XML_RPC_Client('/RPCSERVER',  "10.10.129.128", 5000);
         $this->date = gmdate("'Y-m-d'");
         if( !$_SESSION['logged'] )
             $this->checkSession();

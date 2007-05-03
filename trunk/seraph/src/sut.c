@@ -18,29 +18,22 @@
  */
 
 #include "config.h"
-#include <sys/wait.h>
-#include <sys/types.h>
-
-#include "sut.h"
-#include "socket.h"
-#include "strop.h"
 #include "dbg.h"
-#include "rshd.h"
-#include "strop.h"
-#include "fileop.h"
-#include "wall.h"
-
+#include <sys/wait.h>
 #include <glib.h>
 #include <libgen.h>
-#include <sys/wait.h>
-#include <limits.h>
 #include <time.h>
+
+#include "sock.h"
+#include "strop.h"
+#include "strop.h"
+#include "fileop.h"
+#include "sut.h"
 /*
  * Dont use any GETENV, or cfgal variables in this file
  */
 
 extern struct config_s cfg;
-int running ;
 
 static bool sut_startRemote( const int timeout, const char *maillog, const char *start,
 			     const char *host, const int port );
@@ -430,31 +423,22 @@ static bool sut_refreshRemoteWarm(  )
 }/*------------------------------------------------------------------*/
 
 
+extern int daemon_running;
 
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 void sut_sigpipe(  int sig)
 {
-    printf( "Bailing out\n" );
-    exit( EXIT_SUCCESS );
+    daemon_running =0;
+
 }
 
 
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 void sut_sigint(  int sig)
 {
-    extern int running;
-    printf( "=============Bailing out++++++++++\n" );
-    running =0;
-    //exit( EXIT_SUCCESS );
+    daemon_running =0;
 }
 
-
-/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
-void sut_sigterm(  int sig)
-{
-    printf( "SigTerm\n" );
-    running = 0;
-}
 
 /*
  * Restore the default configuration of the SUT.

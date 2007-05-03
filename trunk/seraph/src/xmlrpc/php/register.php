@@ -8,7 +8,7 @@ $name = $_POST['name'];
 $email = $_POST['email'];
 $password = md5($_POST['password']);
 echo "pass:".$password."<br>";
-$xmlrpc = new XML_RPC_Client('/RPCSERVER', "localhost", 5000);
+$xmlrpc = new XML_RPC_Client('/RPCSERVER',"10.10.129.128", 5000 );
 $req = new XML_RPC_Value( array(
                     "sut_username" => new XML_RPC_Value($username,'string'),
                     "sut_name" => new XML_RPC_Value($name,'string'),

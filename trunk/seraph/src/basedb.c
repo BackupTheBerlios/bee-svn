@@ -2,6 +2,7 @@
 #include <fcntl.h>
 #include <limits.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include "dbg.h"
 #include "baseclass.h"
 
@@ -72,7 +73,7 @@ static int BaseDB_put(const void *_this, const char* const key, const char* data
     fh = fopen( this->dbName ,"r+") ;
     if(!fh) {
         debug("error\n");
-        return 0;
+        return false;
     }
     br = fread( (void*)buf, 1023, 1, fh) ;
     /*if(!br) {
@@ -89,7 +90,7 @@ static int BaseDB_put(const void *_this, const char* const key, const char* data
         fseek(fh, 0, SEEK_END);
         fprintf( fh, "%32s:%32s\n", key, data);
         fclose(fh);
-        return 0 ;
+        return true ;
     }
     debug("key[%s] found\n", key);
     pc = strchr(pc, ':')+1;
@@ -98,7 +99,7 @@ static int BaseDB_put(const void *_this, const char* const key, const char* data
     fprintf( fh, "%s", buf);
     debug("write[%s]\n", buf);
     fclose(fh);
-    return 0 ;
+    return true ;
 }
 static int BaseDB_get(const void *_this, const char* key, char *data)
 {   const struct BaseDB * this = _this;
@@ -110,7 +111,7 @@ static int BaseDB_get(const void *_this, const char* key, char *data)
     fh = fopen( this->dbName , "r") ;
     if(!fh) {
         printf("Unable to open database [%s], in get\n", this->dbName);
-        return 0;
+        return false;
     }
     br = fread( buf, 1, 1023, fh) ;
     fclose( fh ) ;
@@ -118,14 +119,14 @@ static int BaseDB_get(const void *_this, const char* key, char *data)
     pc = strstr( buf, line) ;
     if( !pc )
     {
-        return 0 ;
+        return false ;
     }
     sscanf( strchr(pc,':')+1, "%s\n", data ) ;
-    return 1 ;
+    return true ;
 }
 static int BaseDB_close(const void *_this)
 {   const struct BaseDB * this = _this;
-    return 0;
+    return true;
 }
 /* */
 

@@ -1,7 +1,7 @@
 #include "xmlrpc.h"
 #include "config.h"
 #include "strop.h"
-#include "socket.h"
+#include "sock.h"
 #include "sut.h"
 #include "core.h"
 #include "testdb.h"
@@ -162,6 +162,7 @@ x_setConfigCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void *userDat
     const char *p=NULL, *machine=NULL;
     XMLRPC_VALUE cfg_lines,str;
     FILE* f;
+    int ret=0;
 
     const XMLRPC_VALUE xParams = XMLRPC_RequestGetData( request );
     XMLRPC_VALUE xIter   = XMLRPC_VectorRewind( xParams );
@@ -173,7 +174,10 @@ x_setConfigCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void *userDat
     machine = XMLRPC_VectorGetStringWithID(str, "sut_machine");
     debug("SUT machine:%s\n", machine);
 
-    sprintf( path, "%s/%s", MACHINES, machine );
+    ret = snprintf( path, PATH_MAX, "%s/%s", MACHINES, machine );
+    if(ret >= PATH_MAX)
+            path[PATH_MAX-1]='\0';
+
     f = fopen( path, "w");
     if(!f) {
         debug("Unable to open [%s]\n", path);
@@ -227,6 +231,7 @@ x_stopCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void *userData )
     XMLRPC_VALUE
 x_rmCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void *userData )
 {
+    /*
     char cmd[PATH_MAX] = { 0 };
     const char *path, *rs;
     int rc = 0;
@@ -238,7 +243,8 @@ x_rmCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void *userData )
 
     sprintf( cmd, "/bin/rm -rf %s", path );
     rc = system( cmd );
-    return XMLRPC_CreateValueBoolean( NULL, rc>0 );
+    */
+    return XMLRPC_CreateValueBoolean( NULL, false );
 }
 
 
@@ -350,13 +356,14 @@ x_runTestsCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void* userData
     }
     if(!pid) {
         while(xIter) {
-            //TODO: lots of BOF
+            //TODO: use malloc
             char tDir[PATH_MAX] = {0};
             char tCfg[PATH_MAX] = {0};
             char cmd[PATH_MAX*3]={0};
 
             p = XMLRPC_GetValueString( xIter );
             debug("Run tests from directory: '%s/%s' \n", cfg.test_dir,p);
+            /*TODO: use snprintf */
             sprintf(tDir, "%s/%s", cfg.test_dir,p);
             sprintf(tCfg, "%s/%s", MACHINES,os);
             sprintf(cmd,"/home/groleo/sand/bin/srph -V -C %s -d %s -t remote -r %s -k"

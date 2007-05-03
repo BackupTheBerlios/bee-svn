@@ -1,16 +1,15 @@
 #include "config.h"
-#include "core.h"
-#include "sut.h"
-#include "socket.h"
-#include "strop.h"
-#include "rshd.h"
-#include "fileop.h"
-#include "wall.h"
-#include "basedb.h"
 #include <sys/wait.h>
 #include <libgen.h>
+#include <time.h>
+#include "sut.h"
+#include "sock.h"
+#include "strop.h"
+#include "fileop.h"
+#include "basedb.h"
+#include "core.h"
+
 extern struct config_s cfg;
-int running ;
 static bool
 core_checkCoreRemote( const char *core_srcDir, const char *dbg_srcDir,
                       const char *axi_workDir, const char *axi_cfgFile,

@@ -7,10 +7,11 @@
  */
 #include "config.h"
 #include "strop.h"
-#include "socket.h"
+#include "sock.h"
 #include "sut.h"
-#include "rshd.h"
 #include "svc_tcp.h"
+
+extern int daemon_running;
 
 Callbacks callbacks[] = {
         {"COPY", t_copyCallback}
@@ -43,42 +44,64 @@ int start_rawrpc( const unsigned int port )
         fprintf( stderr, "Cant bind port: %d\n", port );
         return -1;
     }
+#if 0
     /* Daemon */
-    pid = fork(  );
-    if( pid < 0 ) {
-        fprintf( stderr, "rsh: Error while forking\n" );
-        exit( EXIT_FAILURE );
+    pid = fork( );
+
+    if( pid < 0 )
+    {   debug( "Unable to fork(): %s\n", strerror(errno) );
+        return EXIT_FAILURE ;
     }
-    if( pid > 0 ) {         /* Parent */
+
+    /* Parent */
+    if( pid > 0 )
         exit( EXIT_SUCCESS );
-    }
+
     /* Child code */
     ( void )umask( 0 );
     sid = setsid(  );
     if( sid < 0 )
-    {       exit( EXIT_FAILURE );}
-    if( ( chdir( "/" ) ) < 0 )
-    {       perror( "rsh: Can't change to /" );
         exit( EXIT_FAILURE );
-    }
-    if( signal( SIGINT, sut_sigint ) == SIG_ERR )
-    {       perror( "signal() error!" );
-        return 1;
-    }
 
-    if( signal( SIGPIPE, sut_sigpipe ) == SIG_ERR )
-    {       perror( "signal() error!" );
-        return 1;
-    }
-#if 0
-    printf( "Closing fd's\n" );
-    fclose( stdin );
-    fclose( stdout );
-    fclose( stderr );
-    stdout = fopen( "/tmp/seraph.stdout", "a" );
-    stderr = fopen( "/tmp/seraph.stderr", "w" );
-#endif
+    if( ( chdir( "/tmp" ) ) < 0 )
+        debug( "Can't change to /tmp" );
     /* Daemon */
+    long fdlimit = -1, i;
+    int fderr, fdout,fdin;
+
+    fdlimit = sysconf (_SC_OPEN_MAX);
+    if (fdlimit == -1) {
+        fdlimit = 3;
+        debug("cant fdlimit\n");
+    }
+    fdlimit = 3;
+    for (i = 0; i < fdlimit; i++)
+        close (i);
+
+    fderr = open ( "/home/groleo/ERRORS", O_RDWR, 0);/*TODO*/
+    fdout = open ( "/home/groleo/OUT", O_RDWR, 0);/*TODO*/
+    fdin  = open ( "/dev/null", O_RDWR,0);
+
+    if (fdin != -1 || fdout != -1 || fderr != -1)
+    {
+        dup2 (fdin, STDIN_FILENO);
+        dup2 (fdout, STDOUT_FILENO);
+        dup2 (fderr, STDERR_FILENO);
+        if (fdin > 2 )
+            close (fdin);
+        if (fdout > 2 )
+            close (fdout);
+        if (fderr > 2 )
+            close (fderr);
+    }
+#endif
+    struct sigaction action;
+    action.sa_handler = sut_sigint;
+    sigemptyset(&action.sa_mask);
+    action.sa_flags = 0;
+    sigaction( SIGINT, &action, NULL);
+    sigaction( SIGPIPE, &action, NULL);
+
     callback_socket( port );
     return 0;
 }
@@ -91,7 +114,6 @@ static int callback_socket( const unsigned short int portno )
     int cod, sockfd, opt=1;
 
 
-    printf( "Running on port:%d\n", portno );
     sockfd = socket( AF_INET, SOCK_STREAM, 0 );
     if( sockfd < 0 ) {
         fprintf( stderr, "rsh: ERR: opening socket: %s\n",
@@ -117,14 +139,14 @@ static int callback_socket( const unsigned short int portno )
         perror( "rsh: ERR on listen" );
         exit( -1 );
     }
+    printf( "Running on port:%d\n", portno );
     clilen = sizeof( cli_addr );
+    daemon_running=1;
 
-    while( true ) {
+    while( daemon_running!=0 ) {
         int newsockfd;
         newsockfd =
             accept( sockfd, ( struct sockaddr * )&cli_addr, &clilen );
-        cod = setsockopt(newsockfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
-        if( cod == -1 ) dbg_error("setsockopt reuseaddr:%s\n", strerror(errno));
 
         if( newsockfd < 0 ) {
             perror( "rsh: ERR on accept" );
@@ -149,8 +171,7 @@ static int callback_command( int sckt )
         n = read( sckt, buf, 8191 );
 
         if( n < 0 ) {
-            fprintf( stderr,
-                    "! daemon: Error reading from socket\n" );
+            dbg_error("srv_tcp: Error reading from socket : [%s]\n", strerror(errno) );
             break;
         }
         /* Client closed socket */

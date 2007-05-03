@@ -54,7 +54,7 @@ function runTests($cli)
     $resp = $cli->send($msg);
     if( hasErrors($resp) ) return;
 }
-    $cli = new XML_RPC_Client('/RPCSERVER','localhost',5000);
+    $cli = new XML_RPC_Client('/RPCSERVER', $_SESSION[host], $_SESSION["port"]);
     runTests($cli);
     header("location:index.php");
 ?>

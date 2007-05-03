@@ -1,5 +1,7 @@
 #ifndef _BASECLASS_H_
 #define _BASECLASS_H_
+#include <stdarg.h>
+
 struct Class {
     size_t size;
     void * (* ctor) (void * this, va_list * app);
@@ -19,4 +21,6 @@ int db_get(const void* this, const char* key, char* *data);
 int db_close(const void* this);
 void * new (const void * _class, ...);
 void delete (void * this);
+#else
+    #warn "******** Header included twice ******"
 #endif

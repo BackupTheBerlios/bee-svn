@@ -16,27 +16,50 @@ INSTALLDIR=mkdir -p
 
 
 CC = gcc
+
 # same as Wall but without Wunused
 XOPEN_SOURCE=-D_POSIX_C_SOURCE=200112L -D_XOPEN_SOURCE=600 -D_XOPEN_SOURCE_EXTENDED=1 -U_BSD_SOURCE
+ALLSYMON=-whole-archive
+ALLSYMOFF=-no-whole-archive
 
-WARN=	-W -Wimplicit -Wreturn-type -Wswitch -Wcomment \
-		-Wtrigraphs -Wformat -Wchar-subscripts \
-		-Wparentheses -pedantic -Wuninitialized -std=c99
+ifeq ($(OS),SunOS)
+ALLSYMON=-zallextract
+ALLSYMOFF=-zdefaultextract
+XOPEN_SOURCE=-D__EXTENSIONS__
+LDFLAGS = -lsocket -liconv -lnsl
+endif
+
+ifeq ($(OS),NetBSD)
+LDFLAGS =-L/usr/pkg/lib
+endif
+
+ifeq ($(OS),OpenBSD)
+CFLAGS =-I/usr/local/include/glib-2.0
+LDFLAGS =-L/usr/local/lib
+endif
+
+ifeq ($(OS),FreeBSD)
+CFLAGS =-I/usr/local/include/glib-2.0
+LDFLAGS =-L/usr/local/lib
+endif
+
+WARN=-W -Wimplicit -Wreturn-type -Wswitch -Wcomment \
+	-Wtrigraphs -Wformat -Wchar-subscripts \
+	-Wparentheses -pedantic -Wuninitialized -std=c99
 
 INCLUDES=-I$(TOP)/include `pkg-config --cflags glib-2.0`
 
 DEFINES=-DMACHINES=\"$(MACHINES)\" -DJOBS=\"$(JOBS)\" \
 		-DUSE_DEBUG -DUSERDB=\"$(USERDB)\" -DLIBDIR=\"$(LIBDIR)\"
 
-CFLAGS = $(WARN) $(XOPEN_SOURCE) -g -Os $(INCLUDES) $(DEFINES)
-LDFLAGS = -lglib-2.0 -L$(TOP)/lib/$(OS) -Wl,-whole-archive -ltrpc -ltbot -Wl,-no-whole-archive -lxmlrpc
+CFLAGS += $(WARN) $(XOPEN_SOURCE) -g -ggdb3 -Os $(INCLUDES) $(DEFINES)
+LDFLAGS += -L$(TOP)/lib/$(OS) -Wl,$(ALLSYMON) -ltrpc -ltbot -Wl,$(ALLSYMOFF) -lxmlrpc -lglib-2.0
 
-
-ifeq ($(OS),NetBSD)
-LDFLAGS +=-L/usr/pkg/lib
+ifeq ($(OS),CYGWIN_NT-5.1)
+LDFLAGS += -liconv
 endif
 
-FLINT=flint $(INCLUDES) $< -oo >> $<.lint
+FLINT=flint -DUSERDB=\"$(USERDB)\" $(INCLUDES) $< -oo >> $<.lint
 
 objs=$(addprefix ./objs/,$(files))
 lobs=$(patsubst %.o,%.lob,$(files))

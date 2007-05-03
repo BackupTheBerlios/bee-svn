@@ -7,9 +7,9 @@ session_start();
 class Index {
     var $xmlrpc;
 
-    function Index( $host, $port )
+    function Index( )
     {
-        $this->xmlrpc = new XML_RPC_Client('/RPCSERVER', $host, $port );
+        $this->xmlrpc = new XML_RPC_Client('/RPCSERVER', $_SESSION["host"], $_SESSION["port"] );
         //$this->xmlrpc->setDebug(1);
         $this->job_pending=1;
         $this->job_running=2;
@@ -100,7 +100,7 @@ class Index {
 <body class='bheader' >
 
 <?php
-    $index = new Index('localhost', 5000);
+    $index = new Index( );
     if( !drawMenu() ){
         echo "</body></html>";
         return;

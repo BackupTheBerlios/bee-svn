@@ -9,6 +9,8 @@ mkJobDir( const char* const uname, const char* const jobType)
 {
     char *path=NULL;
     path=(char*) malloc(strlen(USERDB)+strlen(uname)+strlen(jobType)+8);
+    if(!path) return false;
+
     sprintf( path, "%s/%s/%s", USERDB, uname, jobType);
     if( mkdir(path, 0755) )
     {
@@ -40,12 +42,13 @@ userdb_register( const char* const name, const char* const email,
         return false;
     }
     struct Class* db = (struct Class*)new(BaseDB);
-    db_open( db, "%s/%s/%s", USERDB,uname,"userdata");
-    db_put(db, "name", name);
-    db_put(db, "email", email);
-    db_put(db, "uname", uname);
-    db_put(db, "password", pass);
-    db_close(db);
+    db_open( db, "%s/%s/%s", USERDB,uname,"userdata");/*TODO: check retval*/
+    if( !db_put(db, "name", name)
+    ||  !db_put(db, "email", email)
+    ||  !db_put(db, "uname", uname)
+    ||  !db_put(db, "password", pass)
+    ||  !db_close(db))
+        return false;   /* TODO: use exceptions instead of || */
     delete(db);
     /* TODO check return values */
     if( !mkJobDir(uname, "jobs")
@@ -66,8 +69,9 @@ userdb_login( const char* uname, const char* pass)
     if( db_open(db, "%s/%s/%s", USERDB, uname, "userdata") )
         return false;
 
-    db_get(db, "pass", p);
-    db_close( db);
+    if( !db_get(db, "pass", p)
+    ||  !db_close(db) )
+        return false;
     return !( strcmp(p, pass) );
 }
 

@@ -23,11 +23,10 @@
  *   \author   
  *   \date     Thu Aug 17 17:38:13 2006
  *
- *   Copyright (c)  
+ *   Copyright (c)
  */
-#include "socket.h"
 #include "config.h"
-#include <limits.h>
+#include "sock.h"
 
 
 int sock_connectTo( const char *host, const int port )

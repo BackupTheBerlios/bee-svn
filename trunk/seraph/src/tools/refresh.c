@@ -22,7 +22,7 @@
  */
 #include <strings.h>
 #include "config.h"
-#include "socket.h"
+#include "sock.h"
 #include "strop.h"
 #include "sut.h"
 

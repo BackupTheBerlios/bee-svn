@@ -25,7 +25,7 @@
 #include <strings.h>
 #include <unistd.h>
 #include "config.h"
-#include "socket.h"
+#include "sock.h"
 #include "sut.h"
 #include "strop.h"
 #include "fileop.h"

@@ -1,17 +1,20 @@
 <?php
 require_once 'XML/RPC.php';
 
+
 function session_defaults() {
     $_SESSION['logged'] = false;
     $_SESSION['uid'] = 0;
     $_SESSION['username'] = 'none';
     $_SESSION['cookie'] = 0;
     $_SESSION['remember'] = false;
+    $_SESSION['host'] = "10.10.129.128";
+    $_SESSION['port'] = 5000;
 }
 
 function listJobs($job_type)
 {
-    $xmlrpc = new XML_RPC_Client('/RPCSERVER', "localhost", 5000 );
+    $xmlrpc = new XML_RPC_Client('/RPCSERVER', $_SESSION[host], $_SESSION["port"] );
     #$xmlrpc->setDebug(1);
     echo "List of Jobs:(click to open errorlog)<br>";
     echo "<div class='job_running'>";
@@ -87,7 +90,7 @@ function listJobs($job_type)
 function hasErrors($resp)
 {
     if (!$resp)
-    {   echo 'Can\' talk to <b>seraph</b> daemon: ' . $cli->errstr;
+    {   echo "Can't talk to <b>seraph</b> daemon: host(".$_SESSION['host'].") : port(".$_SESSION['port'].")" ;
         exit;
     }
     if( $resp->faultCode() )

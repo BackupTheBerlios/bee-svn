@@ -25,9 +25,8 @@
 #include <time.h>
 
 #include "seraph.h"
-#include "rshd.h"
 #include "dbg.h"
-#include "socket.h"
+#include "sock.h"
 #include "strop.h"
 #include "fileop.h"
 #include "rpc.h"

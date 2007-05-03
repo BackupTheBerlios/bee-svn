@@ -15,4 +15,4 @@ _lints:
 endif
 
 clean:
-	rm -rf objs/* $(TOP)/lib/$(OS)/libtrpc.a *.lob
+	rm -rf objs/* $(TOP)/lib/$(OS)/libtrpc.a *.lob *.lint

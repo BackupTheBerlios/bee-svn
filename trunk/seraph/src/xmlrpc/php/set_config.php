@@ -48,7 +48,7 @@ function setMachineConfig($cli)
 <body class='bheader'>
 <?php
 drawMenu() ;
-$cli = new XML_RPC_Client('/RPCSERVER','localhost',5000);
+$cli = new XML_RPC_Client('/RPCSERVER', $_SESSION[host], $_SESSION["port"]);
 $cli->setDebug(1);
 setMachineConfig($cli);
 #include "machines.php";

@@ -9,23 +9,22 @@
 #define GLOBAL_H
 
 
-#include <string.h>
-#include <stdlib.h>
+#include <ctype.h>
+#include <dirent.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <limits.h>
+#include <netdb.h>
+#include <netinet/in.h>
+#include <signal.h>
+#include <stdbool.h>
 #include <stdio.h>
-#include <sys/types.h>
+#include <stdlib.h>
+#include <string.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
-#include <errno.h>
+#include <sys/types.h>
 #include <unistd.h>
-#include <netinet/in.h>
-#include <netdb.h>
-#include <fcntl.h>
-#include <dirent.h>
-#include <ctype.h>
-#include <limits.h>
-#include <stdbool.h>
-#include <limits.h>
-#include <signal.h>
 
 #include "dbg.h"
 

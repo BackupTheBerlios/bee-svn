@@ -1,7 +1,7 @@
 #include <limits.h>
 #include "config.h"
 #include "strop.h"
-#include "socket.h"
+#include "sock.h"
 #include "sut.h"
 #include "core.h"
 

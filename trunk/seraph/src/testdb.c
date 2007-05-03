@@ -1,26 +1,23 @@
 #include "config.h"
-#include <sys/wait.h>
-#include <sys/types.h>
-
-#include "sut.h"
-#include "socket.h"
-#include "strop.h"
 #include "dbg.h"
-#include "rshd.h"
-#include "strop.h"
-#include "fileop.h"
-#include "wall.h"
-#include "testdb.h"
-
+#include <sys/wait.h>
 #include <glib.h>
 #include <libgen.h>
 #include <sys/wait.h>
 #include <limits.h>
 #include <time.h>
 
+#include "sut.h"
+#include "sock.h"
+#include "strop.h"
+#include "strop.h"
+#include "fileop.h"
+#include "wall.h"
+#include "testdb.h"
+
+
 
 extern struct config_s cfg;
-int running ;
 
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
     char**

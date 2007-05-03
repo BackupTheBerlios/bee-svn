@@ -1,6 +1,6 @@
 #include "config.h"
 #include "strop.h"
-#include "socket.h"
+#include "sock.h"
 #include "sut.h"
 #include "xmlrpc.h"
 #include "svc_xmlrpc.h"
@@ -10,8 +10,7 @@ static int callback_socket( int portno );
 static int callback_command( int sckt );
 char* clientCallback( const char* filebuf );
 
-int running = 1;
-
+int daemon_running=0;
     int
 start_xmlrpc(const unsigned int port)
 {
@@ -74,16 +73,12 @@ start_xmlrpc(const unsigned int port)
             close (fderr);
     }
 #endif
-    if( signal( SIGINT, sut_sigint ) == SIG_ERR )
-    {   debug( "1:signal() error!\n" );
-        return 1;
-    }
-
-    if( signal( SIGPIPE, sut_sigpipe ) == SIG_ERR )
-    {   debug( "3:signal() error!\n" );
-        return 1;
-    }
-
+    struct sigaction action;
+    action.sa_handler = sut_sigint;
+    sigemptyset(&action.sa_mask);
+    action.sa_flags = 0;
+    sigaction( SIGINT, &action, NULL);
+    sigaction( SIGPIPE, &action, NULL);
     return callback_socket( port );
 }
 
@@ -121,19 +116,21 @@ static int callback_socket( int portno )
     }
     printf( "Running on port:%d\n", portno );
     clilen = sizeof( cli_addr );
+    daemon_running=1;
 
-    extern int running ;
     if (-1 == fcntl(sockfd, F_SETOWN, (int) getpid())) return -1;
-    while( running )
+    while( 0!=daemon_running )
     {   int newsockfd=0,cod;
+        printf("running[%d]\n", daemon_running);
         newsockfd = accept( sockfd, ( struct sockaddr * )&cli_addr, &clilen );
+        printf("newsockfd[%d]\n", newsockfd);
         if( newsockfd < 0 )
         {   dbg_error( "accept[%s]\n", strerror(errno) );
-            running=0;
+            daemon_running=0;
             break;
         }
-        cod = setsockopt( newsockfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
-        if( cod == -1 ) dbg_error("setsockopt reuseaddr:%s\n", strerror(errno));
+        //cod = setsockopt( newsockfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+        //if( cod == -1 ) dbg_error("setsockopt reuseaddr:%s\n", strerror(errno));
         callback_command( newsockfd );
     }
     close( sockfd);
@@ -148,7 +145,7 @@ static int callback_command( int sckt )
     char buf[8192] = { 0 };
     char *buf1=NULL;
     char *rsp=NULL;
-    int n;//, i;
+    int n, ret=0;
     char banner[8192]={0};;
     while( true )
     {   //char *p = NULL;
@@ -173,8 +170,10 @@ static int callback_command( int sckt )
             rsp = clientCallback(buf1);
             if(!rsp) return 0;
 
-            sprintf(banner,"HTTP/1.1 200 OK\r\nDate: Wed, 07 Mar 2007 09:50:14 GMT\r\nServer: libwww-perl-daemon/1.36\r\nAccept: text/xml\r\nContent-Length: %d\r\nContent-Type: text/xml\r\nRPC-Encoding: XML-RPC\r\nRPC-Server: RPC::XML::Server/1.44\r\n\r\n",
+            ret = snprintf(banner, 8192, "HTTP/1.1 200 OK\r\nDate: Wed, 07 Mar 2007 09:50:14 GMT\r\nServer: libwww-perl-daemon/1.36\r\nAccept: text/xml\r\nContent-Length: %d\r\nContent-Type: text/xml\r\nRPC-Encoding: XML-RPC\r\nRPC-Server: RPC::XML::Server/1.44\r\n\r\n",
                     strlen(rsp));
+            if( ret >=8192 )
+                    banner[8191] = '\0';
             debug("Banner:[%s]\nResponse:[%s]\n", banner, rsp);
             debug("will write on sckt(%d)\n", sckt);
             write(sckt, banner, strlen(banner));

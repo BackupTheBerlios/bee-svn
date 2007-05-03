@@ -9,7 +9,6 @@ all: $(TARGETS)
 
 
 $(TOP)/lib/$(OS)/libtbot.a: $(objs) _lints
-	flex -oscan.c scan.l
 	ar cr $(TOP)/lib/$(OS)/libtbot.a $(objs)
 	ranlib $(TOP)/lib/$(OS)/libtbot.a
 
@@ -19,6 +18,10 @@ _lints: $(lobs)
 else
 _lints:
 endif
+
+objs/scan.o:
+	flex -oscan.c scan.l
+	$(CC) -c $(CFLAGS) $(WARN) scan.c -o $@
 
 $(TOP)/lib/$(OS)/libtrpc.a:
 	make -C rpc
@@ -61,9 +64,6 @@ clean:
 	make -C rpc clean
 	make -C tools clean
 
-
-
-#
 jab:
 	gcc -DHAVE_CONFIG_H  $(CFLAGS) -I./include -I.. -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include  -g -O2 -Wall d_jabber.c \
 	-o test-lm  -lglib-2.0   -lloudmouth-1 -lresolv -lnsl  -lssl -lcrypto

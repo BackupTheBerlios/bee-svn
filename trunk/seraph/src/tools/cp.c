@@ -24,7 +24,7 @@
 #include <libgen.h>      /*basename*/
 #include "config.h"
 #include "fileop.h"
-#include "socket.h"
+#include "sock.h"
 #include "strop.h"
 #include "sut.h"
 
@@ -71,7 +71,7 @@ static bool
 copy_remote( char *host, int port, char *src_file, char *dest_dir )
 {
     int     ret=0,l=0;
-    char    cmd[LINE_MAX] = { 0 };
+    char    cmd[PATH_MAX] = { 0 };
     char    *bname=NULL, sockfd;
 
     sockfd = sock_connectTo( host, port );
