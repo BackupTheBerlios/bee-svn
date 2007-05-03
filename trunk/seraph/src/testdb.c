@@ -31,7 +31,8 @@ testdb_listTests(const char* td, int* sz)
     if( !( dir = opendir( td ) ) ) {
         debug( "1: Can't open test directory [%s] : %s\n",
                 td, strerror( errno ) );
-        exit( EXIT_FAILURE );
+	*sz = 0;
+        return NULL;
     }
     while( ( ent = readdir( dir ) ) ) {
         if( !strcmp(ent->d_name,".") || !strcmp(ent->d_name,"..") ||!strcmp(ent->d_name, "CVS") )
