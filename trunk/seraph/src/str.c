@@ -18,8 +18,6 @@
  */
 #include "config.h"
 #include "dbg.h"
-#include <strings.h>
-
 #include "strop.h"
 
 extern struct config_s cfg;
@@ -34,13 +32,13 @@ str_search( const char *hay_stack, int hay_size, const char *needle,
         for( i = hay_size - 1; i >= 0; --i ) {
                 if( hay_stack[i] == needle[j] ) {
                         if( --j == -1 )
-                                return TRUE;
+                                return true;
                         continue;
                 } else {
                         j = needle_size - 1;
                 }
         }
-        return FALSE;
+        return false;
 }
 
 
@@ -48,7 +46,7 @@ str_search( const char *hay_stack, int hay_size, const char *needle,
 int str_isEnv( char *var_name )
 {
         if( !var_name )
-                return FALSE;
+                return false;
         if( !getenv( var_name ) ) {
                 dbg_verbose( "$%s not exported.\n", var_name );
                 exit( -1 );

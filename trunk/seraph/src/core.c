@@ -1,7 +1,5 @@
 #include "config.h"
-#include <sys/wait.h>
-#include <libgen.h>
-#include <time.h>
+#include "dbg.h"
 #include "sut.h"
 #include "sock.h"
 #include "strop.h"
@@ -321,7 +319,7 @@ core_fileAction( const char *fileName, struct stat *statbuf, void *junk )
     free( fn_dup );
 
     if( strcmp( bn, "runtest.bat" ) || access( fileName, X_OK ) )
-        return TRUE;
+        return true;
     sut_refresh( cfg.test_type, cfg.sutDefWD,
                  cfg.axi_workDir, cfg.hostname,cfg.rawport );
     core_setupTmp( fileName, tmpDir );
@@ -333,7 +331,7 @@ core_fileAction( const char *fileName, struct stat *statbuf, void *junk )
     if( -1 == chdir( tmpDir ) ) {
         dbg_error("srph: Unable to change directory to [%s]:[%s]\n",
                 tmpDir, strerror( errno ) );
-        return FALSE;
+        return false;
     }
     core_runBat( fileName, cfg.script_tout );
     core_checkCore( cfg.test_type, cfg.axi_coreDir, cfg.axi_dbgDir,
@@ -343,10 +341,10 @@ core_fileAction( const char *fileName, struct stat *statbuf, void *junk )
     if( -1 == chdir( curDir ) ) {
         dbg_error("srph: Unable to change directory to [%s]:[%s]\n",
                 curDir, strerror( errno ) );
-        return FALSE;
+        return false;
     }
 
-    return ( TRUE );
+    return ( true );
 }
 
 
@@ -354,20 +352,20 @@ core_fileAction( const char *fileName, struct stat *statbuf, void *junk )
     static int
 core_dirAction( const char *fileName, struct stat *statbuf, void *junk )
 {
-    return ( TRUE );
+    return ( true );
 }
 
 
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 static int core_runRecursive( const char *srcName )
 {
-    if( recursiveAction( srcName, 1, FALSE,
-                TRUE, core_fileAction, core_dirAction,
-                NULL ) == FALSE ) {
+    if( recursiveAction( srcName, 1, false,
+                true, core_fileAction, core_dirAction,
+                NULL ) == false ) {
         dbg_error( "runRecursive: [%s]\n",strerror(errno) );
         exit( EXIT_FAILURE );
     }
-    return TRUE;
+    return true;
 }
 
 
@@ -550,32 +548,32 @@ static int
 countTests_fileAction( const char* fileName, struct stat* statbuf, void* junk)
 {
         if( strcmp( basename(fileName), "runtest.bat") )
-            return ( FALSE );
+            return ( false );
         if( statbuf->st_mode & S_IXGRP | S_IXOTH | S_IXUSR )
         {
             ++testCounter;
             debug("found runtest.bat\n");
-            return ( TRUE );
+            return ( true );
         }
 
-        return ( FALSE );
+        return ( false );
 }
 
 static int countTests( const char* const path)
 {
         struct stat statbuf;
         //recursiveFlag = 1;
-        //forceFlag = FALSE;
+        //forceFlag = false;
         #if 0
         if( lstat( path, &statbuf ) != 0 && errno == ENOENT ) {
             /* do not reports errors for non-existent files if -f, just skip them */
         } else
 #endif
         {
-            if( recursiveAction( path, 1, FALSE,
-                        TRUE, countTests_fileAction, NULL,
-                        NULL ) == FALSE ) {
-                exit( FALSE );
+            if( recursiveAction( path, 1, false,
+                        true, countTests_fileAction, NULL,
+                        NULL ) == false ) {
+                exit( false );
             }
         }
         return testCounter;
@@ -661,6 +659,6 @@ int core_runTests( const char *dir )
     //sprintf( fullPath, "%s/%s", curDir, dir );
     sprintf( fullPath, "%s", dir );
     core_runRecursive( fullPath );
-    return TRUE;
+    return true;
 }
 

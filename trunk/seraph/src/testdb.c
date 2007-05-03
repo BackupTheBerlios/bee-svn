@@ -1,12 +1,5 @@
 #include "config.h"
 #include "dbg.h"
-#include <sys/wait.h>
-#include <glib.h>
-#include <libgen.h>
-#include <sys/wait.h>
-#include <limits.h>
-#include <time.h>
-
 #include "sut.h"
 #include "sock.h"
 #include "strop.h"

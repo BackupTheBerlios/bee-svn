@@ -20,13 +20,12 @@
 /**
  *   \brief    Wraps around rm command.
  */
-#include <strings.h>
 #include "config.h"
+#include "dbg.h"
 #include "sock.h"
 #include "strop.h"
 #include "sut.h"
 #include "fileop.h"
-
 
 
 struct      config_s cfg;

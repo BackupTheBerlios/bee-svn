@@ -13,6 +13,8 @@
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <glib.h>
+#include <libgen.h>
 #include <limits.h>
 #include <netdb.h>
 #include <netinet/in.h>
@@ -20,13 +22,15 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdlib.h>
 #include <string.h>
+#include <strings.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <sys/wait.h>
+#include <time.h>
 #include <unistd.h>
-
-#include "dbg.h"
 
 #define SUT_CFGFILE "SUT_CFGFILE"
 #define SUT_COREDIR "SUT_COREDIR"
@@ -43,7 +47,6 @@
 #define SUT_TTYPE   "SUT_TTYPE"
 #define SUT_WORKDIR "SUT_WORKDIR"
 #define EXT_EXEC    ".bat"
-#define PLATFORMS 3
 
 #define VER "2.0.0"
 
@@ -54,8 +57,6 @@
 #define OPT_YES 1
 #define OPT_NO  2
 #define OPT_ASK 3
-#define TRUE  1
-#define FALSE 0
 /* TODO: fa-le enum-uri*/
 #define TB_BE_DAEMON 1
 #define TB_BE_SETUP 2

@@ -18,13 +18,10 @@
  */
 
 #include "config.h"
-#include <sys/wait.h>
 #include "dbg.h"
 #include "strop.h"
 #include "sock.h"
 #include "fileop.h"
-
-#define LINE_SIZE 8191
 
 extern struct config_s cfg;
 
@@ -56,7 +53,7 @@ int fop_rm( const int test_type, const char *path,const char *host,const int por
                 return fop_rmLocal( path );
         if( test_type == TEST_REMOTE )
                 return fop_rmRemote( path, host, port );
-        return FALSE;
+        return false;
 }
 
 
@@ -94,15 +91,15 @@ static int fop_rmLocal( const char *path )
 {
         struct stat statbuf;
         recursiveFlag = 1;
-        forceFlag = TRUE;
-        if( forceFlag == TRUE && lstat( path, &statbuf ) != 0
+        forceFlag = true;
+        if( forceFlag == true && lstat( path, &statbuf ) != 0
             && errno == ENOENT ) {
                 /* do not reports errors for non-existent files if -f, just skip them */
         } else {
-                if( recursiveAction( path, recursiveFlag, FALSE,
-                                     TRUE, rm_fileAction, rm_dirAction,
-                                     NULL ) == FALSE ) {
-                        exit( FALSE );
+                if( recursiveAction( path, recursiveFlag, false,
+                                     true, rm_fileAction, rm_dirAction,
+                                     NULL ) == false ) {
+                        exit( false );
                 }
         }
         return 1;
@@ -141,34 +138,34 @@ recursiveAction( const char *fileName,
         struct stat statbuf;
         struct dirent *next;
 
-        if( followLinks == TRUE )
+        if( followLinks == true )
                 status = stat( fileName, &statbuf );
         else
                 status = lstat( fileName, &statbuf );
 
         if( status < 0 ) {
 #ifdef BB_DEBUG_PRINT_SCAFFOLD
-                debug( "status=%d followLinks=%d TRUE=%d\n",
-                        status, followLinks, TRUE );
+                debug( "status=%d followLinks=%d true=%d\n",
+                        status, followLinks, true );
 #endif
                 perror( fileName );
-                return FALSE;
+                return false;
         }
 
-        if( ( followLinks == FALSE ) && ( S_ISLNK( statbuf.st_mode ) ) ) {
+        if( ( followLinks == false ) && ( S_ISLNK( statbuf.st_mode ) ) ) {
                 if( fileAction == NULL )
-                        return TRUE;
+                        return true;
                 else
                         return fileAction( fileName, &statbuf, userData );
         }
 
-        if( recurse == FALSE ) {
+        if( recurse == false ) {
                 if( S_ISDIR( statbuf.st_mode ) ) {
                         if( dirAction != NULL )
                                 return ( dirAction
                                          ( fileName, &statbuf, userData ) );
                         else
-                                return TRUE;
+                                return true;
                 }
         }
 
@@ -178,13 +175,13 @@ recursiveAction( const char *fileName,
                 dir = opendir( fileName );
                 if( !dir ) {
                         perror( fileName );
-                        return FALSE;
+                        return false;
                 }
-                if( dirAction != NULL && depthFirst == FALSE ) {
+                if( dirAction != NULL && depthFirst == false ) {
                         status = dirAction( fileName, &statbuf, userData );
-                        if( status == FALSE ) {
+                        if( status == false ) {
                                 perror( fileName );
-                                return FALSE;
+                                return false;
                         }
                 }
                 while( ( next = readdir( dir ) ) != NULL ) {
@@ -197,39 +194,39 @@ recursiveAction( const char *fileName,
                         if( strlen( fileName ) + strlen( next->d_name ) + 1 >
                             BUFSIZ ) {
                                 debug( "Name too long %s", "ftw" );
-                                return FALSE;
+                                return false;
                         }
                         memset( nextFile, 0, sizeof( nextFile ) );
                         sprintf( nextFile, "%s/%s", fileName, next->d_name );
                         status =
-                            recursiveAction( nextFile, TRUE, followLinks,
+                            recursiveAction( nextFile, true, followLinks,
                                              depthFirst, fileAction,
                                              dirAction, userData );
                         if( status < 0 ) {
                                 if( -1 == closedir( dir ) )
                                         perror( "Unable to close dir" );
-                                return FALSE;
+                                return false;
                         }
                 }
                 status = closedir( dir );
                 if( status < 0 ) {
                         perror( fileName );
-                        return FALSE;
+                        return false;
                 }
-                if( dirAction != NULL && depthFirst == TRUE ) {
+                if( dirAction != NULL && depthFirst == true ) {
                         status = dirAction( fileName, &statbuf, userData );
-                        if( status == FALSE ) {
+                        if( status == false ) {
                                 perror( fileName );
-                                return FALSE;
+                                return false;
                         }
                 }
         } else {
                 if( fileAction == NULL )
-                        return TRUE;
+                        return true;
                 else
                         return fileAction( fileName, &statbuf, userData );
         }
-        return TRUE;
+        return true;
 }
 
 
@@ -240,9 +237,9 @@ rm_fileAction( const char *fileName, struct stat *statbuf, void *junk )
 {
         if( unlink( fileName ) < 0 ) {
                 perror( fileName );
-                return ( FALSE );
+                return ( false );
         }
-        return ( TRUE );
+        return ( true );
 }
 
 
@@ -251,9 +248,9 @@ rm_dirAction( const char *fileName, struct stat *statbuf, void *junk )
 {
         if( rmdir( fileName ) < 0 ) {
                 perror( fileName );
-                return ( FALSE );
+                return ( false );
         }
-        return ( TRUE );
+        return ( true );
 }
 
 

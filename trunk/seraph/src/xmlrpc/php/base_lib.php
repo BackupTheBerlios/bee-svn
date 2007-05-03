@@ -8,7 +8,7 @@ function session_defaults() {
     $_SESSION['username'] = 'none';
     $_SESSION['cookie'] = 0;
     $_SESSION['remember'] = false;
-    $_SESSION['host'] = "localhost";
+    $_SESSION['host'] = "10.0.0.2";
     $_SESSION['port'] = 5000;
 }
 

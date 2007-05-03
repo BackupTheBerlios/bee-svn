@@ -26,8 +26,8 @@
  *   Copyright (c)
  */
 #include "config.h"
+#include "dbg.h"
 #include "sock.h"
-
 
 int sock_connectTo( const char *host, const int port )
 {

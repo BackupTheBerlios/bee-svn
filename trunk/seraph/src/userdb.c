@@ -1,6 +1,5 @@
 #include "config.h"
-#include <unistd.h>     //chdir
-#include <glib.h>       //GSList
+#include "dbg.h"
 #include "baseclass.h"
 #include "basedb.h"
 #include "userdb.h"

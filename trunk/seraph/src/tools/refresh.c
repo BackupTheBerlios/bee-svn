@@ -20,8 +20,8 @@
 /**
  *   \brief    Handles the refreshing of ptgen state(users/domains).
  */
-#include <strings.h>
 #include "config.h"
+#include "dbg.h"
 #include "sock.h"
 #include "strop.h"
 #include "sut.h"

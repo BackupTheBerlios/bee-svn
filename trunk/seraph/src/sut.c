@@ -19,11 +19,6 @@
 
 #include "config.h"
 #include "dbg.h"
-#include <sys/wait.h>
-#include <glib.h>
-#include <libgen.h>
-#include <time.h>
-
 #include "sock.h"
 #include "strop.h"
 #include "strop.h"

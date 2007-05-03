@@ -3,7 +3,7 @@
 %{
 /* need this for the call to atof() below */
 #include <math.h>
-#include <string.h>
+#include "dbg.h"
 #include "seraph.h"
 #include "sut.h"
 

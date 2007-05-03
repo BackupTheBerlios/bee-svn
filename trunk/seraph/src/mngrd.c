@@ -24,9 +24,7 @@
  *   \date     Thu Aug 17 17:38:13 2006
  *
  */
-#include <libgen.h>
-#include <sys/wait.h>
-#include <time.h>
+#include "config.h"
 #include "rpc.h"
 #include "dbg.h"
 #include "seraph.h"
@@ -34,7 +32,6 @@
 #include "strop.h"
 #include "fileop.h"
 #include "sut.h"
-//#include "wall.h"
 
 struct config_s cfg;
 extern char *optarg;
@@ -129,7 +126,7 @@ int mngrd_parseArgs( struct config_s *cfg, int argc, char *argv[] )
                 exit( EXIT_SUCCESS );
                 break;
             case 'V':
-                cfg->verbose = TRUE;
+                cfg->verbose = true;
                 break;
             case '?':
                 if (isprint (optopt))
@@ -143,7 +140,7 @@ int mngrd_parseArgs( struct config_s *cfg, int argc, char *argv[] )
                 break;
         }
     }
-    return TRUE;
+    return true;
 }
 
 

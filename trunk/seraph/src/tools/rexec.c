@@ -20,11 +20,8 @@
 /**
  *   \brief  execute a given parameter, either on local machine, or remote
  */
-#include <stdlib.h>
-#include <sys/wait.h>
-#include <strings.h>
-#include <unistd.h>
 #include "config.h"
+#include "dbg.h"
 #include "sock.h"
 #include "sut.h"
 #include "strop.h"

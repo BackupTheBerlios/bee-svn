@@ -20,9 +20,8 @@
 /**
  *   \brief     Wraps around copy operations.
  */
-#include <strings.h>
-#include <libgen.h>      /*basename*/
 #include "config.h"
+#include "dbg.h"
 #include "fileop.h"
 #include "sock.h"
 #include "strop.h"

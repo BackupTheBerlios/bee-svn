@@ -17,13 +17,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <strings.h>
-#include <stdlib.h>
-#include <libgen.h>
-#include <sys/wait.h>
-#include <limits.h>
-#include <time.h>
 
+#include "config.h"
 #include "seraph.h"
 #include "dbg.h"
 #include "sock.h"

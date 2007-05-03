@@ -1,10 +1,10 @@
 #include "config.h"
+#include "dbg.h"
 #include "strop.h"
 #include "sock.h"
 #include "sut.h"
 #include "xmlrpc.h"
 #include "svc_xmlrpc.h"
-#include <limits.h>
 
 static int callback_socket( int portno );
 static int callback_command( int sckt );
