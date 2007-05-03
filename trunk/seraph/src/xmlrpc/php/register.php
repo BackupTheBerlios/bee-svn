@@ -2,13 +2,14 @@
 require_once 'XML/RPC.php';
 require_once 'base_lib.php';
 session_start();
+session_defaults();
 # collect information from the post
 $username = $_POST['username'];
 $name = $_POST['name'];
 $email = $_POST['email'];
 $password = md5($_POST['password']);
 echo "pass:".$password."<br>";
-$xmlrpc = new XML_RPC_Client('/RPCSERVER',"10.10.129.128", 5000 );
+$xmlrpc = new XML_RPC_Client('/RPCSERVER',$_SESSION["host"], $_SESSION["port"] );
 $req = new XML_RPC_Value( array(
                     "sut_username" => new XML_RPC_Value($username,'string'),
                     "sut_name" => new XML_RPC_Value($name,'string'),

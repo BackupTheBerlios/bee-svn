@@ -119,6 +119,7 @@ static int BaseDB_get(const void *_this, const char* key, char *data)
     pc = strstr( buf, line) ;
     if( !pc )
     {
+        *data = '\0';
         return false ;
     }
     sscanf( strchr(pc,':')+1, "%s\n", data ) ;

@@ -10,7 +10,8 @@ class User {
 
     function User()
     {
-        $this->xmlrpc = new XML_RPC_Client('/RPCSERVER',  "10.10.129.128", 5000);
+        session_defaults();
+        $this->xmlrpc = new XML_RPC_Client('/RPCSERVER',  $_SESSION["host"], $_SESSION["port"]);
         $this->date = gmdate("'Y-m-d'");
         if( !$_SESSION['logged'] )
             $this->checkSession();
@@ -84,7 +85,7 @@ class User {
             $rsp = $this->xmlrpc->send($msg);
 
             if( hasErrors($rsp) ) {
-                //echo "setSesion failed cause(errors)<br>";
+                echo "setSesion failed cause(errors)<br>";
                 $this->logout();
                 return false;
             }
@@ -155,7 +156,6 @@ if( !isset($_SESSION['uid']) )
     session_defaults();
 }
 $user = new User();
-//echo "USER#".$_SESSION['username'];
 $user->checkLogin($_POST['username'], $_POST['password'], true);
 header('location:index.php');
 ?>

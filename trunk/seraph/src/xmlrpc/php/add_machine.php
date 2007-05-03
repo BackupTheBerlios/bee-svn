@@ -38,7 +38,7 @@ function addMachine($cli)
 <body class='bheader'>
 <?php
 drawMenu() ;
-$cli = new XML_RPC_Client('/RPCSERVER', $_SESSION[host], $_SESSION["port"]);
+$cli = new XML_RPC_Client('/RPCSERVER', $_SESSION["host"], $_SESSION["port"]);
 addMachine($cli);
 showInfo();
 ?>

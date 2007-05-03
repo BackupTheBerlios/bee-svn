@@ -8,13 +8,13 @@ function session_defaults() {
     $_SESSION['username'] = 'none';
     $_SESSION['cookie'] = 0;
     $_SESSION['remember'] = false;
-    $_SESSION['host'] = "10.10.129.128";
+    $_SESSION['host'] = "localhost";
     $_SESSION['port'] = 5000;
 }
 
 function listJobs($job_type)
 {
-    $xmlrpc = new XML_RPC_Client('/RPCSERVER', $_SESSION[host], $_SESSION["port"] );
+    $xmlrpc = new XML_RPC_Client('/RPCSERVER', $_SESSION["host"], $_SESSION["port"] );
     #$xmlrpc->setDebug(1);
     echo "List of Jobs:(click to open errorlog)<br>";
     echo "<div class='job_running'>";
@@ -28,7 +28,7 @@ function listJobs($job_type)
     /*-------------------------------------------*/
     $state = "job_running";
 
-
+    #echo "USER:-------".$_SESSION['username']."<br>";
     $req = new XML_RPC_Value( array(
                         "sut_username" => new XML_RPC_Value( $_SESSION['username'],'string'),
                         "job_type"   => new XML_RPC_Value( $job_type,'int'))
