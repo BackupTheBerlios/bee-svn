@@ -24,7 +24,7 @@ objs/scan.o:
 	$(CC) -c $(CFLAGS) $(WARN) scan.c -o $@
 
 $(TOP)/lib/$(OS)/libtrpc.a:
-	make -C rpc
+	$(MAKE) -C rpc
 
 bin/mngrd: $(TOP)/lib/$(OS)/libtbot.a
 	$(CC) $(CFLAGS) $(LDFLAGS)  mngrd.c  -o $@
@@ -42,7 +42,7 @@ endif
 
 .tool:
 	mkdir -p ./bin/tools
-	make -C ./tools
+	$(MAKE) -C ./tools
 	touch .tool
 
 install:
@@ -56,16 +56,16 @@ install:
 	$(INSTALL) -m $(DATA_MODE) ./cfg_template $(MACHINES)
 	$(INSTALL) -m $(BIN_MODE) ./bin/mngrd $(BINDIR)
 	$(INSTALL) -m $(BIN_MODE) ./bin/srph $(BINDIR)
-	make -C tools install
+	$(MAKE) -C tools install
 
 
 clean:
 	rm -rf $(TARGETS) $(objs) *.o *.lob *.debug scan.c core *.lint
-	make -C rpc clean
-	make -C tools clean
+	$(MAKE) -C rpc clean
+	$(MAKE) -C tools clean
 
 jab:
-	gcc -DHAVE_CONFIG_H  $(CFLAGS) -I./include -I.. -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include  -g -O2 -Wall d_jabber.c \
+	$(CC) -DHAVE_CONFIG_H  $(CFLAGS) -I./include -I.. -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include  -g -O2 -Wall d_jabber.c \
 	-o test-lm  -lglib-2.0   -lloudmouth-1 -lresolv -lnsl  -lssl -lcrypto
 
 tar:
@@ -76,7 +76,7 @@ indent:
 
 rmtinst:
 	scp ./srph root@gigi:/home/srph
-	make -C ./tools rmtinst
+	$(MAKE) -C ./tools rmtinst
 
 help:
 	echo "Targets are: srph lib clean tar indent install"

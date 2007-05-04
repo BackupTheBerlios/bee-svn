@@ -9,6 +9,7 @@
 #define _CONFIG_H_
 
 
+#include <unistd.h>
 #include <ctype.h>
 #include <dirent.h>
 #include <errno.h>
@@ -18,6 +19,7 @@
 #include <limits.h>
 #include <netdb.h>
 #include <netinet/in.h>
+#include <sys/wait.h>
 #include <signal.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -28,9 +30,7 @@
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <sys/wait.h>
 #include <time.h>
-#include <unistd.h>
 
 #define SUT_CFGFILE "SUT_CFGFILE"
 #define SUT_COREDIR "SUT_COREDIR"

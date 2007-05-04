@@ -118,7 +118,7 @@ static int callback_socket( int portno )
     clilen = sizeof( cli_addr );
     daemon_running=1;
 
-    if (-1 == fcntl(sockfd, F_SETOWN, (int) getpid())) return -1;
+    //if (-1 == fcntl(sockfd, F_SETOWN, (int) getpid())) return -1;
     while( 0!=daemon_running )
     {   int newsockfd=0,cod;
         newsockfd = accept( sockfd, ( struct sockaddr * )&cli_addr, &clilen );
@@ -164,7 +164,7 @@ static int callback_command( int sckt )
         if(buf1)
         {   buf1+=4;
             debug("BODY:[%s]\n", buf1);
-            if (-1 == fcntl(sckt, F_SETOWN, (int) getpid())) return -1;
+            //if (-1 == fcntl(sckt, F_SETOWN, (int) getpid())) return -1;
             rsp = clientCallback(buf1);
             if(!rsp) return 0;
 

@@ -4,8 +4,8 @@ include $(TOP)/system.mk
 
 
 all: $(objs) _lints
-	ar cr $(TOP)/lib/$(OS)/libtrpc.a $(objs)
-	ranlib $(TOP)/lib/$(OS)/libtrpc.a
+	$(AR) cr $(TOP)/lib/$(OS)/libtrpc.a $(objs)
+	$(RANLIB) $(TOP)/lib/$(OS)/libtrpc.a
 
 ifdef USEFLINT
 _lints: $(lobs)
