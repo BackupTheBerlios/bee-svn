@@ -303,8 +303,7 @@ userdb_checkLogin(  const char* const uname,
     ret = db_open( db, "%s/%s/%s", USERDB, it, "userdata");
     debug("USERDB[%s] it[%s]\n", USERDB, it);
     if(ret)
-    {
-        debug("error opening userdata file for [%s]\n", it);
+    {   debug("Error opening userdata file for [%s]\n", it);
         delete(db);
         return false;
     }
@@ -320,11 +319,12 @@ bool
 userdb_checkRemembered( const char* const uname,
                         const char* const cookie )
 {
-    char c[33]={0};
+    char c[33]={0}, *it=NULL;
     struct Class* db = new(BaseDB);
 
     debug("uname[%s] cookie[%s]\n", uname, cookie);
-    db_open( db, "%s/%s/%s", USERDB, uname,"userdata" );
+    it = userdb_stripTraversal(uname);
+    db_open( db, "%s/%s/%s", USERDB, it, "userdata" );
     db_get( db, "cookie", &c );
     db_close(db);
     delete(db);
