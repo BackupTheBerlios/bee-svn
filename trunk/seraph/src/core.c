@@ -4,6 +4,7 @@
 #include "sock.h"
 #include "strop.h"
 #include "fileop.h"
+#include "baseclass.h"
 #include "basedb.h"
 #include "core.h"
 
@@ -268,7 +269,7 @@ static int core_runBat( const char *bat_name, int timeout )
     ++ictest;
     sprintf(ctest, "%d", ictest);
     db_put( db, "ctest", ctest);
-    db_close();
+    db_close(db);
     delete(db);
 
     if( ( pid = fork(  ) ) == 0 ) {
@@ -545,11 +546,11 @@ char* core_expandVars( const char *t1 )
 static int testCounter;
 
 static int
-countTests_fileAction( const char* fileName, struct stat* statbuf, void* junk)
+countTests_fileAction( char* fileName, struct stat* statbuf, void* junk)
 {
         if( strcmp( basename(fileName), "runtest.bat") )
             return ( false );
-        if( statbuf->st_mode & S_IXGRP | S_IXOTH | S_IXUSR )
+        if( statbuf->st_mode & (S_IXGRP | S_IXOTH | S_IXUSR) )
         {
             ++testCounter;
             debug("found runtest.bat\n");

@@ -24,10 +24,9 @@
  *   \date     Thu Aug 17 17:38:13 2006
  *
  */
-#include "config.h"
+#include "seraph.h"
 #include "rpc.h"
 #include "dbg.h"
-#include "seraph.h"
 #include "sock.h"
 #include "strop.h"
 #include "fileop.h"

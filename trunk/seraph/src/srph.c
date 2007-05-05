@@ -18,7 +18,6 @@
  */
 
 
-#include "config.h"
 #include "seraph.h"
 #include "dbg.h"
 #include "sock.h"
