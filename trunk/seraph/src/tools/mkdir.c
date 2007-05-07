@@ -114,7 +114,7 @@ mkdir_usage( void )
     printf( "Usage: mkdir [OPTION] COMMAND...\n" );
     printf( "Create the DIRECTORY, if they do not already exist.\n" );
     printf( "\n" );
-    printf( "  -v, --verbose     print a message for each action executed\n" );
+    printf( "  -V, --verbose     print a message for each action executed\n" );
     printf( "  -h, --help        display this help and exit\n" );
     printf( "  -H hostname\n" );
     printf( "  -P port\n" );
@@ -128,7 +128,7 @@ static int
 mkdir_parseArgs( int argc, char *argv[] )
 {
     int c;
-    while( ( c = getopt( argc, argv, "t:H:P:hv" ) ) != -1 )
+    while( ( c = getopt( argc, argv, "t:H:P:hV" ) ) != -1 )
     {   switch ( c ) {
             case 't':
                 if( !strcasecmp( optarg, "remote" )
@@ -146,7 +146,7 @@ mkdir_parseArgs( int argc, char *argv[] )
                 UNDBG;
                 mkdir_usage( );
                 break;
-            case 'v':
+            case 'V':
                 cfg.verbose = true;
                 break;
         }

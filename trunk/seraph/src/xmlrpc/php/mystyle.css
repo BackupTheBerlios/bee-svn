@@ -1,4 +1,4 @@
-body.bheader { margin: 0px;}
+body.bheader { margin: 0px; background-color: #cccccc; }
 div.header { vertical-align: top; color: white; background-color: rgb(50,0,210); }
 font.header {font-size:xx-large ;}
 
@@ -193,7 +193,7 @@ ul.menu p span {
     display:none;
     position:absolute;
     left:10em;
-    top: 22em;
+    top: 19em;
     text-align:left;
     padding:0.5em;
     width:30em;
@@ -201,16 +201,8 @@ ul.menu p span {
     background-color: #e5ecf9;
     border:1px dashed #00e1ff;
 }
-ul.menu b{
-    border:1px solid #000;
-    text-align:right; 
-    float: left;
-    height:1.1em;
-    width: 12em;
-    padding-top:2px;
-    padding-bottom:2px;
-    clear:both;
-    font-weight:normal;
+ul.menu p span:first-line {
+    font-weight:bold;
 }
 ul.menu a {
     text-decoration:none;
@@ -236,6 +228,17 @@ ul.menu a:hover em.butt {
     background-color: #3366FF;
 }
 
+ul.menu b{
+    border:1px solid #000;
+    text-align:right; 
+    float: left;
+    height:1.1em;
+    width: 12em;
+    padding-top:2px;
+    padding-bottom:2px;
+    clear:both;
+    font-weight:normal;
+}
 ul.menu input {
     border-width:1px;
     border-color:black;
@@ -249,4 +252,27 @@ ul.menu input {
     width: 400px;
     border: 1px solid #d7d7d7;
     margin-top: 1em; margin-bottom: 1em; padding: 1px;
+}
+
+
+
+
+ul.formFrame {
+}
+ul.formFrame li {
+    display: inline;
+    vertical-align: top;
+}
+ul.formFrame li b {
+    float:left;
+    padding:1px 1px 4px 1px ;
+    height: 1.1em;
+    width:6em;
+    border: 1px solid black;
+    clear:both;
+    text-align:center;
+}
+ul.formFrame li input {
+    float:right;
+    height:1.4em;
 }

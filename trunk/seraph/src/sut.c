@@ -40,9 +40,9 @@ static bool sut_stopRemote( const int timeout, const char *maillog, const char *
 
 static bool sut_stopLocal( const int timeout, const char *maillog, const char *stop );
 
-static bool sut_refreshRemote( const char *host, const int port, const char *source, const char *dest );
+static bool sut_refreshRemote( const char *host, const int port, const char* refreshCmd );
 
-static bool sut_refreshLocal( const char *source, const char *dest );
+static bool sut_refreshLocal( const char *refreshCmd);
 
 static int sut_sutRefresh( const int option, const char *filename );
 
@@ -292,70 +292,83 @@ static bool sut_stopLocal( const int timeout, const char *maillog, const char *s
 
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 bool
-sut_refresh( const int test_type, const char *source, const char *dest, const char *host, const int port )
+sut_refresh( const int test_type, int refresh, const char* refreshCmd, const char *host, const int port )
 {
+    if( refresh == OPT_NO )
+        return 0;
+
+    if( refresh == OPT_ASK )
+    {   char r = 0;
+        do
+        {   printf( "Reinstall default configuration? [y/n]: " );
+            fflush(stdout);
+            r = getchar(  );
+            while( getchar(  ) != '\n' );
+        } while( r != 'y' && r != 'n' );
+        if( r == 'n' )
+        {   dbg_verbose( "Keeping current state\n" );
+            return 0;
+        }
+    }
+
+    /*cod = sut_parseBat( "runtest.bat" );
+    if( cod == OPT_NO )
+        return 0;
+    */
+    /* We excluded all NO's, so we're left with the yes. */
     if( test_type == TEST_LOCAL ) {
-        return sut_refreshLocal( source, dest );
+        return sut_refreshLocal( refreshCmd );
     }
 
     if( test_type == TEST_REMOTE ) {
-        if( !sut_refreshRemote( host, port, source, dest ) ) {
+        if( !sut_refreshRemote( host, port, refreshCmd ) ) {
             dbg_error( "refresh: Could not make refresh.\n" );
             return false;
         }
         return true;
     }
-    return true;
+    return false;
 }/*------------------------------------------------------------------*/
 
 
 
-static bool sut_refreshLocal( const char *source, const char *dest )
+/*
+ * Restore the default configuration of the SUT.
+ * SUT = server under test */
+/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+static bool sut_refreshLocal( const char* refreshCmd )
 {
-    char cmd[8192] = { 0 };
     int cod;
-    struct stat buf;
-    printf( "* refresh: Removing %s\n", dest );
-    sprintf( cmd, "/bin/rm -rf %s", dest );
-    /*if( system( cmd ) ) {
-        printf( "! refresh: [%s] not deleted\n", dest );
-        return false;
-    }*/
-    cod = stat( source, &buf );
-    if( cod != 0 ) {
-        fprintf( stderr, "* refresh: ERR: %s: %s\n", source,
-                strerror( errno ) );
+    int rc = 0;
+
+    dbg_verbose("Refreshing...\n");
+    rc = system( refreshCmd );
+    if( rc == -1 || WEXITSTATUS(rc) != 0 )
+    {   dbg_error( "Can't make refresh!\n" );
         exit( EXIT_FAILURE );
     }
-    printf( "* refresh: copying %s to %s\n", source, dest );
-    sprintf( cmd, "/bin/cp -R %s %s/", source, dest );
-    if( system( cmd ) ) {
-        printf( "* refresh: ERR: File not copied\n" );
-        return false;
-    }
-    return true;
-}/*------------------------------------------------------------------*/
+
+    return 0;
+}
 
 
-
-static bool sut_refreshRemote( const char *host, const int port, const char *sursa, const char *dest )
+static bool sut_refreshRemote( const char *host, const int port, const char *refreshCmd )
 {
     char command[PATH_MAX] = { 0 };
     int cod, sockfd;
 
     sockfd = sock_connectTo( host, port );
-    if(sockfd==-1 || !sursa || !dest)
-    {   dbg_error("Invalid parameters: sockfd[%d] sursa[%s] dest[%s]\n",
-        sockfd, sursa, dest);
+    if(sockfd==-1 )
+    {   dbg_error("Unable to connect host[%s] port[%d]\n", host, port);
         return false;
     }
 
-    sprintf( command, "REFRESH %s %s", sursa, dest );
-    debug("run [%s]\n", command);
+    sprintf( command, "REFRESH %s", refreshCmd);
+    dbg_verbose("refresh [%s]\n", command);
     sock_sendLine( sockfd, command );
     cod = sock_getStatus( sockfd );
-    if( cod < 0 ) {
-        fprintf( stderr, "ERR: %s\n", strerror( cod ) );
+    if( cod < 0 )
+    {   dbg_error("refresh: [%s]\n", strerror( cod ) );
         close( sockfd );
         return cod;
     }
@@ -434,48 +447,4 @@ void sut_sigint(  int sig)
     daemon_running =0;
 }
 
-
-/*
- * Restore the default configuration of the SUT.
- * SUT = server under test */
-/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
-static int sut_sutRefresh( int refresh, const char *bat_file )
-{
-    int cod;
-    int rc = 0;
-
-    if( refresh == OPT_NO )
-        return 0;
-
-    if( refresh == OPT_ASK ) {
-        char r = 0;
-
-        do {
-            printf
-                ( "* seraph: Reinstall default configuration? [y/n]: " );
-            r = getchar(  );
-            while( getchar(  ) != '\n' );
-        } while( r != 'y' && r != 'n' );
-        if( r == 'n' ) {
-            printf( "# seraph: Keeping current state\n" );
-            return 0;
-        }
-    }
-
-    /*cod = sut_parseBat( bat_file );
-    if( cod == OPT_NO )
-        return 0;
-    */
-    /* We excluded all NO's, so we're left with the yes. */
-    /* Try to restore the default ptgen state --groleo */
-    debug("refresh\n");
-    rc = system( "refresh" );
-    debug( "# seraph: refresh retVal : %d\n", rc );
-    if( rc == -1 || WEXITSTATUS( rc ) != 0 ) {
-        debug( "! seraph: Can't make refresh!\n" );
-        exit( EXIT_FAILURE );
-    }
-
-    return 0;
-}
 

@@ -274,5 +274,5 @@ bool fop_cp( const char* const s, const char* const d)
     }
     close( src);
     close( dst);
-
+    return true;
 }

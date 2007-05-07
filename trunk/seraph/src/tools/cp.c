@@ -166,7 +166,7 @@ cp_usage( void )
     printf( "Usage: cp [OPTION] COMMAND...\n" );
     printf( "Copy SOURCE to DEST\n" );
     printf( "\n" );
-    printf( "  -v, --verbose     print a message for each action executed\n" );
+    printf( "  -V, --verbose     print a message for each action executed\n" );
     printf( "  -h, --help        display this help and exit\n" );
     printf( "  -H hostname\n" );
     printf( "  -P port\n" );
@@ -179,7 +179,7 @@ static int
 cp_parseArgs( int argc, char *argv[] )
 {
     int     c;
-    while( ( c = getopt( argc, argv, "t:H:P:hv" ) ) != -1 )
+    while( ( c = getopt( argc, argv, "t:H:P:hV" ) ) != -1 )
     {   switch ( c ) {
             case 't':
                 if( !strcasecmp( optarg, "remote" ) || ( !strcasecmp( optarg, "local" ) ) )
@@ -194,7 +194,7 @@ cp_parseArgs( int argc, char *argv[] )
             case 'h':
                 UNDBG;
                 cp_usage( );
-            case 'v':
+            case 'V':
                 cfg.verbose = true;
                 break;
         }

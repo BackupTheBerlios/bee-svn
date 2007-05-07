@@ -4,7 +4,7 @@
 /* need this for the call to atof() below */
 #include <math.h>
 #include "dbg.h"
-#include "seraph.h"
+#include "config.h"
 #include "sut.h"
 
 extern struct config_s cfg;

@@ -10,22 +10,32 @@ all: $(TARGETS)
 
 rexec:
 	$(CC) $(CFLAGS) rexec.c $(LDFLAGS) $(LIB) -o $(BIN)/rexec
+	@echo ""
+
 cp:
 	$(CC) $(CFLAGS) cp.c $(LDFLAGS) $(LIB) -o $(BIN)/cp
+	@echo ""
 
 mkdir:
 	$(CC) $(CFLAGS) mkdir.c $(LDFLAGS) $(LIB) -o $(BIN)/mkdir
+	@echo ""
+
 rm:
 	$(CC) $(CFLAGS) rm.c $(LDFLAGS) $(LIB) -o $(BIN)/rm
+	@echo ""
 
 refresh:
 	$(CC) $(CFLAGS) refresh.c $(LDFLAGS) $(LIB) -o $(BIN)/refresh
+	@echo ""
 
 stop:
 	$(CC) $(CFLAGS) stop.c $(LDFLAGS) $(LIB) -o $(BIN)/stop
+	@echo ""
 
 start:
 	$(CC) $(CFLAGS) start.c $(LDFLAGS) $(LIB) -o $(BIN)/start
+	@echo ""
+
 clean:
 	rm -rf $(BIN)/* core *.debug
 
@@ -34,14 +44,14 @@ tar:
 	tar cvf seraph.tar .
 
 install:
-	$(INSTALLDIR) $(LIBDIR)
-	$(INSTALL) -m $(BIN_MODE) $(BIN)/rexec $(LIBDIR)
-	$(INSTALL) -m $(BIN_MODE) $(BIN)/cp $(LIBDIR)
-	$(INSTALL) -m $(BIN_MODE) $(BIN)/mkdir $(LIBDIR)
-	$(INSTALL) -m $(BIN_MODE) $(BIN)/rm $(LIBDIR)
-	$(INSTALL) -m $(BIN_MODE) $(BIN)/refresh $(LIBDIR)
-	$(INSTALL) -m $(BIN_MODE) $(BIN)/stop $(LIBDIR)
-	$(INSTALL) -m $(BIN_MODE) $(BIN)/start $(LIBDIR)
+	$(INSTALLDIR) $(DESTDIR)$(LIBDIR)
+	$(INSTALL) -m $(BIN_MODE) $(BIN)/rexec   $(DESTDIR)$(LIBDIR)
+	$(INSTALL) -m $(BIN_MODE) $(BIN)/cp      $(DESTDIR)$(LIBDIR)
+	$(INSTALL) -m $(BIN_MODE) $(BIN)/mkdir   $(DESTDIR)$(LIBDIR)
+	$(INSTALL) -m $(BIN_MODE) $(BIN)/rm      $(DESTDIR)$(LIBDIR)
+	$(INSTALL) -m $(BIN_MODE) $(BIN)/refresh $(DESTDIR)$(LIBDIR)
+	$(INSTALL) -m $(BIN_MODE) $(BIN)/stop    $(DESTDIR)$(LIBDIR)
+	$(INSTALL) -m $(BIN_MODE) $(BIN)/start   $(DESTDIR)$(LIBDIR)
 
 rmtinst:
 	find ./bin/ -maxdepth 1 -type f -exec scp {} seraph@gigi:/home/seraph/current/engine/ \;

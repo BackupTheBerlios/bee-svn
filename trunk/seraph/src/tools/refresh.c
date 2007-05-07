@@ -30,6 +30,7 @@
 
 struct config_s cfg;
 static bool rc_parseArgs( int argc, char *argv[] );
+char* refreshCmd;
 
 
 
@@ -47,6 +48,7 @@ main( int argc, char *argv[] )
     str_isEnv( SUT_START );
     str_isEnv( SUT_DEFWD );
     str_isEnv( SUT_WORKDIR );
+    str_isEnv( SUT_REFRESH );
     tc = getenv( SUT_TTYPE );
 
     if( !strcasecmp(tc, "local") )
@@ -64,7 +66,7 @@ main( int argc, char *argv[] )
     }
 
     system( getenv(SUT_STOP) );
-    sut_refresh( test_type, getenv( SUT_DEFWD ), getenv( SUT_WORKDIR ), cfg.hostname, cfg.rawport );
+    sut_refresh( test_type, OPT_YES, refreshCmd, cfg.hostname, cfg.rawport );
     ret = system( getenv(SUT_START) );
     UNDBG;
     exit( ret);
@@ -75,7 +77,7 @@ void rc_usage( int status )
     printf( "Usage: refresh [OPTION] COMMAND...\n" );
     printf( "Refresh the state of serverUnderTest.\n" );
     printf( "\n" );
-    printf( "  -v, --verbose     print a message for each action executed\n" );
+    printf( "  -V, --verbose     print a message for each action executed\n" );
     printf( "  -h, --help        display this help and exit\n" );
     printf( "  -H hostname\n" );
     printf( "  -P port\n" );
@@ -88,7 +90,7 @@ void rc_usage( int status )
 static bool rc_parseArgs( int argc, char *argv[] )
 {
     int c;
-    while( ( c = getopt( argc, argv, "t:H:P:hv" ) ) != -1 )
+    while( ( c = getopt( argc, argv, "c:t:H:P:hV" ) ) != -1 )
     {   switch ( c ) {
             case 't':
                 if( !strcasecmp(optarg, "remote") ) {
@@ -111,8 +113,11 @@ static bool rc_parseArgs( int argc, char *argv[] )
             case 'h':
                 UNDBG;
                 rc_usage( EXIT_SUCCESS );
-            case 'v':
+            case 'V':
                 cfg.verbose = true;
+                break;
+            case 'c':
+                refreshCmd = optarg;
                 break;
         }
     }

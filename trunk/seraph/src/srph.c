@@ -18,6 +18,7 @@
  */
 
 
+#include "config.h"
 #include "seraph.h"
 #include "dbg.h"
 #include "sock.h"
@@ -182,7 +183,7 @@ int srph_parseArgs( struct config_s *cfg, int argc, char *argv[] )
                 srph_usage( EXIT_FAILURE );
                 break;
             case 'v':
-                printf( "seraph version %s\n", VER );
+                printf( "seraph version %s\n", VERSION );
                 exit( EXIT_SUCCESS );
                 break;
             case 'V':

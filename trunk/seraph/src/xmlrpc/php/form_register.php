@@ -6,6 +6,7 @@ require_once 'base_lib.php' ;
 <html>
 <head>
 <LINK href="mystyle.css" rel="stylesheet" type="text/css">
+<title>Register new user</title>
 </head>
 
 <body class="bheader">
@@ -16,19 +17,13 @@ require_once 'base_lib.php' ;
     <span><b>Registration</b></span>
 </div>
 
-<div id="menu" style="height:100; width:25em">
-    <b style="width:100;">Username:</b>
-    <input type="text" name="username"/>
-
-    <b style="width:100;">Password:</b>
-    <input type="password" name="password"/>
-
-    <b style="width:100">Name:</b>
-    <input type="text" name="name" maxlength="100"/>
-
-    <b style="width:100">Email:</b>
-    <input type="text" name="email" maxlength="100"/>
-
+<div style="height:100; width:23em">
+<ul class="formFrame">
+    <li><b>Username</b><input type="text" name="username"/></li>
+    <li><b>Password</b><input type="password" name="password"/></li>
+    <li><b>Name</b><input type="text" name="name" maxlength="100"/></li>
+    <li><b>Email</b><input type="text" name="email" maxlength="100"/></li>
+</ul>
     </div>
 <div class ="header" style="width:25em">
     <span>&nbsp;</span>

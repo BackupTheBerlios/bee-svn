@@ -78,7 +78,7 @@ stop_usage( int status )
     printf( "Usage: start [OPTION] COMMAND...\n" );
     printf( "Stop.\n" );
     printf( "\n" );
-    printf( "  -v, --verbose     print a message for each action executed\n" );
+    printf( "  -V, --verbose     print a message for each action executed\n" );
     printf( "  -h, --help        display this help and exit\n" );
     printf( "  -H hostname\n" );
     printf( "  -P port\n" );
@@ -93,7 +93,7 @@ static int
 rc_parseArgs( int argc, char *argv[] )
 {
     int     c;
-    while( ( c = getopt( argc, argv, "t:H:P:c:hv" ) ) != -1 )
+    while( ( c = getopt( argc, argv, "t:H:P:c:hV" ) ) != -1 )
     {   switch ( c ) {
             case 't':
                 if( !strcasecmp( optarg, "remote" ) )
@@ -120,7 +120,7 @@ rc_parseArgs( int argc, char *argv[] )
                 UNDBG;
                 stop_usage( EXIT_SUCCESS );
                 break;
-            case 'v':
+            case 'V':
                 cfg.verbose = true;
                 break;
         }

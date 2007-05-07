@@ -38,27 +38,6 @@ static int core_runRecursive( const char *srcName );
 
 
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
-void sig_handler( int sig )
-{
-    int status;
-    switch ( sig ) {
-        case SIGCHLD:
-            while( waitpid( -1, &status, WNOHANG ) > 0 )
-                if(  WIFEXITED(status) && (WEXITSTATUS( status ) == 69) )
-                    printf( "* seraph: PASS\n" );
-                else
-                    dbg_error( "seraph: FAIL [%d]\n", WEXITSTATUS(status) );
-            break;
-        case SIGALRM:
-            dbg_error( "timeout\n" );
-            break;
-    }
-}
-
-
-
-
-
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
     bool
 core_checkCore( const int test_type,
@@ -165,7 +144,11 @@ static bool core_moveDebugs( const char *srcDir, char *dst )
             return false;
         }
     }
-    closedir( dir ) ;
+    if( -1 == closedir(dir) )
+    {   dbg_error("Unable to close dir [%s] : [%s]\n",
+                srcDir, strerror(errno) );
+        return false;
+    }
     return true;
 }
 
@@ -245,6 +228,25 @@ core_checkCoreLocal( const char *core_srcDir, const char *dbg_srcDir,
 
 
 
+void sig_handler( int sig )
+{
+    int status;
+    switch ( sig ) {
+        case SIGCHLD:
+            while( waitpid( -1, &status, WNOHANG ) > 0 )
+                if(  WIFEXITED(status) && (WEXITSTATUS( status ) == 69) )
+                    printf( "* seraph: PASS\n" );
+                else
+                    dbg_error( "seraph: FAIL [%d]\n", WEXITSTATUS(status) );
+            break;
+        case SIGALRM:
+            dbg_error( "timeout\n" );
+            break;
+    }
+}
+
+
+
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 static int core_runBat( const char *bat_name, int timeout )
 {
@@ -282,7 +284,7 @@ static int core_runBat( const char *bat_name, int timeout )
             if( waitpid( pid, &hasAlarm, WNOHANG ) )
                 break;
             if( cfg.allways_kill ) {
-                kill( pid, 9 );
+                if( kill(pid, 9) ) return false;
                 break;
             }
 
@@ -321,8 +323,10 @@ core_fileAction( const char *fileName, struct stat *statbuf, void *junk )
 
     if( strcmp( bn, "runtest.bat" ) || access( fileName, X_OK ) )
         return true;
-    sut_refresh( cfg.test_type, cfg.sutDefWD,
-                 cfg.axi_workDir, cfg.hostname,cfg.rawport );
+
+    if( cfg.refresh)
+        system(getenv(SUT_REFRESH));
+
     core_setupTmp( fileName, tmpDir );
     if( NULL == getcwd( curDir, FILENAME_MAX ) ) {
         dbg_error( "srph: Unable to get current directory: [%s]"

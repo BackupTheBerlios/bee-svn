@@ -24,9 +24,10 @@
  *   \date     Thu Aug 17 17:38:13 2006
  *
  */
-#include "seraph.h"
+#include "config.h"
 #include "rpc.h"
 #include "dbg.h"
+#include "seraph.h"
 #include "sock.h"
 #include "strop.h"
 #include "fileop.h"
@@ -82,7 +83,7 @@ void mngrd_usage( int status )
     printf( "  -J|--jabber <username>       Start Jabber remote control service.\n" );
     printf( "  -d|--directory <name>        Run only the tests in directory 'name'\n" );
     printf( "  -M|--mail <name(s)>          Whom to mail the results to.\n" );
-    printf( "  -V|--verbose                 Emit verbose output.\n" );
+    printf( "  -v|--verbose                 Emit verbose output.\n" );
     printf( "  -V|--version                 Print version and exit\n" );
     printf( "  -C|--config <file>           Use 'file' as seraph config\n" );
     printf( "  -h|--help                    Print this text and exit\n" );
@@ -120,11 +121,11 @@ int mngrd_parseArgs( struct config_s *cfg, int argc, char *argv[] )
             case 'd':
                 cfg->test_dir = optarg;
                 break;
-            case 'v':
-                printf( "seraph version %s\n", VER );
+            case 'V':
+                printf( "seraph version %s\n", VERSION );
                 exit( EXIT_SUCCESS );
                 break;
-            case 'V':
+            case 'v':
                 cfg->verbose = true;
                 break;
             case '?':

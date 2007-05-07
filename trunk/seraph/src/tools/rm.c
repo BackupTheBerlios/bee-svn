@@ -82,7 +82,7 @@ rm_usage( int status )
     printf( "Usage: rm [OPTION] FILE...\n" );
     printf( "Remove (unlink) the FILE(s).\n" );
     printf( "\n" );
-    printf( "  -v, --verbose     print a message for each action executed\n" );
+    printf( "  -V, --verbose     print a message for each action executed\n" );
     printf( "  -h, --help        display this help and exit\n" );
     printf( "  -H host\n" );
     printf( "  -P port\n" );
@@ -96,7 +96,7 @@ static int
 rm_parseArgs( int argc, char *argv[] )
 {
     int     c;
-    while( ( c = getopt( argc, argv, "t:H:P:hv" ) ) != -1 )
+    while( ( c = getopt( argc, argv, "t:H:P:hV" ) ) != -1 )
     {   switch ( c ) {
             case 't':
                 if( !strcasecmp( optarg, "remote" )
@@ -114,7 +114,7 @@ rm_parseArgs( int argc, char *argv[] )
                 UNDBG;
                 rm_usage( EXIT_SUCCESS );
                 break;
-            case 'v':
+            case 'V':
                 cfg.verbose = true;
                 break;
         }

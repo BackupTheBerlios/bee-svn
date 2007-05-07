@@ -59,7 +59,8 @@ function listJobs($job_type)
         echo "<span>$name</span>";
         echo "<span>$date</span>";
         echo "<span>$time</span>";
-        echo "<span class='bar' style='width: $pct%;'>$ctest of $tests</span>";
+        echo "<span class='bar' style='width: $pct%;'>.</span>";
+        echo "$ctest of $tests";
         echo "</a>";
         echo "</div>";
     }
