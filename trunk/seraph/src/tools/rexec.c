@@ -47,15 +47,15 @@ rexec_remote( char *host, int port, char *c )
     dbg_verbose( "[%s]\n", cmd );
     sock_sendLine( sockfd, cmd );
     ret = sock_getStatus( sockfd );
-    if( ret < 0 ) {
-        fputs( "E: rexec: No remote confirmation!\n", stderr );
+    if( ret < 0 )
+    {   dbg_error( "rexec: No remote confirmation!\n");
         free(cmd);
         return false;
     }
 
-    if( ret > 0 ) {
-        fprintf( stderr, "E: rexec: Error: '%s'\n", strerror( ret ) );
-        fprintf( stderr, "E: rexec: Can't execute : '%s'\n", c );
+    if( ret > 0 )
+    {   dbg_error("rexec: Error: '%s'\n", strerror( ret ) );
+        dbg_error("rexec: Can't execute [%s].\n", c );
         free(cmd);
         shutdown( sockfd, 2);
         close( sockfd );
@@ -76,7 +76,7 @@ int main( int argc, char *argv[] )
     int     verbose = 1;
 
     if( argc < 2 )
-    {   printf( "E: rexec: missing operand\n" );
+    {   dbg_error( "rexec: missing operand\n" );
         printf( "Try `rexec -h` for more information.\n" );
         exit( EXIT_FAILURE);
     }

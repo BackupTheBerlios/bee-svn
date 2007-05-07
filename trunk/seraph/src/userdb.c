@@ -3,6 +3,25 @@
 #include "baseclass.h"
 #include "basedb.h"
 #include "userdb.h"
+
+
+/* Avoid directory traversal */
+static const char*
+userdb_stripTraversal( const char* const uname)
+{
+    char *it = uname + strlen(uname) ;
+    while( --it > uname )
+    {   if( *it == '/' || *it == '\\' )
+        {   it++;
+            break;
+        }
+    }
+    debug("it[%s]\n", it);
+    return it;
+}
+
+
+
 static bool
 mkJobDir( const char* const uname, const char* const jobType)
 {
@@ -26,12 +45,13 @@ bool
 userdb_register( const char* const name, const char* const email,
                  const char* const uname, const char* const pass)
 {
+    const char* it = userdb_stripTraversal(uname);
     if(chdir(USERDB))
     {
         debug("unable to chdir to %s\n", USERDB, strerror(errno));
         return false;
     }
-    if( mkdir(uname, 0755) || chdir(uname))
+    if( mkdir(it, 0755) || chdir(it))
     {   debug("unable to register user: [%s]\n", strerror(errno) );
         return false;
     }
@@ -41,19 +61,19 @@ userdb_register( const char* const name, const char* const email,
         return false;
     }
     struct Class* db = (struct Class*)new(BaseDB);
-    db_open( db, "%s/%s/%s", USERDB,uname,"userdata");/*TODO: check retval*/
+    db_open( db, "%s/%s/%s", USERDB, it,"userdata");/*TODO: check retval*/
     if( !db_put(db, "name", name)
     ||  !db_put(db, "email", email)
-    ||  !db_put(db, "uname", uname)
+    ||  !db_put(db, "uname", it)
     ||  !db_put(db, "password", pass)
     ||  !db_close(db))
         return false;   /* TODO: use exceptions instead of || */
     delete(db);
     /* TODO check return values */
-    if( !mkJobDir(uname, "jobs")
-    ||  !mkJobDir(uname, "jobs/complete")
-    ||  !mkJobDir(uname, "jobs/running")
-    ||  !mkJobDir(uname, "jobs/pending")
+    if( !mkJobDir(it, "jobs")
+    ||  !mkJobDir(it, "jobs/complete")
+    ||  !mkJobDir(it, "jobs/running")
+    ||  !mkJobDir(it, "jobs/pending")
     )
         return false;
     return true;
@@ -63,9 +83,10 @@ bool
 userdb_login( const char* uname, const char* pass)
 {
     char p[33]={0}; //md5sum
+    const char* it = userdb_stripTraversal(uname);
 
     struct Class* db = new(BaseDB);
-    if( db_open(db, "%s/%s/%s", USERDB, uname, "userdata") )
+    if( db_open(db, "%s/%s/%s", USERDB, it, "userdata") )
         return false;
 
     if( !db_get(db, "pass", &p)
@@ -86,13 +107,23 @@ userdb_getErrorLog( const char * uname, int job_type, const char*const log, char
 {
     struct  stat s;
     int     fd=-1, len=0;
-    char    *rb=NULL;
-    char    path[PATH_MAX]={0}; /*TODO: use malloc*/
+    char    *rb=NULL, *path=NULL;
+    const char* it= userdb_stripTraversal(uname);
 
-    sprintf( path, "%s/%s/jobs/running/%s", USERDB, uname, log);
-    debug("encoding [%s]\n", path);
+    path = (char*)malloc( strlen(USERDB) + strlen(it) + strlen(log) + 16);
+    if( !path )
+    {   *ret = NULL;
+        return 0;
+    }
+
+    sprintf( path, "%s/%s/jobs/running/%s", USERDB, it, log);
+    printf("Encoding [%s]\n", path);
     fd = open(path, O_RDONLY);
-    if( fd <0) return 0;
+    free(path);
+    if( fd <0)
+    {   *ret = NULL;
+        return 0;
+    }
 
     if(fstat( fd, &s))
     {   printf("error fstating\n");
@@ -118,6 +149,8 @@ userdb_listJobs( const char * const uname, enum JobType job_type, GSList** jobs)
     struct dirent* dent;
     char path[PATH_MAX]={0};
     struct job* job;
+    const char* it = userdb_stripTraversal(uname);
+
     *jobs =  g_slist_alloc() ;
 
     debug("JobType: [%d]\n", job_type);
@@ -126,13 +159,12 @@ userdb_listJobs( const char * const uname, enum JobType job_type, GSList** jobs)
 
     if( job_type & JOB_PENDING )
     {
-        sprintf( path, "%s/%s/jobs/pending", USERDB, uname);
+        sprintf( path, "%s/%s/jobs/pending", USERDB, it);
         debug("JOBS_PENDING path[%s]\n", path);
 
         dit = opendir(path);
         if( !dit )
-        {
-            return nbJobs;
+        {   return nbJobs;
         }
         while( (dent=readdir(dit)) != NULL )
         {
@@ -149,7 +181,7 @@ userdb_listJobs( const char * const uname, enum JobType job_type, GSList** jobs)
         struct Class* db = new(BaseDB);
         char *data=malloc(34);
 
-        sprintf( path, "%s/%s/jobs/running", USERDB, uname);
+        sprintf( path, "%s/%s/jobs/running", USERDB, it);
         debug("JOBS_RUNNING path[%s]\n", path);
         dit  = opendir(path);
         if( !dit )
@@ -162,7 +194,7 @@ userdb_listJobs( const char * const uname, enum JobType job_type, GSList** jobs)
             if( !strcmp(dent->d_name, ".") || !strcmp(dent->d_name,"..") ) continue;
             debug("job_append[%s]\n", dent->d_name);
             /* TODO: Check retval*/
-            db_open(db, "%s/%s/jobs/running/%s", USERDB, uname, dent->d_name);
+            db_open(db, "%s/%s/jobs/running/%s", USERDB, it, dent->d_name);
             job =(struct job*)malloc(sizeof(struct job));
             if(!job) break ;
             /* Fill in the struct */
@@ -192,12 +224,11 @@ userdb_listJobs( const char * const uname, enum JobType job_type, GSList** jobs)
     if( job_type & JOB_COMPLETE )
     {
         struct job* job=NULL;
-        sprintf( path, "%s/%s/jobs/complete", USERDB, uname);
+        sprintf( path, "%s/%s/jobs/complete", USERDB, it);
         debug("JOBS_COMPLETE path[%s]\n", path);
         dit = opendir(path);
         if( !dit )
-        {
-            return nbJobs;
+        {   return nbJobs;
         }
         while( dent=readdir(dit) )
         {
@@ -255,10 +286,12 @@ userdb_setSession(  const char* const uname,
                     const char* const session,
                     const char* const ip)
 {
+    char *it=NULL;
     struct Class* db = new(BaseDB);
 
     debug("uname[%s] session[%s] ip[%s]\n", uname, session, ip);
-    db_open( db, "%s/%s/%s", USERDB, uname, "userdata");
+    it = userdb_stripTraversal(uname);
+    db_open( db, "%s/%s/%s", USERDB, it, "userdata");
     db_put(db, "session", session);
     db_put(db, "ip", ip);
     db_close(db);

@@ -161,17 +161,17 @@ main( int argc, char *argv[] )
 }
 
 void
-cp_usage( void )
+cp_usage( int status )
 {
     printf( "Usage: cp [OPTION] COMMAND...\n" );
     printf( "Copy SOURCE to DEST\n" );
     printf( "\n" );
-    printf( "  -V, --verbose     print a message for each action executed\n" );
+    printf( "  -v, --verbose     print a message for each action executed\n" );
     printf( "  -h, --help        display this help and exit\n" );
     printf( "  -H hostname\n" );
     printf( "  -P port\n" );
     printf( "  -t testType\n" );
-    exit( EXIT_SUCCESS );
+    exit( status );
 }
 
 
@@ -179,7 +179,7 @@ static int
 cp_parseArgs( int argc, char *argv[] )
 {
     int     c;
-    while( ( c = getopt( argc, argv, "t:H:P:hV" ) ) != -1 )
+    while( ( c = getopt( argc, argv, "t:H:P:hv" ) ) != -1 )
     {   switch ( c ) {
             case 't':
                 if( !strcasecmp( optarg, "remote" ) || ( !strcasecmp( optarg, "local" ) ) )
@@ -193,10 +193,21 @@ cp_parseArgs( int argc, char *argv[] )
                 break;
             case 'h':
                 UNDBG;
-                cp_usage( );
-            case 'V':
+                cp_usage( EXIT_SUCCESS );
+            case 'v':
                 cfg.verbose = true;
                 break;
+            case '?':
+                if (isprint (optopt))
+                    {dbg_error("Unknown option `-%c'.\n", optopt);}
+                else
+                    dbg_error("Unknown option character `\\x%x'.\n", optopt);
+                cp_usage( EXIT_FAILURE);
+                break;
+           default:
+                cp_usage( EXIT_FAILURE);
+                break;
+
         }
     }
     return true;

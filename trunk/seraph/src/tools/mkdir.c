@@ -109,17 +109,17 @@ main( int argc, char *argv[] )
 
 
 void
-mkdir_usage( void )
+mkdir_usage( int status )
 {
     printf( "Usage: mkdir [OPTION] COMMAND...\n" );
     printf( "Create the DIRECTORY, if they do not already exist.\n" );
     printf( "\n" );
-    printf( "  -V, --verbose     print a message for each action executed\n" );
+    printf( "  -v, --verbose     print a message for each action executed\n" );
     printf( "  -h, --help        display this help and exit\n" );
     printf( "  -H hostname\n" );
     printf( "  -P port\n" );
     printf( "  -t testType\n" );
-    exit( 0 );
+    exit( status );
 }
 
 
@@ -128,7 +128,7 @@ static int
 mkdir_parseArgs( int argc, char *argv[] )
 {
     int c;
-    while( ( c = getopt( argc, argv, "t:H:P:hV" ) ) != -1 )
+    while( ( c = getopt( argc, argv, "t:H:P:hv" ) ) != -1 )
     {   switch ( c ) {
             case 't':
                 if( !strcasecmp( optarg, "remote" )
@@ -144,10 +144,20 @@ mkdir_parseArgs( int argc, char *argv[] )
                 break;
             case 'h':
                 UNDBG;
-                mkdir_usage( );
+                mkdir_usage( EXIT_SUCCESS);
                 break;
-            case 'V':
+            case 'v':
                 cfg.verbose = true;
+                break;
+            case '?':
+                if (isprint (optopt))
+                    {dbg_error("Unknown option `-%c'.\n", optopt);}
+                else
+                    dbg_error("Unknown option character `\\x%x'.\n", optopt);
+                mkdir_usage( EXIT_FAILURE);
+                break;
+           default:
+                mkdir_usage( EXIT_FAILURE);
                 break;
         }
     }

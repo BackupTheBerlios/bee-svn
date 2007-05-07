@@ -60,12 +60,12 @@ main( int argc, char *argv[] )
         cfg.hostname = getenv( SUT_HOST );
         cfg.rawport = atoi( getenv(SUT_PORT) );
     } else
-    {   printf( "E: refresh : Invalid test type $SUT_TTYPE\n" );
+    {   dbg_error( "refresh : Invalid test type $SUT_TTYPE\n" );
         UNDBG;
         exit(EXIT_FAILURE);
     }
 
-    system( getenv(SUT_STOP) );
+    ret = system( getenv(SUT_STOP) );
     sut_refresh( test_type, OPT_YES, refreshCmd, cfg.hostname, cfg.rawport );
     ret = system( getenv(SUT_START) );
     UNDBG;
@@ -77,7 +77,7 @@ void rc_usage( int status )
     printf( "Usage: refresh [OPTION] COMMAND...\n" );
     printf( "Refresh the state of serverUnderTest.\n" );
     printf( "\n" );
-    printf( "  -V, --verbose     print a message for each action executed\n" );
+    printf( "  -v, --verbose     print a message for each action executed\n" );
     printf( "  -h, --help        display this help and exit\n" );
     printf( "  -H hostname\n" );
     printf( "  -P port\n" );
@@ -90,15 +90,15 @@ void rc_usage( int status )
 static bool rc_parseArgs( int argc, char *argv[] )
 {
     int c;
-    while( ( c = getopt( argc, argv, "c:t:H:P:hV" ) ) != -1 )
+    while( ( c = getopt( argc, argv, "c:t:H:P:hv" ) ) != -1 )
     {   switch ( c ) {
             case 't':
-                if( !strcasecmp(optarg, "remote") ) {
-                    setenv( SUT_TTYPE, optarg, 1 );
+                if( !strcasecmp(optarg, "remote") )
+                {   setenv( SUT_TTYPE, optarg, 1 );
                     cfg.test_type = TEST_REMOTE;
                 }
-                if( !strcasecmp( optarg, "local" ) ) {
-                    setenv( SUT_TTYPE, optarg, 1 );
+                if( !strcasecmp( optarg, "local" ) )
+                {   setenv( SUT_TTYPE, optarg, 1 );
                     cfg.test_type = TEST_LOCAL;
                 }
                 break;
@@ -113,11 +113,21 @@ static bool rc_parseArgs( int argc, char *argv[] )
             case 'h':
                 UNDBG;
                 rc_usage( EXIT_SUCCESS );
-            case 'V':
+            case 'v':
                 cfg.verbose = true;
                 break;
             case 'c':
                 refreshCmd = optarg;
+                break;
+            case '?':
+                if (isprint (optopt))
+                    {dbg_error("Unknown option `-%c'.\n", optopt);}
+                else
+                    dbg_error("Unknown option character `\\x%x'.\n", optopt);
+                rc_usage( EXIT_FAILURE);
+                break;
+           default:
+                rc_usage( EXIT_FAILURE);
                 break;
         }
     }

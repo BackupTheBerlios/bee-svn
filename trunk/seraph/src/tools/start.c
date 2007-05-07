@@ -79,7 +79,7 @@ start_usage( int status )
     printf( "Usage: start [OPTION] COMMAND...\n" );
     printf( "Start.\n" );
     printf( "\n" );
-    printf( "  -V, --verbose     print a message for each action executed\n" );
+    printf( "  -v, --verbose     print a message for each action executed\n" );
     printf( "  -h, --help        display this help and exit\n" );
     printf( "  -H host\n" );
     printf( "  -P port\n" );
@@ -94,7 +94,7 @@ static int
 rc_parseArgs( int argc, char *argv[] )
 {
     int     c;
-    while( ( c = getopt( argc, argv, "t:H:P:c:hV" ) ) != -1 )
+    while( ( c = getopt( argc, argv, "t:H:P:c:hv" ) ) != -1 )
     {   switch ( c ) {
             case 't':
                 if( !strcasecmp( optarg, "remote" ) )
@@ -121,8 +121,18 @@ rc_parseArgs( int argc, char *argv[] )
                 UNDBG;
                 start_usage( EXIT_SUCCESS );
                 break;
-            case 'V':
+            case 'v':
                 cfg.verbose = true;
+                break;
+            case '?':
+                if (isprint (optopt))
+                    {dbg_error("Unknown option `-%c'.\n", optopt);}
+                else
+                    dbg_error("Unknown option character `\\x%x'.\n", optopt);
+                start_usage( EXIT_FAILURE);
+                break;
+           default:
+                start_usage( EXIT_FAILURE);
                 break;
         }
     }
