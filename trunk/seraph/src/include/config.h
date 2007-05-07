@@ -8,8 +8,11 @@
 #if !defined( _CONFIG_H_ )
 #define _CONFIG_H_
 
+#if !defined(VERSION)
+#define VERSION "1.0.0"
+#endif
 
-#include <unistd.h>
+
 #include <ctype.h>
 #include <dirent.h>
 #include <errno.h>
@@ -19,7 +22,6 @@
 #include <limits.h>
 #include <netdb.h>
 #include <netinet/in.h>
-#include <sys/wait.h>
 #include <signal.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -30,7 +32,9 @@
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 #include <time.h>
+#include <unistd.h>
 
 #define SUT_CFGFILE "SUT_CFGFILE"
 #define SUT_COREDIR "SUT_COREDIR"
@@ -40,6 +44,7 @@
 #define SUT_HOST    "SUT_HOST"
 #define SUT_PORT    "SUT_PORT"
 #define SUT_RESTART "SUT_RESTART"
+#define SUT_REFRESH "SUT_REFRESH"
 #define SUT_START   "SUT_START"
 #define SUT_STOP    "SUT_STOP"
 #define SUT_SYSLOG  "SUT_SYSLOG"
@@ -48,15 +53,13 @@
 #define SUT_WORKDIR "SUT_WORKDIR"
 #define EXT_EXEC    ".bat"
 
-#define VER "2.0.0"
-
 /*#define PATH_MAX 2048*/
 #define TEST_UNSET  0
 #define TEST_LOCAL  1
 #define TEST_REMOTE 2
+#define OPT_NO  0
 #define OPT_YES 1
-#define OPT_NO  2
-#define OPT_ASK 3
+#define OPT_ASK 2
 /* TODO: fa-le enum-uri*/
 #define TB_BE_DAEMON 1
 #define TB_BE_SETUP 2

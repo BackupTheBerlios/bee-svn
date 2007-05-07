@@ -1,8 +1,6 @@
 #ifndef TESTBOT_H
 #define TESTBOT_H
 
-#include "config.h"
-
 void srph_usage( int status ) ;
 int  srph_parseArgs( struct config_s* cfg, int argc, char* args[]);
 int  srph_initCfg( struct config_s* cfg, int argc, char* argv[]);
