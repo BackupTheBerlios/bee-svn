@@ -64,32 +64,14 @@ int t_stopCallback( int sock, char *buf )
  */
 int t_refreshCallback( int sock, char *buf )
 {
-        char com[PATH_MAX] = { 0 };
-        struct stat stats;
-        char cale_s[PATH_MAX] = { 0 };
-        char cale_d[PATH_MAX] = { 0 };
-        int cod = 0, rb = 0;
+        int ret = 0;
 
         if( NULL == buf ) {
                 fprintf( stderr,
                          "! REFRESH: (null) internal `buf` parameter\n" );
                 return 0;
         }
-        rb = sscanf( buf, "%s %s", cale_s, cale_d );
-
-        cod = stat( cale_s, &stats );
-        if( cod != 0 ) {
-                printf( "rsh: ERR: Can't find %s\n", cale_s );
-                exit( -1 );
-        }
-        sprintf( com, "rm -rf %s", cale_d );
-        if( system( com ) == -1 ) {
-                return errno;
-        }
-        sprintf( com, "/bin/cp -r %s %s", cale_s, cale_d );
-        if( system( com ) == -1 ) {
-                return errno;
-        }
+        ret = system(buf); /*TODO: check return values*/
 
         sock_sendStatus( sock, 0 );
         return 0;

@@ -11,6 +11,41 @@ static int callback_command( int sckt );
 char* clientCallback( const char* filebuf );
 
 int daemon_running=0;
+
+static void
+closeFds()
+{
+    long fdlimit = -1, i;
+    int fderr, fdout,fdin;
+
+    fdlimit = sysconf (_SC_OPEN_MAX);
+    if (fdlimit == -1) {
+        fdlimit = 3;
+        debug("cant fdlimit\n");
+    }
+    fdlimit = 3;
+    for (i = 0; i < fdlimit; i++)
+        close (i);
+
+    fderr = open ( "/home/groleo/ERRORS", O_RDWR | O_CREAT, 0644);
+    fdout = open ( "/home/groleo/OUT", O_RDWR | O_CREAT, 0644);
+    fdin  = open ( "/dev/null", O_RDWR, 0);
+
+    if (fdin != -1 || fdout != -1 || fderr != -1)
+    {
+        dup2 (fdin, STDIN_FILENO);
+        dup2 (fdout, STDOUT_FILENO);
+        dup2 (fderr, STDERR_FILENO);
+        if (fdin > 2 )
+            close (fdin);
+        if (fdout > 2 )
+            close (fdout);
+        if (fderr > 2 )
+            close (fderr);
+    }
+}
+
+
     int
 start_xmlrpc(const unsigned int port)
 {
@@ -18,12 +53,12 @@ start_xmlrpc(const unsigned int port)
     pid_t pid=-1, sid=-1;
 
     if( (port == 0U) || (port > 65535U) ) {
-        dbg_error( "xmlrpc: Cant bind port: %u : Illegal value.\n", port );
+        dbg_error( "xmlrpc: Cant bind port [%u] : [Illegal value].\n", port );
         return -1;
     }
 
-#if 0
     /* Daemon */
+#if 0
     pid = fork( );
 
     if( pid < 0 )
@@ -42,37 +77,9 @@ start_xmlrpc(const unsigned int port)
         exit( EXIT_FAILURE );
 
     if( ( chdir( "/tmp" ) ) < 0 )
-        debug( "Can't change to /tmp" );
-    /* Daemon */
-    long fdlimit = -1, i;
-    int fderr, fdout,fdin;
-
-    fdlimit = sysconf (_SC_OPEN_MAX);
-    if (fdlimit == -1) {
-        fdlimit = 3;
-        debug("cant fdlimit\n");
-    }
-    fdlimit = 3;
-    for (i = 0; i < fdlimit; i++)
-        close (i);
-
-    fderr = open ( "/home/groleo/ERRORS", O_RDWR, 0);/*TODO*/
-    fdout = open ( "/home/groleo/OUT", O_RDWR, 0);/*TODO*/
-    fdin  = open ( "/dev/null", O_RDWR,0);
-
-    if (fdin != -1 || fdout != -1 || fderr != -1)
-    {
-        dup2 (fdin, STDIN_FILENO);
-        dup2 (fdout, STDOUT_FILENO);
-        dup2 (fderr, STDERR_FILENO);
-        if (fdin > 2 )
-            close (fdin);
-        if (fdout > 2 )
-            close (fdout);
-        if (fderr > 2 )
-            close (fderr);
-    }
+        dbg_error( "Can't change to /tmp" );
 #endif
+    /* Daemon */
     struct sigaction action;
     action.sa_handler = sut_sigint;
     sigemptyset(&action.sa_mask);
@@ -87,12 +94,12 @@ static int callback_socket( int portno )
 {
     unsigned int clilen;
     struct sockaddr_in serv_addr, cli_addr;
-    int cod, sockfd, opt=1;
+    int ret, sockfd, opt=1;
 
 
     sockfd = socket( AF_INET, SOCK_STREAM, 0 );
     if( sockfd < 0 )
-    {   dbg_error( "xmlrpc: opening socket: %s\n", strerror( errno ) );
+    {   dbg_error( "xmlrpc: opening socket: [%s]\n", strerror( errno ) );
         return 1;
     }
 
@@ -101,36 +108,39 @@ static int callback_socket( int portno )
     //serv_addr.sin_addr.s_addr = INADDR_ANY;
     serv_addr.sin_port = htons( portno );
 
-    cod = setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
-    if( cod == -1 ) dbg_error("setsockopt reuseaddr:%s\n", strerror(errno));
+    ret = setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+    if( ret == -1 ) dbg_error("setsockopt reuseaddr: [%s]\n", strerror(errno));
 
-    if( bind( sockfd, ( struct sockaddr * )&serv_addr, sizeof( serv_addr ) )
+    if( bind( sockfd, (struct sockaddr*)&serv_addr, sizeof(serv_addr) )
             < 0 )
-    {   dbg_error( "xmlrpc: Can't bind socket: %s\n", strerror(errno) );
+    {   dbg_error( "xmlrpc: Can't bind socket: [%s]\n", strerror(errno) );
         return 1;
     }
-    cod = listen( sockfd, 5 );
-    if( cod < 0 )
-    {   dbg_error( "xmlrpc: Can't listen %s\n", strerror(errno) );
+    ret = listen( sockfd, 5 );
+    if( ret < 0 )
+    {   dbg_error( "xmlrpc: Can't listen: [%s]\n", strerror(errno) );
         return 1;
     }
     printf( "Running on port:%d\n", portno );
     clilen = sizeof( cli_addr );
     daemon_running=1;
+    //closeFds();
 
-    //if (-1 == fcntl(sockfd, F_SETOWN, (int) getpid())) return -1;
+    if (-1 == fcntl(sockfd, F_SETOWN, (int) getpid())) return -1;
     while( 0!=daemon_running )
-    {   int newsockfd=0,cod;
-        newsockfd = accept( sockfd, ( struct sockaddr * )&cli_addr, &clilen );
+    {   int newsockfd=0;
+        newsockfd = accept( sockfd, (struct sockaddr*)&cli_addr, &clilen );
+
         if( newsockfd < 0 )
         {   dbg_error( "accept[%s]\n", strerror(errno) );
             daemon_running=0;
             break;
         }
-        //cod = setsockopt( newsockfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
-        //if( cod == -1 ) dbg_error("setsockopt reuseaddr:%s\n", strerror(errno));
+        //ret = setsockopt( newsockfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+        //if( ret == -1 ) dbg_error("setsockopt reuseaddr:%s\n", strerror(errno));
         callback_command( newsockfd );
     }
+    shutdown( sockfd, 2);
     close( sockfd);
     return 0;
 }
@@ -150,9 +160,8 @@ static int callback_command( int sckt )
         memset( buf, 0, 8192 );
         n = read( sckt, buf, 8191 );
 
-        if( n < 0 ) {
-            fprintf( stderr,
-                    "! daemon: Error reading from socket\n" );
+        if( n < 0 )
+        {   dbg_error("xmlrpc: Error reading from socket: [%s]\n", strerror(errno) );
             break;
         }
         /* Client closed socket */
@@ -164,7 +173,7 @@ static int callback_command( int sckt )
         if(buf1)
         {   buf1+=4;
             debug("BODY:[%s]\n", buf1);
-            //if (-1 == fcntl(sckt, F_SETOWN, (int) getpid())) return -1;
+            if (-1 == fcntl(sckt, F_SETOWN, (int) getpid())) return -1;
             rsp = clientCallback(buf1);
             if(!rsp) return 0;
 
@@ -219,8 +228,8 @@ char* clientCallback( const char* filebuf )
     XMLRPC_ServerRegisterMethod( server, "getErrorLog", x_getErrorLogCallback );
 
     request = XMLRPC_REQUEST_FromXML( filebuf, strlen(filebuf), NULL );
-    if( !request ) {
-        fprintf( stderr, "bogus xmlrpc request\n" );
+    if( !request )
+    {    dbg_error("bogus xmlrpc request\n" );
         return NULL;
     }
 

@@ -40,9 +40,9 @@ static int callback_command( int sckt );
 int start_rawrpc( const unsigned int port )
 {
 
-    pid_t pid, sid;
-    if( (port == 0U) || (port > 65535U) ) {
-        fprintf( stderr, "Cant bind port: %d\n", port );
+    pid_t pid=-1, sid=-1;
+    if( (port == 0U) || (port > 65535U) )
+    {   dbg_error( "rawrpc: Cant bind port [%u]: [Illegal value].\n", port );
         return -1;
     }
 #if 0
@@ -103,8 +103,7 @@ int start_rawrpc( const unsigned int port )
     sigaction( SIGINT, &action, NULL);
     sigaction( SIGPIPE, &action, NULL);
 
-    callback_socket( port );
-    return 0;
+    return callback_socket( port );
 }
 
 
@@ -112,13 +111,12 @@ static int callback_socket( const unsigned short int portno )
 {
     unsigned int clilen;
     struct sockaddr_in serv_addr, cli_addr;
-    int cod, sockfd, opt=1;
+    int ret, sockfd, opt=1;
 
 
     sockfd = socket( AF_INET, SOCK_STREAM, 0 );
-    if( sockfd < 0 ) {
-        fprintf( stderr, "rsh: ERR: opening socket: %s\n",
-                strerror( errno ) );
+    if( sockfd < 0 )
+    {   dbg_error("rawrpc: opening socket: [%s]\n", strerror( errno ) );
         return 1;
     }
 
@@ -127,34 +125,37 @@ static int callback_socket( const unsigned short int portno )
     //serv_addr.sin_addr.s_addr = INADDR_ANY;
     serv_addr.sin_port = htons( portno );
 
-    cod = setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
-    if( cod == -1 ) dbg_error("setsockopt reuseaddr:%s\n", strerror(errno));
+    ret = setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+    if( ret == -1 ) dbg_error("setsockopt reuseaddr: [%s]\n", strerror(errno));
 
-    if( bind( sockfd, ( struct sockaddr * )&serv_addr, sizeof( serv_addr ) )
-            < 0 ) {
-        perror( "rsh: ERR on binding" );
-        exit( -1 );
+    if( bind( sockfd, (struct sockaddr*)&serv_addr, sizeof(serv_addr) )
+            < 0 )
+    {   dbg_error( "rawrpc: Can't bind socket: [%s]\n", strerror(errno) );
+        return 1;
     }
-    cod = listen( sockfd, 5 );
-    if( cod < 0 ) {
-        perror( "rsh: ERR on listen" );
-        exit( -1 );
+    ret = listen( sockfd, 5 );
+    if( ret < 0 )
+    {   dbg_error( "rawrpc: Can't listen : [%s]\n", strerror(errno) );
+        return 1;
     }
     printf( "Running on port:%d\n", portno );
     clilen = sizeof( cli_addr );
     daemon_running=1;
 
-    while( daemon_running!=0 ) {
-        int newsockfd;
-        newsockfd =
-            accept( sockfd, ( struct sockaddr * )&cli_addr, &clilen );
+    while( daemon_running!=0 )
+    {   int newsockfd;
+        newsockfd = accept( sockfd, (struct sockaddr*)&cli_addr, &clilen );
 
-        if( newsockfd < 0 ) {
-            perror( "rsh: ERR on accept" );
-            exit( -1 );
+        if( newsockfd < 0 )
+        {   dbg_error( "rawrpc: accept[%s]", strerror(errno) );
+            daemon_running = 0;
+            break;
         }
         callback_command( newsockfd );
     }
+    shutdown(sockfd,2);
+    close(sockfd);
+    return 0;
 }
 
 
@@ -166,13 +167,13 @@ static int callback_command( int sckt )
     int ok = 1;
     int n, i;
 
-    while( ok ) {
-        char *p = NULL;
+    while( ok )
+    {   char *p = NULL;
         memset( buf, 0, 8192 );
         n = read( sckt, buf, 8191 );
 
-        if( n < 0 ) {
-            dbg_error("srv_tcp: Error reading from socket : [%s]\n", strerror(errno) );
+        if( n < 0 )
+        {   dbg_error("rawrpc: Error reading from socket : [%s]\n", strerror(errno) );
             break;
         }
         /* Client closed socket */
@@ -183,14 +184,14 @@ static int callback_command( int sckt )
 
         /* extract keyword */
         p = strchr( buf, ' ' );
-        if( p ) {
-            *p++ = '\0';
+        if( p )
+        {   *p++ = '\0';
             for( i = 0; *( p + i ) >= 32 && *( p + i ) != '\0';
                     ++i );
             *( p + i ) = '\0';
             printf( "cmd[%s] param[%s]\n", buf, p );
-        } else {
-            printf( "\n--Unknown command--\n" );
+        } else
+        {   printf( "\n--Unknown command--\n" );
             continue;
         }
         for( i = 0; callbacks[i].keyword != NULL; i++ )
@@ -198,7 +199,7 @@ static int callback_command( int sckt )
                 callbacks[i].call( sckt, p );
                 break;
             }
-    }                       /*while */
+    }/*while */
     shutdown( sckt, 2);
     close( sckt );
     return 0;

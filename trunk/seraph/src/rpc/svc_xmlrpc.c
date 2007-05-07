@@ -115,9 +115,9 @@ x_getConfigCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void *userDat
 x_listJobsCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void *userData )
 {
     GSList*   jobList =NULL ;
-    int nbJobs=0, job_type;
+    int nbJobs=0, job_type=0;
     XMLRPC_VALUE ret;
-    char *username;
+    const char *username;
     struct job* tmp;
     XMLRPC_VALUE tmpv;
     XMLRPC_VALUE xParams = XMLRPC_RequestGetData( request );
@@ -151,6 +151,7 @@ x_listJobsCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void *userData
         free(tmp->ctest);
         free(tmp), tmp=NULL;
     }
+    g_slist_free(jobList);
     return ret;
 }
 
@@ -320,7 +321,7 @@ x_runTestsCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void* userData
     extern struct config_s cfg;
     pid_t pid;
     int status=0;
-    char* sut_refresh=NULL;
+    const char* sut_refresh=NULL;
 
 
     str = XMLRPC_VectorRewind(XMLRPC_RequestGetData(request));
@@ -363,16 +364,16 @@ x_runTestsCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void* userData
             char cmd[PATH_MAX*3]={0};
 
             p = XMLRPC_GetValueString( xIter );
-            debug("Run tests from directory: '%s/%s' \n", cfg.test_dir,p);
+            dbg_verbose("Run tests from directory: '%s/%s' \n", cfg.test_dir,p);
             /*TODO: use snprintf */
             sprintf(tDir, "%s/%s", cfg.test_dir,p);
             sprintf(tCfg, "%s/%s", MACHINES,os);
-            sprintf(cmd,"/home/groleo/sand/bin/srph -V -C %s -d %s -t remote -r %s -k"
-                   ,tCfg, tDir, sut_refresh);
+            sprintf(cmd,"%s/srph -V -C %s -d %s -t remote -r %s -k",
+                   BINDIR, tCfg, tDir, sut_refresh);
+            dbg_verbose("Seraph: [%s]\n", cmd);
             system(cmd);
             xIter = XMLRPC_VectorNext(tests);
         }
-        sleep(20);
         exit(EXIT_SUCCESS);
     }
     return 0; //never reached
@@ -509,7 +510,8 @@ XMLRPC_VALUE
 x_getErrorLogCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request,
         void *userData )
 {
-    char    *b64, *log;
+    char    *b64;
+    const char*log;
     size_t  b64Len=0;
     XMLRPC_VALUE xParams = XMLRPC_RequestGetData( request );
     XMLRPC_VALUE xIter   = XMLRPC_VectorRewind( xParams );
