@@ -71,8 +71,8 @@ main( int argc, char *argv[] )
     bool    ret=false;
 
     if( argc < 2 )
-    {   printf( "E: mkdir: missing operand\n" );
-        printf( "Try `mkdir -h` for more information.\n" );
+    {   dbg_error( "mkdir: missing operand\n" );
+        dbg_error( "Try `mkdir -h` for more information.\n" );
         exit(EXIT_FAILURE);
     }
 
@@ -101,7 +101,7 @@ main( int argc, char *argv[] )
         UNDBG;
         ret? exit(EXIT_SUCCESS): exit(EXIT_FAILURE);
     } else
-        printf( "E: mkdir: Invalid test type $SUT_TTYPE\n" );
+        dbg_error( "mkdir: Invalid test type $SUT_TTYPE\n" );
     UNDBG;
     exit(EXIT_FAILURE);
 }
@@ -112,7 +112,7 @@ void
 mkdir_usage( int status )
 {
     printf( "Usage: mkdir [OPTION] COMMAND...\n" );
-    printf( "Create the DIRECTORY, if they do not already exist.\n" );
+    printf( "Create the DIRECTORY, if it does not already exist.\n" );
     printf( "\n" );
     printf( "  -v, --verbose     print a message for each action executed\n" );
     printf( "  -h, --help        display this help and exit\n" );
