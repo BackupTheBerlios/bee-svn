@@ -3,7 +3,7 @@
  *   \author   
  *   \date     Thu Aug 17 17:38:13 2006
  *
- *   Copyright (c)  
+ *   Copyright (c)
  */
 #if !defined( _CONFIG_H_ )
 #define _CONFIG_H_
@@ -51,19 +51,14 @@
 #define SUT_TOOL    "SUT_TOOL"
 #define SUT_TTYPE   "SUT_TTYPE"
 #define SUT_WORKDIR "SUT_WORKDIR"
+#define SUT_DESTCOREDIR "SUT_DESTCOREDIR"
 #define EXT_EXEC    ".bat"
+#define SUT_VERBOSE "SUT_VERBOSE"
 
 /*#define PATH_MAX 2048*/
-#define TEST_UNSET  0
-#define TEST_LOCAL  1
-#define TEST_REMOTE 2
-#define OPT_NO  0
-#define OPT_YES 1
-#define OPT_ASK 2
-/* TODO: fa-le enum-uri*/
-#define TB_BE_DAEMON 1
-#define TB_BE_SETUP 2
-#define TB_BE_TESTER 3
+enum { OPT_NO, OPT_YES, OPT_ASK } ;
+enum { TEST_UNSET, TEST_LOCAL, TEST_REMOTE } ;
+enum { TB_BE_DAEMON, TB_BE_SETUP, TB_BE_TESTER } ;
 
 
 struct config_s {
@@ -84,7 +79,7 @@ struct config_s {
     char*   axi_workDir ;
     char*   config_file;
     char*   cur_path;                   /* retine variabila PATH inainte de rescriere */
-    char*   dest_coreDir ;
+    char*   destCoreDir ;
     char*   hostname;
     char*   jabuser ;
     char*   machine;
@@ -100,6 +95,7 @@ struct config_s {
     int     test_type ;
     int     xmlport ;
     int     (*takeAction)(const char *name, const char *value, void* overwrite) ;
+    GSList**children;
 } ;
 
 #else

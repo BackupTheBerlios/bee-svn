@@ -19,8 +19,8 @@ function listJobs($job_type)
     echo "List of Jobs:(click to open errorlog)<br>";
     echo "<div class='job_running'>";
     echo "<span class='id'>Id</span>";
-    echo "<span class='state'>Job State</span>";
-    echo "<span >Machine Name</span>";
+    echo "<span >Job State</span>";
+    echo "<span class='name'>Machine</span>";
     echo "<span >Start date</span>";
     echo "<span >Start time</span>";
     echo "Progress";
@@ -51,12 +51,12 @@ function listJobs($job_type)
         $name = XML_RPC_decode($log->structmem("job_name") );
         $ctest= XML_RPC_decode($log->structmem("job_ctest"));
         $tests= XML_RPC_decode($log->structmem("job_tests"));
-        $pct  = 4+100*(int)$ctest/((int)$tests*5);
+        $pct  = 4+100*(int)$ctest/((int)$tests*6);
         echo "<div class='$state'>";
         echo "<a href='view.php?log=$name'>";
         echo "<span class='id'>1000</span>";
-        echo "<span class='state'>$state</span>";
-        echo "<span>$name</span>";
+        echo "<span>$state</span>";
+        echo "<span class='name'>$name</span>";
         echo "<span>$date</span>";
         echo "<span>$time</span>";
         echo "<span class='bar' style='width: $pct%;'>.</span>";

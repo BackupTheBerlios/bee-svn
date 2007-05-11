@@ -47,14 +47,13 @@ mkdir_remote( char *host, int port, char *path )
     sock_sendLine( sockfd, cmd);
     ret = sock_getStatus( sockfd);
     if( ret )
-    {   fprintf( stderr,
-                "E: mkdir: cannot create directory [%s]: %s\n", path, strerror(ret) );
+    {   dbg_error( "mkdir: cannot create directory [%s]: [%s]\n", path, strerror(ret) );
         shutdown( sockfd, 2);
         close( sockfd);
         free( cmd);
         return false;
     }
-    dbg_verbose("mkdir: Directory [%s] created ok\n", path);
+    dbg_verbose("mkdir: created directory [%s]\n", path);
     free( cmd);
     shutdown( sockfd, 2);
     close( sockfd );
@@ -83,7 +82,7 @@ main( int argc, char *argv[] )
 
     if( !strcmp(tc, "local") )
     {   if(mkdir( argv[optind], 0755))
-        {   printf("E: mkdir: cannot create directory [%s]: %s\n",
+        {   dbg_error("mkdir: cannot create directory [%s]: [%s]\n",
                     argv[optind], strerror(errno) );
             UNDBG;
             exit(EXIT_FAILURE);
@@ -96,8 +95,9 @@ main( int argc, char *argv[] )
         str_isEnv( SUT_PORT);
         host = getenv( SUT_HOST);
         port = atoi( getenv(SUT_PORT) );
-        if(argv[optind])
-            ret = mkdir_remote( host, port, argv[optind]);
+        if(!argv[optind])
+            exit(EXIT_FAILURE);
+        ret = mkdir_remote( host, port, argv[optind]);
         UNDBG;
         ret? exit(EXIT_SUCCESS): exit(EXIT_FAILURE);
     } else

@@ -41,6 +41,7 @@ function runTests($cli)
     /* Serialize Method parameter ++++++++++++++++*/
     $request = new XML_RPC_Value(
             array(
+                "sut_username"  => new XML_RPC_Value($_SESSION["username"],"string"),
                 "sut_tests"     => $xtests,
                 "sut_versions"  => $xversions,
                 "sut_os"        => $xoses,

@@ -1,14 +1,11 @@
 [-1] look for directory traversal when writing in MACHINES.
 [-1] Check return values inside xmlrpc wrapper functions.
 
-[0] Add machine
 [0] Setup on remote machine.
 [0] Implement /var/log/seraph/errors as log for testing errors and
     /var/log/seraph/runned loggin the tests runned.
     The last can be used to continue testing after a shutdown.
-[0] Implement /etc/seraph/config as base config for testManager.
 [1] Add fop_cp fop_mkdir
-[1] Define the layout and pages.
 [1] Implement list of runned scripts, and an option if seraph should continue from the last script runned
 [1] Implement/use other environment variables
 [1] Implement(using db4?) list of runned scripts, and an option if seraph should continue from the last script runned.

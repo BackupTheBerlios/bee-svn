@@ -66,7 +66,8 @@ userdb_register( const char* const name, const char* const email,
     ||  !db_put(db, "email", email)
     ||  !db_put(db, "uname", it)
     ||  !db_put(db, "password", pass)
-    ||  !db_close(db))
+    ||  !db_close(db)
+    )
         return false;   /* TODO: use exceptions instead of || */
     delete(db);
     /* TODO check return values */
@@ -74,6 +75,7 @@ userdb_register( const char* const name, const char* const email,
     ||  !mkJobDir(it, "jobs/complete")
     ||  !mkJobDir(it, "jobs/running")
     ||  !mkJobDir(it, "jobs/pending")
+    ||  !mkJobDir(it, "machines")
     )
         return false;
     return true;

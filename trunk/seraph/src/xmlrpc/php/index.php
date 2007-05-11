@@ -43,8 +43,11 @@ class Index {
     function listOSes()
     {
         echo "ON Machine:<br>" ;
+        $req = new XML_RPC_Value( array(
+                                    "sut_username" => new XML_RPC_Value( $_SESSION['username'],'string'))
+                        ,"struct");
 
-        $msg = new XML_RPC_Message('listMachines');
+        $msg = new XML_RPC_Message('listMachines', array($req));
         $resp = $this->xmlrpc->send($msg);
         if( hasErrors($resp)) return false;
         $i = $resp->value()->arraysize();
@@ -83,7 +86,7 @@ class Index {
     }
     function refreshAfterRunnedTest()
     {
-        echo "Refresh ?";
+        echo "Refresh<br>Server ?";
         echo "<input type='checkbox' name='refresh' value='y'/>";
     }
 }
@@ -113,13 +116,12 @@ class Index {
             <span><?php $index->listTests(); ?></span>
             <span><?php $index->listOSes(); ?></span>
             <span><?php $index->refreshAfterRunnedTest(); ?></span>
-            <!--<span > <?php $index->listSUTVersions(); ?> &nbsp;</span> -->
-            <!--<span > <?php $index->listSchedules(); ?> &nbsp;</span> -->
+            <span><?php $index->listSUTVersions(); ?> &nbsp;</span>
+            <span><?php $index->listSchedules(); ?> &nbsp;</span>
             <input type='submit' value='Run'/>
             <input type='submit' value='Setup'/>
             </div>
         </form>
-        <br style='clear:both'>
         <hr>
         <?php listJobs($index->job_running); ?>
 </body>

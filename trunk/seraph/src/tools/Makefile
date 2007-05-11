@@ -37,7 +37,8 @@ start:
 	@echo ""
 
 clean:
-	rm -rf $(BIN)/* core *.debug
+	rm -rf core *.debug
+	rm -rf $(BIN)/rexec $(BIN)/cp $(BIN)/mkdir $(BIN)/rm $(BIN)/refresh $(BIN)/start $(BIN)/stop
 
 
 tar:

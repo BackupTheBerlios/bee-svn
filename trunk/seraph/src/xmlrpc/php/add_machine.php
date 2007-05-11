@@ -8,6 +8,7 @@ function addMachine($cli)
     /* Serialize _POST */
     print "\nAdd machine:\n";
 
+    $xuser  = new XML_RPC_Value( $_SESSION['username'],'string');
     $xmname = new XML_RPC_Value( $_POST['SUT_MNAME'],'string');
     $xos    = new XML_RPC_Value( $_POST['SUT_OS'],   'string');
     $xosver = new XML_RPC_Value( $_POST['SUT_OSVER'],'string');
@@ -16,6 +17,7 @@ function addMachine($cli)
     /* Serialize Method parameter */
     $request = new XML_RPC_Value(
             array(
+                "sut_username"  => $xuser,
                 "sut_mname" => $xmname,
                 "sut_os"    => $xos,
                 "sut_osver" => $xosver,

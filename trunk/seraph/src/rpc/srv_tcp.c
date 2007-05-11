@@ -6,6 +6,7 @@
  *
  */
 #include "config.h"
+#include "core.h"
 #include "dbg.h"
 #include "strop.h"
 #include "sock.h"
@@ -13,6 +14,7 @@
 #include "svc_tcp.h"
 
 extern int daemon_running;
+extern struct config_s cfg;
 
 Callbacks callbacks[] = {
         {"COPY", t_copyCallback}
@@ -97,7 +99,7 @@ int start_rawrpc( const unsigned int port )
     }
 #endif
     struct sigaction action;
-    action.sa_handler = sut_sigint;
+    action.sa_handler = core_onSigInt;
     sigemptyset(&action.sa_mask);
     action.sa_flags = 0;
     sigaction( SIGINT, &action, NULL);
@@ -147,7 +149,7 @@ static int callback_socket( const unsigned short int portno )
         newsockfd = accept( sockfd, (struct sockaddr*)&cli_addr, &clilen );
 
         if( newsockfd < 0 )
-        {   dbg_error( "rawrpc: accept[%s]", strerror(errno) );
+        {   dbg_error( "rawrpc: accept[%s]\n", strerror(errno) );
             daemon_running = 0;
             break;
         }
@@ -189,7 +191,7 @@ static int callback_command( int sckt )
             for( i = 0; *( p + i ) >= 32 && *( p + i ) != '\0';
                     ++i );
             *( p + i ) = '\0';
-            printf( "cmd[%s] param[%s]\n", buf, p );
+            dbg_verbose( "cmd[%s] param[%s]\n", buf, p );
         } else
         {   printf( "\n--Unknown command--\n" );
             continue;

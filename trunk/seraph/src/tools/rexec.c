@@ -23,15 +23,19 @@
 #include "config.h"
 #include "dbg.h"
 #include "sock.h"
-#include "sut.h"
 #include "strop.h"
-#include "fileop.h"
+#include "sut.h"
 
-static int  rexec_parseArgs( int argc, char *argv[] );
-struct      config_s cfg;
+static bool
+rexec_remote( char *host, int port, char *c );
 
-extern char *optarg;
-extern int  optind;
+#define TOOL_NAME rexec
+#define HAVE_CMD_ARG 1
+#define TOOL_DESCRIPTION "Start the product under test.\n"
+#define CMD_FUNC\
+        ret  = rexec_remote( cfg.hostname, cfg.rawport, cmd )
+
+#include "template.c"
 
 static bool
 rexec_remote( char *host, int port, char *c )
@@ -39,6 +43,7 @@ rexec_remote( char *host, int port, char *c )
     int     ret, sockfd;
     char    *cmd=NULL;
 
+    dbg_verbose("rexec\n");
     cmd = (char*)malloc( strlen(c) + 10);
     sockfd = sock_connectTo( host, port );
     if(sockfd==-1)
@@ -64,96 +69,5 @@ rexec_remote( char *host, int port, char *c )
     free(cmd);
     shutdown( sockfd, 2);
     close( sockfd );
-    return true;
-}
-
-
-int main( int argc, char *argv[] )
-{
-    char    *host = 0, *ttype = 0;
-    int     port = 0;
-    int     ret = -1;
-    int     verbose = 1;
-
-    if( argc < 2 )
-    {   dbg_error( "rexec: missing operand\n" );
-        printf( "Try `rexec -h` for more information.\n" );
-        exit( EXIT_FAILURE);
-    }
-
-    DBG("rexec.debug");
-    rexec_parseArgs( argc, argv );
-    if( signal( SIGINT, sut_sigint ) == SIG_ERR )
-    {   perror( "E: rexec: Signal error!" );
-        UNDBG;
-        exit( EXIT_FAILURE);
-    }
-
-    str_isEnv( SUT_TTYPE );
-    ttype = getenv( SUT_TTYPE );
-
-    if( !strcasecmp(ttype, "local") )
-    {   ret = system( argv[optind] );
-        UNDBG;
-        exit( WEXITSTATUS( ret ) );
-    } else if( !strcasecmp( ttype, "remote" ) )
-    {   str_isEnv( SUT_HOST );
-        str_isEnv( SUT_PORT );
-        host = getenv( SUT_HOST );
-        port = atoi( getenv( SUT_PORT ) );
-        ret  = rexec_remote( host, port, argv[optind] );
-        UNDBG;
-        ret?exit(EXIT_SUCCESS): exit(EXIT_FAILURE);
-    } else
-        printf( "E: rexec: Invalid test type $SUT_TTYPE\n" );
-    UNDBG;
-    exit(EXIT_FAILURE);
-}
-
-
-
-void
-rexec_usage( int status )
-{
-    printf( "Usage: rexec [OPTION] COMMAND...\n" );
-    printf( "Send a COMMAND to the seraph daemon\n" );
-    printf( "\n" );
-    printf( "  -V, --verbose     print a message for each action executed\n" );
-    printf( "  -h, --help        display this help and exit\n" );
-    printf( "  -H host           Host to connect to\n" );
-    printf( "  -P port           Port\n" );
-    printf( "  -t testType\n" );
-    exit( status );
-}
-
-
-
-static int
-rexec_parseArgs( int argc, char *argv[] )
-{
-    int     c;
-    while( ( c = getopt( argc, argv, "t:H:P:hV" ) ) != -1 )
-    {   switch ( c ) {
-            case 't':
-                if( !strcasecmp( optarg, "remote" )
-                || (!strcasecmp( optarg, "local" ))
-                  )
-                    setenv( SUT_TTYPE, optarg, 1 );
-                break;
-            case 'H':
-                setenv( SUT_HOST, optarg, 1 );
-                break;
-            case 'P':
-                setenv( SUT_PORT, optarg, 1 );
-                break;
-            case 'h':
-                UNDBG;
-                rexec_usage( EXIT_SUCCESS );
-                break;
-            case 'V':
-                cfg.verbose=true;
-                break;
-        }
-    }
     return true;
 }

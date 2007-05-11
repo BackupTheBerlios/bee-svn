@@ -1,4 +1,5 @@
 #include "config.h"
+#include "core.h"
 #include "dbg.h"
 #include "strop.h"
 #include "sock.h"
@@ -81,7 +82,7 @@ start_xmlrpc(const unsigned int port)
 #endif
     /* Daemon */
     struct sigaction action;
-    action.sa_handler = sut_sigint;
+    action.sa_handler = core_onSigInt;
     sigemptyset(&action.sa_mask);
     action.sa_flags = 0;
     sigaction( SIGINT, &action, NULL);
@@ -130,12 +131,13 @@ static int callback_socket( int portno )
     while( 0!=daemon_running )
     {   int newsockfd=0;
         newsockfd = accept( sockfd, (struct sockaddr*)&cli_addr, &clilen );
-
         if( newsockfd < 0 )
-        {   dbg_error( "accept[%s]\n", strerror(errno) );
-            daemon_running=0;
-            break;
-        }
+            if(errno == EINTR) continue;
+            else
+            {   dbg_error( "accept[%s]\n", strerror(errno) );
+                daemon_running=0;
+                break;
+            }
         //ret = setsockopt( newsockfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
         //if( ret == -1 ) dbg_error("setsockopt reuseaddr:%s\n", strerror(errno));
         callback_command( newsockfd );

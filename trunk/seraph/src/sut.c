@@ -52,17 +52,15 @@ sut_start( const int test_type,
            const int timeout, const char *maillog,
            const char *start, const char *hostname,const  int port )
 {
-    /*printf( "START [%d][%s][%s]\n", timeout, maillog, startCmd );*/
+    dbg_verbose( "START\n");
 
     if( test_type == TEST_LOCAL )
     {       sut_startLocal( timeout, maillog, start );
-        sleep( 1 );
         return true;
     }
 
     if( test_type == TEST_REMOTE )
     {       sut_startRemote( timeout, maillog, start, hostname, port );
-        sleep( 1 );
         return true;
     }
     return true;
@@ -78,13 +76,19 @@ sut_startRemote( const int timeout, const char *maillog,
 {
     int sockfd = -1;
     char cmd[FILENAME_MAX] = { 0 };
+    bool ret;
 
     sockfd = sock_connectTo( hostname, port );
     if(sockfd==-1)
         return false;
     sprintf( cmd, "START %d %s %s", timeout, maillog, start );
     sock_sendLine( sockfd, cmd );
+    ret = sock_getStatus( sockfd );
     close( sockfd );
+    if( ret < 0 )
+    {   dbg_error("start: [%s]\n", strerror(ret) );
+        return false;
+    }
     return true;
 }/*------------------------------------------------------------------*/
 
@@ -103,17 +107,18 @@ static bool sut_startLocal( const int timeout, const char *maillog, const char *
     char buf[512]   = { 0 };
     char *supRdyStr = "SUCCESS: supervise ready";
     char *rdyStr    = "INFO: ready";
+    char *finStr    = "INFO: supervise: finished";
     bool supRdy     = false;
 
     printf( "==> %s <==\n", maillog );
     fd = open( maillog, O_RDONLY );
     if( fd < 0 )
-    {   debug( "E: Unable to open [%s] for reading\n", maillog );
+    {   dbg_error( "Can't read syslog [%s]: [%s]\n", maillog, strerror(errno) );
         return false;
     }
 
     if( -1 == fstat( fd, &stat_buf ) )
-    {   debug("E: Unable to stat [%s]: [%s]\n", maillog, strerror( errno ) );
+    {   dbg_error("Unable to stat [%s]: [%s]\n", maillog, strerror(errno) );
         return false;
     }
     st_ino = stat_buf.st_ino;
@@ -122,61 +127,53 @@ static bool sut_startLocal( const int timeout, const char *maillog, const char *
     if( rc == -1 )
     {   printf( "Failed\n" );
         exit( EXIT_FAILURE );
-        /* ask for options */
+        /* TODO: ask for options */
     }
     for( ;; ) {
         int i = 0;
         memset( buf, '\0', 512 );
-        if( -1 == fstat( fd, &stat_buf ) ) {
-            debug( "E: Unable to stat [%s]: [%s]\n",
-                    maillog, strerror( errno ) );
+        if( -1 == fstat( fd, &stat_buf ) )
+        {   dbg_error( "Unable to stat [%s]: [%s]\n", maillog, strerror(errno) );
             return false;
         }
-        if( stat_buf.st_ino != st_ino ) {
-            printf
-                ( "[%s] has been replaced;  following end of new file",
-                  maillog );
+        if( stat_buf.st_ino != st_ino )
+        {   printf( "[%s] has been replaced;  following end of new file", maillog );
             close( fd );
             fd = open( maillog, O_RDONLY );
-            if( -1 == fstat( fd, &stat_buf ) ) {
-                fprintf( stderr,
-                        "! sut: Unable to stat [%s]: [%s]\n",
-                        maillog, strerror( errno ) );
+            if( -1 == fstat( fd, &stat_buf ) )
+            {   dbg_error( "Unable to stat [%s]: [%s]\n", maillog, strerror(errno) );
                 return false;
             }
             st_ino = stat_buf.st_ino;
             lseek( fd, 0, SEEK_END );
         }
         i = read( fd, buf, sizeof( buf ) - 1 );
-        if( i < 0 ) {
-            fprintf( stderr,
-                    "! seraph: Cant read syslog '%s'\n", maillog );
+        if( i < 0 )
+        {   dbg_error( "Can't read syslog [%s]: [%s]\n", maillog, strerror(errno) );
             break;
         }
-        if( i == 0 ) {
-            continue;
-        } else {
-            buf[i] = '\0';
+        if( i == 0 )
+        {   continue;
+        } else
+        {   buf[i] = '\0';
             printf( "%s", buf );
             /* Looking for a SUCCESS: supervise ready
              * a possible bug might be if SUPERVISER text gets in the same
              * buffer with INFO: ready. Then we get a false status*/
-            if( !supRdy ) {
-                rc = str_search( buf, i, supRdyStr,
-                        strlen( supRdyStr ) );
-                supRdy = rc;
-                if( rc ) {
-                    printf( "\n==> supervise ready <==\n" );
+            if( !supRdy )
+            {   supRdy = rc = str_search( buf, i, supRdyStr, strlen(supRdyStr) );
+                if( rc )
+                {   printf( "\n==> supervise ready <==\n" );
                     continue;
                 }
-            } else {
-                rc = str_search( buf, i, rdyStr,
-                        strlen( rdyStr ) );
-                if( rc ) {
-                    printf( "\n==> server started <==\n" );
-                    close( fd );
-                    return true;
-                }
+            } else if( str_search(buf, i, rdyStr, strlen(rdyStr)) )
+            {   printf( "\n==> server started <==\n" );
+                close( fd );
+                return true;
+            } else if( str_search(buf, i, finStr, strlen(finStr)) )
+            {   printf( "\n==> supervise: finished <==\n" );
+                close( fd );
+                return false;
             }
         }
     }
@@ -193,15 +190,13 @@ static bool sut_startLocal( const int timeout, const char *maillog, const char *
 sut_stop( const int test_type,
         const int timeout, const char *maillog, const char *stop, const char *hostname, const int port )
 {
-//    debug( "STOP [%d][%s][%s]\n", timeout, maillog, stopCmd );
+    dbg_verbose( "STOP\n");
     if( test_type == TEST_LOCAL ) {
         sut_stopLocal( timeout, maillog, stop );
-        sleep( 1 );
         return true;
     }
     if( test_type == TEST_REMOTE ) {
         sut_stopRemote( timeout, maillog, stop, hostname, port );
-        sleep( 1 );
         return true;
     }
     return true;
@@ -216,12 +211,19 @@ sut_stopRemote( const int timeout,
 
     int sockfd = -1;
     char cmd[FILENAME_MAX] = { 0 };
+    bool ret;
+
     sockfd = sock_connectTo( hostname, port );
     if(sockfd==-1)
         return false;
     sprintf( cmd, "STOP %d %s %s", timeout, maillog, stop );
     sock_sendLine( sockfd, cmd );
+    ret = sock_getStatus(sockfd);
     close( sockfd );
+    if( ret < 0 )
+    {   dbg_error("stop: [%s]\n", strerror(ret) );
+        return false;
+    }
     return true;
 }/*------------------------------------------------------------------*/
 
@@ -239,46 +241,40 @@ static bool sut_stopLocal( const int timeout, const char *maillog, const char *s
     fd = open( maillog, O_RDONLY );
     lseek( fd, 0, SEEK_END );
     rc = system( stop );
-    if( rc == -1 ) {
-        printf( "Failed\n" );
+    if( rc == -1 )
+    {   printf( "Failed\n" );
         exit( EXIT_FAILURE );
-        /* ask for options */
+        /* TODO: ask for options */
         return false;
     }
-    if( WEXITSTATUS( rc ) == 1 ) {
-        printf( "No process killed\n" );
+    if( WEXITSTATUS( rc ) == 1 )
+    {   printf( "No process killed\n" );
         return true;
     }
-    for( ;; ) {
-        int i = 0;
+    for( ;; )
+    {   int i = 0;
         memset( buf, '\0', 512 );
         i = read( fd, buf, sizeof( buf ) - 1 );
-        if( i < 0 ) {
-            fprintf( stderr, "! Cant read syslog '%s'\n", maillog );
+        if( i < 0 )
+        {   dbg_error( "Can't read syslog [%s]: [%s]\n", maillog, strerror(errno) );
             break;
         }
-        if( i == 0 ) {
-            /* sleep(1); */
-            continue;
-        } else {
-            buf[i] = '\0';
+        if( i == 0 )
+        {   continue;
+        } else
+        {   buf[i] = '\0';
             printf( "%s", buf );
             /* Looking for a SUCCESS: supervise ready */
             /* a possible bug might be if SUPERVISER text gets in the same
              * buffer with INFO: ready. Then we get a false status*/
-            if( !supRdy ) {
-                rc = str_search( buf, i, supRdyStr,
-                        strlen( supRdyStr ) );
-                supRdy = rc;
+            if( !supRdy )
+            {   supRdy = rc = str_search( buf, i, supRdyStr, strlen(supRdyStr) );
                 if( rc )
-                    printf
-                        ( "\n==> supervise caught signal <==\n" );
-            } else {
-                rc = str_search( buf, i, rdyStr,
-                        strlen( rdyStr ) );
-                if( rc ) {
-                    printf
-                        ( "\n==> supervise finished <==\n" );
+                    printf( "\n==> supervise caught signal <==\n" );
+            } else
+            {   rc = str_search( buf, i, rdyStr, strlen(rdyStr) );
+                if( rc )
+                {   printf( "\n==> supervise finished <==\n" );
                     close( fd );
                     return true;
                 }
@@ -296,6 +292,7 @@ sut_refresh( const int test_type, int refresh, const char* refreshCmd, const cha
 {
     if( refresh == OPT_NO )
         return 0;
+    dbg_verbose("Refreshing...\n");
 
     if( refresh == OPT_ASK )
     {   char r = 0;
@@ -341,7 +338,6 @@ static bool sut_refreshLocal( const char* refreshCmd )
     int cod;
     int rc = 0;
 
-    dbg_verbose("Refreshing...\n");
     rc = system( refreshCmd );
     if( rc == -1 || WEXITSTATUS(rc) != 0 )
     {   dbg_error( "Can't make refresh!\n" );
@@ -355,25 +351,24 @@ static bool sut_refreshLocal( const char* refreshCmd )
 static bool sut_refreshRemote( const char *host, const int port, const char *refreshCmd )
 {
     char command[PATH_MAX] = { 0 };
-    int cod, sockfd;
+    int ret, sockfd;
 
+    dbg_verbose("Refresh\n");
     sockfd = sock_connectTo( host, port );
     if(sockfd==-1 )
-    {   dbg_error("Unable to connect host[%s] port[%d]\n", host, port);
+    {
         return false;
     }
 
     sprintf( command, "REFRESH %s", refreshCmd);
     dbg_verbose("refresh [%s]\n", command);
     sock_sendLine( sockfd, command );
-    cod = sock_getStatus( sockfd );
-    if( cod < 0 )
-    {   dbg_error("refresh: [%s]\n", strerror( cod ) );
-        close( sockfd );
-        return cod;
-    }
-
+    ret = sock_getStatus( sockfd );
     close( sockfd );
+    if( ret < 0 )
+    {   dbg_error("refresh: [%s]\n", strerror(ret) );
+        return false;
+    }
     return true;
 }/*------------------------------------------------------------------*/
 
@@ -429,22 +424,5 @@ static bool sut_refreshRemoteWarm(  )
 {
     return true;
 }/*------------------------------------------------------------------*/
-
-
-extern int daemon_running;
-
-/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
-void sut_sigpipe(  int sig)
-{
-    daemon_running =0;
-
-}
-
-
-/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
-void sut_sigint(  int sig)
-{
-    daemon_running =0;
-}
 
 

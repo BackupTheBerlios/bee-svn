@@ -44,8 +44,8 @@ sndfile( int sock, char *src_file )
 
     int f = open( src_file, O_RDONLY );
     if( f < 0 )
-    {   fprintf( stderr, "E: cp: Cannot open source file [%s] : %s\n",
-                src_file, strerror( errno ) );
+    {   dbg_error( "cp: Cannot open source file [%s] : [%s]\n",
+                src_file, strerror(errno) );
         return false;
     }
 
@@ -53,9 +53,8 @@ sndfile( int sock, char *src_file )
     {   t = 0;
         while( t < r )
         {   if( ( w = write( sock, buff + t, r - t ) ) < 0 )
-            {   fprintf( stderr,
-                        "E: cp: Can't send file [%s]: %s\n",
-                        src_file, strerror( errno ) );
+            {   dbg_error( "cp: Can't send file [%s]: [%s]\n",
+                        src_file, strerror(errno) );
             }
             t += w;
             debug("left to write:%d\n", r-t);
@@ -79,8 +78,7 @@ copy_remote( char *host, int port, char *src_file, char *dest_dir )
 
     l = fop_fileSize( src_file );
     if( l == -1 )
-    {   fprintf( stderr,
-                "E: cp: [%s] source file is not a regular file\n",
+    {   dbg_error("cp: [%s] source file is not a regular file\n",
                 src_file );
         shutdown( sockfd, 2);
         close(sockfd);
@@ -99,18 +97,18 @@ copy_remote( char *host, int port, char *src_file, char *dest_dir )
 
     ret = sock_getStatus( sockfd );
     if( ret==-1 )
-    {   fprintf( stderr,"E: cp: Didn't Received command[cp] confirmation!\n" );
+    {   dbg_error( "cp: Didn't Received command[cp] confirmation!\n" );
         shutdown( sockfd, 2);
         close( sockfd );
         return false ;
     }
     if(ret)
-    {   fprintf( stderr,"E: cp: Error while copying [%s]!\n", strerror(ret) );
+    {   dbg_error( "cp: Error while copying [%s]!\n", strerror(ret) );
         shutdown( sockfd, 2);
         close( sockfd );
         return false ;
     }
-    dbg_verbose("cp: file [%s] copied ok\n", src_file);
+    dbg_verbose("cp: [%s] -> [%s] copied ok\n", src_file, dest_dir);
     shutdown( sockfd, 2);
     close(sockfd);
     return true;
@@ -125,10 +123,11 @@ main( int argc, char *argv[] )
     int     ret=0;
 
     if( argc < 2 )
-    {   printf( "E: cp: missing file operand\n" );
-        printf( "Try `cp -h` for more information.\n" );
+    {   dbg_error( "cp: missing file operand\n" );
+        dbg_error( "Try `cp -h` for more information.\n" );
         exit(EXIT_FAILURE);
     }
+    cfg.verbose = getenv(SUT_VERBOSE);
 
     DBG("cp.debug");
     cp_parseArgs( argc, argv );
@@ -138,6 +137,7 @@ main( int argc, char *argv[] )
     if( !strcmp(type, "local") )
     {   char *cp_cmd=NULL;
         cp_cmd = (char*)malloc( strlen(argv[optind]) + strlen(argv[optind+1]) + 13 );
+        /* TODO: use fop_cp */
         sprintf( cp_cmd, "/bin/cp -R %s %s", argv[optind], argv[optind+1] );
         ret = system( cp_cmd );
         free(cp_cmd);
@@ -155,7 +155,7 @@ main( int argc, char *argv[] )
         UNDBG;
         ret ? exit(EXIT_SUCCESS):exit(EXIT_FAILURE);
     } else
-        printf( "E: cp: Invalid test type $SUT_TTYPE\n" );
+        dbg_error( "cp: Invalid test type $SUT_TTYPE\n" );
     UNDBG;
     exit(EXIT_FAILURE);
 }

@@ -49,6 +49,7 @@ int fop_fileSize( char *name )
 
 int fop_rm( const int test_type, const char *path,const char *host,const int port )
 {
+        debug("rm\n");
         if( test_type == TEST_LOCAL )
                 return fop_rmLocal( path );
         if( test_type == TEST_REMOTE )

@@ -42,19 +42,20 @@ testdb_listTests(const char* td, int* sz)
 
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
     char**
-testdb_listMachines(const char* td, int* sz)
+testdb_listMachines(const char* uName, int* sz)
 {
     DIR* dir;
     struct dirent* ent;
     int i=0;
-    char** buf;
+    char **buf, fname[PATH_MAX]={0};
 
-    debug("LISTMACHINES: [%s]\n", td);
+    sprintf(fname,"%s/%s/machines", USERDB, uName);
+    debug("LISTMACHINES: [%s]\n", fname);
     buf =(char**)calloc(8192, sizeof(char*)); /*TODO use linked list */
 
-    if( !( dir = opendir(td) ) ) {
+    if( !( dir = opendir(fname) ) ) {
         debug( "1: Can't open directory [%s] : %s\n",
-                td, strerror( errno ) );
+                fname, strerror( errno ) );
         *sz = 0;
         return NULL ;
     }
@@ -87,13 +88,13 @@ int onLineParsed(const char *name, const char *value, void* arg)
 
 /*
  * TODO: figure out where to alloc the list( inside or out of the function)*/
-GSList* testdb_getConfig(const char* machine, unsigned int* sz)
+GSList* testdb_getConfig( const char* uName, const char* machine, unsigned int* sz)
 {
     char path[PATH_MAX]={0};
     debug( "\nGETCONFIG\n" );
     GSList*   cfgTable =  g_slist_alloc() ;
     cfg.takeAction = onLineParsed ;
-    sprintf(path,"%s/%s", MACHINES, machine);
+    sprintf(path,"%s/%s/machines/%s", USERDB, uName, machine);
     scan_parseCfg( path, &cfgTable);
     *sz = g_slist_length(cfgTable);
     return cfgTable;
@@ -101,15 +102,16 @@ GSList* testdb_getConfig(const char* machine, unsigned int* sz)
 
 
 /* TODO write something in the created file */
-bool testdb_addMachine(const char* mName,
-                    const char* mOS,
-                    const char* mOSVer,
-                    const char* mIP)
+bool testdb_addMachine( const char* uName,
+                        const char* mName,
+                        const char* mOS,
+                        const char* mOSVer,
+                        const char* mIP)
 {
     char fname[PATH_MAX]={0}, cfgTemplate[PATH_MAX]={0};
 
     debug( "\nADDMACHINE [%s][%s][%s][%s]\n",mName, mOS, mOSVer, mIP );
-    sprintf(fname,"%s/%s", MACHINES, mName);
+    sprintf(fname,"%s/%s/machines/%s", USERDB, uName, mName);
     sprintf(cfgTemplate,"%s/cfg_template", MACHINES);
 
     if( !fop_cp( cfgTemplate, fname) )

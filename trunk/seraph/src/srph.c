@@ -89,6 +89,11 @@ int main( int argc, char *argv[] )
         str_isEnv( SUT_PORT );
         dbg_verbose( "* seraph: Tests will be done REMOTE.\n" );
     }
+    /* */
+    int fderr;
+    close(STDERR_FILENO);
+    fderr = open ( getenv(SUT_ERRLOG), O_RDWR |O_APPEND, 0644);
+    dup2 (fderr, STDERR_FILENO);
     core_runTests( cfg.test_dir );
     srph_free( &cfg );
     UNDBG;
@@ -211,6 +216,7 @@ int srph_initEnv( struct config_s *config )
     str_isEnv( SUT_COREDIR );
     str_isEnv( SUT_CFGFILE );
     str_isEnv( SUT_WORKDIR );
+    str_isEnv( SUT_DESTCOREDIR );
     if( config->refresh == OPT_YES)
     {   str_isEnv( SUT_DEFWD );
         config->sutDefWD = getenv(SUT_DEFWD);
@@ -237,6 +243,7 @@ int srph_initEnv( struct config_s *config )
     config->axi_coreDir = getenv( SUT_COREDIR );
     config->axi_dbgDir = getenv( SUT_DBGDIR );
     config->axi_syslog = getenv( SUT_SYSLOG );
+    config->destCoreDir = getenv( SUT_DESTCOREDIR);
     config->rawport = getenv(SUT_PORT)!=NULL?atoi(getenv(SUT_PORT)):0;
     config->hostname = getenv(SUT_HOST)!=NULL?getenv(SUT_HOST):"localhost";
     return true;

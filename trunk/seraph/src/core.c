@@ -1,3 +1,22 @@
+/*
+ * Copyright (C) 2006, 2007 Free Software Foundation, Inc.
+ * Written by Negreanu Marius <groleo@gmail.com>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * this program; see the file COPYING.  If not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
 #include "config.h"
 #include "dbg.h"
 #include "sut.h"
@@ -45,6 +64,7 @@ core_checkCore( const int test_type,
         const char *axi_workDir, const char *axi_cfgFile,
         const char *crash_destDir )
 {
+    dbg_verbose("Checkcore\n");
     if( test_type == TEST_LOCAL )
         return core_checkCoreLocal( core_srcDir, dbg_srcDir,
                 axi_workDir, axi_cfgFile,
@@ -228,16 +248,16 @@ core_checkCoreLocal( const char *core_srcDir, const char *dbg_srcDir,
 
 
 
-void sig_handler( int sig )
+void core_onSigChld( int sig )
 {
     int status;
     switch ( sig ) {
         case SIGCHLD:
             while( waitpid( -1, &status, WNOHANG ) > 0 )
-                if(  WIFEXITED(status) && (WEXITSTATUS( status ) == 69) )
-                    printf( "* seraph: PASS\n" );
+                if(  WIFEXITED(status)==0 && (WEXITSTATUS( status ) == 69) )
+                    printf( "seraph: PASS\n" );
                 else
-                    dbg_error( "seraph: FAIL [%d]\n", WEXITSTATUS(status) );
+                    printf( "seraph: FAIL [%d]\n", WEXITSTATUS(status) );
             break;
         case SIGALRM:
             dbg_error( "timeout\n" );
@@ -260,7 +280,7 @@ static int core_runBat( const char *bat_name, int timeout )
     printf( "* srph:   Running script  :[%s]\n", bat_name );
     printf( "*-------------------------'\n" );
 
-    act.sa_handler = sig_handler;
+    act.sa_handler = core_onSigChld;
     act.sa_flags = SA_NOCLDSTOP;
     sigaction( SIGCHLD, &act, 0 );
 
@@ -340,7 +360,7 @@ core_fileAction( const char *fileName, struct stat *statbuf, void *junk )
     }
     core_runBat( fileName, cfg.script_tout );
     core_checkCore( cfg.test_type, cfg.axi_coreDir, cfg.axi_dbgDir,
-            cfg.axi_workDir, cfg.axi_cfgFile, cfg.dest_coreDir );
+            cfg.axi_workDir, cfg.axi_cfgFile, cfg.destCoreDir );
     core_cleanupTmp( tmpDir );
     sleep( 1 );
     if( -1 == chdir( curDir ) ) {
@@ -666,4 +686,93 @@ int core_runTests( const char *dir )
     core_runRecursive( fullPath );
     return true;
 }
+void
+onintr( int disp )
+{
+    printf( "...interrupted %i\n", disp );
+}
+#define MAXARGC 3
+#define EXITBAD EXIT_FAILURE
+int cmdsrunning;
+void
+core_execcmd( char *string )
+{
+    int pid;
+    int slot;
+    const char* argv[ MAXARGC + 1 ];    /* +1 for NULL *//* no warning */
+    argv[0] = "/bin/sh";
+    argv[1] = "-c";     /* -c string commands are read from string */
+    argv[2] = string;
+    argv[3] = 0;
+
+    /* Catch interrupts whenever commands are running. */
+
+   if( !cmdsrunning++ )
+        signal( SIGINT, core_onSigInt );
+
+    /* Start the command */
+
+    if ((pid = vfork()) == 0)
+    {
+        execvp( argv[0], (char*const*)argv );
+        _exit(127);
+    }
+
+    if( pid == -1 )
+    {
+        perror( "vfork" );
+        exit( EXITBAD );
+    }
+    /* Save the operation for execwait() to find. */
+    *(cfg.children) = g_slist_append( *(cfg.children), &pid);
+
+     core_execwait();
+}
+
+int
+core_execwait()
+{
+    int i;
+    int status, w;
+    int rstat;
+
+    if( !cmdsrunning )
+        return 0;
+
+    signal( SIGINT, core_onSigInt );
+    /* Pick up process pid and status */
+
+    while( ( w = wait( &status ) ) == -1 && errno == EINTR )
+        ;
+
+    if( w == -1 )
+    {
+        printf( "child process(es) lost!\n" );
+        perror("wait");
+        exit( EXITBAD );
+    }
+    return 1;
+}
+
+extern int daemon_running;
+
+/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+void core_onSigPipe(  int sig)
+{
+    daemon_running =0;
+
+}
+
+static void killChildren(gpointer data, gpointer user_data)
+{
+    kill(*(int*)data, 15);
+}
+
+/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+void core_onSigInt(  int sig)
+{
+    g_slist_foreach( *cfg.children, killChildren, NULL);
+    daemon_running =0;
+}
+
 

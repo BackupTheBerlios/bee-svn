@@ -6,7 +6,11 @@ function drawMachines()
 {
     $cli = new XML_RPC_Client('/RPCSERVER', $_SESSION["host"], $_SESSION["port"]);
 
-    $msg = new XML_RPC_Message('listMachines');
+    $req = new XML_RPC_Value( array(
+                                "sut_username" => new XML_RPC_Value( $_SESSION['username'],'string'))
+                    ,"struct");
+
+    $msg = new XML_RPC_Message('listMachines', array($req));
     $resp = $cli->send($msg);
     if( hasErrors($resp) ) return;
 
@@ -24,8 +28,12 @@ function drawMachines()
 
         <input id='sName$m'  type='text' value='SUT_NAME' style='text-align:right; clear:both; float:left; width:12.1em;'/>
         <input id='sValue$m' type='text' value='Value'/><br>";
-        $params = array(new XML_RPC_Value( ($m), 'string') );
-        $msg    = new XML_RPC_Message('getConfig', $params);
+        $params = new XML_RPC_Value( array(
+                                "sut_username" => new XML_RPC_Value( $_SESSION['username'],'string'),
+                                "sut_machine" => new XML_RPC_Value( $m,'string'))
+                    ,"struct");
+        
+        $msg    = new XML_RPC_Message('getConfig', array($params) );
         $resp   = $cli->send($msg);
         if( hasErrors($resp) ) return ;
         $cfgTable = $resp->value();
@@ -101,16 +109,14 @@ function toggleSpan( id )
     <form name="add_machine" method="post" action="add_machine.php">
         <div class='column' style="width:22em">
             <span>
-            <b style="float:left">Name:</b>   <input style="float:right"type='text' name='SUT_MNAME' value=''/><br/>
-            <b style="float:left">OS Name:</b><input style="float:right"type='text' name='SUT_OS' value=''/><br/>
-            <b style="float:left">OS Ver:</b> <input style="float:right"type='text' name='SUT_OSVER' value=''/><br/>
-            <b style="float:left">IP:</b>     <input style="float:right"type='text' name='SUT_MIP' value=''/><br/>
-            </span>
+                <b style="float:left">Name:</b>   <input style="float:right"type='text' name='SUT_MNAME' value=''/><br/>
+                <b style="float:left">OS Name:</b><input style="float:right"type='text' name='SUT_OS' value=''/><br/>
+                <b style="float:left">OS Ver:</b> <input style="float:right"type='text' name='SUT_OSVER' value=''/><br/>
+                <b style="float:left">IP:</b>     <input style="float:right"type='text' name='SUT_MIP' value=''/><br/>
+                <input type='submit' value='Add'/>
+                </span>
             </div>
-            <br>
-            <input type='submit' value='Add'/>
         </form>
-        <br style='clear:both;'>
         <hr/>
     Machines:
     <?php drawMachines() ;?>

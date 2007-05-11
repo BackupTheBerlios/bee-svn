@@ -64,8 +64,12 @@ x_listMachinesCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void *user
     char** testList=NULL;
     int nbMachines=0;
     XMLRPC_VALUE rv;
+    const char *uName;
 
-    testList = testdb_listMachines( MACHINES, &nbMachines);
+    XMLRPC_VALUE xParams= XMLRPC_RequestGetData( request );
+    XMLRPC_VALUE xIter  = XMLRPC_VectorRewind( xParams );
+    uName  = XMLRPC_VectorGetStringWithID(xIter, "sut_username");
+    testList = testdb_listMachines( uName, &nbMachines);
     rv = XMLRPC_CreateVector(NULL, xmlrpc_vector_array);
     while( nbMachines-- ) {
         if(!XMLRPC_VectorAppendString( rv, NULL, testList[nbMachines], 0 ))
@@ -83,15 +87,16 @@ x_getConfigCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void *userDat
     GSList* symbList=NULL;
     ConfigEntry* tmp=NULL;
     unsigned int nbSymbols=0;
-    const char* machine=NULL;
+    const char* machine=NULL, *uName=NULL;
 
     XMLRPC_VALUE xParams= XMLRPC_RequestGetData( request );
     XMLRPC_VALUE xIter  = XMLRPC_VectorRewind( xParams );
     XMLRPC_VALUE ret    = XMLRPC_CreateVector(NULL, xmlrpc_vector_array);
     XMLRPC_VALUE tmpv ;
 
-    machine = XMLRPC_GetValueString( xIter );
-    symbList = testdb_getConfig( machine , &nbSymbols);
+    uName    = XMLRPC_VectorGetStringWithID(xIter, "sut_username");
+    machine  = XMLRPC_VectorGetStringWithID(xIter,"sut_machine");
+    symbList = testdb_getConfig( uName, machine , &nbSymbols);
     while( nbSymbols-- )
     {
         tmp = (ConfigEntry*)g_slist_nth_data(symbList, nbSymbols);
@@ -293,18 +298,19 @@ x_executeCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request,
 x_addMachineCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request,
         void *userData )
 {
-    const char *name, *OS, *OSVer, *IP;
+    const char *mUser, *mName, *mOS, *mOSVer, *mIP;
     bool ret=false;
 
     XMLRPC_VALUE xParams = XMLRPC_RequestGetData( request );
     XMLRPC_VALUE xIter = XMLRPC_VectorRewind( xParams );
 
-    name  = XMLRPC_VectorGetStringWithID(xIter, "sut_mname");
-    OS    = XMLRPC_VectorGetStringWithID(xIter, "sut_os");
-    OSVer = XMLRPC_VectorGetStringWithID(xIter, "sut_osver");
-    IP    = XMLRPC_VectorGetStringWithID(xIter, "sut_mip");
+    mUser  = XMLRPC_VectorGetStringWithID(xIter, "sut_username");
+    mName  = XMLRPC_VectorGetStringWithID(xIter, "sut_mname");
+    mOS    = XMLRPC_VectorGetStringWithID(xIter, "sut_os");
+    mOSVer = XMLRPC_VectorGetStringWithID(xIter, "sut_osver");
+    mIP    = XMLRPC_VectorGetStringWithID(xIter, "sut_mip");
 
-    ret = testdb_addMachine( name, OS, OSVer, IP );
+    ret = testdb_addMachine( mUser, mName, mOS, mOSVer, mIP );
 
     return XMLRPC_CreateValueBoolean( NULL, ret);
 }
@@ -314,7 +320,7 @@ x_addMachineCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request,
 x_runTestsCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void* userData )
 {
     XMLRPC_VALUE str;
-    const char *sut_build=NULL, *p=NULL, *os=NULL;
+    const char *sut_build=NULL, *p=NULL, *os=NULL, *uName=NULL;
     XMLRPC_VALUE oses, tests;
     XMLRPC_VALUE xIter ;
     XMLRPC_VALUE xStarted;
@@ -327,6 +333,8 @@ x_runTestsCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void* userData
     str = XMLRPC_VectorRewind(XMLRPC_RequestGetData(request));
 
     sut_refresh = XMLRPC_VectorGetStringWithID(str, "sut_refresh");
+
+    uName = XMLRPC_VectorGetStringWithID(str, "sut_username");
 
     /* Extract SUT Build */
     sut_build = XMLRPC_VectorGetStringWithID(str, "sut_build");
@@ -345,6 +353,7 @@ x_runTestsCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void* userData
     tests = XMLRPC_VectorGetValueWithID(str, "sut_tests");
     xIter = XMLRPC_VectorRewind( tests );
 
+    signal(SIGCHLD, core_onSigChld);
     pid = fork() ;
 
     if(pid<0) {
@@ -353,6 +362,9 @@ x_runTestsCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void* userData
     }
     if(pid>0) {
         debug("father returned\n");
+        int*p=malloc(sizeof(int));
+        *p=pid;
+        *cfg.children = g_slist_append(*(cfg.children), p);
         //waitpid(pid, &status, WNOHANG);
         return XMLRPC_CreateValueString( NULL, "Started Test Execution", 0 );
     }
@@ -367,11 +379,11 @@ x_runTestsCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void* userData
             dbg_verbose("Run tests from directory: '%s/%s' \n", cfg.test_dir,p);
             /*TODO: use snprintf */
             sprintf(tDir, "%s/%s", cfg.test_dir,p);
-            sprintf(tCfg, "%s/%s", MACHINES,os);
+            sprintf(tCfg, "%s/%s/machines/%s", USERDB, uName, os);
             sprintf(cmd,"%s/srph -V -C %s -d %s -t remote -r %s -k",
                    BINDIR, tCfg, tDir, sut_refresh);
             dbg_verbose("Seraph: [%s]\n", cmd);
-            system(cmd);
+            core_execcmd(cmd);
             xIter = XMLRPC_VectorNext(tests);
         }
         exit(EXIT_SUCCESS);

@@ -127,6 +127,7 @@ int mngrd_parseArgs( struct config_s *cfg, int argc, char *argv[] )
                 break;
             case 'v':
                 cfg->verbose = true;
+                setenv( SUT_VERBOSE, "true",1);
                 break;
             case '?':
                 if (isprint (optopt))
@@ -164,11 +165,22 @@ int mngrd_initCfg( struct config_s *c, int argc, char *argv[] )
     c->script_tout = 20;
     c->allways_kill = false;
     c->behaviour = TB_BE_TESTER;
+    c->children = malloc(sizeof(GSList) );
+    *(c->children) = NULL;
     getcwd( c->seraph_path, FILENAME_MAX );
     if( !getcwd( c->tmp_dir, FILENAME_MAX ) ) {
         dbg_error( "seraph: Can't get current directory: %s",strerror(errno) );
         exit(EXIT_FAILURE);
     }
+    return 0;
+}
+
+/*
+ * Free allocated memory
+ */
+int mngrd_freeCfg( struct config_s *config )
+{
+    free( config->cur_path );
     return 0;
 }
 
@@ -187,6 +199,7 @@ int mngrd_initEnv( struct config_s *config )
     str_isEnv( SUT_COREDIR );
     str_isEnv( SUT_CFGFILE );
     str_isEnv( SUT_WORKDIR );
+    str_isEnv( SUT_DESTCOREDIR );
     /* build the PATH like $HOME/seraph/tools:$PATH
      * so the system() will use our cp, rm, mkdir */
     st = getenv( SUT_TOOL );
@@ -203,19 +216,11 @@ int mngrd_initEnv( struct config_s *config )
     config->axi_workDir = getenv( SUT_WORKDIR );
     config->axi_cfgFile = getenv( SUT_CFGFILE );
     config->axi_coreDir = getenv( SUT_COREDIR );
-    config->axi_dbgDir = getenv( SUT_DBGDIR );
-    config->axi_syslog = getenv( SUT_SYSLOG );
+    config->destCoreDir = getenv( SUT_DESTCOREDIR);
+    config->axi_dbgDir  = getenv( SUT_DBGDIR );
+    config->axi_syslog  = getenv( SUT_SYSLOG );
     return 0;
 }
 
 
-
-/*
- * Free allocated memory
- */
-int mngrd_freeCfg( struct config_s *config )
-{
-    free( config->cur_path );
-    return 0;
-}
 
