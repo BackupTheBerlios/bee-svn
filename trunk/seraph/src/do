@@ -1,5 +1,0 @@
-ps aux | grep mngrd | grep -v "grep mngrd"
-ps aux | grep "/sand/"    | grep -v 'grep /sand/'
-ps aux | grep " start "   | grep -v 'grep  start '
-ps aux | grep " stop "    | grep -v 'grep  stop '
-ps aux | grep " refresh " | grep -v 'grep  refresh '
