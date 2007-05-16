@@ -1,0 +1,18 @@
+[3] [API] Add libhttpd server.
+[0] [API] Check return values inside xmlrpc wrapper functions.
+[1] [API] Add fop_cp fop_mkdir.
+[0] Setup on remote machine.
+[0] [Log] Access log.
+[0] [Tests] Per user Test repository.
+[0] [Tests] Test Lister.
+[1] [Tests] Individual test should be runned.
+[1] [Tests] List of runned scripts.
+[1] [Tests] Option to continue from the last runned script.
+[5] [Tests] Submit test from browser.
+[5] [Report] Results server.
+[5] [Notify] Implement `email results`.
+[5] [Notify] Implement Jabber notifications.
+[5] run memtrace after each test was runned.
+[5] [API] warm-refresh: server is not restarted, but the SUT state
+     is restored using protocol commands( IMAP/POP3 ).
+     Maybe a sniffing library would be helpfull.

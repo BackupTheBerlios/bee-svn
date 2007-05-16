@@ -1,0 +1,317 @@
+Description
+-----------
+Seraph is an automated testing system for general purpose.
+
+Structure
+-----------
+The pieces of the system we're specialized in the following modules:
+    1. Testing Environment Variables.
+    2. Testing API.
+    3. Automated tests.
+    4. Test execution engine.
+    5. Test execution manager.
+
+1. Testing Environment Variables.
+---------------------------------
+In order to provide a way of passing configuration items,
+which is independent of the programming language, a set of environment variables
+is used. The variables are stored in a simple configuration file
+containing statements like VARIABLE = 'value', comments or variable expansion.
+A line that has # as the first character is ignored.
+A statement of the form ${VAR_TO_BE_EXPANDED} will be replaced
+with the value of VAR_TO_BE_EXPANDED. If the variable is not set, no replacement is done.
+
+# the host on which Axigen runs.
+    SUT_HOST = 'purec'
+
+# Tester/user on Axigen machine.
+    SUT_TESTER = 'groleo'
+
+# Default username for Axigen services
+    SUT_USER = 'user1'
+
+# Default password for user1
+    SUT_PASS = 'user1'
+
+# Password for administrator. Used in CLI/webadmin
+    SUT_ADMINPASS = 'q'
+
+# the port on which remoteRPC server is listening.
+    SUT_PORT = '5000'
+
+# Self explanatory.
+    SUT_IMAP = '1483'
+    SUT_POP = '1183'
+    SUT_SMTP = '2583'
+    SUT_WEBMAIL = '8083'
+    SUT_WEBADMIN = '9083'
+    SUT_CLI = '7083'
+    SUT_IMAPS = '1482'
+    SUT_POPS = '1182'
+    SUT_SMTPS = '2582'
+    SUT_WEBMAILS = '8082'
+    SUT_WEBADMINS = '9082'
+    SUT_CLIS = '7082'
+
+# Backuped working directory. This is copied over Axigen's workdir,
+# So that the default layout is restored.
+    SUT_DEFWD = '/home/${SUT_TESTER}/backup/4.0'
+
+# Axigen Workdir. Used as argument for -W parameter.
+    SUT_WORKDIR = '/home/${SUT_TESTER}/rtd/4.0'
+
+# Directory where debug logs are placed by Axigen.
+    SUT_DBGDIR = '/home/${SUT_TESTER}/rtd/4.0/dbg'
+
+# --drop-core argument.
+    SUT_COREDIR = '/tmp'
+
+# This is where a core dump is copied for future reference.
+    SUT_DESTCOREDIR = '/home/${SUT_TESTER}/backup/cores'
+
+# Command to START Axigen. Use `;' instead of `&&'
+    SUT_START = 'start -c "${SUT_BIN} --drop-core ${SUT_COREDIR} -u root -g root -f ${SUT_DBGDIR} -W ${SUT_WORKDIR}"'
+
+# Command to STOP Axigen. Use `;' instead of `&&'
+    SUT_STOP = 'stop -c "pkill axigen"'
+
+# Command to refresh Axigen's workdir.
+    SUT_REFRESH = 'refresh -c "rm -rf ${SUT_WORKDIR} ; cp -r ${SUT_DEFWD} ${SUT_WORKDIR}"'
+
+# System log, used to see when Axigen started/stopped.
+    SUT_SYSLOG = '/var/log/maillog'
+
+# Used by config tests.
+    SUT_CFGFILE = 'axigen.cfg'
+
+# Used by START/STOP
+    SUT_BIN = '/home/${SUT_TESTER}/bin/axigen.debug'
+
+# Used by ....
+    SUT_SENDMAIL = 'sendmail'
+
+# Set by testManager. holds an absolute path to the test errorlog.
+    SUT_ERRLOG
+
+
+2. Testing API.
+---------------
+    A testing framework is provided for Perl scripting language.
+At this moment, is composed of general purpose and Protocol specific modules .
+
+
+2.1. General Purpose Module.
+----------------------------
+    Axigen::Utils provide serialization of the Environment Variables Framework
+and general purpose functions.
+    The Environment Variables are interfaced through a hash, $a_env who exposes
+to the developer a easy way to access `SUT_' variables, without the need
+of redundant getenv()/check/setDefaultValue/.
+
+
+3. Automated tests.
+-------------------
+    A test can be seen as a black box, caracterized only by it's input and output.
+The input is represented by the Environment Variables, and the output means
+reporting an error and , depending on the case, a return value.
+    The filename in which the logging is done, is kept in SUT_ERRLOG Environment Variable.
+A developer can use this value either with getenv(), or use the $a_env{errlog} hash value.
+    The return value of a successful test is 69. Everything else is considered as failure.
+A developer can either use exit(69), or use a_ok() from the Axigen::Utils module.
+    Minimally, a test is comprised of a shell script:
+    * runtest.bat
+Inside it, the developer is free to do anything, even delegate the work to a secondary script
+or a collection of tests organized separatly.
+Ex:
+    <~/tests/pop3/1119.BUG> ls -al
+    -rwxr-xr-x  1 groleo groleo  405 May 11 19:29 1119.BUG.pl
+    -rwxr-xr-x  1 groleo groleo   35 May 11 19:24 runtest.bat
+    <~/tests/pop3/1119.BUG> cat runtest.bat
+    perl ./1119.BUG.pl
+
+
+4. Test execution engine.
+-------------------------
+    This runs a test, or a collection of tests from a given directory.
+The engine is implemented in the `srph' binary and performs the folowing actions
+when running a script:
+    1. Setup Environment Variables.
+    2. Copy the directory holding the runtest.bat, to /tmp/$pid.
+    3. Setup the default Axigen configuration on the remote machine.
+    4. Start Axigen on remote machine.
+    5. Execute /tmp/$pid/runtest.bat.
+    6. Check core on remote machine.
+        4.1 if a core was found, move it to $SUT_DESTCOREDIR
+    7. Stop Axigen.
+    8. Remove /tmp/$pid
+
+Ex:
+ *  <~/code/seraph/src> ./bin/srph -h
+    Usage: seraph [<options> ...]
+
+    -H|--host <name>                 Host on which RAWRPC runs.
+    -P|--port <number>               Port on which RAWRPC listens.
+    -I|--ignore <name>               Ignore tests in directory 'name'
+    -d|--directory <name>            Run only the tests in directory 'name'
+    -M|--mail <name(s)>              Whom to mail the results to
+    -S|--setup <machine>             Install seraph on <machine>
+                    Ex:machine openbsd#user@192.168.x.y:/home/userX/seraph
+    -T|--timeout <number>            Timeout until child is killed
+    -v|--verbose                     Emit verbose output.
+    -V|--version                     Print version and exit
+    -X|--xmlrpc  <port>              Start XMLRPC service on 'port'
+    -C|--config <file>               Use 'file' as seraph config
+    -h|--help                        Print this text and exit
+    -k|--kill                        Kill child after timeout
+    -u|--username <name>             Place errorlogs in 'name's userDir.
+    -r <choice>                      Restore SUT state after each testRun ?
+    (y)es, (n)o, (a)sk.[yes]
+    -t <type>                        Test type: 'local' or 'remote'
+
+ *  <~/code/seraph/src> ./bin/srph -H purec -P 5000 -d ~/tests/pop3/1119.BUG/ -C cfg_template -t remote -u user1 -v
+    I: Using [cfg_template] as config
+    I: export 'SUT_HOST'='purec'
+    I: export 'SUT_TESTER'='groleo'
+    I: export 'SUT_USER'='user1'
+    I: export 'SUT_PASS'='user1'
+    I: export 'SUT_ADMINPASS'='q'
+    I: export 'SUT_PORT'='5000'
+    I: export 'SUT_IMAP'='1483'
+    I: export 'SUT_POP'='1183'
+    I: export 'SUT_SMTP'='2583'
+    I: export 'SUT_WEBMAIL'='8083'
+    I: export 'SUT_WEBADMIN'='9083'
+    I: export 'SUT_CLI'='7083'
+    I: export 'SUT_IMAPS'='1482'
+    I: export 'SUT_POPS'='1182'
+    I: export 'SUT_SMTPS'='2582'
+    I: export 'SUT_WEBMAILS'='8082'
+    I: export 'SUT_WEBADMINS'='9082'
+    I: export 'SUT_CLIS'='7082'
+    I: export 'SUT_DEFWD'='/home/${SUT_TESTER}/backup/4.0'
+    I: export 'SUT_WORKDIR'='/home/${SUT_TESTER}/rtd/4.0'
+    I: export 'SUT_DBGDIR'='/home/${SUT_TESTER}/rtd/4.0/dbg'
+    I: export 'SUT_COREDIR'='/tmp'
+    I: export 'SUT_DESTCOREDIR'='/home/${SUT_TESTER}/backup/cores'
+    I: export 'SUT_BIN'='/home/${SUT_TESTER}/bin/axigen.debug'
+    I: export 'SUT_START'='start -c "${SUT_BIN} --drop-core ${SUT_COREDIR} -u ${SUT_TESTER} -g users -f ${SUT_DBGDIR} -W ${SUT_WORKDIR}"'
+    I: export 'SUT_STOP'='stop -c "pkill axigen"'
+    I: export 'SUT_REFRESH'='refresh -c "rm -rf ${SUT_WORKDIR} ; cp -r ${SUT_DEFWD} ${SUT_WORKDIR}"'
+    I: export 'SUT_SYSLOG'='/var/log/maillog'
+    I: export 'SUT_CFGFILE'='axigen.cfg'
+    I: export 'SUT_SENDMAIL'='sendmail'
+    I: $SUT_STOP=stop -c "pkill axigen"
+    I: $SUT_START=start -c "/home/groleo/bin/axigen.debug --drop-core /tmp -u groleo -g users -f /home/groleo/rtd/4.0/dbg -W /home/groleo/rtd/4.0"
+    I: $SUT_TTYPE=remote
+    I: $SUT_DBGDIR=/home/groleo/rtd/4.0/dbg
+    I: $SUT_SYSLOG=/var/log/maillog
+    I: $SUT_COREDIR=/tmp
+    I: $SUT_CFGFILE=axigen.cfg
+    I: $SUT_WORKDIR=/home/groleo/rtd/4.0
+    I: $SUT_DESTCOREDIR=/home/groleo/backup/cores
+    I: $SUT_DEFWD=/home/groleo/backup/4.0
+    I: LogFile is: [/home/groleo/sand/var/db/seraph/users/user1/jobs/runningcfg_template-12242]
+    I: Directory [/home/groleo/sand/var/db/seraph/users/user1/jobs] created
+    I: $SUT_HOST=purec
+    I: $SUT_PORT=5000
+    I: Tests will be done REMOTE.
+    I: Running tests from [/home/groleo/tests/pop3/1119.BUG/]
+    I: Copying [/home/groleo/tests/pop3/1119.BUG//runtest.bat] to [/tmp/12242]
+
+
+    *-------------------------.
+    * srph:   Running script  :[/home/groleo/tests/pop3/1119.BUG//runtest.bat]
+    *-------------------------'
+    +OK POP3 server on purec ready <2835349504.388275168@purec>\r\n
+    apop user1 917d66d09c13b5a411e3b4d23b5ba30f\r\n
+    < END[-ERR Wrong username/password pair\r\n
+    ]
+    user user1@localdomain\r\n
+    < END[+OK user1@localdomain needs a password\r\n
+    ]
+    pass user1\r\n
+    < END[+OK user1@localdomain has 0 messages (0 octets)\r\n
+    ]
+    --- Test Ok
+
+
+    seraph: PASS
+    I: Checkcore
+    I: Removing [/tmp/12242]
+
+
+5. Test Execution Manager.
+--------------------------
+    Manages :
+    *   execution requests from the Execution Client( web Interface)
+        and fork a new test execution engine.
+    *   User administration
+    *   Remote Procedure Calls Server (RPC_Server).
+
+
+Execution Client ----------> HTTP_SERVER( Machine1)
+(WebBrowser)     (request)    (Apache)
+                                |
+                                |(xmlRPC)
+                                |
+                                |
+                                Execution Manager(Machine2)
+                                    `-- Login
+                                    `-- Register
+                                    `-- View Job Log
+                                    `-- Run Job
+                                        + spawn srph ----------> TestMachine1(RPC_Server)
+                                                      (rawRPC)
+Note:
+    RPC_Server needs read access on /var/log/maillog in order to know when Axigen
+starts/stops. This can be achieved in two ways :
+    * either run testbot as root( not recomended )
+    * or you can replace the umask in the syslog init script ( /etc/init.d/syslog )
+      from 077 to 0034, which would create maillog with READ permission for OTHERS.
+
+6. RPC_Server.
+--------------
+    Manages:
+    Requests A:
+        * start/stop/refresh Axigen.( the `start/stop' binary submits the request )
+        * execute commands.         ( the `rexec' binary submits the request )
+        * check for coredumps.
+    Requests B:
+        * remote file cp/mkdir/rm( the `cp/mkdir/rm' binary submits the request )
+        * execute commands.         ( the `rexec' binary submits the request )
+
+
+
+                    (request A)
+  Execution Engine ---------->  RPC_Server
+                                    ^
+                                    |
+  Script(cp,mkdir,rm,rexec)---------+
+                            (request B)
+7. Check your script.
+---------------------
+    To check your script for compatibility with Seraph,
+simply put the scripts in a directory, write in runtest.bat the
+command which runs the test, and:
+    srph -H TestMachine1 -P 5000 -d ~/newDir/ -C cfg_TestMachine1 -t remote -u user1 -v
+Note:
+    The path to the test directory must be absolute. ( I might change this :D )
+
+8. Compiling.
+-------------
+
+ * To make and install, using the default prefix, /usr/local, just run:
+
+    make all install.
+
+    This will create the directories:
+    /usr/local/lib/seraph/
+    /usr/local/var/db/seraph/{jobs,machines,users}
+    /usr/local/bin/{srph,mngrd}
+
+ * If you want to install it in your home directory, use this command:
+
+    make DESTDIR=~/sand PREFIX=~/sand all install
+    ~/sand/usr/local/lib/seraph/
+    ~/sand/usr/local/var/db/seraph/{jobs,machines,users}
+    ~/sand/usr/local/bin/{srph,mngrd}
