@@ -161,6 +161,7 @@ int mngrd_initCfg( struct config_s *c, int argc, char *argv[] )
     c->maillog  = "/var/log/maillog";
     c->refresh  = OPT_YES;
     c->verbose  = false;
+#warn FREE
     c->children = malloc(sizeof(GSList) );
     c->startRawRPC  = false ;
     c->startXmlRPC  = false ;

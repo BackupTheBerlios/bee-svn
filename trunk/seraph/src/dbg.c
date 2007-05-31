@@ -39,12 +39,12 @@ _debug( const char* function, int line, const char* fname, const char* fmt, ... 
 
     va_list vlist ;
     va_start( vlist, fmt ) ;
-        fprintf( logHandle, "%15s %5d : [%10s] : ", fname, line, function ) ;
         if( 2== useDebug_g) fprintf( stdout, "DBG: %15s %5d : [%10s] : ", fname, line, function ) ;
+        fprintf( logHandle, "DBG: %15s %5d : [%10s] : ", fname, line, function ) ;
         fflush( logHandle ) ;
         vfprintf( logHandle, fmt, vlist ) ;
         if( 2== useDebug_g) vfprintf( stdout, fmt, vlist ) ;
-        fflush( stdout);
     va_end( vlist ) ;
+    fflush( stdout);
     fflush( logHandle ) ;
 }
