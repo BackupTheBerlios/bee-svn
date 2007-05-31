@@ -97,7 +97,7 @@ int main( int argc, char *argv[] )
     int     fderr;
     close(STDERR_FILENO);
     fderr = open ( getenv(SUT_ERRLOG), O_RDWR |O_APPEND, 0644);
-    dup2 (fderr, STDERR_FILENO);
+    dup2 (fderr, STDERR_FILENO); /*TODO: if verbose, then write to stderr, and ErrLog*/
     core_runTests( cfg.testDir );
     srph_free( &cfg );
     UNDBG;

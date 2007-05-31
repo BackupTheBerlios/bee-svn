@@ -34,6 +34,13 @@ function runTests($cli)
     $xtests = new XML_RPC_Value($tests, "array");
     /*--------------------------------------------*/
 
+    /* Serialize the userTEST categories +++++++++++++*/
+    for($i=0;$i<count($_GET['sut_usertests']);++$i) {
+        $tests[] = new XML_RPC_Value($_GET['sut_usertests'][$i],'string');
+    };
+    $xtests = new XML_RPC_Value($tests, "array");
+    /*--------------------------------------------*/
+
     $refresh = "n";
     if( $_REQUEST['refresh'] )
         $refresh="y";

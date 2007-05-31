@@ -21,7 +21,7 @@ class Index {
 
     function listTests()
     {
-        echo "Tests:<br>" ;
+        echo "Common Tests:<br>" ;
 
         $msg = new XML_RPC_Message('listTests');
         $resp = $this->xmlrpc->send($msg);
@@ -36,6 +36,30 @@ class Index {
             ."</option>";
         }
         echo "</select>" ;
+    }
+
+    function listUserTests()
+    {
+        echo "User Tests:<br>" ;
+
+        $xuser  = new XML_RPC_Value( $_SESSION['username'],'string');
+        $req    = new XML_RPC_Value( array( "sut_username"=>$xuser), "struct");
+        $prm    = array($req);
+        $msg = new XML_RPC_Message('listUserTests', $prm);
+        $resp = $this->xmlrpc->send($msg);
+        if( hasErrors($resp) ) return false;
+
+        $i = $resp->value()->arraysize();
+
+        /*echo "<input type='checkbox' name='usertests' value='n'/><br>";*/
+        echo "<select name='sut_usertests[]' multiple size='5'>";
+        while($i--) {
+            echo "<option>"
+                .XML_RPC_decode($resp->value()->arraymem($i))
+            ."</option>";
+        }
+        echo "</select>" ;
+        echo "<a href='form_addtest.php'><input type='button' value='Add'/></a>";
     }
 
 
@@ -86,8 +110,8 @@ class Index {
     }
     function refreshAfterRunnedTest()
     {
-        echo "Refresh<br>Server ?";
-        echo "<input type='checkbox' name='refresh' value='y'/>";
+        echo "Restore<br>Server ?";
+        echo "<input  type='checkbox' name='refresh' value='n'/>";
     }
 }
 ?>
@@ -114,13 +138,14 @@ class Index {
     <form action='run_tests.php' method='get' name='sut_pretest'>
         <div class='column'>
             <span><?php $index->listTests(); ?></span>
+            <span><?php $index->listUserTests(); ?></span>
             <span><?php $index->listOSes(); ?></span>
             <span><?php $index->refreshAfterRunnedTest(); ?></span>
             <span><?php $index->listSUTVersions(); ?> &nbsp;</span>
             <span><?php $index->listSchedules(); ?> &nbsp;</span>
-            <input type='submit' value='Run'/>
-            <input type='submit' value='Setup'/>
             </div>
+            <input style="margin:10px 3px 3px 15px" type='submit' value='Run'/>
+            <input style="margin:10px 3px 3px 15px" type='submit' value='Setup'/>
         </form>
         <hr>
         <?php listJobs($index->job_running); ?>

@@ -8,10 +8,13 @@ typedef struct {
 } ConfigEntry ;
 
 char**  testdb_listTests    (const char* td, int* sz) ;
+char**  testdb_listUserTests(const char* uName, int* sz) ;
 char**  testdb_listMachines (const char* td, int* sz) ;
+bool    testdb_clearRunnedJobs(const char* uName) ;
 GSList* testdb_getConfig    (const char* uName, const char* machine, unsigned int* sz) ;
 bool    testdb_addMachine   (const char* uName, const char* mName, const char* mOS,
                              const char* mOSVer, const char* mIP);
+bool    testdb_addUserTest  (const char* uName, int fSize, const char* fData);
 
 
 bool

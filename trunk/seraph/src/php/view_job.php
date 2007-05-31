@@ -4,8 +4,17 @@ require_once 'base_lib.php' ;
 session_start();
 
 $cli = new XML_RPC_Client('/RPCSERVER', $_SESSION["host"], $_SESSION["port"] );
-$req = new XML_RPC_Value( $_REQUEST['log'], 'string');
-$msg = new XML_RPC_Message( 'getErrorLog', array($req));
+
+$xuser  = new XML_RPC_Value( $_SESSION['username'],'string');
+$xlog   = new XML_RPC_Value( $_REQUEST['log'], 'string');
+
+$req = new XML_RPC_Value(
+    array(
+        "sut_errlog"=>$xlog,
+        "sut_username"=>$xuser), 'struct');
+
+$params=array($req);
+$msg = new XML_RPC_Message( 'getErrorLog', $params);
 $rsp = $cli->send($msg);
 if( hasErrors($rsp) )
     return false;

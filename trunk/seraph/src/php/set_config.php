@@ -11,6 +11,7 @@ function setMachineConfig($cli)
     $m = $_GET['SUT_MACHINE'];
     print "   $m--\n";
 
+    $xuname   = new XML_RPC_Value( $_SESSION['username'],'string');
     $xmachine = new XML_RPC_Value( $m,'string');
     /*--------------------------------------------*/
 
@@ -27,6 +28,7 @@ function setMachineConfig($cli)
     /* Serialize Method parameter ++++++++++++++++*/
     $request = new XML_RPC_Value(
             array(
+                "sut_username" => $xuname,
                 "sut_machine" => $xmachine,
                 "cfg_lines" => $xcfgLines,
                 ), "struct");

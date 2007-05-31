@@ -6,7 +6,6 @@ require_once 'base_lib.php';
 function addMachine($cli)
 {
     /* Serialize _POST */
-    print "\nAdd machine:\n";
 
     $xuser  = new XML_RPC_Value( $_SESSION['username'],'string');
     $xmname = new XML_RPC_Value( $_POST['SUT_MNAME'],'string');
@@ -30,20 +29,7 @@ function addMachine($cli)
     if( hasErrors($resp) ) return;
 }
 /*---------------------------------------------------------------------------*/
-
-?>
-
-<html>
-<head>
-<link href='mystyle.css' rel='stylesheet' type='text/css'>
-</head>
-<body class='bheader'>
-<?php
-drawMenu() ;
 $cli = new XML_RPC_Client('/RPCSERVER', $_SESSION["host"], $_SESSION["port"]);
 addMachine($cli);
-showInfo();
+header('location:machines.php');
 ?>
-<br>
-</body>
-</html>

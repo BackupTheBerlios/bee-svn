@@ -87,6 +87,7 @@ start_xmlrpc(const unsigned int port)
     action.sa_flags = 0;
     sigaction( SIGINT, &action, NULL);
     sigaction( SIGPIPE, &action, NULL);
+    signal(SIGPIPE,SIG_IGN);
     return callback_socket( port );
 }
 
@@ -155,15 +156,16 @@ static int callback_socket( int portno )
 
 static int callback_command( int sckt )
 {
-    char buf[8192] = { 0 };
+#define BUFSZ 102400
+    char buf[BUFSZ] = { 0 };
     char *buf1=NULL;
     char *rsp=NULL;
     int n, ret=0;
-    char banner[8192]={0};;
+    char rspBuf[BUFSZ]={0};;
     while( true )
     {   //char *p = NULL;
-        memset( buf, 0, 8192 );
-        n = read( sckt, buf, 8191 );
+        memset( buf, 0, BUFSZ );
+        n = read( sckt, buf, BUFSZ-1 );
 
         if( n < 0 )
         {   dbg_error("xmlrpc: Error reading from socket: [%s]\n", strerror(errno) );
@@ -182,13 +184,13 @@ static int callback_command( int sckt )
             rsp = clientCallback(buf1);
             if(!rsp) return 0;
 
-            ret = snprintf(banner, 8192, "HTTP/1.1 200 OK\r\nDate: Wed, 07 Mar 2007 09:50:14 GMT\r\nServer: libwww-perl-daemon/1.36\r\nAccept: text/xml\r\nContent-Length: %d\r\nContent-Type: text/xml\r\nRPC-Encoding: XML-RPC\r\nRPC-Server: RPC::XML::Server/1.44\r\n\r\n",
+            ret = snprintf(rspBuf, BUFSZ, "HTTP/1.1 200 OK\r\nDate: Wed, 07 Mar 2007 09:50:14 GMT\r\nServer: libwww-perl-daemon/1.36\r\nAccept: text/xml\r\nContent-Length: %d\r\nContent-Type: text/xml\r\nRPC-Encoding: XML-RPC\r\nRPC-Server: RPC::XML::Server/1.44\r\n\r\n",
                     strlen(rsp));
-            if( ret >=8192 )
-                    banner[8191] = '\0';
-            debug("Banner:[%s]\nResponse:[%s]\n", banner, rsp);
+            if( ret >= BUFSZ )
+                    rspBuf[ BUFSZ-1] = '\0';
+            debug("Banner:[%s]\nResponse:[%s]\n", rspBuf, rsp);
             debug("will write on sckt(%d)\n", sckt);
-            write(sckt, banner, strlen(banner));
+            write(sckt, rspBuf, strlen(rspBuf));
             write(sckt, rsp, strlen(rsp));
             free(rsp);
             rsp=0;
@@ -219,11 +221,13 @@ char* clientCallback( const char* filebuf )
     XMLRPC_ServerRegisterMethod( server, "execute", x_executeCallback );
     XMLRPC_ServerRegisterMethod( server, "checkcore", x_checkCoreCallback );
     XMLRPC_ServerRegisterMethod( server, "listTests", x_listTestsCallback );
+    XMLRPC_ServerRegisterMethod( server, "listUserTests", x_listUserTestsCallback );
     XMLRPC_ServerRegisterMethod( server, "runTests", x_runTestsCallback );
     XMLRPC_ServerRegisterMethod( server, "listMachines", x_listMachinesCallback );
     XMLRPC_ServerRegisterMethod( server, "getConfig", x_getConfigCallback );
     XMLRPC_ServerRegisterMethod( server, "setConfig", x_setConfigCallback );
     XMLRPC_ServerRegisterMethod( server, "addMachine", x_addMachineCallback );
+    XMLRPC_ServerRegisterMethod( server, "addUserTest", x_addUserTest );
     XMLRPC_ServerRegisterMethod( server, "checkSession", x_checkSessionCallback );
     XMLRPC_ServerRegisterMethod( server, "setSession", x_setSessionCallback );
     XMLRPC_ServerRegisterMethod( server, "registerUser", x_registerUserCallback );
@@ -231,6 +235,7 @@ char* clientCallback( const char* filebuf )
     XMLRPC_ServerRegisterMethod( server, "checkRemembered", x_checkRememberedCallback );
     XMLRPC_ServerRegisterMethod( server, "listJobs", x_listJobsCallback );
     XMLRPC_ServerRegisterMethod( server, "getErrorLog", x_getErrorLogCallback );
+    XMLRPC_ServerRegisterMethod( server, "clearRunnedJobs", x_clearRunnedJobsCallback );
 
     request = XMLRPC_REQUEST_FromXML( filebuf, strlen(filebuf), NULL );
     if( !request )

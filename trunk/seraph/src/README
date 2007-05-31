@@ -146,7 +146,7 @@ when running a script:
     8. Remove /tmp/$pid
 
 Ex:
- *  <~/code/seraph/src> ./bin/srph -h
+ *  <~/code/seraph/src> srph -h
     Usage: seraph [<options> ...]
 
     -H|--host <name>                 Host on which RAWRPC runs.
@@ -168,7 +168,7 @@ Ex:
     (y)es, (n)o, (a)sk.[yes]
     -t <type>                        Test type: 'local' or 'remote'
 
- *  <~/code/seraph/src> ./bin/srph -H purec -P 5000 -d ~/tests/pop3/1119.BUG/ -C cfg_template -t remote -u user1 -v
+ *  <~/code/seraph/src> srph -H purec -P 5000 -d ~/tests/pop3/1119.BUG/ -C cfg_template -t remote -u user1 -v
     I: Using [cfg_template] as config
     I: export 'SUT_HOST'='purec'
     I: export 'SUT_TESTER'='groleo'
@@ -269,6 +269,17 @@ starts/stops. This can be achieved in two ways :
     * or you can replace the umask in the syslog init script ( /etc/init.d/syslog )
       from 077 to 0034, which would create maillog with READ permission for OTHERS.
 
+5.1 Running the Test Execution Manager.
+---------------------------------------
+    For this you need to start the xmlRPC daemon(I use port 5000) and tell it
+where are the scripts.
+
+    mngrd -X 5000 -d ~/tests
+
+In case you want it as a daemon, just send it to background:
+    mngrd -X 5000 -d ~/tests &
+
+
 6. RPC_Server.
 --------------
     Manages:
@@ -300,8 +311,13 @@ Note:
 8. Compiling.
 -------------
 
+ * Getting the source:
+    export CVSROOT=:ext:YOUR_USER_NAME@cvs.gecadco.local:/databases/scripts
+    cvs co seraph
+
  * To make and install, using the default prefix, /usr/local, just run:
 
+    cd src
     make all install.
 
     This will create the directories:
@@ -311,7 +327,10 @@ Note:
 
  * If you want to install it in your home directory, use this command:
 
+    cd src
     make DESTDIR=~/sand PREFIX=~/sand all install
+
+    This will create the directories:
     ~/sand/usr/local/lib/seraph/
     ~/sand/usr/local/var/db/seraph/{jobs,machines,users}
     ~/sand/usr/local/bin/{srph,mngrd}

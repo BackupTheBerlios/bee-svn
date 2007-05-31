@@ -58,6 +58,45 @@ x_listTestsCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void *userDat
     return rv;
 }
 
+    XMLRPC_VALUE
+x_listUserTestsCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void *userData )
+{
+    extern struct config_s cfg;
+    char** testList=NULL;
+    int nbTests=0;
+    XMLRPC_VALUE rv;
+    const char* uName;
+
+    XMLRPC_VALUE xParams= XMLRPC_RequestGetData( request );
+    XMLRPC_VALUE xIter  = XMLRPC_VectorRewind( xParams );
+    uName    = XMLRPC_VectorGetStringWithID(xIter, "sut_username");
+    testList = testdb_listUserTests( uName, &nbTests);
+    rv = XMLRPC_CreateVector(NULL, xmlrpc_vector_array);
+    while( nbTests-- ) {
+        if(!XMLRPC_VectorAppendString( rv, NULL, testList[nbTests], 0 ))
+        {    return NULL;}
+        free(testList[nbTests]);
+    }
+    free(testList);
+    return rv;
+}
+    
+    
+    XMLRPC_VALUE
+x_clearRunnedJobsCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void *userData )
+{
+    int nbTests=0;
+    XMLRPC_VALUE rv;
+    bool rc=false;
+    const char* uName, *rs;
+
+    XMLRPC_VALUE xParams= XMLRPC_RequestGetData( request );
+    XMLRPC_VALUE xIter  = XMLRPC_VectorRewind( xParams );
+    uName    = XMLRPC_VectorGetStringWithID(xIter, "sut_username");
+    rc = testdb_clearRunnedJobs(uName);
+    rs = rc ? "Cleared" : "Unable to clear";
+    return XMLRPC_CreateValueString( NULL, rs, 0 );
+}
 
     XMLRPC_VALUE
 x_listMachinesCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void *userData )
@@ -167,7 +206,7 @@ x_setConfigCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void *userDat
 {
     XMLRPC_VALUE rv;
     char  path[PATH_MAX]={0};
-    const char *p=NULL, *machine=NULL;
+    const char *p=NULL, *machine=NULL, *uName=NULL;
     XMLRPC_VALUE cfg_lines,str;
     FILE* f;
     int ret=0;
@@ -179,16 +218,17 @@ x_setConfigCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void *userDat
     str = XMLRPC_VectorRewind(XMLRPC_RequestGetData(request));
 
     /* Extract machine Name */
+    uName   = XMLRPC_VectorGetStringWithID(str, "sut_username");
     machine = XMLRPC_VectorGetStringWithID(str, "sut_machine");
     debug("SUT machine:%s\n", machine);
 
-    ret = snprintf( path, PATH_MAX, "%s/%s", MACHINES, machine );
+    ret = snprintf( path, PATH_MAX, "%s/%s/machines/%s", USERDB, uName, machine );
     if(ret >= PATH_MAX)
             path[PATH_MAX-1]='\0';
 
     f = fopen( path, "w");
     if(!f) {
-        debug("Unable to open [%s]\n", path);
+        dbg_error("Unable to open [%s]: [%s]\n", path, strerror(errno));
         exit(EXIT_FAILURE);
     }else
         debug("Opened [%s]\n", path);
@@ -201,10 +241,12 @@ x_setConfigCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void *userDat
         debug("LINE: [%s]\n", p);
         xIter = XMLRPC_VectorNext(cfg_lines);
         if( EOF == fprintf( f, "%s", p) ) {
-            debug("Cant write to config\n");
+            dbg_error("Cant write to config [%s]: [%s]\n",
+                path, strerror(errno));
             exit(EXIT_FAILURE);
         }
     }
+    debug("Wrote ok\n");
     //free(symbList);
     fflush(f);
     fclose(f);
@@ -316,6 +358,26 @@ x_addMachineCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request,
     return XMLRPC_CreateValueBoolean( NULL, ret);
 }
 
+#warning COPY PASTE
+    XMLRPC_VALUE
+x_addUserTest( XMLRPC_SERVER server, XMLRPC_REQUEST request,
+        void *userData )
+{
+    const char *mUser, *fData;
+    int fSize=0;
+    bool ret=false;
+
+    XMLRPC_VALUE xParams = XMLRPC_RequestGetData( request );
+    XMLRPC_VALUE xIter = XMLRPC_VectorRewind( xParams );
+
+    mUser  = XMLRPC_VectorGetStringWithID(xIter, "sut_username");
+    fSize  = XMLRPC_VectorGetIntWithID(xIter, "file_size");
+    fData  = XMLRPC_VectorGetBase64WithID(xIter, "uploadedfile");
+
+    ret = testdb_addUserTest( mUser, fSize, fData );
+
+    return XMLRPC_CreateValueBoolean( NULL, ret);
+}
 
     XMLRPC_VALUE
 x_runTestsCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void* userData )
@@ -377,11 +439,18 @@ x_runTestsCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void* userData
             char cmd[PATH_MAX*3]={0};
 
             p = XMLRPC_GetValueString( xIter );
-            dbg_verbose("Run tests from directory: '%s/%s' \n", cfg.testDir,p);
             /*TODO: use snprintf */
+            /*TODO: don't use acces twice: add another param in xmlrpc struct*/
             sprintf(tDir, "%s/%s", cfg.testDir,p);
+            if( access(tDir, X_OK))
+            {   sprintf(tDir, "%s/%s/tests/%s", USERDB, uName, p);
+                if(access(tDir,X_OK))
+                    continue;
+            }
+            dbg_verbose("Run tests from directory: '%s/%s' \n", cfg.testDir,p);
+
             sprintf(tCfg, "%s/%s/machines/%s", USERDB, uName, os);
-            sprintf(cmd,"%s/srph -V -C %s -d %s -t remote -r %s -k -u %s",
+            sprintf(cmd,"%s/srph -v -C %s -d %s -t remote -r %s -k -u %s",
                    BINDIR, tCfg, tDir, sut_refresh, uName);
             dbg_verbose("Seraph: [%s]\n", cmd);
             core_execcmd(cmd);
@@ -524,14 +593,15 @@ x_getErrorLogCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request,
         void *userData )
 {
     char    *b64;
-    const char*log;
+    const char*log, *username;
     size_t  b64Len=0;
     XMLRPC_VALUE xParams = XMLRPC_RequestGetData( request );
     XMLRPC_VALUE xIter   = XMLRPC_VectorRewind( xParams );
     XMLRPC_VALUE ret;
     //deserialize
-    log= XMLRPC_GetValueString(xIter);
-    b64Len = userdb_getErrorLog("user1", 2, log, &b64);
+    username= XMLRPC_VectorGetStringWithID(xIter, "sut_username");
+    log     = XMLRPC_VectorGetStringWithID(xIter, "sut_errlog");
+    b64Len = userdb_getErrorLog( username, 2, log, &b64);
     ret = XMLRPC_CreateValueBase64( NULL, b64, b64Len);
     free(b64);
     return ret;

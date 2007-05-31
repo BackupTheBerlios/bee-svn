@@ -108,7 +108,7 @@ div.job_running span.id {
     width: 2em;
 }
 div.job_running span.name {
-    width: 150px;
+    width: 10em;
 }
 
 div.job_running a {

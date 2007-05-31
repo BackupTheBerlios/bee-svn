@@ -95,6 +95,7 @@ userdb_register( const char* const name, const char* const email,
     ||  !mkJobDir(it, "jobs/running")
     ||  !mkJobDir(it, "jobs/pending")
     ||  !mkJobDir(it, "machines")
+    ||  !mkJobDir(it, "tests")
     )
         return false;
     return true;

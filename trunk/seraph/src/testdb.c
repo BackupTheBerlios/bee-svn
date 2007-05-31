@@ -37,6 +37,8 @@ testdb_listTests(const char* td, int* sz)
     DIR* dir;
     struct dirent* ent;
     int i=0;
+    struct stat stbuf;
+    char f[PATH_MAX]={0};
 
     /* opendir segfaults if parameter is NULL */
     if(!td)
@@ -45,14 +47,23 @@ testdb_listTests(const char* td, int* sz)
     }
     char** buf =(char**)calloc(8192, sizeof(char*)); //TODO
     if( !( dir = opendir( td ) ) ) {
-        debug( "1: Can't open test directory [%s] : %s\n",
+        dbg_error( "1: Can't open test directory [%s] : %s\n",
                 td, strerror( errno ) );
 	*sz = 0;
         return NULL;
     }
-    while( ( ent = readdir( dir ) ) ) {
-        if( !strcmp(ent->d_name,".") || !strcmp(ent->d_name,"..") ||!strcmp(ent->d_name, "CVS") )
+    while( ( ent = readdir( dir ) ) )
+    {   if( !strcmp(ent->d_name,".")
+        ||  !strcmp(ent->d_name,"..")
+        ||  !strcmp(ent->d_name, "CVS") )
             continue;
+        sprintf(f, "%s/%s", td, ent->d_name);
+        if(stat( f, &stbuf))
+            dbg_error("Unable to stat [%s]: [%s]\n" , f, strerror(errno));
+
+        if( !S_ISDIR(stbuf.st_mode) )
+            continue;
+
         buf[i] = (char*)calloc(512, sizeof(char));
         strcpy(buf[i++], ent->d_name);
     }
@@ -61,6 +72,84 @@ testdb_listTests(const char* td, int* sz)
     return buf;
 }/*------------------------------------------------------------------*/
 
+#warning implement libtar
+bool
+testdb_addUserTest( const char* uName, int fSize, const char* fData)
+{
+    char cmd[PATH_MAX]={0};
+    sprintf( cmd, "tar xzvf - -C %s/%s/tests/", USERDB, uName);
+    debug("sz[%d]\n", fSize);
+    FILE* fh = popen( cmd, "w");
+    fwrite( fData, fSize, 1, fh);
+    debug( "%s", fData);
+    fclose(fh);
+    return true;/* TODO: make use of this */
+}
+
+/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+
+#warning Sprintf
+#warning directory traversal
+
+bool
+testdb_clearRunnedJobs( const char* uName)
+{
+    char cmd[PATH_MAX]={0};
+    sprintf( cmd, "%s/%s/jobs/running", USERDB, uName);
+    fop_rm( TEST_LOCAL, cmd, 0,0);
+    mkdir( cmd, 0755); /*check return val*/
+    return true;
+}/*------------------------------------------------------------------*/
+
+
+/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+    char**
+testdb_listUserTests(const char* uName, int* sz)
+{
+    DIR* dir;
+    struct dirent* ent;
+    int i=0;
+    struct stat stbuf;
+    char f[PATH_MAX]={0};
+
+    /* opendir segfaults if parameter is NULL */
+    if(!uName)
+    {   *sz =0;
+        debug("Null username\n");
+        return NULL;
+    }
+    char** buf =(char**)calloc(8192, sizeof(char*)); //TODO
+    sprintf(f, "%s/%s/tests/", USERDB, uName);
+
+    debug("listUserTests: [%s]\n", f);
+
+    if( !( dir = opendir(f) ) ) {
+        dbg_error( "1: Can't open test directory [%s] : %s\n",
+                f, strerror( errno ) );
+	*sz = 0;
+        return NULL;
+    }
+    while( ( ent = readdir( dir ) ) )
+    {   if( !strcmp(ent->d_name,".")
+        ||  !strcmp(ent->d_name,"..")
+        ||  !strcmp(ent->d_name, "CVS") )
+            continue;
+        sprintf(f, "%s/%s/tests/%s", USERDB, uName, ent->d_name);
+        if(stat( f, &stbuf))
+            dbg_error("Unable to stat [%s]: [%s]\n" , f, strerror(errno));
+
+        if( !S_ISDIR(stbuf.st_mode) )
+        {   debug("continuing [%s]\n", ent->d_name);
+            continue;
+        }
+
+        buf[i] = (char*)calloc(512, sizeof(char));
+        strcpy(buf[i++], ent->d_name);
+    }
+    *sz = i;
+    closedir(dir);
+    return buf;
+}/*------------------------------------------------------------------*/
 
 
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
@@ -114,10 +203,10 @@ int onLineParsed(const char *name, const char *value, void* arg)
 GSList* testdb_getConfig( const char* uName, const char* machine, unsigned int* sz)
 {
     char path[PATH_MAX]={0};
-    debug( "\nGETCONFIG\n" );
     GSList*   cfgTable =  g_slist_alloc() ;
     cfg.takeAction = onLineParsed ;
     sprintf(path,"%s/%s/machines/%s", USERDB, uName, machine);
+    debug( "\nGETCONFIG [%s]\n", path );
     scan_parseCfg( path, &cfgTable);
     *sz = g_slist_length(cfgTable);
     return cfgTable;
