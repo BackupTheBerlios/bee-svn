@@ -1,6 +1,13 @@
 body.bheader { margin: 0px; background-color: #cccccc; }
-div.header { vertical-align: top; color: white; background-color: rgb(50,0,210); }
-font.header {font-size:xx-large ;}
+div.header {
+    /*height: 2em;*/
+    background-repeat: repeat-x;
+    vertical-align: center;
+    color: white;
+    background-color: rgb(50,0,210); 
+    background-image: url('header_bg.png');
+}
+font.header { font-size:xx-large ;}
 
 .column span {
     margin: 0 15px;
@@ -86,23 +93,26 @@ div.job_running {
     padding: 0px;
     width:90%;
     height:2em;
+    line-height:2em;
+}
+div.job_running:hover {
+    background-color: #6699FF;
 }
 div.job_running span {
-
-    display:block;
     border-right:2px solid #000;
     padding: 0px 10px 0px 10px;
     position: relative;
     text-align: left;
     font-weight: normal;
     color: #333;
-    height: 2em;
-    line-height: 2em;
     width:6em;
     float:left;
+    height: 2em;
 }
 div.job_running span.bar {
-    background: #6bba70;
+    background: navy;
+    border-right: 0px ;
+    background-image: url('bar_bg.png');
 }
 div.job_running span.id {
     width: 2em;

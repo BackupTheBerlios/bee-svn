@@ -90,11 +90,12 @@ class Index {
     function listSUTVersions( )
     {
         echo "T:SUT Versions:<br>
-            <select style='float:left' name='sut_versions[]' multiple size='5'>
+            <select name='sut_versions[]' multiple size='5'>
             <option>2.0</option>
             <option>3.0</option>
             <option selected>4.0</option>
-            </select> <input style='float:left'value='0.0' name='sut_build' type='text' size='3'/>";
+            </select>
+            <input value='0.0' name='sut_build' type='text' size='3'/>";
     }
     function listSchedules( )
     {
@@ -124,7 +125,6 @@ class Index {
     <LINK REL="SHORTCUT ICON" href="seraph.ico">
     <title>seraph test runner</title>
     </head>
-
 <body class='bheader' >
 
 <?php
@@ -136,7 +136,7 @@ class Index {
     ?>
 
     <form action='run_tests.php' method='get' name='sut_pretest'>
-        <div class='column'>
+        <div class='column' >
             <span><?php $index->listTests(); ?></span>
             <span><?php $index->listUserTests(); ?></span>
             <span><?php $index->listOSes(); ?></span>

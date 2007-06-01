@@ -48,17 +48,17 @@ function listJobs($job_type)
         $tests= XML_RPC_decode($log->structmem("job_tests"));
         if($tests==0) $tests=1;
         $pct  = 4+100*(int)$ctest/((int)$tests*6);
+        echo "<a style='text-decoration:none' href='view.php?log=$name'>";
         echo "<div class='$state'>";
-        echo "<a href='view.php?log=$name'>";
         echo "<span class='id'>1000</span>";
         echo "<span>$state</span>";
         echo "<span class='name'>$name</span>";
         echo "<span>$date</span>";
         echo "<span>$time</span>";
-        echo "<span class='bar' style='width: $pct%;'>.</span>";
+        echo "<span class='bar' style='margin:0.5em; height: 15px; width: $pct%;'> </span>";
         echo "$ctest of $tests";
-        echo "</a>";
         echo "</div>";
+        echo "</a>";
     }
 
     /*---------------------------------------------*/
@@ -123,7 +123,7 @@ function call($arg1, $arg2, $cli)
 }
 function drawMenu() {
     echo "<div  class='header'>
-        <font class='header'>Seraph</font>
+        <img src='title.png'/>
         <br/><br/>
         </div>
         <div class='head_menu'>

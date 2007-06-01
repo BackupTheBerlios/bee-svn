@@ -265,6 +265,15 @@ core_runBat( const char *batName, int timeout )
     db_close(db);
     delete(db);
 
+    FILE* f= fopen( getenv(SUT_ERRLOG),"a");
+    char * t= strdup(batName), *t1=NULL;
+    t1=strrchr(t, '/');
+    *t1='\0';
+    t1=strrchr(t,'/');
+    fprintf(f,"%s:", t1);
+    fclose(f);
+    free(t);
+
     if( ( pid = fork(  ) ) == 0 ) {
         int rc = 0;
         rc = system( batName );
@@ -759,9 +768,20 @@ core_onSigChld( int sig )
         case SIGCHLD:
             while( waitpid( -1, &status, WNOHANG ) > 0 )
                 if(  WIFEXITED(status)==0 || (WEXITSTATUS( status ) == 69) )
-                    printf( "seraph: PASS\n" );
+                {   printf( "seraph: PASS\n" );
+                    FILE * f=fopen(getenv(SUT_ERRLOG), "a");
+                    if(!f) continue;
+                    fprintf(f, "Ok\n");
+                    fclose(f);
+                }
                 else
+                {
                     printf( "seraph: FAIL [%d]\n", WEXITSTATUS(status) );
+                    FILE * f=fopen(getenv(SUT_ERRLOG), "a");
+                    if(!f) continue;
+                    fprintf(f, "Failed\n");
+                    fclose(f);
+                }
             break;
         case SIGALRM:
             dbg_error( "timeout\n" );

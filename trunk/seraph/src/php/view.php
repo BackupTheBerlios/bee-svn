@@ -9,6 +9,6 @@ include 'base_lib.php' ;?>
 <body class='bheader'>
 
 <?php drawMenu();
-echo "<object width='100%' height='50%' type='text/plain' data='view_job.php?log=".$_REQUEST['log']."'> </object>";
+echo "<object style='background-color:white' width='100%' height='50%' type='text/plain' data='view_job.php?log=".$_REQUEST['log']."'> </object>";
 //showInfo();
 ?>
