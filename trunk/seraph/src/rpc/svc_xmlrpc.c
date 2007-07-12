@@ -7,6 +7,7 @@
 #include "core.h"
 #include "testdb.h"
 #include "userdb.h"
+#include "basedb.h"
 #include <sys/wait.h>
 #include <limits.h>
 
@@ -15,6 +16,24 @@
  * Server-side remote procedure call implemented over XMLRPC.
  */
 
+/* START timeout maillog startCommand
+ * machine, user*/
+    XMLRPC_VALUE
+x_startManagerCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void *userData )
+{
+    int timeout = 0, rc = 0;
+    const char *uName, *machine, *rs;
+
+    XMLRPC_VALUE xParams = XMLRPC_RequestGetData( request );
+    XMLRPC_VALUE xIter   = XMLRPC_VectorRewind( xParams );
+
+    uName    = XMLRPC_VectorGetStringWithID(xIter, "sut_username");
+    machine  = XMLRPC_VectorGetStringWithID(xIter,"sut_machine");
+
+    rc = sut_startManager( uName, machine);
+    rs = rc > 0 ? "Manager Started" : "Manager Failed to start";
+    return XMLRPC_CreateValueString( NULL, rs, 0 );
+}
 
 /* START timeout maillog startCommand */
     XMLRPC_VALUE
@@ -383,7 +402,7 @@ x_addUserTest( XMLRPC_SERVER server, XMLRPC_REQUEST request,
 x_runTestsCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void* userData )
 {
     XMLRPC_VALUE str;
-    const char *sut_build=NULL, *p=NULL, *os=NULL, *uName=NULL;
+    const char *sut_build=NULL, *p=NULL, *os=NULL, *uName=NULL, email[KEY_LEN+1]={0};
     XMLRPC_VALUE oses, tests;
     XMLRPC_VALUE xIter ;
     XMLRPC_VALUE xStarted;
@@ -398,6 +417,15 @@ x_runTestsCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void* userData
     sut_refresh = XMLRPC_VectorGetStringWithID(str, "sut_refresh");
 
     uName = XMLRPC_VectorGetStringWithID(str, "sut_username");
+
+    /* Get the email of the user */
+    struct Class* db = (struct Class*) new(BaseDB);
+    db_open( db, "%s/%s/%s", USERDB, uName, "userdata");
+    if( !db_get( db, "email", &email)
+    ||  !db_close(db)
+    )
+        return false;
+    delete(db);
 
     /* Extract SUT Build */
     sut_build = XMLRPC_VectorGetStringWithID(str, "sut_build");
@@ -417,6 +445,7 @@ x_runTestsCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void* userData
     xIter = XMLRPC_VectorRewind( tests );
 
     signal(SIGCHLD, core_onSigChld);
+
     pid = fork() ;
 
     if(pid<0) {
@@ -424,36 +453,44 @@ x_runTestsCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void* userData
         return XMLRPC_CreateValueString( NULL, "Unable to start the tests", 0 );
     }
     if(pid>0) {
-        debug("father returned\n");
+        printf("father returned\n");
         int*p=malloc(sizeof(int));
         *p=pid;
         *cfg.children = g_slist_append(*(cfg.children), p);
-        //waitpid(pid, &status, WNOHANG);
+
         return XMLRPC_CreateValueString( NULL, "Started Test Execution", 0 );
     }
-    if(!pid) {
-        while(xIter) {
-            //TODO: use malloc
+    if(!pid)
+    {   /* Move child in it's own group */
+        printf("setting sid\n");
+
+        if( setpgid( 0, 0) )
+        {
+            printf( "Errorr Muttley get out....\n");
+            exit(EXIT_FAILURE);
+        }
+        printf("done\n");
+        core_setSigHandlers();
+        while(xIter)
+        {   //TODO: use malloc
             char tDir[PATH_MAX] = {0};
             char tCfg[PATH_MAX] = {0};
             char cmd[PATH_MAX*3]={0};
-
             p = XMLRPC_GetValueString( xIter );
             /*TODO: use snprintf */
             /*TODO: don't use acces twice: add another param in xmlrpc struct*/
             sprintf(tDir, "%s/%s", cfg.testDir,p);
             if( access(tDir, X_OK))
             {   sprintf(tDir, "%s/%s/tests/%s", USERDB, uName, p);
-                if(access(tDir,X_OK))
-                    continue;
+                if(access(tDir,X_OK)) continue;
             }
             dbg_verbose("Run tests from directory: '%s/%s' \n", cfg.testDir,p);
 
             sprintf(tCfg, "%s/%s/machines/%s", USERDB, uName, os);
-            sprintf(cmd,"%s/srph -v -C %s -d %s -t remote -r %s -k -u %s",
-                   BINDIR, tCfg, tDir, sut_refresh, uName);
+            sprintf(cmd,"%s/srph -M %s:axigen.gecadco.local -v -C %s -d %s -t remote -r %s -k -u %s",
+                   BINDIR, email, tCfg, tDir, sut_refresh, uName);
             dbg_verbose("Seraph: [%s]\n", cmd);
-            core_execcmd(cmd);
+            system(cmd);
             xIter = XMLRPC_VectorNext(tests);
         }
         exit(EXIT_SUCCESS);

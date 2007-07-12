@@ -1,5 +1,5 @@
 TOP=..
-files=srv_xmlrpc.o svc_xmlrpc.o srv_tcp.o svc_tcp.o
+files= srv_xmlrpc.o svc_xmlrpc.o srv_tcp.o svc_tcp.o
 include $(TOP)/system.mk
 
 

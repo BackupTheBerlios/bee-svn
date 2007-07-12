@@ -109,6 +109,7 @@ int sock_sendLine( const int sock, const char *line )
         int t;
         char tr[PATH_MAX] = { 0 };
 
+        debug("line:[%s]\n", line);
         sprintf( tr, "%s\r\n", line );
         t = write( sock, tr, strlen( tr ) );
         if( t < 0 || t < strlen( tr ) ) {

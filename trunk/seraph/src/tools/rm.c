@@ -25,8 +25,9 @@
 #include "sock.h"
 #include "strop.h"
 #include "sut.h"
+#include "core.h"
 
-#define TOOL_NAME start
+#define TOOL_NAME rm
 #define TOOL_DESCRIPTION "Remove (unlink) the FILE(s).\n"
 #define CMD_FUNC\
     ret = fop_rm( testType, argv[optind], cfg.hostname, cfg.rawport )

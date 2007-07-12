@@ -27,7 +27,14 @@ main( int argc, char *argv[] )
         usage( EXIT_FAILURE );
     }
     cfg.verbose = getenv(SUT_VERBOSE);
-
+/*
+    if(setpgid(0,0))
+    {   dbg_error("Weird problem with setpgrp: [%s]\n", strerror(errno) );
+        UNDBG;
+        exit( EXIT_FAILURE );
+    }
+    core_setSigHandlers();
+*/
     if( !strcasecmp(tc, "local") )
     {   dbg_verbose( QUOTE(TOOL_NAME)"Working Local\n" );
         testType = TEST_LOCAL;
@@ -45,7 +52,7 @@ main( int argc, char *argv[] )
     }
     CMD_FUNC;
     UNDBG;
-    exit( ret);
+    exit( ret?EXIT_SUCCESS:EXIT_FAILURE);
 }
 
 
@@ -71,7 +78,7 @@ static int
 parseArgs( int argc, char *argv[] )
 {
     int     c;
-    while( ( c = getopt( argc, argv, "t:H:P:c:hv" ) ) != -1 )
+    while( ( c = getopt( argc, argv, "t:H:P:c:hvrf" ) ) != -1 )
     {   switch ( c ) {
             case 't':
                 if( !strcasecmp( optarg, "remote" ) )
@@ -107,6 +114,9 @@ parseArgs( int argc, char *argv[] )
                 else
                     dbg_error("Unknown option character `\\x%x'.\n", optopt);
                 usage( EXIT_FAILURE);
+                break;
+            case 'r':
+            case 'f':
                 break;
            default:
                 usage( EXIT_FAILURE);

@@ -58,6 +58,7 @@
 enum { OPT_NO, OPT_YES, OPT_ASK } ;
 enum { TEST_UNSET, TEST_LOCAL, TEST_REMOTE } ;
 enum { TB_BE_DAEMON, TB_BE_SETUP, TB_BE_TESTER } ;
+enum { NOTIFY_MAIL=1, NOTIFY_JABBER=2 };
 
 
 struct config_s {
@@ -78,10 +79,12 @@ struct config_s {
     char*   hostname;
     char*   machine;
     char*   notifyMail;
+    char*   ntfmail;
     char*   testDir ;
     char*   sutDefWD ;
     char*   username;
     char**  argv ;
+    int     notifyType;
     int     argc ;
     int     behaviour;
     int     refresh ;

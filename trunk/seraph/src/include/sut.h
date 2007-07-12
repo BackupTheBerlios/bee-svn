@@ -17,7 +17,7 @@ bool sut_stop(  const int test_type,
 
 void sut_sigpipe(int);
 void sut_sigint(int);
-
+bool sut_startManager( const char* uName, const char* machine);
 #else
         #warning "*** Header allready included ***"
 #endif

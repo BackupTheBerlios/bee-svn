@@ -46,11 +46,10 @@ static int  mngrd_parseArgs( struct config_s *cfg, int argc, char *argv[] );
 int main( int argc, char *argv[] )
 {
     DBG("mngrd.debug");
-    if( argc == 1 ) {
-        mngrd_usage( EXIT_FAILURE );
+    if( argc == 1 )
+    {   mngrd_usage( EXIT_FAILURE );
         UNDBG;
     }
-
     /*1. initialize config with default values */
     mngrd_initCfg( &cfg, argc, argv );
 
@@ -58,19 +57,19 @@ int main( int argc, char *argv[] )
     mngrd_parseArgs( &cfg, argc, argv );
 
     /* Start xmlrpc */
-    if( cfg.startXmlRPC) {
-        start_xmlrpc(cfg.xmlport);
+    if( cfg.startXmlRPC)
+    {   start_xmlrpc(cfg.xmlport);
         UNDBG;
-        return 0;
+        exit( EXIT_SUCCESS );
     }
-    if( cfg.startRawRPC) {
-        start_rawrpc(cfg.rawport);
+    if( cfg.startRawRPC)
+    {   start_rawrpc(cfg.rawport);
         UNDBG;
-        return 0;
+        exit( EXIT_SUCCESS );
     }
 
     UNDBG;
-    return 0;
+    exit( EXIT_SUCCESS );
 }
 
 
@@ -161,7 +160,6 @@ int mngrd_initCfg( struct config_s *c, int argc, char *argv[] )
     c->maillog  = "/var/log/maillog";
     c->refresh  = OPT_YES;
     c->verbose  = false;
-#warn FREE
     c->children = malloc(sizeof(GSList) );
     c->startRawRPC  = false ;
     c->startXmlRPC  = false ;

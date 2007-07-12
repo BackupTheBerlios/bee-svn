@@ -47,7 +47,7 @@ int start_rawrpc( const unsigned int port )
     {   dbg_error( "rawrpc: Cant bind port [%u]: [Illegal value].\n", port );
         return -1;
     }
-#if 0
+
     /* Daemon */
     pid = fork( );
 
@@ -67,43 +67,13 @@ int start_rawrpc( const unsigned int port )
         exit( EXIT_FAILURE );
 
     if( ( chdir( "/tmp" ) ) < 0 )
-        debug( "Can't change to /tmp" );
-    /* Daemon */
-    long fdlimit = -1, i;
-    int fderr, fdout,fdin;
+        dbg_error( "Can't change to /tmp" );
 
-    fdlimit = sysconf (_SC_OPEN_MAX);
-    if (fdlimit == -1) {
-        fdlimit = 3;
-        debug("cant fdlimit\n");
-    }
-    fdlimit = 3;
-    for (i = 0; i < fdlimit; i++)
-        close (i);
+    core_closeFds();
+    /* end Daemon */
 
-    fderr = open ( "/home/groleo/ERRORS", O_RDWR, 0);/*TODO*/
-    fdout = open ( "/home/groleo/OUT", O_RDWR, 0);/*TODO*/
-    fdin  = open ( "/dev/null", O_RDWR,0);
+    core_setSigHandlers();
 
-    if (fdin != -1 || fdout != -1 || fderr != -1)
-    {
-        dup2 (fdin, STDIN_FILENO);
-        dup2 (fdout, STDOUT_FILENO);
-        dup2 (fderr, STDERR_FILENO);
-        if (fdin > 2 )
-            close (fdin);
-        if (fdout > 2 )
-            close (fdout);
-        if (fderr > 2 )
-            close (fderr);
-    }
-#endif
-    struct sigaction action;
-    action.sa_handler = core_onSigInt;
-    sigemptyset(&action.sa_mask);
-    action.sa_flags = 0;
-    sigaction( SIGINT, &action, NULL);
-    sigaction( SIGPIPE, &action, NULL);
 
     return callback_socket( port );
 }

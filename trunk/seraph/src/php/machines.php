@@ -24,7 +24,9 @@ function drawMachines()
         <li >
         <p  onclick='javascript:toggleSpan(\"span$m\");' >$m<br/><span id='span$m'>$m
         <a href='javascript:;' onclick='addEvent(\"span$m\", \"sName$m\", \"sValue$m\");'><em class='butt'>Add</em></a>
-        <input type='submit' value='Save'><br>
+        <input type='submit' value='Save'><br style='clear:both'>
+        <a href='setup_machine.php?machine=$m'><em class='butt'>Setup</em></a>
+        <a href='start_manager.php?machine=$m'><input type='button' value='StartManager'></a><br>
 
         <input id='sName$m'  type='text' value='SUT_NAME' style='text-align:right; clear:both; float:left; width:12.1em;'/>
         <input id='sValue$m' type='text' value='Value'/><br>";

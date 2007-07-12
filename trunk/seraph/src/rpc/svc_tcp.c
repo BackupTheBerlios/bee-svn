@@ -18,7 +18,8 @@ int t_startCallback( int sock, char *buf )
 
         if( NULL == buf ) {
                 fprintf( stderr, "! START: (null) internal `buf` parameter\n" );
-                return 0;
+                sock_sendStatus( sock, 1 );
+                return false;
         }
         rb = sscanf( buf, "%d %s", &timeout, maillog );
 
@@ -26,13 +27,14 @@ int t_startCallback( int sock, char *buf )
         startCmd = strchr( buf + 1, ' ' );
         if( rb != 2 || !startCmd ) {
                 printf( "Invalid syntax for START\n" );
-                return FALSE;
+                sock_sendStatus( sock, 1 );
+                return false;
         }
 
         dbg_verbose( "START timeout[%d] maillog[%s] startCmd[%s]\n", timeout, maillog, startCmd );
         sut_start( TEST_LOCAL, timeout, maillog, startCmd, 0, 0 );
         sock_sendStatus( sock, 0 );
-        return TRUE;            /* @todo pls return a proper value(sendStatus) */
+        return true;            /* @todo pls return a proper value(sendStatus) */
 }
 
 
@@ -44,7 +46,8 @@ int t_stopCallback( int sock, char *buf )
 
         if( NULL == buf ) {
                 fprintf( stderr, "! STOP: (null) internal `buf` parameter\n" );
-                return 0;
+                sock_sendStatus( sock, 1 );
+                return false;
         }
         rb = sscanf( buf, "%d %s", &timeout, maillog );
 
@@ -52,12 +55,13 @@ int t_stopCallback( int sock, char *buf )
         stopCmd = strchr( buf + 1, ' ' );
         if( rb != 2 || !stopCmd ) {
                 printf( "Invalid syntax for STOP\n" );
-                return FALSE;
+                sock_sendStatus( sock, 1 );
+                return false;
         }
         dbg_verbose( "STOP timeout[%d] maillog[%s] stopCmd[%s]\n", timeout, maillog, stopCmd );
         sut_stop( TEST_LOCAL, timeout, maillog, stopCmd, 0, 0 );
         sock_sendStatus( sock, 0 );
-        return TRUE;
+        return true;
 }
 
 /**
@@ -70,12 +74,13 @@ int t_refreshCallback( int sock, char *buf )
         if( NULL == buf ) {
                 fprintf( stderr,
                          "! REFRESH: (null) internal `buf` parameter\n" );
-                return 0;
+                sock_sendStatus( sock, 1 );
+                return false;
         }
         ret = system(buf); /*TODO: check return values*/
 
         sock_sendStatus( sock, 0 );
-        return 0;
+        return true;
 }
 
 
@@ -87,24 +92,38 @@ int t_copyCallback( int sock, char *buf )
 {
         int f, bw, len, rb;     /* bytes written to disk */
         char buff[PATH_MAX] = { 0 };
-        char dest_file[FILENAME_MAX] = { 0 };
         char src_file[FILENAME_MAX] = { 0 };
         char dest_dir[FILENAME_MAX] = { 0 };
+        char *dest_file=NULL;
+        struct stat stbuf;
 
         if( NULL == buf ) {
                 fprintf( stderr, "! COPY: (null) internal `buf` parameter\n" );
-                return 0;
+                sock_sendStatus( sock, 1 );
+                return false;
         }
         rb = sscanf( buf, "%s %s %d", src_file, dest_dir, &len );
 
         if( rb != 3 || len <= 0 ) {
                 printf( "Invalid syntax for COPY\n" );
-                return FALSE;
+                return false;
         }
 
-        sprintf( dest_file, "%s/%s", dest_dir, src_file );
+        if( lstat( dest_dir, &stbuf) )
+        {   sock_sendStatus( sock, errno) ;
+            return errno;
+        }
+
+        if( S_ISDIR(stbuf.st_mode) )
+        {   dest_file=(char*)malloc(strlen(dest_dir)+strlen(src_file)+2);
+            sprintf( dest_file, "%s/%s", dest_dir, src_file );
+        }
+        else if( S_ISREG(stbuf.st_mode) )
+            dest_file = strdup(dest_dir) ;
+
         f = creat( dest_file, S_IRUSR | S_IWUSR );
-        if( f < 0 ) {
+        if( f < 0 )
+        {       free(dest_file);
                 sock_sendStatus( sock, errno );
                 return errno;
         }
@@ -114,17 +133,22 @@ int t_copyCallback( int sock, char *buf )
                 if( bw < 0 ) {
                         perror( "Transmission error" );
                         close( f );
+                        free(dest_file);
+                        sock_sendStatus( sock, errno );
                         return errno;
                 }
-                if( ret < 0 ) {
-                        close( f );
-                        return errno;
+                if( ret < 0 )
+                {   close( f );
+                    free(dest_file);
+                    sock_sendStatus( sock, errno );
+                    return errno;
                 }
                 len -= bw;
         }
 
         sock_sendStatus( sock, 0 );
         close( f );
+        free(dest_file);
         return 0;
 }
 
@@ -138,13 +162,14 @@ int t_rmCallback( int sock, char *buf )
 
         if( NULL == buf ) {
                 fprintf( stderr, "! RM: (null) internal `buf` parameter\n" );
-                return 0;
+                sock_sendStatus( sock, 1 );
+                return false;
         }
         rb = sscanf( buf, "%s", path );
 
         if( rb != 1 ) {
                 printf( "Invalid syntax for RM\n" );
-                return FALSE;
+                return false;
         }
 
         sprintf( cmd, "/bin/rm -rf %s", path );
@@ -161,13 +186,15 @@ int t_mkdirCallback( int sock, char *buf )
 
         if( NULL == buf ) {
                 fprintf( stderr, "! MKDIR: (null) internal `buf` parameter\n" );
-                return 0;
+                sock_sendStatus( sock, 1 );
+                return false;
         }
         rb = sscanf( buf, "%s", path );
 
         if( rb != 1 ) {
                 printf( "Invalid syntax for MKDIR\n" );
-                return FALSE;
+                sock_sendStatus( sock, 1 );
+                return false;
         }
 
         if( mkdir( path, 0777 ) == -1 ) {
@@ -206,7 +233,7 @@ int t_checkCoreCallback( int sock, char *buf )
         char sutWorkDir[FILENAME_MAX] = { 0 };
         char sutCfgFile[FILENAME_MAX] = { 0 };
         char dumpDestDir[FILENAME_MAX] = { 0 };
-        int rc = FALSE;
+        int rc = false;
 
         if( NULL == buf ) {
                 fprintf( stderr,
@@ -223,5 +250,5 @@ int t_checkCoreCallback( int sock, char *buf )
                             coreSrcDir, dbgSrcDir, sutWorkDir,
                             sutCfgFile, dumpDestDir );
         sock_sendStatus( sock, rc );    /*! @todo figure out what status i should send */
-        return FALSE;           /* means no core was found */
+        return false;           /* means no core was found */
 }

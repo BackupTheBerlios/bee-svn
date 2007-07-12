@@ -266,11 +266,17 @@ core_runBat( const char *batName, int timeout )
     delete(db);
 
     FILE* f= fopen( getenv(SUT_ERRLOG),"a");
-    char * t= strdup(batName), *t1=NULL;
-    t1=strrchr(t, '/');
-    *t1='\0';
+    char * t= strdup(batName), *t2=NULL, *t1=NULL;
+    /* Remove runtest.bat from filename */
+    t2=strrchr(t, '/');
+    *t2='\0';
+    /* split between test and test category */
+    t2=strrchr(t,'/');
+    *t2='\0';
     t1=strrchr(t,'/');
-    fprintf(f,"%s:", t1);
+    *t2='/';
+
+    fprintf(f,"%s: ", ++t1);
     fclose(f);
     free(t);
 
@@ -279,11 +285,13 @@ core_runBat( const char *batName, int timeout )
         rc = system( batName );
         exit( WEXITSTATUS(rc) );
     } else if( pid > 0 ) {
-        while( 1 ) {
+        while( 1 )
+        {
             sleep( cfg.scriptTout );
             if( waitpid( pid, &hasAlarm, WNOHANG ) )
                 break;
-            if( cfg.allwaysKill ) {
+            if( cfg.allwaysKill )
+            {   dbg_verbose("Script takes more that %d seconds to execute: killing\n", cfg.scriptTout );
                 if( kill(pid, 9) ) return false;
                 break;
             }
@@ -681,7 +689,7 @@ core_execcmd( char *string )
     /* Catch interrupts whenever commands are running. */
 
    if( !cmdsrunning++ )
-        signal( SIGINT, core_onSigInt );
+        signal( SIGTERM, core_onSigTerm );
 
     /* Start the command */
 
@@ -699,7 +707,7 @@ core_execcmd( char *string )
     /* Save the operation for execwait() to find. */
     *(cfg.children) = g_slist_append( *(cfg.children), &pid);
 
-     core_execwait();
+     //core_execwait();
 }
 
 int
@@ -710,7 +718,7 @@ core_execwait()
     if( !cmdsrunning )
         return 0;
 
-    signal( SIGINT, core_onSigInt );
+    signal( SIGTERM, core_onSigTerm );
     /* Pick up process pid and status */
 
     while( ( w = wait( &status ) ) == -1 && errno == EINTR )
@@ -741,22 +749,13 @@ core_onSigPipe(  int sig)
 
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 void
-core_onSigInt(  int sig)
+core_onSigAlrm(  int sig)
 {
-    extern int daemon_running;
-    g_slist_foreach( *cfg.children, killChildren, NULL);
-    daemon_running =0;
+    extern int sut_operation_timeout;
+    sut_operation_timeout = 1 ;
+    dbg_error("Operation Timedout\n");
 }
 /*------------------------------------------------------------------*/
-
-
-
-/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
-static void
-killChildren(gpointer data, gpointer user_data)
-{
-    kill(*(int*)data, 15);
-}
 
 
 
@@ -764,28 +763,116 @@ void
 core_onSigChld( int sig )
 {
     int     status;
-    switch ( sig ) {
-        case SIGCHLD:
-            while( waitpid( -1, &status, WNOHANG ) > 0 )
-                if(  WIFEXITED(status)==0 || (WEXITSTATUS( status ) == 69) )
-                {   printf( "seraph: PASS\n" );
-                    FILE * f=fopen(getenv(SUT_ERRLOG), "a");
-                    if(!f) continue;
-                    fprintf(f, "Ok\n");
-                    fclose(f);
-                }
-                else
-                {
-                    printf( "seraph: FAIL [%d]\n", WEXITSTATUS(status) );
-                    FILE * f=fopen(getenv(SUT_ERRLOG), "a");
-                    if(!f) continue;
-                    fprintf(f, "Failed\n");
-                    fclose(f);
-                }
-            break;
-        case SIGALRM:
-            dbg_error( "timeout\n" );
-            break;
+    pid_t   tpid=0;;
+
+    while( (tpid=waitpid( -1 , &status, WNOHANG )) > 0 )
+    {
+        //g_slist_remove( *cfg.children, &tpid);
+        if( (WEXITSTATUS( status ) == 69) )
+        {   printf( "seraph: PASS\n" );
+            FILE * f=fopen(getenv(SUT_ERRLOG), "a");
+            if(!f) continue;
+            fprintf(f, "Ok\n");
+            fclose(f);
+        }
+        else
+        {
+            printf( "seraph: FAIL [%d]\n", WEXITSTATUS(status) );
+            char c=0;
+            int fd=open( getenv(SUT_ERRLOG), O_RDWR );
+            if(fd<0) continue;
+            lseek(fd, -1, SEEK_END);
+            read( fd, &c, 1);
+            if( c == 10 || c == 13 ) { lseek(fd, -1, SEEK_END); write(fd, " ", 1);}
+            write(fd, "Failed\n", 7);
+            close(fd);
+        }
     }
+}
+/*------------------------------------------------------------------*/
+
+
+
+/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+void
+core_closeFds()
+{
+    long fdlimit = -1, i;
+    int fderr=-1, fdout=-1,fdin=-1;
+
+#if 0
+    /* TODO: close all descriptors, except debug */
+    fdlimit = sysconf (_SC_OPEN_MAX);
+    if( fdlimit == -1)
+    {   fdlimit = 3;
+        dbg_error("Can't fdlimit\n");
+    }
+#endif
+    fdlimit =3 ; /* Close only stdin, stdout stderr */
+    for( i = 0; i < fdlimit; i++)
+        close (i);
+
+    fderr = open ( LOGDIR"/STDERR", O_RDWR | O_CREAT | O_APPEND, 0666);
+    fdout = open ( LOGDIR"/STDOUT", O_RDWR | O_CREAT | O_APPEND, 0666);
+    fdin  = open ( "/dev/null", O_RDWR,0);
+
+    if( fdin != -1 || fdout != -1 || fderr != -1)
+    {   dup2 (fdin, STDIN_FILENO);
+        dup2 (fdout, STDOUT_FILENO);
+        dup2 (fderr, STDERR_FILENO);
+
+        if (fdin > 2 )
+            close (fdin);
+        if (fdout > 2 )
+            close (fdout);
+        if (fderr > 2 )
+            close (fderr);
+
+    }else
+    {
+        debug("Unable to reopen standard descriptors: [%s]\n", strerror(errno));
+        exit( EXIT_FAILURE ) ;
+    }
+}
+/*------------------------------------------------------------------*/
+
+
+
+/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+int
+core_setSigHandlers(void)
+{
+    struct sigaction action;
+    action.sa_handler = core_onSigTerm;
+    sigemptyset(&action.sa_mask);
+    action.sa_flags = 0;
+    sigaction( SIGTERM, &action, NULL);
+    return 0;
+}
+/*------------------------------------------------------------------*/
+
+
+
+/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+static void
+killChild(gpointer data, gpointer user_data)
+{
+    if(kill(*(int*)data, SIGTERM) )
+    {   dbg_error("Killed bogus process [%s]\n", *(int*)data);}
+    else
+    {   debug("Killed child[%d]\n", *(int*)data);}
+}
+/*------------------------------------------------------------------*/
+
+
+
+/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+void
+core_onSigTerm(  int sig)
+{
+    extern int daemon_running;
+    int status ;
+    g_slist_foreach(*cfg.children, killChild, NULL);
+    daemon_running =0;
 }
 /*------------------------------------------------------------------*/

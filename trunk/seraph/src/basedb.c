@@ -23,14 +23,8 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include "dbg.h"
+#include "basedb.h"
 #include "baseclass.h"
-
-/*BaseDB class implementation*/
-extern const void * BaseDB;
-struct BaseDB {
-    const void *class;
-    char *dbName;
-} ;
 
 /* */
 static void * BaseDB_ctor (void * _this, va_list * app)
@@ -87,7 +81,7 @@ static int BaseDB_put(const void *_this, const char* const key, const char* data
     FILE*   fh;
     char    buf[1024]={0},*pc ;
     char    line[1024]={0};
-
+    
     debug("fopen [%s]\n", this->dbName);
     fh = fopen( this->dbName ,"r+") ;
     if(!fh) {
@@ -101,19 +95,19 @@ static int BaseDB_put(const void *_this, const char* const key, const char* data
     }*/
 
     debug("br[%d] searching in buf[%s]\n", br, buf);
-    snprintf(line, 34, "%32s:", key);
+    snprintf(line, KEY_LEN+2, "%*s:", KEY_LEN, key);
     pc = strstr( buf, line) ;
     if( !pc )
     {
         debug("Cant find key [%s]\n", line);
         fseek(fh, 0, SEEK_END);
-        fprintf( fh, "%32s:%32s\n", key, data);
+        fprintf( fh, "%*s:%*s\n", KEY_LEN, key, KEY_LEN, data);
         fclose(fh);
         return true ;
     }
     debug("key[%s] found\n", key);
     pc = strchr(pc, ':')+1;
-    snprintf( pc, 34, "%32s\n", data);
+    snprintf( pc, KEY_LEN+2, "%*s\n", KEY_LEN, data);
     fseek(fh, 0, SEEK_SET);
     fprintf( fh, "%s", buf);
     debug("write[%s]\n", buf);
@@ -134,7 +128,7 @@ static int BaseDB_get(const void *_this, const char* key, char *data)
     }
     br = fread( buf, 1, 1023, fh) ;
     fclose( fh ) ;
-    snprintf(line, 33, "%32s:", key);
+    snprintf(line, KEY_LEN+1, "%*s:", KEY_LEN, key);
     pc = strstr( buf, line) ;
     if( !pc )
     {

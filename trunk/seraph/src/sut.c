@@ -25,8 +25,10 @@
 #include "fileop.h"
 #include "sut.h"
 #include "sut_private.h"
+#include "core.h"
 
 extern struct config_s cfg;
+int sut_operation_timeout = 0;
 
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
     bool
@@ -49,6 +51,19 @@ sut_start( const int test_type,
 }/*------------------------------------------------------------------*/
 
 
+/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+    bool
+sut_startManager( const char* uName,
+                  const char* host)
+{
+    char cmd[512]={0};
+    int rc=0;
+    sprintf( cmd, "ssh %s@%s 'mngrd -R 5000'", uName, host);
+    dbg_verbose( "START-manager\n");
+    rc = system(cmd);
+    if( (rc ==-1) || WEXITSTATUS(rc) !=0) return false;
+    return true;
+}/*------------------------------------------------------------------*/
 
 /*
  * \todo Test for failure */
@@ -101,6 +116,7 @@ static bool sut_startLocal( const int timeout, const char *maillog, const char *
 
     if( -1 == fstat( fd, &stat_buf ) )
     {   dbg_error("Unable to stat [%s]: [%s]\n", maillog, strerror(errno) );
+        close( fd ) ;
         return false;
     }
     st_ino = stat_buf.st_ino;
@@ -111,7 +127,16 @@ static bool sut_startLocal( const int timeout, const char *maillog, const char *
         exit( EXIT_FAILURE );
         /* TODO: ask for options */
     }
-    for( ;; ) {
+    /* 1 minute for SUT to start */
+    {
+        struct sigaction action;
+        action.sa_handler = core_onSigAlrm;
+        sigemptyset(&action.sa_mask);
+        action.sa_flags = 0;
+        sigaction( SIGALRM, &action, NULL);
+        alarm(1*60);
+    }
+    while( !sut_operation_timeout ) {
         int i = 0;
         memset( buf, '\0', 512 );
         if( -1 == fstat( fd, &stat_buf ) )
@@ -124,7 +149,7 @@ static bool sut_startLocal( const int timeout, const char *maillog, const char *
             fd = open( maillog, O_RDONLY );
             if( -1 == fstat( fd, &stat_buf ) )
             {   dbg_error( "Unable to stat [%s]: [%s]\n", maillog, strerror(errno) );
-                return false;
+                break;
             }
             st_ino = stat_buf.st_ino;
             lseek( fd, 0, SEEK_END );
@@ -154,13 +179,13 @@ static bool sut_startLocal( const int timeout, const char *maillog, const char *
                 return true;
             } else if( str_search(buf, i, finStr, strlen(finStr)) )
             {   printf( "\n==> supervise: finished <==\n" );
-                close( fd );
-                return false;
+                break;
             }
         }
     }
+    sut_operation_timeout = 0;
     close( fd );
-    return true;
+    return false;
 }/*------------------------------------------------------------------*/
 
 
@@ -226,14 +251,25 @@ static bool sut_stopLocal( const int timeout, const char *maillog, const char *s
     if( rc == -1 )
     {   printf( "Failed\n" );
         exit( EXIT_FAILURE );
-        /* TODO: ask for options */
         return false;
+        /* TODO: ask for options */
     }
+
     if( WEXITSTATUS( rc ) == 1 )
     {   printf( "No process killed\n" );
         return true;
     }
-    for( ;; )
+
+    /* 1 minute for SUT to stop */
+    {
+        struct sigaction action;
+        action.sa_handler = core_onSigAlrm;
+        sigemptyset(&action.sa_mask);
+        action.sa_flags = 0;
+        sigaction( SIGALRM, &action, NULL);
+        alarm(1*60);
+    }
+    while( !sut_operation_timeout )
     {   int i = 0;
         memset( buf, '\0', 512 );
         i = read( fd, buf, sizeof( buf ) - 1 );
@@ -263,7 +299,9 @@ static bool sut_stopLocal( const int timeout, const char *maillog, const char *s
             }
         }
     }
-    return true;
+    sut_operation_timeout = 0;
+    close( fd );
+    return false;
 }/*------------------------------------------------------------------*/
 
 

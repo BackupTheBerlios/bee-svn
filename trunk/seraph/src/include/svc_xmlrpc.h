@@ -3,6 +3,7 @@
 
 #include "xmlrpc.h"
 XMLRPC_VALUE x_startCallback    (XMLRPC_SERVER server, XMLRPC_REQUEST request, void* userData);
+XMLRPC_VALUE x_startManagerCallback    (XMLRPC_SERVER server, XMLRPC_REQUEST request, void* userData);
 XMLRPC_VALUE x_stopCallback     (XMLRPC_SERVER server, XMLRPC_REQUEST request, void* userData);
 XMLRPC_VALUE x_refreshCallback  (XMLRPC_SERVER server, XMLRPC_REQUEST request, void* userData);
 XMLRPC_VALUE x_copyCallback     (XMLRPC_SERVER server, XMLRPC_REQUEST request, void* userData);

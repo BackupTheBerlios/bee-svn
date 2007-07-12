@@ -8,12 +8,14 @@ PREFIX=/usr/local
 DESTDIR=
 BINDIR=$(PREFIX)/bin
 LIBDIR=$(PREFIX)/lib/seraph
+LOGDIR=$(PREFIX)/var/log/seraph
 
 VARDIR=$(PREFIX)/var/db/seraph
 MACHINES=$(VARDIR)/machines
+NTFDIR=$(VARDIR)/notify
 JOBS=$(VARDIR)/jobs
 USERDB=$(VARDIR)/users
-LOGDIR=$(VARDIR)/log
+LOGDIR=$(PREFIX)/var/log
 INSTALL=$(TOP)/install-sh -c
 INSTALLDIR=mkdir -p
 
@@ -26,6 +28,8 @@ ALLSYMON=-whole-archive
 ALLSYMOFF=-no-whole-archive
 
 ifeq ($(OS),Linux)
+#RH 8
+export PKG_CONFIG_PATH=/usr/lib/pkgconfig
 LDFLAGS=-L$(TOP)/lib/$(OS)/$(CPU)
 endif
 
@@ -57,7 +61,8 @@ WARN=-W -Wimplicit -Wreturn-type -Wswitch -Wcomment \
 INCLUDES=-I$(TOP)/include `pkg-config --cflags glib-2.0`
 
 DEFINES=-DMACHINES=\"$(MACHINES)\" -DJOBS=\"$(JOBS)\" -DBINDIR=\"$(BINDIR)\" \
-		-DUSE_DEBUG -DUSERDB=\"$(USERDB)\" -DLIBDIR=\"$(LIBDIR)\" -DLOGDIR=\"$(LOGDIR)\"
+		-DUSE_DEBUG -DUSERDB=\"$(USERDB)\" -DLIBDIR=\"$(LIBDIR)\" -DLOGDIR=\"$(LOGDIR)\" \
+		-DNTFDIR=\"$(NTFDIR)\" -DLOGDIR=\"$(LOGDIR)\"
 
 CFLAGS += $(WARN) $(XOPEN_SOURCE) -g -ggdb3 -Os $(INCLUDES) $(DEFINES)
 LDFLAGS += -L$(TOP)/lib/$(OS) -Wl,$(ALLSYMON) -ltrpc -ltbot -Wl,$(ALLSYMOFF) -lxmlrpc -lglib-2.0

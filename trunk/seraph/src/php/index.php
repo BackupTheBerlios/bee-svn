@@ -145,7 +145,6 @@ class Index {
             <span><?php $index->listSchedules(); ?> &nbsp;</span>
             </div>
             <input style="margin:10px 3px 3px 15px" type='submit' value='Run'/>
-            <input style="margin:10px 3px 3px 15px" type='submit' value='Setup'/>
         </form>
         <hr>
         <?php listJobs($index->job_running); ?>

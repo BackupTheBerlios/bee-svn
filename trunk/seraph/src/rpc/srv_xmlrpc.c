@@ -13,38 +13,6 @@ char* clientCallback( const char* filebuf );
 
 int daemon_running=0;
 
-static void
-closeFds()
-{
-    long fdlimit = -1, i;
-    int fderr, fdout,fdin;
-
-    fdlimit = sysconf (_SC_OPEN_MAX);
-    if (fdlimit == -1) {
-        fdlimit = 3;
-        debug("cant fdlimit\n");
-    }
-    fdlimit = 3;
-    for (i = 0; i < fdlimit; i++)
-        close (i);
-
-    fderr = open ( "/home/groleo/ERRORS", O_RDWR | O_CREAT, 0644);
-    fdout = open ( "/home/groleo/OUT", O_RDWR | O_CREAT, 0644);
-    fdin  = open ( "/dev/null", O_RDWR, 0);
-
-    if (fdin != -1 || fdout != -1 || fderr != -1)
-    {
-        dup2 (fdin, STDIN_FILENO);
-        dup2 (fdout, STDOUT_FILENO);
-        dup2 (fderr, STDERR_FILENO);
-        if (fdin > 2 )
-            close (fdin);
-        if (fdout > 2 )
-            close (fdout);
-        if (fderr > 2 )
-            close (fderr);
-    }
-}
 
 
     int
@@ -79,15 +47,11 @@ start_xmlrpc(const unsigned int port)
 
     if( ( chdir( "/tmp" ) ) < 0 )
         dbg_error( "Can't change to /tmp" );
+
+    core_closeFds();
+    /* end Daemon */
 #endif
-    /* Daemon */
-    struct sigaction action;
-    action.sa_handler = core_onSigInt;
-    sigemptyset(&action.sa_mask);
-    action.sa_flags = 0;
-    sigaction( SIGINT, &action, NULL);
-    sigaction( SIGPIPE, &action, NULL);
-    signal(SIGPIPE,SIG_IGN);
+    core_setSigHandlers();
     return callback_socket( port );
 }
 
@@ -236,6 +200,7 @@ char* clientCallback( const char* filebuf )
     XMLRPC_ServerRegisterMethod( server, "listJobs", x_listJobsCallback );
     XMLRPC_ServerRegisterMethod( server, "getErrorLog", x_getErrorLogCallback );
     XMLRPC_ServerRegisterMethod( server, "clearRunnedJobs", x_clearRunnedJobsCallback );
+    XMLRPC_ServerRegisterMethod( server, "startManager", x_startManagerCallback );
 
     request = XMLRPC_REQUEST_FromXML( filebuf, strlen(filebuf), NULL );
     if( !request )

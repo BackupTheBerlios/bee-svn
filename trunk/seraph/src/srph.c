@@ -53,7 +53,11 @@ int main( int argc, char *argv[] )
     DBG("srph.debug");
 
     if( argc == 1 )
-        srph_usage( EXIT_FAILURE );
+    {   srph_usage( EXIT_FAILURE );
+        UNDBG;
+    }
+
+    core_setSigHandlers();
 
     /*1. fill in the config with default values */
     srph_initCfg( &cfg, argc, argv );
@@ -100,6 +104,7 @@ int main( int argc, char *argv[] )
     dup2 (fderr, STDERR_FILENO); /*TODO: if verbose, then write to stderr, and ErrLog*/
     core_runTests( cfg.testDir );
     srph_free( &cfg );
+    notify_results();
     UNDBG;
     exit(EXIT_SUCCESS);
 }
@@ -111,7 +116,7 @@ void srph_usage( int status )
     printf( "  -P|--port <number>               Port on which RAWRPC listens.\n" );
     printf( "  -I|--ignore <name>               Ignore tests in directory 'name'\n" );
     printf( "  -d|--directory <name>            Run only the tests in directory 'name'\n" );
-    printf( "  -M|--mail <name(s)>              Whom to mail the results to\n" );
+    printf( "  -M|--mail <name(s)>              Whom to mail the results to(user@domain:smtp_server)\n" );
     printf( "  -S|--setup <machine>             Install seraph on <machine>\n\t\tEx:machine openbsd#user@192.168.x.y:/home/userX/seraph\n" );
     printf( "  -T|--timeout <number>            Timeout until child is killed\n" );
     printf( "  -v|--verbose                     Emit verbose output.\n" );
@@ -131,7 +136,7 @@ void srph_usage( int status )
 int srph_parseArgs( struct config_s *cfg, int argc, char *argv[] )
 {
     int     c;
-    while( ( c = getopt( argc, argv, "C:S:t:T:H:P:d:r:u:hvVk" ) ) != -1 ) {
+    while( ( c = getopt( argc, argv, "M:C:S:t:T:H:P:d:r:u:hvVk" ) ) != -1 ) {
         switch ( c ) {
             case 'h':
                 srph_usage( EXIT_SUCCESS );
@@ -170,6 +175,10 @@ int srph_parseArgs( struct config_s *cfg, int argc, char *argv[] )
                 break;
             case 'u':
                 cfg->username = optarg;
+                break;
+            case 'M':
+                cfg->ntfmail = optarg;
+                cfg->notifyType |= NOTIFY_MAIL;
                 break;
             case 'P':
                 cfg->rawport = atoi( optarg );     /* FIXME: invalid param */
@@ -275,12 +284,14 @@ int srph_initCfg( struct config_s *c, int argc, char *argv[] )
     c->verbose  = false;
     c->testType = TEST_UNSET;
     c->behaviour= TB_BE_TESTER;
-    c->scriptTout = 20;
+    c->scriptTout = 2*60;  /* 2 minutes */
     c->configFile = NULL;
     c->allwaysKill= false;
     c->startRawRPC= false ;
     c->startXmlRPC= false ;
     c->startJabber= false ;
+    c->ntfmail    = NULL;
+    c->notifyType = 0;
 #if 0
 /* Never used */
     getcwd( c->seraph_path, FILENAME_MAX );

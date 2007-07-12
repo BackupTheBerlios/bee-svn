@@ -11,10 +11,13 @@ char* core_expandVars( char const * t1 );
 int   core_setErrorlog( const char* const username, const char* const test_dir );
 int   core_runTests(const char* dir) ;
 void core_onSigChld( int sig );
-void core_onSigInt(  int sig);
+void core_onSigTerm(  int sig);
 void core_onSigPipe(  int sig);
+void core_onSigAlrm( int sig );
 void core_execcmd( char *string );
 int  core_execwait();
+void core_closeFds();
+int  core_setSigHandlers(void);
 
 #else
         #warning "*** Header allready included ***"

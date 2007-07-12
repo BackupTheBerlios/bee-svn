@@ -25,8 +25,9 @@
 #include "sock.h"
 #include "strop.h"
 #include "sut.h"
+#include "core.h"
 
-#define TOOL_NAME start
+#define TOOL_NAME refresh
 #define TOOL_DESCRIPTION "Start the product under test.\n"
 #define CMD_FUNC\
     ret = system( getenv(SUT_STOP) );\

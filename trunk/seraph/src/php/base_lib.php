@@ -138,6 +138,7 @@ function drawMenu() {
     }
     echo "<li><a href='.'>Home</a></li>
             <li><a href='machines.php'>Machines</a></li>
+            <li><a href='notifications.php'>Notifications</a></li>
             <!--<li><a href='jobs.php'>Jobs</a></li>-->
             <li><a href='docs.php'>Documentation</a></li>
             <!--<li><a href='settings.php'>Settings</a></li>-->";

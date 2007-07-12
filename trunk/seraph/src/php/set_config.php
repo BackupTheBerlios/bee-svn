@@ -6,10 +6,8 @@ function setMachineConfig($cli)
 {
 
     /* Serialize Machine name */
-    print "\nSet config of machine:\n";
     $versions = array() ;
     $m = $_GET['SUT_MACHINE'];
-    print "   $m--\n";
 
     $xuname   = new XML_RPC_Value( $_SESSION['username'],'string');
     $xmachine = new XML_RPC_Value( $m,'string');
@@ -18,7 +16,6 @@ function setMachineConfig($cli)
     /* Serialize the content of config +++++++++++*/
     foreach ($_POST as $k => $v) {
         if( preg_match( "/SUT_/", $k) ) {
-            echo "GOT: $k = $v\n";
             $cfgLines[] = new XML_RPC_Value("$k = '".stripslashes($v)."'\n", 'string');
         }
     }
@@ -41,21 +38,7 @@ function setMachineConfig($cli)
 }
 
 
-?>
-
-<html>
-<head>
-<link href='mystyle.css' rel='stylesheet' type='text/css'>
-</head>
-<body class='bheader'>
-<?php
-drawMenu() ;
 $cli = new XML_RPC_Client('/RPCSERVER', $_SESSION["host"], $_SESSION["port"]);
-$cli->setDebug(1);
 setMachineConfig($cli);
-#include "machines.php";
-showInfo();
+header('location:machines.php');
 ?>
-<br>
-</body>
-</html>

@@ -103,7 +103,7 @@ copy_remote( char *host, int port, char *src_file, char *dest_dir )
         return false ;
     }
     if(ret)
-    {   dbg_error( "cp: Error while copying [%s]!\n", strerror(ret) );
+    {   dbg_error( "cp: Error while copying [%s] -> [%s]: [%s]!\n", bname, dest_dir, strerror(ret) );
         shutdown( sockfd, 2);
         close( sockfd );
         return false ;

@@ -21,6 +21,7 @@
 #include "sock.h"
 #include "strop.h"
 #include "sut.h"
+#include "core.h"
 
 #define TOOL_NAME start
 #define HAVE_CMD_ARG 1

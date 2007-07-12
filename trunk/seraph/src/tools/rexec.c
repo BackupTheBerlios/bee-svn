@@ -25,6 +25,7 @@
 #include "sock.h"
 #include "strop.h"
 #include "sut.h"
+#include "core.h"
 
 static bool
 rexec_remote( char *host, int port, char *c );
@@ -33,7 +34,7 @@ rexec_remote( char *host, int port, char *c );
 #define HAVE_CMD_ARG 1
 #define TOOL_DESCRIPTION "Start the product under test.\n"
 #define CMD_FUNC\
-        ret  = rexec_remote( cfg.hostname, cfg.rawport, cmd )
+        ret = rexec_remote( cfg.hostname, cfg.rawport, cmd )
 
 #include "template.c"
 
@@ -43,13 +44,12 @@ rexec_remote( char *host, int port, char *c )
     int     ret, sockfd;
     char    *cmd=NULL;
 
-    dbg_verbose("rexec\n");
     cmd = (char*)malloc( strlen(c) + 10);
     sockfd = sock_connectTo( host, port );
     if(sockfd==-1)
         return false;
     sprintf( cmd, "EXECUTE %s", c );
-    dbg_verbose( "[%s]\n", cmd );
+    dbg_verbose( "%s\n", cmd );
     sock_sendLine( sockfd, cmd );
     ret = sock_getStatus( sockfd );
     if( ret < 0 )
