@@ -66,7 +66,7 @@ struct config_s {
     bool    startJabber;
     bool    startRawRPC;
     bool    startXmlRPC;
-    char    curTest[FILENAME_MAX];
+    char*   curTest;
     bool    verbose ;
     char*   sutCfgFile;
     char*   sutCoreDir ;               /* Path to core dir*/

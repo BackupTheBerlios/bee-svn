@@ -47,7 +47,7 @@ int start_rawrpc( const unsigned int port )
     {   dbg_error( "rawrpc: Cant bind port [%u]: [Illegal value].\n", port );
         return -1;
     }
-
+#if 0
     /* Daemon */
     pid = fork( );
 
@@ -71,7 +71,7 @@ int start_rawrpc( const unsigned int port )
 
     core_closeFds();
     /* end Daemon */
-
+#endif
     core_setSigHandlers();
 
 
@@ -118,7 +118,7 @@ static int callback_socket( const unsigned short int portno )
     {   int newsockfd;
         newsockfd = accept( sockfd, (struct sockaddr*)&cli_addr, &clilen );
 
-        if( newsockfd < 0 )
+        if( newsockfd < 0 && errno != EINTR)
         {   dbg_error( "rawrpc: accept[%s]\n", strerror(errno) );
             daemon_running = 0;
             break;

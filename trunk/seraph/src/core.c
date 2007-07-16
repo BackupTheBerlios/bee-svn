@@ -35,18 +35,18 @@ bool
 core_checkCore( const int testType,
         const char *dumpSrcDir, const char *dbgSrcDir,
         const char *sutWorkDir, const char *sutCfgFile,
-        const char *dumpDestDir )
+        const char *dumpDestDir, const char* curTest )
 {
     dbg_verbose("Checkcore\n");
     if( testType == TEST_LOCAL )
         return core_checkCoreLocal( dumpSrcDir, dbgSrcDir,
                 sutWorkDir, sutCfgFile,
-                dumpDestDir );
+                dumpDestDir,curTest );
 
     if( testType == TEST_REMOTE )
         return core_checkCoreRemote( dumpSrcDir, dbgSrcDir,
                 sutWorkDir, sutCfgFile,
-                dumpDestDir );
+                dumpDestDir, curTest );
     return false;
 }
 
@@ -60,7 +60,7 @@ core_checkCore( const int testType,
 bool
 core_checkCoreLocal( const char *dumpSrcDir, const char *dbgSrcDir,
         const char *workDir, const char *cfgFile,
-        const char *core_dstDir )
+        const char *core_dstDir, const char* curTest )
 {
     DIR     *dir;
     struct  dirent *core;
@@ -73,13 +73,13 @@ core_checkCoreLocal( const char *dumpSrcDir, const char *dbgSrcDir,
         exit( EXIT_FAILURE );
     }
 
-    while( ( core = readdir( dir ) ) ) {
-        if( strstr( core->d_name, "core" ) ) {
-            bool rc = false;
+    while( ( core = readdir( dir ) ) )
+    {    if( strstr( core->d_name, "core" ) )
+         {  bool rc = false;
             sprintf( src, "%s/%s", dumpSrcDir, core->d_name );
 
             rc = core_setupDstDir( dst, core->d_name,
-                    dumpSrcDir, core_dstDir );
+                    dumpSrcDir, core_dstDir, curTest );
             if( !rc )
                 return false;
 
@@ -106,7 +106,7 @@ core_checkCoreLocal( const char *dumpSrcDir, const char *dbgSrcDir,
 static bool
 core_checkCoreRemote( const char *dumpSrcDir, const char *dbgSrcDir,
         const char *sutWorkDir, const char *sutCfgFile,
-        const char *dumpDestDir )
+        const char *dumpDestDir, const char* curTest )
 {
     char    cmd[PATH_MAX] = { 0 };     /* Max line should therefore be 3 times the length of FILENAME_MAX */
     int     ret = 0;
@@ -115,9 +115,9 @@ core_checkCoreRemote( const char *dumpSrcDir, const char *dbgSrcDir,
     sock = sock_connectTo( cfg.hostname, cfg.rawport );
     if(sock==-1)
         return false;
-    sprintf( cmd, "CHECKCORE %s %s %s %s %s",
+    sprintf( cmd, "CHECKCORE %s %s %s %s %s %s",
             dumpSrcDir, dbgSrcDir, sutWorkDir,
-            sutCfgFile, dumpDestDir );
+            sutCfgFile, dumpDestDir, curTest );
     ret = sock_sendLine( sock, cmd ); if( !ret ) return false ;
     ret = sock_getStatus( sock );
     close( sock );
@@ -131,9 +131,17 @@ core_checkCoreRemote( const char *dumpSrcDir, const char *dbgSrcDir,
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 static bool
 core_setupDstDir( char *dst, char *coreName,
-        const char *dumpSrcDir, const char *core_dstDir )
+        const char *dumpSrcDir, const char *core_dstDir, const char* curTest )
 {
-    sprintf( dst, "%s/dumps/%s-%s", core_dstDir, cfg.curTest, coreName );
+    struct stat st;
+    sprintf( dst, "%s/%s-%s", core_dstDir, curTest, coreName );
+    lstat( dst, &st);
+
+    /*directory allready created */
+    if( S_ISDIR(st.st_mode) && !access( dst, W_OK) )
+        return true;
+
+    /* try to create */
     if( mkdir( dst, 0777 ) == -1 ) {
         dbg_error("srph: Can't create coreDstDir %s : %s\n",
                 dst, strerror( errno ) );
@@ -274,7 +282,7 @@ core_runBat( const char *batName, int timeout )
     t2=strrchr(t,'/');
     *t2='\0';
     t1=strrchr(t,'/');
-    *t2='/';
+    *t2=':';
 
     fprintf(f,"%s: ", ++t1);
     fclose(f);
@@ -348,7 +356,7 @@ core_fileAction( const char *fileName, struct stat *statbuf, void *junk )
     }
     core_runBat( fileName, cfg.scriptTout );
     core_checkCore( cfg.testType, cfg.sutCoreDir, cfg.sutDbgDir,
-            cfg.sutWorkDir, cfg.sutCfgFile, cfg.destCoreDir );
+            cfg.sutWorkDir, cfg.sutCfgFile, cfg.destCoreDir, basename(dirname(fileName)) );
     core_cleanupTmp( tmpDir );
     sleep( 1 );
     if( -1 == chdir( curDir ) ) {
@@ -846,7 +854,9 @@ core_setSigHandlers(void)
     action.sa_handler = core_onSigTerm;
     sigemptyset(&action.sa_mask);
     action.sa_flags = 0;
+    sigaction( SIGINT, &action, NULL);
     sigaction( SIGTERM, &action, NULL);
+    signal(SIGTTOU, SIG_IGN);
     return 0;
 }
 /*------------------------------------------------------------------*/
@@ -858,9 +868,9 @@ static void
 killChild(gpointer data, gpointer user_data)
 {
     if(kill(*(int*)data, SIGTERM) )
-    {   dbg_error("Killed bogus process [%s]\n", *(int*)data);}
+    {   dbg_error("Killed bogus process [%d]\n", *(int*)data);}
     else
-    {   debug("Killed child[%d]\n", *(int*)data);}
+    {   dbg_verbose("Killed child[%d]\n", *(int*)data);}
 }
 /*------------------------------------------------------------------*/
 

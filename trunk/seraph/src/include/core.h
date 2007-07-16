@@ -4,7 +4,7 @@
 bool core_checkCore(  const int test_type,
                 const char *coreSrcDir, const char *dbgSrcDir,
                 const char *sutWorkDir, const char *sutCfgFile,
-                const char *dumpDestDir );
+                const char *dumpDestDir,const char* curTest );
 
 int   core_checkTools(const char* tools_path) ;
 char* core_expandVars( char const * t1 );

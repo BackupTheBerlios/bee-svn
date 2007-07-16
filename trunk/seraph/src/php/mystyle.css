@@ -105,7 +105,7 @@ div.job_running span {
     text-align: left;
     font-weight: normal;
     color: #333;
-    width:6em;
+    width:7em;
     float:left;
     height: 2em;
 }
@@ -115,7 +115,7 @@ div.job_running span.bar {
     background-image: url('bar_bg.png');
 }
 div.job_running span.id {
-    width: 2em;
+    width: 3.5em;
 }
 div.job_running span.name {
     width: 10em;
@@ -213,7 +213,7 @@ ul.menu p span {
     top: 19em;
     text-align:left;
     padding:0.5em;
-    width:30em;
+    width:50em;
     color:#000;
     background-color: #e5ecf9;
     border:1px dashed #00e1ff;
@@ -250,7 +250,7 @@ ul.menu b{
     text-align:right; 
     float: left;
     height:1.1em;
-    width: 12em;
+    width: 25%;
     padding-top:2px;
     padding-bottom:2px;
     clear:both;
@@ -261,7 +261,7 @@ ul.menu input {
     border-color:black;
     float: right;
     height:1.4em;
-    width:16.81em;
+    width:70%;
 }
 /*++++++++++++++++++++++++++++++++++++++++++++++++++*/
 .progress400{

@@ -15,7 +15,7 @@ function session_defaults() {
 function listJobs($job_type)
 {
     $xmlrpc = new XML_RPC_Client('/RPCSERVER', $_SESSION["host"], $_SESSION["port"] );
-    echo "<a href='clear_logs.php'><input style='margin-left:15px' type='button' value='Clear Logs'/></a><br/>";
+    echo "<button onClick=\"window.location='clear_logs.php'\" style='margin-left:15px'>Clear Logs</button><br/>";
     echo "List of Jobs:(click to open errorlog)<br>";
     echo "<div class='job_running'>";
     echo "<span class='id'>Id</span>";

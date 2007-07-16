@@ -6,11 +6,11 @@
 static bool
 core_checkCoreRemote( const char *dumpSrcDir, const char *dbgSrcDir,
                       const char *sutWorkDir, const char *sutCfgFile,
-                      const char *dumpDestDir );
+                      const char *dumpDestDir, const char* curTest );
 static bool
 core_checkCoreLocal( const char *dumpSrcDir, const char *dbgSrcDir,
                      const char *workDir, const char *cfgFile,
-                     const char *dumpDestDir );
+                     const char *dumpDestDir,const char* curTest );
 
 static int
 core_runBat( const char *batName, int timeout );
@@ -37,7 +37,7 @@ core_runRecursive( const char *srcName );
 
 static bool
 core_setupDstDir( char *dst, char *coreName,
-                  const char *dumpSrcDir, const char *core_dstDir );
+                  const char *dumpSrcDir, const char *core_dstDir, const char* curTest );
 
 static bool
 core_moveCore( char *src, char *dst );

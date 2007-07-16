@@ -28,7 +28,7 @@ function drawMachines()
         <a href='setup_machine.php?machine=$m'><em class='butt'>Setup</em></a>
         <a href='start_manager.php?machine=$m'><input type='button' value='StartManager'></a><br>
 
-        <input id='sName$m'  type='text' value='SUT_NAME' style='text-align:right; clear:both; float:left; width:12.1em;'/>
+        <input id='sName$m'  type='text' value='SUT_NAME' style='clear:both; float:left; width:25%;'/>
         <input id='sValue$m' type='text' value='Value'/><br>";
         $params = new XML_RPC_Value( array(
                                 "sut_username" => new XML_RPC_Value( $_SESSION['username'],'string'),

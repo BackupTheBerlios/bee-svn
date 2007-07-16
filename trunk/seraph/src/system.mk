@@ -42,6 +42,7 @@ endif
 
 ifeq ($(OS),NetBSD)
 LDFLAGS =-L/usr/pkg/lib -Wl,-rpath /usr/pkg/lib
+MAKE := gmake
 endif
 
 ifeq ($(OS),OpenBSD)

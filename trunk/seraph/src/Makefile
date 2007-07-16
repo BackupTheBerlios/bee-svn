@@ -77,7 +77,10 @@ indent:
 	indent -br -brs -cdw -ce -l80 -nut -ncs -prs -nsai -npcs -nsaf -nsaw -kr -i8 *.c
 
 help:
-	echo "Targets are: srph lib clean tar indent install"
+	@echo "Targets are:"
+	@echo "srph lib clean tar indent install"
+	@echo "remote remote-copy remote-clean remote-startraw"
+	@echo "remote-stopraw setup"
 
 
 #----------------------------

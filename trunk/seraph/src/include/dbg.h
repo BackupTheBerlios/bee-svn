@@ -15,11 +15,11 @@ extern FILE* logHandle ;
 
 
 #define dbg_error(...)\
-fprintf( stderr, "E: "), fprintf(stderr, __VA_ARGS__);
+fprintf( stderr, "E: "), fprintf(stderr, __VA_ARGS__), debug(__VA_ARGS__);
 
 
 #define dbg_verbose(...)\
-if(cfg.verbose == true) printf("I: "), printf(__VA_ARGS__);
+if(cfg.verbose == true) printf("I: "), printf(__VA_ARGS__), debug(__VA_ARGS__);
 
 #ifndef debug
     #define debug(...) _debug( __FUNCTION__, __LINE__, __FILE__,__VA_ARGS__)
@@ -29,7 +29,6 @@ if(cfg.verbose == true) printf("I: "), printf(__VA_ARGS__);
 #if defined USE_DEBUG
 #if !defined DBG
     #define DBG(afile) useDebug_g=getenv("DBG")?atoi(getenv("DBG")):0 ;\
-    printf("Using debug\n");\
     logHandle = fopen( afile, "a" ) ;\
     if( !logHandle ){ printf( "Can't open '%s' [%s]\n", afile, strerror(errno)) ;exit(0) ;} \
     setvbuf( logHandle, (char *)NULL, _IOLBF, 0);

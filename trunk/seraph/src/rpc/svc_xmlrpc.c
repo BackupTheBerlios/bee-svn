@@ -453,24 +453,23 @@ x_runTestsCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void* userData
         return XMLRPC_CreateValueString( NULL, "Unable to start the tests", 0 );
     }
     if(pid>0) {
-        printf("father returned\n");
+        printf("Father returned\n");
         int*p=malloc(sizeof(int));
-        *p=pid;
+        *p=-pid;
         *cfg.children = g_slist_append(*(cfg.children), p);
 
         return XMLRPC_CreateValueString( NULL, "Started Test Execution", 0 );
     }
     if(!pid)
     {   /* Move child in it's own group */
-        printf("setting sid\n");
+        printf("Setting sid\n");
 
         if( setpgid( 0, 0) )
         {
-            printf( "Errorr Muttley get out....\n");
+            printf( "Muttley you snickering hound....\n");
             exit(EXIT_FAILURE);
         }
-        printf("done\n");
-        core_setSigHandlers();
+        /*core_setSigHandlers();*/
         while(xIter)
         {   //TODO: use malloc
             char tDir[PATH_MAX] = {0};
@@ -529,10 +528,10 @@ x_checkCoreCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request,
     printf( "CORE %s %s %s %s %s\n",
             coreSrcDir, dbgSrcDir, sutWorkDir,
             sutCfgFile, crash_destDir );
-    rc = core_checkCore( TEST_LOCAL,
+    /*rc = core_checkCore( TEST_LOCAL,
             coreSrcDir, dbgSrcDir, sutWorkDir,
             sutCfgFile, crash_destDir );
-
+    */
     return XMLRPC_CreateValueBoolean( NULL, rc );
 }
 

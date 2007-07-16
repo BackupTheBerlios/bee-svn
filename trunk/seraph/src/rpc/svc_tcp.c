@@ -233,6 +233,7 @@ int t_checkCoreCallback( int sock, char *buf )
         char sutWorkDir[FILENAME_MAX] = { 0 };
         char sutCfgFile[FILENAME_MAX] = { 0 };
         char dumpDestDir[FILENAME_MAX] = { 0 };
+        char curTest[FILENAME_MAX] = { 0 };
         int rc = false;
 
         if( NULL == buf ) {
@@ -240,15 +241,15 @@ int t_checkCoreCallback( int sock, char *buf )
                          "! CHECKCORE (null) internal `buf` parameter\n" );
                 return 0;
         }
-        sscanf( buf, "%s %s %s %s %s",
+        sscanf( buf, "%s %s %s %s %s %s",
                 coreSrcDir, dbgSrcDir, sutWorkDir,
-                sutCfgFile, dumpDestDir );
-        dbg_verbose( "CORE core_srcDir[%s] dbg_srcDir[%s] sutWorkDir[%s] sutCfgFile[%s] crash_destDir[%s]\n",
+                sutCfgFile, dumpDestDir, curTest );
+        dbg_verbose( "CORE core_srcDir[%s] dbg_srcDir[%s] sutWorkDir[%s] sutCfgFile[%s] crash_destDir[%s] curTest[%s]\n",
                 coreSrcDir, dbgSrcDir, sutWorkDir,
-                sutCfgFile, dumpDestDir );
+                sutCfgFile, dumpDestDir, curTest );
         rc = core_checkCore( TEST_LOCAL,
                             coreSrcDir, dbgSrcDir, sutWorkDir,
-                            sutCfgFile, dumpDestDir );
-        sock_sendStatus( sock, rc );    /*! @todo figure out what status i should send */
+                            sutCfgFile, dumpDestDir, curTest );
+        sock_sendStatus( sock, rc );
         return false;           /* means no core was found */
 }

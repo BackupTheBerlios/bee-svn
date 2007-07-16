@@ -59,7 +59,7 @@ class Index {
             ."</option>";
         }
         echo "</select>" ;
-        echo "<a href='form_addtest.php'><input type='button' value='Add'/></a>";
+        echo "<button onClick=\"window.location='form_addtest.php'\">Add</button>";
     }
 
 
@@ -146,7 +146,7 @@ class Index {
             </div>
             <input style="margin:10px 3px 3px 15px" type='submit' value='Run'/>
         </form>
-        <hr>
+        <hr style="clear:both">
         <?php listJobs($index->job_running); ?>
 </body>
 </html>
