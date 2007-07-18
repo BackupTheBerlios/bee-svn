@@ -18,46 +18,82 @@
  */
 
 /*
- * Installs seraph on remote machines
+ * Setup SUT on remote machines
  */
 
-static bool parse( const char *machine, int *os, char **scpArg )
+/*
+ * [in] os
+ * [in] version
+ */
+setup_SUT()
 {
-        char *p = 0;
-        p = strchr( machine, '#' );
-        if( !p )
-                return false;
-        *p = '\0';
-        p++;
-        *scpArg = p;
-        if( stricmp( machine, "openbsd" ) )
-                *os = ST_OPENBSD;
-        else if( stricmp( machine, "freebsd" ) )
-                *os = ST_FREEBSD;
-        else if( stricmp( machine, "netbsd" ) )
-                *os = ST_NETBSD;
-        else if( stricmp( machine, "linux" ) )
-                *os = ST_LINUX;
-        return true;
+    char src[PATH_MAX]={0}, dst[PATH_MAX]={0};
+
+    setup_copySUTBinary("/mnt/hawaii/versions/SERVER/5.0.0.12/linux/gcc3/axigen.debug", "user@purec:/dir");
+    setup_craftSUTConfig();
+    setup_createSUTStorage();
+    setup_backupSUTStorage();
 }
 
-int setup( char *machine )
+
+/* source
+ * destination
+ * actor(user[username,password])
+ */
+setup_copySUTBinary(const char *src, const char *scpDst)
 {
-        int os = 0;
-        char *scpDst = 0, scpSrc = 0;
-        if( !parse( machines, &os, &scpDst ) ) {
-                printf( "Invalid -S parameters\n" );
-                return false;
-        }
-        switch ( os ) {
-        case ST_OPENBSD:
-                scpSrc = "./lib/OpenBSD/";
-                break;
-        }
+    struct stat st;
+    int rval=0;
 
-        // scp -r ./lib/OpenBSD/ localhost:/home/groleo/seraph/
-        // ln -sf /home/groleo/seraph/lib/OpenBSD/seraph /home/groleo/seraph/seraph
-        execlp( "scp", "scp", "-r", scpSrc, scpDst );
-        return true;
-
+    rval = lstat( src, &st);
+    if( rval )
+    {
+        dbg_error("Unable to stat [%s] : [%s]\n", src, strerror(errno));
+        return false;
+    }
+    if( access( src,R_OK ) || !ST_ISDIR(st.st_mode))
+    {
+        dbg_error("Unable to read from [%s] : [%s]\n", src, strerror(errno));
+        return false;
+    }
+    /* this can and will be replaced by libssh2 */
+    rval = system("scp src dest");
+    if( rval ) return false;
+    return true;
 }
+
+/*
+ * [in] configFileName
+ * [in] (configParam, configParamValue)
+ */
+setup_craftSUTConfig()
+{
+    open(configFileName);
+    for( i=0; i< plist->length(); ++i)
+    {
+        replace(plist->at(i))
+    }
+}
+
+/* create domain
+ * create user
+ * delete mails from user's mbox
+ */
+setup_createSUTStorage()
+{
+    startSUT();
+    createDomain(SUT_DEFDOM);
+    addUser(SUT_USER);
+    delUserMails(SUT_USER);
+    stopSUT();
+}
+
+/** Backup SUT storage.
+ * [in] backupDestDirectory
+ * [in] storageSourceDirectory
+ */
+setup_backupSUTStorage()
+{
+    copy();
+}
+

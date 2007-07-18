@@ -23,8 +23,10 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include "dbg.h"
+#include "new.h"
+#include "class.h"
 #include "basedb.h"
-#include "baseclass.h"
+#include "plaindb.h"
 
 /* */
 static void * BaseDB_ctor (void * _this, va_list * app)
@@ -57,104 +59,47 @@ static int BaseDB_differ (const void * _this, const void * _b)
 }
 
 
-static int BaseDB_open(const void *_this, const char* const fmt, va_list*app)
-{   const struct BaseDB * this = _this;
-    FILE* ret=NULL;
-    char path[PATH_MAX]={0};
+/* database selectors */
+int db_open(const void* this, const char* const fmt, ...)
+{   const struct BaseDB * const * cp = this;
+    va_list ap;
+    int ret=0;
 
-    vsprintf(path, fmt, *app);
-    debug("fmt[%s] path[%s]\n", fmt, path);
-    //strcat(path,"/userdata");
-    ret = fopen( path, "r+");
-    if(!ret)
-    {   dbg_error("error opening database [%s]\n", path);
-        return 1;
-    }
-    strcpy(this -> dbName, path);
-    assert(this -> dbName);
-    fclose(ret);
-    return 0;
+    assert(this && * cp && (* cp)->db_open);
+    va_start(ap, fmt);
+    ret = (* cp)->db_open(this, fmt, &ap);
+    va_end(ap);
+    return ret;
 }
-static int BaseDB_put(const void *_this, const char* const key, const char* data)
-{   const struct BaseDB * this = _this;
-    int     br=0 ;
-    FILE*   fh;
-    char    buf[1024]={0},*pc ;
-    char    line[1024]={0};
-    
-    debug("fopen [%s]\n", this->dbName);
-    fh = fopen( this->dbName ,"r+") ;
-    if(!fh) {
-        debug("error\n");
-        return false;
-    }
-    br = fread( (void*)buf, 1023, 1, fh) ;
-    /*if(!br) {
-        debug("error reading file[%s]\n", strerror(ferror(fh)) );
-        return 0;
-    }*/
-
-    debug("br[%d] searching in buf[%s]\n", br, buf);
-    snprintf(line, KEY_LEN+2, "%*s:", KEY_LEN, key);
-    pc = strstr( buf, line) ;
-    if( !pc )
-    {
-        debug("Cant find key [%s]\n", line);
-        fseek(fh, 0, SEEK_END);
-        fprintf( fh, "%*s:%*s\n", KEY_LEN, key, KEY_LEN, data);
-        fclose(fh);
-        return true ;
-    }
-    debug("key[%s] found\n", key);
-    pc = strchr(pc, ':')+1;
-    snprintf( pc, KEY_LEN+2, "%*s\n", KEY_LEN, data);
-    fseek(fh, 0, SEEK_SET);
-    fprintf( fh, "%s", buf);
-    debug("write[%s]\n", buf);
-    fclose(fh);
-    return true ;
+int db_put(const void* this, const char* key, const char* data)
+{   const struct BaseDB * const * cp = this;
+    assert(this && * cp && (* cp)->db_put);
+    return (* cp)->db_put(this, key, data);
 }
-static int BaseDB_get(const void *_this, const char* key, char *data)
-{   const struct BaseDB * this = _this;
-    int     br=0 ;
-    FILE*   fh=NULL;
-    char    buf[1024]={0},*pc ;
-    char    line[1024]={0};
-
-    fh = fopen( this->dbName , "r") ;
-    if(!fh) {
-        printf("Unable to open database [%s], in get\n", this->dbName);
-        return false;
-    }
-    br = fread( buf, 1, 1023, fh) ;
-    fclose( fh ) ;
-    snprintf(line, KEY_LEN+1, "%*s:", KEY_LEN, key);
-    pc = strstr( buf, line) ;
-    if( !pc )
-    {
-        *data = '\0';
-        return false ;
-    }
-    sscanf( strchr(pc,':')+1, "%s\n", data ) ;
-    return true ;
+int db_get(const void* this, const char* key, char* *data)
+{   const struct BaseDB * const * cp = this;
+    assert(this && * cp && (* cp)->db_get);
+    return (* cp)->db_get(this, key, data);
 }
-static int BaseDB_close(const void *_this)
-{   const struct BaseDB * this = _this;
-    return true;
+int db_close(const void* this)
+{   const struct BaseDB * const * cp = this;
+    assert(this && * cp && (* cp)->db_close);
+    return (* cp)->db_close(this);
 }
-/* */
 
 
 
 /* */
-static const struct Class _BaseDB = {
-    sizeof(struct BaseDB),
-    BaseDB_ctor, BaseDB_dtor,
-    BaseDB_clone, BaseDB_differ, BaseDB_open, BaseDB_put, BaseDB_get, BaseDB_close
+static const struct BaseDB _BaseDB = {
+    sizeof(struct BaseDB), BaseDB_ctor,
+    BaseDB_dtor, BaseDB_clone,
+    BaseDB_differ,
+    db_open, db_put,
+    db_get, db_close
 };
-const void * BaseDB = & _BaseDB;
 
-/*
+//const void * BaseDB = & _PlainDB ;
+#if 0
 int main()
 {
     struct Class * db = new(BaseDB, "text1");
@@ -172,5 +117,4 @@ int main()
     printf("Pass:%s\n", p);
     db_close(db);
 
-}
-*/
+#endif

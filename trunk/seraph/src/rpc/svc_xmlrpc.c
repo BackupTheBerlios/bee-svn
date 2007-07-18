@@ -5,6 +5,7 @@
 #include "sock.h"
 #include "sut.h"
 #include "core.h"
+#include "new.h"
 #include "testdb.h"
 #include "userdb.h"
 #include "basedb.h"
@@ -419,7 +420,7 @@ x_runTestsCallback( XMLRPC_SERVER server, XMLRPC_REQUEST request, void* userData
     uName = XMLRPC_VectorGetStringWithID(str, "sut_username");
 
     /* Get the email of the user */
-    struct Class* db = (struct Class*) new(BaseDB);
+    struct BaseDB* db = new(BaseDB);
     db_open( db, "%s/%s/%s", USERDB, uName, "userdata");
     if( !db_get( db, "email", &email)
     ||  !db_close(db)

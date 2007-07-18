@@ -79,7 +79,7 @@ userdb_register( const char* const name, const char* const email,
     {   debug("unable to create 'userdata' file: [%s]\n", strerror(errno));
         return false;
     }
-    struct Class* db = (struct Class*)new(BaseDB);
+    struct BaseDB* db = new(BaseDB);
     db_open( db, "%s/%s/%s", USERDB, it,"userdata");/*TODO: check retval*/
     if( !db_put(db, "name", name)
     ||  !db_put(db, "email", email)
@@ -107,7 +107,7 @@ userdb_login( const char* uName, const char* pass)
     char p[33]={0}; //md5sum
     const char* it = userdb_stripTraversal(uName);
 
-    struct Class* db = new(BaseDB);
+    struct BaseDB* db = new(BaseDB);
     if( db_open(db, "%s/%s/%s", USERDB, it, "userdata") )
         return false;
 
@@ -200,7 +200,7 @@ userdb_listJobs( const char * const uName, enum JobType job_type, GSList** jobs)
     }
     if( job_type & JOB_RUNNING )
     {
-        struct Class* db = new(BaseDB);
+        struct BaseDB* db = new(BaseDB);
         char *data=malloc(34);
 
         sprintf( path, "%s/%s/jobs/running", USERDB, it);
@@ -276,7 +276,7 @@ userdb_checkSession(const char* const uName,
                     const char* const ip )
 {
     int ret =0;
-    struct Class* db = new(BaseDB);
+    struct BaseDB* db = new(BaseDB);
     char c[33]={0}, i[33]={0}, s[33]={0};
 
     ret = db_open( db, "%s/%s/%s",USERDB, uName, "userdata");
@@ -309,7 +309,7 @@ userdb_setSession(  const char* const uName,
                     const char* const ip)
 {
     char *it=NULL;
-    struct Class* db = new(BaseDB);
+    struct BaseDB* db = new(BaseDB);
 
     debug("uName[%s] session[%s] ip[%s]\n", uName, session, ip);
     it = userdb_stripTraversal(uName);
@@ -326,7 +326,7 @@ userdb_checkLogin(  const char* const uName,
                     const char* const password)
 {
     char u[33]={0}, p[33]={0};
-    struct Class* db = new(BaseDB);
+    struct BaseDB* db = new(BaseDB);
     int ret=1;
 
     debug("uName[%s] password[%s]\n", uName, password);
@@ -351,7 +351,7 @@ userdb_checkRemembered( const char* const uName,
                         const char* const cookie )
 {
     char c[33]={0};
-    struct Class* db = new(BaseDB);
+    struct BaseDB* db = new(BaseDB);
 
     debug("uName[%s] cookie[%s]\n", uName, cookie);
     db_open( db, "%s/%s/%s", USERDB, uName,"userdata" );

@@ -1,6 +1,6 @@
 TOP=.
 
-files = notify_smtp.o notify.o str.o fileop.o baseclass.o basedb.o userdb.o testdb.o core.o sut.o sock.o scan.o dbg.o #wall.o 
+files = notify_smtp.o notify.o str.o fileop.o new.o plaindb.o basedb.o userdb.o testdb.o core.o sut.o sock.o scan.o dbg.o #wall.o 
 TARGETS=$(TOP)/lib/$(OS)/libtrpc.a $(TOP)/lib/$(OS)/libtbot.a bin/srph  bin/mngrd .tool
 
 include system.mk
