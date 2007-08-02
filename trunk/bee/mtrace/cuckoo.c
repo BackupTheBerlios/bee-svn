@@ -34,9 +34,10 @@
 #include <string.h>
 #include "cuckoo.h"
 
-#define SIZE_THRESHOLD  10
+#define SIZE_THRESHOLD  100
 #define T1_SIZE         (SIZE_THRESHOLD*8)
 #define HEADER_SIZE     (T1_SIZE*2+sizeof(int)*6)
+#define dprintf printf
 
 static unsigned int dumpedTables=0;
 int lookupOnDisk(int key );
@@ -171,6 +172,7 @@ boolean insert( dict_ptr D, int key, nod_t node )
 
         unsigned long h1, h2;
         int j;
+        static int elements=0;
         celltype x, temp;
 
         dprintf("FUNCT: %s\n", __FUNCTION__);
@@ -209,6 +211,8 @@ boolean insert( dict_ptr D, int key, nod_t node )
         {
                 temp = D->T1[h1];
                 D->T1[h1] = x;
+                        elements++;
+                        printf("elements:%d\n", elements);
                 if( !temp.key )
                 {
                         D->size++;
@@ -225,6 +229,8 @@ boolean insert( dict_ptr D, int key, nod_t node )
 
                 temp = D->T2[h2];
                 D->T2[h2] = x;
+                        elements++;
+                        printf("elements:%d\n", elements);
                 if( !temp.key )
                 {
                         D->size++;

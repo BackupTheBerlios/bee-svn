@@ -18,8 +18,6 @@
 //#include <CUnit/CUnit.h>
 //#include <CUnit/Basic.h>
 #include "memtrace.h"
-
-int bogusPrint(const char*a, ...) { return 0;}
 #define dprintf printf
 
 char buf[512]={0};
@@ -140,7 +138,7 @@ findLeaks(dict_ptr dict)
 {
     int i=0,key1=0, key2=0;
 
-    printf("\n------LEAKS------:\n");
+    printf("Found the following leaks:\n");
 
     for(i=0; i<dict->tablesize;++i)
     {
@@ -160,18 +158,16 @@ static void
 memtrace( const char *const fname )
 {
         char *p = NULL, *end = 0;
-        int fd = -1,size=0,left_to_read=0, linesRead=0,tmp=0;
+        unsigned int fd = 0,size=0,left_to_read=0, linesRead=0,tmp=0;
         struct stat statbuf;
         unsigned int ptr=0, type=0;
-        nod_t nod={.line=0,.is_new=0,.fid=0, .is_newa=0};
+        nod_t nod;
         dict_ptr dict;
         buffer_t bp ;
 
-        fd = open( fname, O_RDWR ) ;
-        if( fd < 0 ) {
-                fprintf( stderr, "Unable to open debug file '%s'\n", fname );
-                exit(EXIT_FAILURE);
-        }
+        if( ( fd = open( fname, O_RDWR ) ) < 0 )
+                err( "Unable to open debug file\n" );
+
         dict = construct_dict( MIN_DICT_SIZE );
         fstat( fd, &statbuf );
 
@@ -260,8 +256,7 @@ readSzFile( const char *text, int *sz, char *file, int fileLen )
             ;
 
         /* 0.1 % cache misses */
-        //if(*file)
-            memcpy( file, text + 1, i );
+        memcpy( file, text + 1, i );
 }
 /*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 
@@ -298,15 +293,15 @@ judgeAdress( int type, int ptr, nod_t nod, dict_ptr dict )
         case IS_DEL:
                 dprintf( "---delete()--\n" );
                 found = lookup( dict, ptr );
-                if( !found && ptr)
+                if( !found )
                         printf( "Invalid/Double free %#.7x\n", ptr );
                 delete( dict, ptr );
                 break;
 
         case IS_DELA:
                 dprintf( "---delete[]--\n" );
-                if( !found && ptr)
-                        printf( "Invalid/Double free %#.7x\n", ptr );
+                if( !found )
+                        printf( "Invalid/Double free\n" );
                 delete( dict, ptr );
                 break;
         default:
@@ -343,13 +338,11 @@ parseLine( const char *const text, nod_t * res, unsigned int *type )
                 break;
         case IS_DEL:
                 *type = IS_DEL;
-                if(*file)
-                    memcpy( file, text + 16, FNAME_LEN );
+                memcpy( file, text + 16, FNAME_LEN );
                 break;
         case IS_DELA:
                 *type = IS_DELA;
-                if(*file)
-                    memcpy( file, text + 16, FNAME_LEN );
+                memcpy( file, text + 16, FNAME_LEN );
                 break;
         default:
                 return 0;
