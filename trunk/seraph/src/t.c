@@ -8,7 +8,7 @@ pid_t* child_pid;
 int running =1 ;
 void onSigTerm(int sig)
 {
-    kill(*child_pid,SIGTERM);
+    kill(-*child_pid,SIGTERM);
     running = 0;
     printf("killed[%d]\n", *child_pid);
     if(!*child_pid) {
@@ -27,12 +27,13 @@ void main() {
     if(!pid){
         int p;
         printf("child1\n");
-        p=fork();
-        if(p){*child_pid = p; printf("child2[%d] child_pid[%p] *child_pid[%d]\n", p, child_pid, *child_pid);exit(0);}
         if(setpgid(0,0)) { printf("error\n"); exit(127); }
+        p=fork();
+        if(p){exit(0);}
         execlp("/bin/sleep", "sleep", "100",0);
     }
     else{
+        *child_pid = pid;
         sleep(1);
         signal(SIGTERM,onSigTerm);
     }

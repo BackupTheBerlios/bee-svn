@@ -83,3 +83,7 @@ objs/%.o: %.c
 
 %.lob: %.c
 	$(FLINT)
+
+%.png: %.dot
+	dot -Tpng -o $@ $<
+

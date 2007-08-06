@@ -1,0 +1,74 @@
+digraph example {
+	rankdir=LR;
+	bgcolor="#eeeeff";
+	node [fontname=Arial, fontsize=10];
+	edge [color=red, style=bold, fontsize=9];
+
+	// Actors
+	{
+		node [shape=box, shapefile="Actor.png",
+			color="#ffffaa", label=""]
+		WebUser
+	}
+
+	// System Use Cases
+	subgraph clusterSystem
+	{
+		label="Test Manager"; // Name your system here
+		fillcolor="#ffffdd"; style=filled; color=black; // The system box
+		node [shape=ellipse, style=filled, fillcolor="#ccffcc", color="#558855"]
+
+        ViewLog
+        Login
+        Register
+        AddMachine
+		EditMachine
+		UploadTest
+        RunTests
+        ClearLogs
+        StartManager
+        SetupSUT
+		StartSUT
+		BackupStorage
+        AddDomain
+        AddUsers
+        CopySUTBinary
+        AccessBinary
+	}
+
+	// Uses
+	WebUser -> ViewLog
+    WebUser -> Login
+	WebUser -> Register
+    WebUser -> AddMachine
+	WebUser -> EditMachine
+    WebUser -> UploadTest
+	WebUser -> RunTests
+    WebUser -> ClearLogs
+	WebUser -> StartManager
+    WebUser -> SetupSUT
+
+	// Extensions
+	{
+		edge [label="<<extends>>", dir=back]
+
+	}
+
+	// Inclusions
+	{
+		edge [label="<<includes>>"]
+
+		SetupSUT -> StartSUT
+		SetupSUT -> BackupStorage
+        SetupSUT -> AddDomain
+        SetupSUT -> AddUsers
+        SetupSUT -> CopySUTBinary
+        CopySUTBinary->AccessBinary
+	}
+
+	// Generalizations
+	{
+		edge [arrowsize=1.5, arrowtail=empty, dir=back, constraint=false]
+	}
+}
+
