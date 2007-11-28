@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-g -ggdb3 -Wall -DDEBUG
+CFLAGS=-g -ggdb3 -Wall -DDEBUG -dr
 #OCFLAGS=-march=i686 -mtune=i686 -O9 -finline-functions -funroll-loops -mno-push-args -fomit-frame-pointer -m3dnow -mmmx -minline-all-stringops
 LDFLAGS= -lm
 TARGETS= memtrace test mmtrace mtrace buf gendebug test_ck
